@@ -1,0 +1,30 @@
+{% extends '_base.html' %}
+{% block titre %}Carte des fermes{% endblock %}
+{% block icone %}geo-alt{% endblock %}
+{% block page_sous_titre %}Couleur selon le feu de la bande en cours · gris : pas de bande · cliquez sur un point pour ouvrir la ferme{% endblock %}
+
+{% block contenu %}
+<form class="filters-bar" method="get">
+  <select name="province" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Tout le Gabon</option>
+    {% for p in provinces %}<option value="{{ p.id }}" {% if province == p.id %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+  </select>
+  <span class="legende"><span class="feu feu-petit feu-vert"></span> vert <span class="feu feu-petit feu-orange"></span> orange
+    <span class="feu feu-petit feu-rouge"></span> rouge <span class="feu feu-petit feu-gris"></span> sans bande</span>
+</form>
+{% if carte %}
+<div class="card-p"><div class="card-p-body">
+  <svg class="carte-fermes" viewBox="0 0 {{ carte.largeur }} {{ carte.hauteur }}" role="img" aria-label="Carte des fermes">
+    {% for f in carte.formes %}
+    <g class="carte-province-gabon"><title>{{ f.province.nom }}</title>{% for c in f.chemins %}<path d="{{ c }}"/>{% endfor %}</g>
+    {% endfor %}
+    {% for p in carte.points %}
+    <a href="{{ url_for('fermes.fiche', numero=p.ferme.numero) }}">
+      <circle class="point-ferme point-{{ p.feu }}" cx="{{ p.x }}" cy="{{ p.y }}" r="7"><title>{{ p.ferme.numero }} · {{ p.ferme.nom }}</title></circle>
+    </a>
+    {% endfor %}
+  </svg>
+  <div class="td-sous mt-2">{{ carte.points|length }} ferme{{ 's' if carte.points|length != 1 }} avec une position. Contours : geoBoundaries (SALB, Nations unies), CC BY 3.0 IGO.</div>
+</div></div>
+{% endif %}
+{% endblock %}

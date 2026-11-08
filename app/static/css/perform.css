@@ -616,3 +616,18 @@ a.btn-gros-rouge:hover{color:var(--blanc);filter:brightness(1.08);}
   border:1px solid var(--alerte-bord);color:var(--danger-encre);font-size:.78rem;font-weight:700;}
 .photos-lecture{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.6rem;}
 .photos-lecture img{width:180px;height:140px;object-fit:cover;border-radius:10px;border:1.5px solid var(--bord);}
+
+/* ══ Lot 5 — pilotage : barres, carte des fermes ═════════════════════ */
+.barre-ligne{display:grid;grid-template-columns:minmax(90px,30%) 1fr auto;align-items:center;gap:.6rem;padding:.3rem 0;font-size:.78rem;}
+.barre-libelle{font-weight:700;color:var(--noir);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.barre-ligne .barre{display:block;height:14px;border-radius:7px;background:var(--noir3);min-width:2px;justify-self:start;}
+.barre-ligne .barre.barre-claire{background:var(--b300);}
+.barre-valeur{font-weight:800;color:var(--noir);white-space:nowrap;}
+.carte-fermes{width:100%;max-width:720px;height:auto;display:block;margin:0 auto;}
+.carte-province-gabon path{fill:var(--b050);stroke:var(--noir3);stroke-width:1.2;stroke-linejoin:round;}
+.point-ferme{stroke:var(--blanc);stroke-width:2.5;cursor:pointer;}
+.point-ferme.point-vert{fill:var(--vert);}
+.point-ferme.point-orange{fill:var(--ambre);}
+.point-ferme.point-rouge{fill:var(--rouge);}
+.point-ferme.point-gris{fill:var(--grisb);}
+.mono-champ{font-family:ui-monospace,Consolas,monospace;}

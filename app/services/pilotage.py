@@ -1,0 +1,138 @@
+"""Tableaux de bord, carte des fermes : rassemble les données visibles par
+l'utilisateur. Les calculs restent dans app/indicateurs.py."""
+from datetime import date, timedelta
+
+from app import db, indicateurs
+from app.models import Ferme, Province, Profil, Livraison, LivraisonLigne
+from app.models.bande import Bande, StatutBande
+from app.models.intrant import Produit, StatutLivraison, TYPE_POUSSINS
+from app.services import geo, parametres
+from app.utils.permissions import filtre_perimetre
+
+
+def lire_filtres(args):
+    f = {k: (args.get(k) or '').strip() for k in ('province', 'cohorte', 'statut', 'du', 'au')}
+    for cle in ('du', 'au'):
+        try:
+            f[cle + '_date'] = date.fromisoformat(f[cle]) if f[cle] else None
+        except ValueError:
+            f[cle + '_date'] = None
+    return f
+
+
+def fermes_filtrees(user, f):
+    q = filtre_perimetre(Ferme.query, utilisateur=user)
+    if f.get('province', '').isdigit():
+        q = q.filter(Ferme.province_id == int(f['province']))
+    if f.get('cohorte') in ('1', '2'):
+        q = q.filter(Ferme.cohorte == int(f['cohorte']))
+    if f.get('statut'):
+        q = q.filter(Ferme.statut == f['statut'])
+    return q
+
+
+def bandes_filtrees(user, f):
+    ids = [i for (i,) in fermes_filtrees(user, f).with_entities(Ferme.id)]
+    q = filtre_perimetre(Bande.query, utilisateur=user).filter(Bande.ferme_id.in_(ids))
+    if f.get('au_date'):
+        q = q.filter(Bande.date_mise_en_place <= f['au_date'])
+    if f.get('du_date'):
+        q = q.filter(db.or_(Bande.date_cloture.is_(None), Bande.date_cloture >= f['du_date']))
+    return q
+
+
+def tableau(user, f):
+    fermes = fermes_filtrees(user, f).all()
+    bandes = bandes_filtrees(user, f).all()
+    total = indicateurs.synthese(bandes, f.get('du_date'), f.get('au_date'))
+    total['fermes'] = len(fermes)
+    total['fermes_actives'] = sum(1 for fe in fermes if fe.statut == 'Opérationnelle')
+    par_province = []
+    for p in Province.query.order_by(Province.ordre):
+        bp = [b for b in bandes if b.ferme.province_id == p.id]
+        fp = [fe for fe in fermes if fe.province_id == p.id]
+        if not fp:
+            continue
+        s = indicateurs.synthese(bp, f.get('du_date'), f.get('au_date'))
+        s.update({'province': p, 'fermes': len(fp), 'fermes_actives': sum(1 for fe in fp if fe.statut == 'Opérationnelle')})
+        par_province.append(s)
+    return {'total': total, 'par_province': par_province, 'arrivee': mortalite_arrivee(user, f)}
+
+
+def mortalite_arrivee(user, f):
+    """Taux de poussins morts à l'arrivée, par livraison et par fournisseur."""
+    seuil = float(parametres.obtenir('intrants.seuil_mortalite_arrivee_pct', 2))
+    ids = [i for (i,) in fermes_filtrees(user, f).with_entities(Ferme.id)]
+    q = (LivraisonLigne.query.join(Livraison).join(Produit, LivraisonLigne.produit_id == Produit.id)
+         .filter(Livraison.ferme_id.in_(ids), Livraison.statut.in_(StatutLivraison.CONFIRMEES),
+                 Produit.type == TYPE_POUSSINS))
+    if f.get('du_date'):
+        q = q.filter(Livraison.date_livraison >= f['du_date'])
+    if f.get('au_date'):
+        q = q.filter(Livraison.date_livraison <= f['au_date'])
+    lignes, fournisseurs = [], {}
+    for l in q.order_by(Livraison.date_livraison.desc()).all():
+        taux = indicateurs.mortalite_arrivee(l)
+        lignes.append({'ligne': l, 'taux': taux, 'alerte': taux is not None and taux > seuil})
+        fo = fournisseurs.setdefault(l.livraison.fournisseur or '—', {'fournisseur': l.livraison.fournisseur or '—',
+                                                                      'recus': 0, 'morts': 0, 'livraisons': 0})
+        fo['recus'] += l.quantite_recue or 0
+        fo['morts'] += l.morts_arrivee or 0
+        fo['livraisons'] += 1
+    for fo in fournisseurs.values():
+        fo['taux'] = fo['morts'] / fo['recus'] * 100 if fo['recus'] else None
+    return {'seuil': seuil, 'lignes': lignes, 'fournisseurs': sorted(fournisseurs.values(), key=lambda x: -(x['taux'] or 0))}
+
+
+def alertes_arrivee_recentes(user, jours=30):
+    """Livraisons de poussins des 30 derniers jours au-delà du seuil (alerte DGE)."""
+    f = {'du_date': date.today() - timedelta(days=jours)}
+    return [x for x in mortalite_arrivee(user, f)['lignes'] if x['alerte']]
+
+
+# ── Carte des fermes ────────────────────────────────────────────────────
+
+def feu_de_la_ferme(ferme):
+    """Le feu le plus grave des bandes en cours de la ferme ; gris sans bande."""
+    ordre = {'rouge': 3, 'orange': 2, 'vert': 1, 'gris': 0}
+    pire = 'gris'
+    for b in Bande.query.filter_by(ferme_id=ferme.id, statut=StatutBande.EN_COURS):
+        c = indicateurs.feu(b)[0]
+        if ordre[c] > ordre[pire]:
+            pire = c
+    return pire
+
+
+def carte(user, province_id=None, largeur=640, hauteur=560, marge=12):
+    contours = geo.contours()
+    provinces = {p.code: p for p in Province.query}
+    codes = [p.code for p in provinces.values() if province_id is None or p.id == province_id]
+    fermes = filtre_perimetre(Ferme.query, utilisateur=user)
+    if province_id:
+        fermes = fermes.filter(Ferme.province_id == province_id)
+    fermes = [fe for fe in fermes.all() if fe.a_une_position]
+    xs = [pt[0] for c in codes for a in contours.get(c, []) for pt in a]
+    ys = [pt[1] for c in codes for a in contours.get(c, []) for pt in a]
+    if not xs:
+        return None
+    x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+    echelle = min((largeur - 2 * marge) / (x1 - x0), (hauteur - 2 * marge) / (y1 - y0))
+    dx = (largeur - (x1 - x0) * echelle) / 2
+    dy = (hauteur - (y1 - y0) * echelle) / 2
+
+    def proj(x, y):
+        return round(dx + (x - x0) * echelle, 1), round(dy + (y1 - y) * echelle, 1)
+
+    formes = []
+    for c in codes:
+        chemins = ['M' + ' L'.join(f'{a},{b}' for a, b in (proj(x, y) for x, y in anneau)) + ' Z'
+                   for anneau in contours.get(c, [])]
+        formes.append({'province': provinces[c], 'chemins': chemins})
+    points = []
+    for fe in fermes:
+        x, y = proj(fe.longitude, fe.latitude)
+        if -20 <= x <= largeur + 20 and -20 <= y <= hauteur + 20:
+            points.append({'ferme': fe, 'x': x, 'y': y, 'feu': feu_de_la_ferme(fe)})
+    # Le plus grave dessiné en dernier : il reste visible quand deux fermes se superposent
+    points.sort(key=lambda p: ('gris', 'vert', 'orange', 'rouge').index(p['feu']))
+    return {'largeur': largeur, 'hauteur': hauteur, 'formes': formes, 'points': points}

@@ -60,6 +60,10 @@ PARAMETRES_DEFAUT = [
      'Un vaccin non fait à la date prévue + ce nombre de jours est signalé « en retard ».'),
     ('sante.calendrier_valide', 'non', TypeParametre.BOOLEEN,
      'Calendrier vaccinal validé par les services vétérinaires (oui / non).'),
+] + [
+    # Lot 5 — tableaux de bord
+    ('intrants.seuil_mortalite_arrivee_pct', '2', TypeParametre.DECIMAL,
+     'Alerte DGE : poussins morts à l\'arrivée au-delà de ce % d\'une livraison, à valider par les vétérinaires.'),
 ]
 
 

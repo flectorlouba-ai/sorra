@@ -28,15 +28,17 @@ MODULES = [
         ('Listes', 'Valeurs des listes', 'list-ul', 'listes.index', {A}),
         ('Paramètres', 'Seuils et durées', 'sliders', 'parametres.index', {A}),
         ('Catalogue des intrants', 'Produits, unités, sacs', 'box-seam', 'catalogue.index', {A}),
+        ('Formules des indicateurs', 'Mortalité, GMQ, IC…', 'calculator', 'pilotage.formules', {A}),
     ]},
     {'code': 'fermes', 'titre': 'Fermes et élevage', 'icone': 'egg', 'option': False, 'tuiles': [
-        ('Indicateurs d\'élevage', 'Mortalité, croissance, aliment', 'graph-up', None, None),
         ('Fermes', 'Fiches, bâtiments, GPS', 'house-door', 'fermes.liste',
          {A, D, Profil.AGENT, Profil.VETO}),
         ('Bandes', 'Du poussin à la sortie', 'collection', 'bandes.liste',
          {A, D, Profil.AGENT, Profil.VETO}),
         ('Intrants', 'Poussins, aliment, vaccins', 'box-seam', 'livraisons.liste',
          {A, D, Profil.AGENT}),
+        ("Indicateurs d'élevage", 'Mortalité, croissance, aliment', 'graph-up', 'pilotage.tableau',
+         {A, D, Profil.AGENT, Profil.VETO}),
     ]},
     {'code': 'sante', 'titre': 'Santé animale', 'icone': 'heart-pulse', 'option': False, 'tuiles': [
         ('Alertes sanitaires', 'Mortalité anormale', 'exclamation-triangle', 'sante.alertes',
@@ -59,9 +61,9 @@ MODULES = [
         ('Coût de production', 'Par kg vif', 'calculator', None, None),
     ]},
     {'code': 'pilotage', 'titre': 'Pilotage', 'icone': 'speedometer2', 'option': False, 'tuiles': [
-        ('Tableau de bord national', 'Provinces et programme', 'bar-chart-line', None, None),
-        ('Carte des fermes', 'Couleur selon l\'état', 'geo-alt', None, None),
-        ('Rapports', 'Hebdomadaires et mensuels', 'file-earmark-text', None, None),
+        ('Tableau de bord national', 'Provinces et programme', 'bar-chart-line', 'pilotage.tableau', {A, D}),
+        ('Carte des fermes', 'Couleur selon l\'état', 'geo-alt', 'pilotage.carte', {A, D}),
+        ('Rapports', 'Hebdomadaires et mensuels', 'file-earmark-text', 'pilotage.rapports', {A, D}),
         ('Classement des fermes', 'Bonnes pratiques', 'trophy', None, None),
     ]},
     {'code': 'maintenance', 'titre': 'Maintenance', 'icone': 'tools', 'option': True, 'tuiles': [
@@ -160,6 +162,13 @@ def _alertes(user):
             resultat.append({'texte': f'{a.numero} · {a.libelle_origine} · {a.libelle_statut}',
                              'lien': url_for('sante.alerte', numero=a.numero), 'nombre': 1,
                              'niveau': 'urgence', 'meta': f'{a.ferme.nom} · alerte sanitaire'})
+    if user.profil == Profil.DGE:
+        from app.services import pilotage
+        n = len(pilotage.alertes_arrivee_recentes(user))
+        if n:
+            resultat.append({'texte': f'{n} livraison{"s" if n > 1 else ""} de poussins au-delà du seuil de '
+                                      f'mortalité à l\'arrivée', 'lien': url_for('pilotage.tableau') + '#arrivee',
+                             'nombre': n, 'niveau': 'warning', 'meta': 'Poussins · 30 derniers jours'})
     if user.profil in (Profil.VETO, Profil.AGENT):
         for b, retards in sante.vaccins_en_retard(filtre_perimetre(Bande.query)):
             resultat.append({'texte': f'{b.numero} · vaccin en retard : {retards[0]["calendrier"].produit.nom}',

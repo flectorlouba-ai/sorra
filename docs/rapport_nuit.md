@@ -248,3 +248,91 @@ Construit exactement ce qui avait été proposé à l'étape 1, avec vos choix :
 - **L'agent technique doit-il voir les déclarations de ses fermes ?** (aujourd'hui : non)
 - Calendrier vaccinal de départ et délai « en retard » (2 jours) : à valider par les vétérinaires.
 - Sauvegarde du dossier des photos au déploiement.
+
+---
+
+## Lot 5 — Tableaux de bord, carte, rapports
+
+**État : terminé.** Commit « Lot 5 : tableaux de bord, carte et rapports ». **215 tests réussis** et 1 réservé à PostgreSQL (un test de vaccins a échoué une fois parce que minuit est passé pendant la suite ; relancé seul, il passe) ; 8 tests nouveaux dans `tests/test_pilotage.py`. Migration **0007** (un seul paramètre).
+
+**Bibliothèque ajoutée : `reportlab` 5.1.0** (libre, licence BSD, sans service extérieur) pour les PDF. Notée dans `requirements.txt` ; elle s'installera au prochain déploiement.
+
+### Ce qui a été fait
+
+**A. Comparaison avec la province** (éleveur) : dans « Ma bande aujourd'hui », la phrase d'encouragement devient, quand la province compte **au moins 3 bandes en cours** :
+- « Votre mortalité (0,8 %) est meilleure que la moyenne de l'Estuaire (1,4 %) » si elle est plus de 10 % sous la moyenne ;
+- « Votre mortalité est dans la moyenne du Haut-Ogooué (1,2 %) » si elle est à ± 10 % ;
+- **rien** si elle est au-dessus : on ne décourage pas l'éleveur (l'agent voit le feu).
+
+**B. Tableaux de bord** (un seul écran, deux tuiles) :
+- tuile **« Indicateurs d'élevage »** (onglet Fermes et élevage) : ADMIN, DGE, AGENT (ses fermes), VETO (sa province) ;
+- tuile **« Tableau de bord national »** (onglet Pilotage) : ADMIN et DGE ;
+- filtres : province, cohorte, statut de ferme, période (du… au…) ;
+- 8 cartes chiffrées : fermes actives, bandes en cours (avec les feux), poulets présents, mortalité moyenne, poids vif produit, poulets sortis, aliment, régularité des saisies (+ nombre d'alertes sanitaires en cours) ;
+- pour ADMIN et DGE : barres « Mortalité par province » et « Poulets présents par province », puis le tableau par province ;
+- graphiques dessinés sur place (pas de bibliothèque, pas d'Internet).
+
+**C. Carte des fermes** (ADMIN, DGE) : contours des 9 provinces (fichier local déjà utilisé sur la fiche ferme), un point par ferme qui a une position GPS, couleur du feu le plus grave de ses bandes en cours (gris : pas de bande). Filtre province. Un clic sur un point ouvre la fiche de la ferme. Quand deux fermes se superposent, la plus grave reste visible.
+
+**D. Rapports PDF** (aux couleurs de la charte), tuile **« Rapports »** (ADMIN, DGE) :
+- **hebdomadaire** (7 derniers jours), national ou d'une province ;
+- **mensuel national** (mois au choix) ;
+- **fin de bande** : bouton « Rapport PDF » sur le bilan de chaque bande clôturée (aussi pour l'agent et le VETO de la bande).
+- Contenu : chiffres clés, tableau par province, mortalité à l'arrivée par fournisseur, nombre d'alertes sanitaires confirmées.
+- **L'envoi automatique programmé (courriel) viendra dans un lot ultérieur.**
+
+**E. Exports Excel et CSV** : liens discrets « Excel · CSV » en haut des listes Fermes, Intrants (livraisons) et Bandes.
+- Chacun ne contient que le périmètre de la personne (agent : ses fermes ; VETO : sa province).
+- Livraisons : ADMIN, DGE, AGENT (le VETO n'a pas accès aux intrants).
+- Chaque export est **inscrit au journal** (« Export », nombre de lignes). Les rapports PDF aussi.
+- CSV au séparateur « ; » avec accents lisibles par Excel.
+
+**F. Mortalité à l'arrivée des poussins** : taux par livraison et par fournisseur, en bas du tableau de bord. Au-dessus du **seuil de 2 %** (paramètre « à valider par les vétérinaires »), la ligne est en rouge et **la DGE reçoit une alerte** dans son encadré (livraisons des 30 derniers jours).
+
+**G. Formules des indicateurs** (ADMIN) : tuile « Formules des indicateurs » dans Configuration.
+- 8 formules : effectif présent, mortalité, viabilité, GMQ, poids vif produit, indice de consommation, régularité, mortalité du jour.
+- Moteur sûr : seulement + − × ÷, parenthèses, nombres et les variables listées (aucune exécution de code). Une division par zéro donne « pas de résultat ».
+- « Tester la formule » calcule sur un exemple sans rien enregistrer ; « Enregistrer » ; « Revenir à la formule d'origine » (affiché seulement si la formule a changé).
+- Chaque changement est inscrit au journal (table des paramètres). Une formule refusée n'est jamais enregistrée ; si une formule enregistrée devenait invalide, le calcul reprend la formule d'origine.
+
+### Écrans et chemins de clics
+
+| Écran | Chemin |
+|---|---|
+| Indicateurs d'élevage (agent, VETO) | onglet Fermes et élevage → Indicateurs d'élevage (1 clic) |
+| Tableau de bord national | onglet Pilotage → Tableau de bord national (1 clic) ; filtres en haut |
+| Carte des fermes | onglet Pilotage → Carte des fermes → clic sur un point → fiche ferme |
+| Rapports | onglet Pilotage → Rapports → « Télécharger le PDF » (2 clics) |
+| Rapport de fin de bande | Bandes → la bande clôturée → Bilan → « Rapport PDF » |
+| Exports | Fermes / Intrants / Bandes → lien « Excel » ou « CSV » en haut de la liste |
+| Formules | onglet Configuration → Formules des indicateurs → modifier → « Tester la formule » → « Enregistrer » |
+| Alerte mortalité à l'arrivée (DGE) | encadré Alertes de l'accueil → lien vers le tableau de bord, partie « Mortalité à l'arrivée » |
+
+### Décisions prises cette nuit (lot 5)
+
+1. **Un seul écran de tableau de bord** pour tous ; le contenu suit le périmètre. Les deux tuiles demandées y mènent.
+2. **Comparaison avec la province** : uniquement si elle est favorable ou neutre (cohérent avec « encourager l'éleveur »). Seuil « dans la moyenne » = ± 10 %.
+3. **Moyenne de province** = mortalité des bandes en cours, pondérée par le nombre de poussins mis en place.
+4. **Carte** : réservée à ADMIN et DGE (comme demandé) ; points gris pour les fermes sans bande.
+5. **Rapport hebdomadaire** = 7 derniers jours glissants (aujourd'hui compris).
+6. **Exports de livraisons** non ouverts au VETO (cohérent avec l'accueil : pas d'intrants pour lui).
+7. **Formules** rangées comme paramètres (`formule.<nom>`), cachées de l'écran Paramètres pour ne pas les modifier sans le test.
+8. **Tuile « Indicateurs d'élevage »** placée après Fermes, Bandes et Intrants, pour garder « Fermes » comme tuile principale.
+
+### Tests que vous ferez demain (lot 5)
+
+1. **dge** : onglet Pilotage → Tableau de bord national → changez la province, la cohorte et les dates. Les chiffres suivent.
+2. **agent.est** : Indicateurs d'élevage. Seules ses fermes sont comptées, pas de barres par province.
+3. **Carte** (dge) : les points sont aux bons endroits ; un clic ouvre la ferme ; filtrez sur Haut-Ogooué.
+4. **Rapports** : téléchargez l'hebdomadaire national, celui d'une province et le mensuel ; ouvrez-les sur téléphone et sur ordinateur.
+5. **Fin de bande** : clôturez une bande, puis Bilan → « Rapport PDF ».
+6. **Exports** : liste des fermes → Excel ; ouvrez le fichier. En **admin**, Journal des opérations : la ligne « Export » est là.
+7. **Mortalité à l'arrivée** : confirmez une livraison de 1 000 poussins avec 30 morts. En **dge**, l'encadré Alertes l'annonce.
+8. **Formules** (admin) : mortalité → écrivez `morts_cumules / mis_en_place * 100 + 1` → « Tester la formule » (résultat affiché, rien n'est changé) ; essayez `open(1)` (refusé) ; enregistrez puis « Revenir à la formule d'origine ».
+
+### Points à valider (lot 5)
+
+- Seuil de 2 % de mortalité à l'arrivée : à valider par les vétérinaires.
+- La comparaison « seulement si favorable » vous convient-elle ?
+- Liste et ordre des chiffres du rapport PDF (je peux ajouter des graphiques au PDF).
+- Envoi automatique des rapports (courriel) : à prévoir dans un lot ultérieur, avec un serveur de courriel.

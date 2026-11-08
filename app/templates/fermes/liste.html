@@ -52,6 +52,7 @@
   </table>
 </div></div>
 
+<div class="lien-discret"><i class="bi bi-download"></i> Exporter : <a href="{{ url_for('pilotage.exporter', quoi='fermes', format='xlsx') }}">Excel</a> · <a href="{{ url_for('pilotage.exporter', quoi='fermes', format='csv') }}">CSV</a></div>
 {% if a_profil('ADMIN') %}
 <div class="lien-discret"><a href="{{ url_for('fermes.import_page') }}"><i class="bi bi-file-earmark-spreadsheet"></i> Importer la liste POUFA (Excel)</a></div>
 {% endif %}

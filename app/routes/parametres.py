@@ -13,7 +13,8 @@ parametres_bp = Blueprint('parametres', __name__)
 @profil_requis(Profil.ADMIN)
 def index():
     return render_template('administration/parametres.html',
-                           parametres=Parametre.query.order_by(Parametre.cle).all())
+                           parametres=Parametre.query.filter(~Parametre.cle.like('formule.%'))
+                           .order_by(Parametre.cle).all())
 
 
 @parametres_bp.route('/<int:param_id>/modifier', methods=['POST'])

@@ -329,3 +329,86 @@ def bilan(bande):
         'partiels': bande.rattrapage,
         'sorties_par_destinataire': list(par_destinataire.values()),
     }
+
+
+# ── Comparaisons et tableaux de bord (lot 5) ────────────────────────────
+
+MIN_BANDES_COMPARAISON = 3
+
+
+def moyenne_mortalite_province(province_id, jour=None):
+    """Mortalité moyenne des bandes en cours de la province (pondérée par les mises en place),
+    ou None s'il y a moins de 3 bandes en cours."""
+    from app.models.bande import Bande, StatutBande
+    from app.models.ferme import Ferme
+    bandes = (Bande.query.join(Ferme, Bande.ferme_id == Ferme.id)
+              .filter(Ferme.province_id == province_id, Bande.statut == StatutBande.EN_COURS).all())
+    if len(bandes) < MIN_BANDES_COMPARAISON:
+        return None
+    morts = mis = 0
+    for b in bandes:
+        v = calculer(b, jour)
+        morts += v['morts_cumules']
+        mis += v['mis_en_place']
+    return morts / mis * 100 if mis else None
+
+
+def comparaison_province(bande, valeurs):
+    """Phrase qui encourage : seulement si l'éleveur fait mieux que la moyenne ou s'y trouve."""
+    moyenne = moyenne_mortalite_province(bande.ferme.province_id)
+    m = valeurs.get('mortalite')
+    if moyenne is None or m is None:
+        return None
+    nom = de_la_province(bande.ferme.province.nom)
+    if m < moyenne * 0.9:
+        return f'Votre mortalité ({arrondi(m, 1)} %) est meilleure que la moyenne {nom} ({arrondi(moyenne, 1)} %)'
+    if m <= moyenne * 1.1:
+        return f'Votre mortalité est dans la moyenne {nom} ({arrondi(moyenne, 1)} %)'
+    return None
+
+
+_ARTICLES = {'Estuaire': "de l'", 'Haut-Ogooué': 'du ', 'Moyen-Ogooué': 'du ', 'Ngounié': 'de la ',
+             'Nyanga': 'de la ', 'Ogooué-Ivindo': "de l'", 'Ogooué-Lolo': "de l'",
+             'Ogooué-Maritime': "de l'", 'Woleu-Ntem': 'du '}
+
+
+def de_la_province(nom):
+    """« de l'Estuaire », « du Haut-Ogooué », « de la Ngounié »."""
+    return _ARTICLES.get(nom, 'de ') + nom
+
+
+def mortalite_arrivee(ligne):
+    """% de poussins morts à l'arrivée sur une ligne de livraison confirmée."""
+    if not ligne.quantite_recue:
+        return None
+    return (ligne.morts_arrivee or 0) / ligne.quantite_recue * 100
+
+
+def synthese(bandes, du=None, au=None):
+    """Chiffres agrégés d'un ensemble de bandes ; sorties et aliment comptés sur la période."""
+    from app.models.bande import StatutBande
+    s = {'bandes_en_cours': 0, 'effectifs_presents': 0, 'mis_en_place': 0, 'morts': 0, 'poids_vif_kg': 0.0,
+         'sortis_tetes': 0, 'sortis_kg': 0.0, 'aliment_kg': 0.0, 'regularites': [], 'feux': {'vert': 0, 'orange': 0, 'rouge': 0}}
+    for b in bandes:
+        v = calculer(b)
+        if b.statut == StatutBande.EN_COURS:
+            s['bandes_en_cours'] += 1
+            s['effectifs_presents'] += v['effectif_present']
+            if v['regularite'] is not None:
+                s['regularites'].append(v['regularite'])
+            couleur = feu(b, valeurs=v)[0]
+            if couleur in s['feux']:
+                s['feux'][couleur] += 1
+        s['mis_en_place'] += v['mis_en_place']
+        s['morts'] += v['morts_cumules']
+        s['poids_vif_kg'] += v['poids_vif_produit'] or 0
+        for o in b.sorties:
+            if (du is None or o.date >= du) and (au is None or o.date <= au):
+                s['sortis_tetes'] += o.nombre
+                s['sortis_kg'] += o.poids_total_kg
+        for j in b.saisies:
+            if (du is None or j.date >= du) and (au is None or j.date <= au):
+                s['aliment_kg'] += j.kg
+    s['mortalite'] = s['morts'] / s['mis_en_place'] * 100 if s['mis_en_place'] else None
+    s['regularite'] = sum(s['regularites']) / len(s['regularites']) if s['regularites'] else None
+    return s

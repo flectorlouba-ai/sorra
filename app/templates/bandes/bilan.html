@@ -6,7 +6,8 @@
 {% block page_sous_titre %}{{ bande.ferme.nom }} · Bâtiment {{ bande.batiment.code }} · du {{ bande.date_mise_en_place.strftime('%d/%m/%Y') }} au {{ bande.date_cloture.strftime('%d/%m/%Y') }} ({{ b.duree_jours }} jour{{ 's' if b.duree_jours > 1 }}){% if bande.cloturant %} · clôturée par {{ bande.cloturant.nom_complet }}{% endif %}{% endblock %}
 
 {% block actions %}
-{% if current_user.profil.value != 'ELEVEUR' %}<a href="{{ url_for('bandes.fiche', numero=bande.numero) }}" class="btn-ghost"><i class="bi bi-arrow-left"></i> Fiche de la bande</a>{% endif %}
+{% if current_user.profil.value != 'ELEVEUR' %}<a href="{{ url_for('bandes.fiche', numero=bande.numero) }}" class="btn-ghost"><i class="bi bi-arrow-left"></i> Fiche de la bande</a>
+<a href="{{ url_for('pilotage.rapport_bande', numero=bande.numero) }}" class="btn-new"><i class="bi bi-file-earmark-pdf"></i> Rapport PDF</a>{% endif %}
 {% endblock %}
 
 {% block contenu %}

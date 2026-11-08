@@ -1,0 +1,31 @@
+{% extends '_base.html' %}
+{% block titre %}Rapports{% endblock %}
+{% block icone %}file-earmark-text{% endblock %}
+{% block page_sous_titre %}Rapports PDF générés à la demande{% endblock %}
+
+{% block contenu %}
+<div class="row g-3">
+  <div class="col-lg-6"><div class="card-p h-100">
+    <div class="card-p-head"><span class="card-p-title"><i class="bi bi-calendar-week"></i> Rapport hebdomadaire</span></div>
+    <div class="card-p-body">
+      <p class="texte-aide">Les 7 derniers jours : fermes, bandes, mortalité, sorties, aliment, mortalité à l'arrivée, alertes.</p>
+      <form method="get" action="{{ url_for('pilotage.rapport_hebdo') }}" class="form-terrain">
+        <select class="form-control" name="province">
+          <option value="">National</option>
+          {% for p in provinces %}<option value="{{ p.id }}">{{ p.nom }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="btn-new"><i class="bi bi-file-earmark-pdf"></i> Télécharger le PDF</button>
+      </form>
+    </div></div></div>
+  <div class="col-lg-6"><div class="card-p h-100">
+    <div class="card-p-head"><span class="card-p-title"><i class="bi bi-calendar-month"></i> Rapport mensuel national</span></div>
+    <div class="card-p-body">
+      <p class="texte-aide">Un mois complet, toutes les provinces.</p>
+      <form method="get" action="{{ url_for('pilotage.rapport_mensuel') }}" class="form-terrain">
+        <input class="form-control" type="month" name="mois" value="{{ mois }}">
+        <button type="submit" class="btn-ghost"><i class="bi bi-file-earmark-pdf"></i> Télécharger le PDF</button>
+      </form>
+    </div></div></div>
+</div>
+<div class="empty-note mt-3">Le rapport de fin de bande se télécharge depuis le bilan de chaque bande clôturée. L'envoi automatique programmé des rapports viendra dans un lot ultérieur.</div>
+{% endblock %}

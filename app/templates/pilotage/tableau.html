@@ -1,0 +1,83 @@
+{% extends '_base.html' %}
+{% block titre %}{{ 'Tableau de bord national' if national else "Indicateurs d'élevage" }}{% endblock %}
+{% block icone %}bar-chart-line{% endblock %}
+{% block page_sous_titre %}{% if f.du_date or f.au_date %}Période : {{ f.du_date.strftime('%d/%m/%Y') if f.du_date else '…' }} → {{ f.au_date.strftime('%d/%m/%Y') if f.au_date else "aujourd'hui" }}{% else %}Toute la période{% endif %} · données de votre périmètre{% endblock %}
+
+{% block contenu %}
+<form class="filters-bar" method="get">
+  {% if provinces|length > 1 %}
+  <select name="province" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Toutes les provinces</option>
+    {% for p in provinces %}<option value="{{ p.id }}" {% if f.province == p.id|string %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+  </select>
+  {% endif %}
+  <select name="cohorte" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Toutes les cohortes</option>
+    <option value="1" {% if f.cohorte == '1' %}selected{% endif %}>Cohorte 1</option>
+    <option value="2" {% if f.cohorte == '2' %}selected{% endif %}>Cohorte 2</option>
+  </select>
+  <select name="statut" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Tous les statuts de ferme</option>
+    {% for s in statuts %}<option value="{{ s }}" {% if f.statut == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+  </select>
+  <span class="filter-label">Du</span><input type="date" name="du" class="filter-date" value="{{ f.du }}">
+  <span class="filter-label">Au</span><input type="date" name="au" class="filter-date" value="{{ f.au }}">
+  <button type="submit" class="btn-filter"><i class="bi bi-funnel"></i></button>
+</form>
+
+{% set t = d.total %}
+<div class="cartes-chiffres">
+  <div class="carte-chiffre"><div class="cc-libelle">Fermes actives</div><div class="cc-valeur">{{ t.fermes_actives }}</div><div class="cc-sous">sur {{ t.fermes }} fermes</div></div>
+  <div class="carte-chiffre"><div class="cc-libelle">Bandes en cours</div><div class="cc-valeur">{{ t.bandes_en_cours }}</div>
+    <div class="cc-sous"><span class="feu feu-petit feu-rouge"></span> {{ t.feux.rouge }} · <span class="feu feu-petit feu-orange"></span> {{ t.feux.orange }} · <span class="feu feu-petit feu-vert"></span> {{ t.feux.vert }}</div></div>
+  <div class="carte-chiffre"><div class="cc-libelle">Poulets présents</div><div class="cc-valeur">{{ t.effectifs_presents|qte }}</div><div class="cc-sous">{{ t.mis_en_place|qte }} mis en place</div></div>
+  <div class="carte-chiffre"><div class="cc-libelle">Mortalité moyenne</div><div class="cc-valeur">{{ t.mortalite|round(2)|qte if t.mortalite is not none else '—' }} %</div><div class="cc-sous">{{ t.morts|qte }} morts</div></div>
+  <div class="carte-chiffre"><div class="cc-libelle">Poids vif produit</div><div class="cc-valeur">{{ (t.poids_vif_kg / 1000)|round(2)|qte }} t</div><div class="cc-sous">{{ t.poids_vif_kg|round|qte }} kg</div></div>
+  <div class="carte-chiffre"><div class="cc-libelle">Poulets sortis</div><div class="cc-valeur">{{ t.sortis_tetes|qte }}</div><div class="cc-sous">{{ t.sortis_kg|round|qte }} kg · {{ (t.sortis_kg / 1000)|round(2)|qte }} t</div></div>
+  <div class="carte-chiffre"><div class="cc-libelle">Aliment consommé</div><div class="cc-valeur">{{ (t.aliment_kg / 1000)|round(2)|qte }} t</div><div class="cc-sous">{{ t.aliment_kg|round|qte }} kg</div></div>
+  <div class="carte-chiffre"><div class="cc-libelle">Régularité des saisies</div><div class="cc-valeur">{{ t.regularite|round|qte if t.regularite is not none else '—' }} %</div><div class="cc-sous">{{ alertes }} alerte{{ 's' if alertes != 1 }} sanitaire{{ 's' if alertes != 1 }} en cours</div></div>
+</div>
+
+{% if d.par_province and (national or d.par_province|length > 1) %}
+<div class="row g-3">
+  <div class="col-lg-6"><div class="card-p h-100">
+    <div class="card-p-head"><span class="card-p-title"><i class="bi bi-bar-chart"></i> Mortalité par province</span></div>
+    <div class="card-p-body">{% for b in barres_mortalite %}
+      <div class="barre-ligne"><span class="barre-libelle">{{ b.libelle }}</span><span class="barre" style="width:{{ b.largeur }}%"></span><span class="barre-valeur">{{ b.valeur|round(2)|qte if b.valeur is not none else '—' }}{{ b.unite }}</span></div>
+    {% endfor %}</div></div></div>
+  <div class="col-lg-6"><div class="card-p h-100">
+    <div class="card-p-head"><span class="card-p-title"><i class="bi bi-bar-chart"></i> Poulets présents par province</span></div>
+    <div class="card-p-body">{% for b in barres_presents %}
+      <div class="barre-ligne"><span class="barre-libelle">{{ b.libelle }}</span><span class="barre barre-claire" style="width:{{ b.largeur }}%"></span><span class="barre-valeur">{{ b.valeur|qte }}</span></div>
+    {% endfor %}</div></div></div>
+</div>
+
+<div class="table-wrap mt-3"><div class="table-scroll"><table>
+  <thead><tr><th>Province</th><th>Fermes actives</th><th>Bandes</th><th>Présents</th><th>Mortalité</th><th>Sortis (t)</th><th>Aliment (t)</th><th>Régularité</th><th>Feux rouges</th></tr></thead>
+  <tbody>{% for p in d.par_province %}
+    <tr><td><strong>{{ p.province.nom }}</strong></td><td>{{ p.fermes_actives }} / {{ p.fermes }}</td><td>{{ p.bandes_en_cours }}</td><td>{{ p.effectifs_presents|qte }}</td>
+      <td>{{ p.mortalite|round(2)|qte if p.mortalite is not none else '—' }} %</td><td>{{ (p.sortis_kg / 1000)|round(2)|qte }}</td><td>{{ (p.aliment_kg / 1000)|round(2)|qte }}</td>
+      <td>{{ p.regularite|round|qte if p.regularite is not none else '—' }} %</td><td>{{ p.feux.rouge }}</td></tr>
+  {% endfor %}</tbody>
+</table></div></div>
+{% endif %}
+
+<div class="card-p mt-3" id="arrivee">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-egg"></i> Mortalité à l'arrivée des poussins (seuil {{ d.arrivee.seuil|qte }} %)</span></div>
+  <div class="row g-0">
+    <div class="col-lg-5"><div class="table-scroll"><table>
+      <thead><tr><th>Fournisseur</th><th>Livraisons</th><th>Taux</th></tr></thead>
+      <tbody>{% for fo in d.arrivee.fournisseurs %}
+        <tr><td>{{ fo.fournisseur }}</td><td>{{ fo.livraisons }}</td><td>{% if fo.taux is not none and fo.taux > d.arrivee.seuil %}<span class="ecart">{{ fo.taux|round(2)|qte }} %</span>{% else %}{{ fo.taux|round(2)|qte if fo.taux is not none else '—' }} %{% endif %}</td></tr>
+      {% else %}<tr><td colspan="3" class="table-vide">Aucune livraison de poussins confirmée.</td></tr>{% endfor %}</tbody>
+    </table></div></div>
+    <div class="col-lg-7"><div class="table-scroll"><table>
+      <thead><tr><th>Livraison</th><th>Ferme</th><th>Reçus</th><th>Morts</th><th>Taux</th></tr></thead>
+      <tbody>{% for x in d.arrivee.lignes[:20] %}
+        <tr><td class="td-num">{{ x.ligne.livraison.numero }}</td><td>{{ x.ligne.livraison.ferme.nom }}</td><td>{{ x.ligne.quantite_recue|qte }}</td><td>{{ (x.ligne.morts_arrivee or 0)|qte }}</td>
+          <td>{% if x.alerte %}<span class="badge badge-danger">{{ x.taux|round(2)|qte }} %</span>{% else %}{{ x.taux|round(2)|qte if x.taux is not none else '—' }} %{% endif %}</td></tr>
+      {% else %}<tr><td colspan="5" class="table-vide">—</td></tr>{% endfor %}</tbody>
+    </table></div></div>
+  </div>
+</div>
+{% endblock %}

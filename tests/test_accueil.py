@@ -30,10 +30,11 @@ def test_admin_tous_les_onglets(client, app):
                              'maintenance', 'qhse', 'comptabilite']
     assert tuiles_disponibles(page) == ['Journal des opérations', 'Utilisateurs',
                                         'Provinces et localités', 'Listes', 'Paramètres',
-                                        'Catalogue des intrants', 'Fermes', 'Bandes', 'Intrants',
+                                        'Catalogue des intrants', 'Formules des indicateurs',
+                                        'Fermes', 'Bandes', 'Intrants', 'Indicateurs d&#39;élevage',
                                         'Alertes sanitaires', 'Déclarations', 'Vaccins et traitements',
-                                        'Opérateurs']
-    assert page.count('tuile-etiquette">Bientôt') == 13
+                                        'Opérateurs', 'Tableau de bord national', 'Carte des fermes', 'Rapports']
+    assert page.count('tuile-etiquette">Bientôt') == 9
     assert page.count('tuile-etiquette">Option') == 12
     assert '« Lots et QR codes » arrive bientôt : de la ferme au consommateur.' in page
     assert 'Catalogue des intrants' in page
@@ -46,21 +47,24 @@ def test_dge_sans_configuration(client, app):
     page = accueil(client, 'dge', Profil.DGE, ())
     assert onglets(page)[0] == 'fermes' and 'config' not in onglets(page)
     assert len(onglets(page)) == 8
-    assert tuiles_disponibles(page) == ['Fermes', 'Bandes', 'Intrants', 'Alertes sanitaires', 'Opérateurs']
+    assert tuiles_disponibles(page) == ['Fermes', 'Bandes', 'Intrants', 'Indicateurs d&#39;élevage',
+                                        'Alertes sanitaires', 'Opérateurs', 'Tableau de bord national',
+                                        'Carte des fermes', 'Rapports']
 
 
 def test_agent(client, app):
     page = accueil(client, 'agent', Profil.AGENT)
     assert onglets(page) == ['fermes', 'sante', 'tracabilite']
-    assert tuiles_disponibles(page) == ['Fermes', 'Bandes', 'Intrants', 'Vaccins et traitements', 'Opérateurs']
+    assert tuiles_disponibles(page) == ['Fermes', 'Bandes', 'Intrants', 'Indicateurs d&#39;élevage',
+                                        'Vaccins et traitements', 'Opérateurs']
     assert 'Bandes' in page and 'Lots et QR codes' in page
 
 
 def test_veto(client, app):
     page = accueil(client, 'veto', Profil.VETO)
     assert onglets(page) == ['fermes', 'sante']
-    assert tuiles_disponibles(page) == ['Fermes', 'Bandes', 'Alertes sanitaires', 'Déclarations',
-                                        'Vaccins et traitements']
+    assert tuiles_disponibles(page) == ['Fermes', 'Bandes', 'Indicateurs d&#39;élevage', 'Alertes sanitaires',
+                                        'Déclarations', 'Vaccins et traitements']
     assert 'Intrants' not in page   # Fermes et élevage : Fermes et Bandes, en lecture
     assert 'Déclarations' in page
 

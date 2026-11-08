@@ -73,7 +73,8 @@ def contexte_bloc(bande):
                    + [{'texte': t['texte'], 'lien': url_for('sante.vacciner', numero=bande.numero,
                                                             calendrier=t['calendrier']) if t['calendrier'] else None}
                       for t in sante.a_faire(bande)],
-        'encouragement': indicateurs.encouragement(bande, v, regles.precedente(bande)),
+        'encouragement': (indicateurs.comparaison_province(bande, v)
+                          or indicateurs.encouragement(bande, v, regles.precedente(bande))),
         'aliments': aliments, 'stock': stock,
         'deja': indicateurs.saisie_du(bande, date.today()),
         'historique': list(reversed(bande.saisies[-7:])),
