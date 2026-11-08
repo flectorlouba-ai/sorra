@@ -365,6 +365,8 @@ def sortie(numero):
             db.session.commit()
             reste = indicateurs.calculer(bande)['effectif_present']
             flash(f'Sortie enregistrée. Il reste {reste} poulets dans la bande.', 'success')
+            if s.lot and current_user.profil != Profil.ELEVEUR:
+                flash(f'Lot {s.lot.numero} créé : ses étiquettes QR s\'impriment depuis la fiche de la bande.', 'info')
             return _retour(bande)
         except regles.RegleBande as e:
             db.session.rollback()

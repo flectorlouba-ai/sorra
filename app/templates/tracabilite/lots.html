@@ -1,0 +1,31 @@
+{% extends '_base.html' %}
+{% block titre %}Lots et QR codes{% endblock %}
+{% block sous_titre %}Traçabilité{% endblock %}
+{% block icone %}qr-code-scan{% endblock %}
+{% block page_sous_titre %}Un lot par sortie vers un abattoir ou par vente · de la ferme au consommateur{% endblock %}
+
+{% block contenu %}
+<form class="filters-bar" method="get">
+  <input type="search" name="q" class="filter-search" value="{{ q }}" placeholder="N° de lot (ex. EST-001-B1-07-S2)">
+  <button type="submit" class="btn-filter"><i class="bi bi-search"></i></button>
+</form>
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>N° de lot</th><th>Sortie</th><th>Ferme</th><th>Pour</th><th>Poulets</th><th>État</th></tr></thead>
+    <tbody>
+    {% for l in lots %}
+      <tr class="tr-click" onclick="location.href='{{ url_for('tracabilite.lot', numero=l.numero) }}'">
+        <td class="td-num"><a href="{{ url_for('tracabilite.lot', numero=l.numero) }}">{{ l.numero }}</a></td>
+        <td>{{ l.sortie.date.strftime('%d/%m/%Y') }}</td>
+        <td>{{ l.ferme.nom }}<br><span class="td-sous">{{ l.ferme.province.nom }}</span></td>
+        <td>{{ l.sortie.destinataire }}<br><span class="td-sous">{{ l.sortie.motif }}</span></td>
+        <td>{{ l.sortie.nombre|qte }}</td>
+        <td>{% if l.annule %}<span class="badge badge-off">Annulé</span>{% else %}<span class="badge badge-ok">Actif</span>{% endif %}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="table-vide"><i class="bi bi-qr-code"></i>Aucun lot{% if q %} pour « {{ q }} »{% endif %}. Un lot naît à chaque sortie vers un abattoir ou vente.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

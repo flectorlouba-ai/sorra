@@ -1,0 +1,65 @@
+{% extends '_base.html' %}
+{% block titre %}Lot {{ lot.numero }}{% endblock %}
+{% block sous_titre %}Traçabilité{% endblock %}
+{% block icone %}qr-code-scan{% endblock %}
+{% block page_titre %}Lot <span class="mono">{{ lot.numero }}</span>
+  {% if lot.annule %}<span class="badge badge-off">Annulé</span>{% else %}<span class="badge badge-ok">Actif</span>{% endif %}{% endblock %}
+{% block page_sous_titre %}{{ lot.ferme.nom }} ({{ lot.ferme.numero }}), {{ lot.ferme.localite.nom }} — {{ lot.ferme.province.nom }}{% endblock %}
+
+{% block actions %}
+{% if not lot.annule %}<a href="{{ url_for('tracabilite.etiquettes', numero=lot.numero) }}" class="btn-new" target="_blank"><i class="bi bi-printer"></i> Imprimer les étiquettes</a>{% endif %}
+{% endblock %}
+
+{% block contenu %}
+{% if lot.annule %}<div class="flash-item warning"><i class="bi bi-slash-circle"></i>Lot annulé : {{ lot.motif_annulation }}. Son QR code affiche « Code inconnu ».</div>{% endif %}
+{% set s = lot.sortie %}
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card-p">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-truck"></i> Sortie</span></div>
+      <div class="card-p-body"><dl class="fiche-lignes">
+        <dt>Date</dt><dd>{{ s.date.strftime('%d/%m/%Y') }}</dd>
+        <dt>Pour</dt><dd>{{ s.motif }} · {{ s.destinataire }}</dd>
+        <dt>Poulets</dt><dd>{{ s.nombre|qte }} · {{ s.poids_total_kg|qte }} kg</dd>
+        <dt>Bande</dt><dd><a href="{{ url_for('bandes.fiche', numero=s.bande.numero) }}">{{ s.bande.numero }}</a> · bâtiment {{ s.bande.batiment.code }} · mise en place le {{ s.bande.date_mise_en_place.strftime('%d/%m/%Y') }}</dd>
+        <dt>Ferme</dt><dd><a href="{{ url_for('fermes.fiche', numero=lot.ferme.numero) }}">{{ lot.ferme.nom }}</a></dd>
+      </dl></div>
+    </div>
+    <div class="card-p">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-clock-history"></i> Historique du lot</span></div>
+      <div class="card-p-body">
+        <ul class="historique">
+          <li><span class="historique-date">{{ lot.cree_le|date_locale('%d/%m/%Y %H:%M') }}</span> <strong>Lot créé</strong> avec la sortie{% if lot.createur %} <span class="td-sous">par {{ lot.createur.nom_complet }}</span>{% endif %}</li>
+          {% if nb_lectures %}
+          <li><strong>QR code lu {{ nb_lectures }} fois</strong>{% for l in lectures %}<div class="td-sous">{{ l.horodatage|date_locale('%d/%m/%Y %H:%M') }}{% if current_user.profil.value == 'ADMIN' and l.adresse_ip %} · {{ l.adresse_ip }}{% endif %}</div>{% endfor %}</li>
+          {% else %}<li class="td-sous">QR code pas encore lu.</li>{% endif %}
+          {% if lot.annule %}<li><span class="historique-date">{{ lot.modifie_le|date_locale('%d/%m/%Y %H:%M') }}</span> <strong>Annulé</strong><div class="td-sous">{{ lot.motif_annulation }}</div></li>{% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card-p">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-qr-code"></i> QR code</span></div>
+      <div class="card-p-body text-center">
+        <div class="qr-ecran">{{ qr }}</div>
+        <div class="td-sous mt-2" style="word-break:break-all;">{{ adresse }}</div>
+      </div>
+    </div>
+    {% if current_user.profil.value == 'ADMIN' and not lot.annule %}
+    <div class="card-p">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-slash-circle"></i> Annuler ce lot</span></div>
+      <div class="card-p-body">
+        <form method="post" action="{{ url_for('tracabilite.annuler', numero=lot.numero) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label class="form-label" for="motif">Motif<span class="req">*</span></label>
+          <textarea class="form-control mb-2" id="motif" name="motif" rows="2" required></textarea>
+          <button type="submit" class="btn-edit">Annuler le lot</button>
+          <div class="form-hint">Le QR code affichera « Code inconnu ». Inscrit au journal.</div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -50,7 +50,8 @@ MODULES = [
     ]},
     {'code': 'tracabilite', 'titre': 'Traçabilité', 'icone': 'qr-code', 'option': False, 'tuiles': [
         ('Indicateurs de traçabilité', 'Lots tracés, QR', 'graph-up', None, None),
-        ('Lots et QR codes', 'De la ferme au consommateur', 'qr-code-scan', None, None),
+        ('Lots et QR codes', 'De la ferme au consommateur', 'qr-code-scan', 'tracabilite.lots',
+         {A, D, Profil.AGENT, Profil.VETO}),
         ('Opérateurs', 'Abattoirs, acheteurs', 'truck', 'operateurs.liste', {A, D, Profil.AGENT}),
         ('Recherche amont / aval', 'Origine d\'un lot', 'search', None, None),
     ]},
@@ -94,12 +95,12 @@ ONGLETS = {
     Profil.ADMIN:    [m['code'] for m in MODULES],
     Profil.DGE:      [m['code'] for m in MODULES if m['code'] != 'config'],
     Profil.AGENT:    ['fermes', 'sante', 'tracabilite'],
-    Profil.VETO:     ['sante', 'fermes'],
+    Profil.VETO:     ['sante', 'fermes', 'tracabilite'],
     Profil.AUDITEUR: ['config'],
 }
 SEULEMENT_DISPONIBLES = {
     Profil.AUDITEUR: {'config'},   # Configuration avec le Journal seul
-    Profil.VETO: {'fermes'},       # Fermes et élevage : Fermes et Bandes, en lecture
+    Profil.VETO: {'fermes', 'tracabilite'},   # Fermes et Bandes en lecture ; Lots et QR codes
 }
 COULEURS = ['mc-navy', 'mc-blue', 'mc-steel', 'mc-cobalt']
 

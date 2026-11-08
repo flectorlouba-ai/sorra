@@ -64,6 +64,10 @@ PARAMETRES_DEFAUT = [
     # Lot 5 — tableaux de bord
     ('intrants.seuil_mortalite_arrivee_pct', '2', TypeParametre.DECIMAL,
      'Alerte DGE : poussins morts à l\'arrivée au-delà de ce % d\'une livraison, à valider par les vétérinaires.'),
+] + [
+    # Lot 6 — traçabilité
+    ('tracabilite.adresse_publique', 'http://187.124.217.218:5021', TypeParametre.TEXTE,
+     'Adresse du site imprimée dans les QR codes (à remplacer par le nom de domaine en HTTPS).'),
 ]
 
 

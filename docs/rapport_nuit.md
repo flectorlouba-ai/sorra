@@ -336,3 +336,94 @@ Construit exactement ce qui avait été proposé à l'étape 1, avec vos choix :
 - La comparaison « seulement si favorable » vous convient-elle ?
 - Liste et ordre des chiffres du rapport PDF (je peux ajouter des graphiques au PDF).
 - Envoi automatique des rapports (courriel) : à prévoir dans un lot ultérieur, avec un serveur de courriel.
+
+---
+
+## Lot 6 — Traçabilité : lots et QR codes
+
+**État : terminé.** Commit « Lot 6 : lots et QR codes ». **222 tests réussis** et 1 réservé à PostgreSQL ; 7 tests nouveaux dans `tests/test_tracabilite.py`. Migration **0008** (table des lots + un paramètre).
+
+**Aucune bibliothèque ajoutée** : le QR code est dessiné par `reportlab`, déjà ajouté au lot 5. Pas besoin de `qrcode`.
+
+### Ce qui a été fait
+
+**A. Un lot par sortie vers un abattoir ou par vente.**
+- Numéro : celui de la bande suivi du rang de la sortie, par exemple **EST-001-B1-07-S2**.
+- Jamais réutilisé, même après une annulation.
+- Une sortie « Autre » ne crée pas de lot.
+- Le lot naît **automatiquement** à l'enregistrement de la sortie : l'éleveur ne fait rien de plus. Quand c'est l'agent qui saisit, un message lui indique le numéro du lot.
+
+**B. QR code.**
+- Il ne contient qu'une adresse : `http://187.124.217.218:5021/q/<code>`.
+- Le code est tiré au hasard : 22 caractères, impossible à deviner.
+- L'adresse du site est un **paramètre** (« tracabilite.adresse_publique ») : à remplacer par le nom de domaine en HTTPS avant le pilote.
+- Le code du QR est masqué (« *** ») dans le journal des opérations.
+
+**C. Planche d'étiquettes PDF.**
+- Format A4, **21 étiquettes** (3 × 7) avec traits de découpe.
+- Chaque étiquette porte : le QR code, le n° du lot, la ferme, la localité et la province, la date de sortie, « Produit au Gabon ».
+- Elle s'ouvre depuis la fiche du lot (bouton principal « Imprimer les étiquettes »), ou depuis la sortie sur la fiche de la bande (icône QR à côté du n° du lot).
+- Chaque impression est inscrite au journal.
+- Vérifié : le QR imprimé se lit et donne la bonne adresse.
+
+**D. Page publique** (sans connexion), au format téléphone, aux couleurs de la charte :
+- « Produit au Gabon » et « Consommons gabonais » ;
+- ferme, localité, province, date de sortie ;
+- « Ce QR code n'est pas un certificat sanitaire. »
+- **Aucun téléphone, aucun nom de personne, aucun acheteur, aucun n° interne.**
+- La page n'est pas référencée par les moteurs de recherche.
+
+**E. Code inconnu ou lot annulé :** page « Code inconnu », avec le texte « Ce code ne correspond à aucun lot de poulets suivi par le programme ».
+
+**F. Journal des lectures.** Chaque lecture, connue ou non, est inscrite au journal : « Lecture d'un QR code », date, adresse IP.
+
+**G. Pages internes** (ADMIN, DGE, AGENT pour ses fermes, VETO pour sa province) :
+- **Liste « Lots et QR codes »**, avec recherche par n° de lot.
+- **Fiche du lot :**
+  - la sortie : date, pour qui, poulets, poids, lien vers la bande et la ferme ;
+  - l'historique : création et auteur, nombre de lectures du QR avec leurs dates (l'ADMIN voit aussi l'adresse IP), annulation ;
+  - le QR code à l'écran.
+- **Annulation par l'ADMIN seul**, avec un motif obligatoire, inscrite au journal. Le QR affiche ensuite « Code inconnu » et les étiquettes ne s'impriment plus.
+
+**H. Accueil.**
+- La tuile « Lots et QR codes » est ouverte.
+- « Indicateurs de traçabilité » et « Recherche amont / aval » restent « Bientôt ».
+- Le VETO reçoit l'onglet Traçabilité, avec cette seule tuile.
+
+### Écrans et chemins de clics
+
+| Écran | Chemin |
+|---|---|
+| Lots et QR codes | onglet Traçabilité → Lots et QR codes (1 clic) |
+| Fiche du lot | liste → clic sur la ligne ; ou fiche de la bande → n° du lot dans la colonne Sortie |
+| Étiquettes | fiche du lot → « Imprimer les étiquettes » (3 clics depuis l'accueil) ; ou fiche de la bande → icône QR de la sortie (2 clics depuis la liste des bandes) |
+| Page publique | scanner le QR avec l'appareil photo du téléphone |
+| Annuler un lot (ADMIN) | fiche du lot → cadre « Annuler ce lot » → motif → « Annuler le lot » |
+
+### Décisions prises cette nuit (lot 6)
+
+1. **QR dessiné par reportlab** plutôt qu'avec la bibliothèque `qrcode` : une dépendance de moins.
+2. **Adresse courte `/q/<code>`** : un QR plus petit, donc plus facile à lire sur une petite étiquette.
+3. **Pas de n° de lot sur la page publique** : seulement ce que le cahier demande. Le n° est imprimé sur l'étiquette.
+4. **21 étiquettes A4 par planche** (3 × 7), toutes identiques.
+5. **Annulation réservée à l'ADMIN**, avec motif. Une sortie corrigée garde son lot.
+6. **Sorties enregistrées avant ce lot** : pas de lot créé après coup. Sur le VPS il n'y en a aucune (le lot 3 n'y est pas encore).
+7. **Lectures du QR** rangées dans le journal des opérations (pas de table à part). L'IP n'est montrée qu'à l'ADMIN sur la fiche du lot.
+8. **VETO** : onglet Traçabilité avec la seule tuile Lots et QR codes, sans tuile « Bientôt » (règle « pas de tuile inutile »).
+
+### Tests que vous ferez demain (lot 6)
+
+1. **Créer un lot** (agent.est) : fiche d'une bande en cours → Sortie → Vente, « Marché de Nkembo », 50 poulets, 110 kg. Le message « Lot EST-…-S1 créé » s'affiche.
+2. **Fiche du lot** : onglet Traçabilité → Lots et QR codes → la ligne → le QR code et l'historique s'affichent.
+3. **Étiquettes** : « Imprimer les étiquettes ». Imprimez la planche, ou ouvrez-la à l'écran.
+4. **Scanner** : depuis un téléphone **sur le même réseau que le serveur**, scannez une étiquette. Vérifiez ferme, localité, province, date et les deux mentions, et qu'aucun nom ni téléphone n'apparaît.
+5. **Retour sur la fiche du lot** : l'historique indique « QR code lu 1 fois ».
+6. **Annuler** (admin) : motif, puis « Annuler le lot ». Rescannez : « Code inconnu ».
+7. **Journal** (admin) : les lignes « Lecture d'un QR code » sont présentes, avec l'adresse IP.
+
+### Points à valider (lot 6)
+
+- **HTTPS et nom de domaine avant d'imprimer de vraies étiquettes** : l'adresse imprimée ne pourra plus changer sur les étiquettes déjà collées. Changez le paramètre « tracabilite.adresse_publique » avant la première impression réelle.
+- Contenu de la page publique : faut-il ajouter le n° du lot (utile pour une réclamation) ?
+- Taille et nombre d'étiquettes par planche : à adapter au papier autocollant que vous achèterez.
+- La page publique est ouverte à tous. Un très grand nombre de lectures remplirait le journal ; un limiteur pourra être ajouté au déploiement si besoin.

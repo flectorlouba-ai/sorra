@@ -631,3 +631,9 @@ a.btn-gros-rouge:hover{color:var(--blanc);filter:brightness(1.08);}
 .point-ferme.point-rouge{fill:var(--rouge);}
 .point-ferme.point-gris{fill:var(--grisb);}
 .mono-champ{font-family:ui-monospace,Consolas,monospace;}
+
+/* ══ Lot 6 — traçabilité : QR code, page publique ════════════════════ */
+.qr-ecran svg{width:220px;max-width:100%;height:auto;display:inline-block;}
+.public-lignes{grid-template-columns:1fr;gap:.1rem;font-size:.95rem;}
+.public-lignes dd{margin-bottom:.6rem;}
+.public-mention{margin-top:.8rem;padding:.6rem .8rem;border-radius:9px;background:var(--off);color:var(--gris5);font-size:.8rem;}

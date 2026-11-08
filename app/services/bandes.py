@@ -272,6 +272,9 @@ def sortir(bande, jour, motif, operateur, libre, nombre, poids_kg, user):
     db.session.add(s)
     s.saisi_par_agent = _signer(user, bande, f'sortie de {nombre} poulets ({motif})')
     db.session.flush()
+    from app.services import tracabilite
+    tracabilite.creer_lot(s, user)   # abattoir ou vente : lot tracé avec son QR code
+    db.session.flush()
     return s
 
 

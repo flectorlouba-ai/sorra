@@ -48,10 +48,11 @@ class Action:
     CORRECTION      = 'CORRECTION'
     POUR_ELEVEUR    = 'POUR_ELEVEUR'
     DELAI_ATTENTE   = 'DELAI_ATTENTE'
+    LECTURE_QR      = 'LECTURE_QR'
 
     TOUTES = [CREATION, MODIFICATION, SUPPRESSION, ANNULATION, CONNEXION,
               ECHEC_CONNEXION, DECONNEXION, CHANGEMENT_MDP, EXPORT, BLOCAGE, DEBLOCAGE, IMPORT, FUSION,
-              CONFIRMATION, CONFIRMATION_ANNULEE, CORRECTION, POUR_ELEVEUR, DELAI_ATTENTE]
+              CONFIRMATION, CONFIRMATION_ANNULEE, CORRECTION, POUR_ELEVEUR, DELAI_ATTENTE, LECTURE_QR]
 
     LIBELLES = {
         CREATION: 'Création', MODIFICATION: 'Modification', SUPPRESSION: 'Suppression',
@@ -61,6 +62,7 @@ class Action:
         IMPORT: 'Import', FUSION: 'Fusion de localités',
         CONFIRMATION: 'Confirmation de réception', CONFIRMATION_ANNULEE: 'Confirmation annulée',
         CORRECTION: 'Correction', DELAI_ATTENTE: "Sortie pendant un délai d'attente", POUR_ELEVEUR: "Saisie de l'agent pour l'éleveur",
+        LECTURE_QR: "Lecture d'un QR code",
     }
 
 

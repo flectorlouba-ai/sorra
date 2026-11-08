@@ -16,3 +16,4 @@ from app.models.bande import (Bande, BandePoussins, SaisieJour, SaisieAliment,  
 from app.models.sante import (Declaration, DeclarationPhoto, AlerteSanitaire,  # noqa: F401
                               AlerteHistorique, CalendrierVaccinal, Vaccination, Traitement,
                               StatutAlerte, OrigineAlerte)
+from app.models.tracabilite import LotTrace  # noqa: F401
