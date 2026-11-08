@@ -32,6 +32,9 @@ def create_app(env='default'):
     app = Flask(__name__)
     app.config.from_object(config[env])
     config[env].verifier()
+    if app.config['DERRIERE_PROXY']:
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
     db.init_app(app)
     migrate.init_app(app, db, render_as_batch=True)

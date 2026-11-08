@@ -121,3 +121,15 @@ def test_export_csv_journalise(client_admin):
     assert texte.startswith('﻿Date;Personne') and 'Connexion' in texte
     export = lignes('EXPORT')[-1]
     assert export.identifiant == 'admin' and 'action=CONNEXION' in export.detail
+
+
+def test_adresse_reelle_derriere_nginx(app, monkeypatch):
+    import config as module_config
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    from app import create_app
+    monkeypatch.setattr(module_config.TestingConfig, 'DERRIERE_PROXY', True)
+    assert isinstance(create_app('testing').wsgi_app, ProxyFix)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
+    app.test_client().post('/auth/connexion', data={'identifiant': 'inconnu', 'mot_de_passe': 'x'},
+                           headers={'X-Forwarded-For': '41.158.1.2'})
+    assert lignes('ECHEC_CONNEXION')[-1].adresse_ip == '41.158.1.2'

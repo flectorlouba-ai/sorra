@@ -29,6 +29,10 @@ class Config:
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_SECURE = SESSION_COOKIE_SECURE
 
+    # Derrière nginx : lire la vraie adresse du visiteur (X-Forwarded-For) pour
+    # le journal. Ne l'activer que si l'application n'est joignable que par nginx.
+    DERRIERE_PROXY = _oui('DERRIERE_PROXY')
+
     JOURNAL_PAR_PAGE = 50
 
     @classmethod
