@@ -54,6 +54,12 @@ PARAMETRES_DEFAUT = [
     ('bandes.courbe_poids', '0:42; 7:180; 14:450; 21:900; 28:1450; 35:2050; 42:2650; 49:3150',
      TypeParametre.TEXTE,
      'Courbe de croissance attendue « âge en jours : poids en g », à valider par les vétérinaires.'),
+] + [
+    # Lot 4 — santé animale
+    ('sante.retard_vaccin_jours', '2', TypeParametre.JOURS,
+     'Un vaccin non fait à la date prévue + ce nombre de jours est signalé « en retard ».'),
+    ('sante.calendrier_valide', 'non', TypeParametre.BOOLEEN,
+     'Calendrier vaccinal validé par les services vétérinaires (oui / non).'),
 ]
 
 

@@ -6,8 +6,10 @@ from flask_login import current_user
 from app import db, indicateurs
 from app.models import Ferme, Province, Profil, Batiment, Operateur, LivraisonLigne
 from app.models.bande import Bande, Pesee, Sortie, StatutBande, MotifSortie
+from app.models.sante import Traitement
 from app.models.intrant import Produit, TYPE_ALIMENT
-from app.services import bandes as regles, parametres
+from app.services import bandes as regles, parametres, sante
+from app.services.journal import enregistrer, Action
 from app.utils.nombres import quantite
 from app.utils.permissions import profil_requis, filtre_perimetre
 
@@ -67,7 +69,10 @@ def contexte_bloc(bande):
     return {
         'bande': bande, 'v': v, 'couleur': couleur, 'raison': raison,
         'phrase': indicateurs.phrase(bande, couleur, raison, v),
-        'a_faire': indicateurs.a_faire(bande),
+        'a_faire': [{'texte': t, 'lien': None} for t in indicateurs.a_faire(bande)]
+                   + [{'texte': t['texte'], 'lien': url_for('sante.vacciner', numero=bande.numero,
+                                                            calendrier=t['calendrier']) if t['calendrier'] else None}
+                      for t in sante.a_faire(bande)],
         'encouragement': indicateurs.encouragement(bande, v, regles.precedente(bande)),
         'aliments': aliments, 'stock': stock,
         'deja': indicateurs.saisie_du(bande, date.today()),
@@ -151,6 +156,9 @@ def fiche(numero):
             c['sacs'] += a.sacs
             c['kg'] += a.kg
     return render_template('bandes/fiche.html', bande=bande, v=v, couleur=couleur,
+                           vaccins=sante.vaccins_de_la_bande(bande),
+                           traitements=Traitement.query.filter_by(bande_id=bande.id).order_by(Traitement.date_debut).all(),
+                           delai=sante.fin_delai_attente(bande),
                            phrase=indicateurs.phrase(bande, couleur, raison, v),
                            courbe=courbe_svg(bande), journal=journal_bande(bande),
                            consomme=list(consomme.values()), stock=stock,
@@ -286,6 +294,8 @@ def saisie(numero):
                 raise regles.RegleBande("Choisissez l'aliment donné.")
             aliments[produit] = sacs
         s, avertissements = regles.saisir(bande, jour, morts, aliments, current_user, ajouter=f.get('ajouter') == '1')
+        db.session.flush()
+        sante.alerte_si_feu_rouge(bande)
         db.session.commit()
         flash('Envoyé ✓' if jour == date.today() else f'Envoyé ✓ pour le {jour.strftime("%d/%m")}', 'success')
         for a in avertissements:
@@ -341,8 +351,16 @@ def sortie(numero):
         f = request.form
         try:
             op = next((o for o in operateurs if str(o.id) == f.get('operateur')), None)
-            regles.sortir(bande, _jour(f.get('jour')), f.get('motif'), op, f.get('destinataire_libre', '').strip(),
-                          _nombre(f.get('nombre'), entier=True), _nombre(f.get('poids_total')), current_user)
+            s = regles.sortir(bande, _jour(f.get('jour')), f.get('motif'), op, f.get('destinataire_libre', '').strip(),
+                              _nombre(f.get('nombre'), entier=True), _nombre(f.get('poids_total')), current_user)
+            delai = sante.fin_delai_attente(bande, s.date)
+            if delai and s.motif == MotifSortie.ABATTOIR:
+                fin = delai.strftime('%d/%m/%Y')
+                enregistrer(Action.DELAI_ATTENTE, table='sortie', enregistrement_id=s.id,
+                            detail=f"Bande {bande.numero} : {s.nombre} poulets vers l'abattoir le "
+                                   f"{s.date.strftime('%d/%m/%Y')}, pendant un délai d'attente (jusqu'au {fin}).")
+                flash(f"ATTENTION : ces poulets sont encore en délai d'attente après traitement "
+                      f"(jusqu'au {fin}). C'est inscrit au journal.", 'danger')
             db.session.commit()
             reste = indicateurs.calculer(bande)['effectif_present']
             flash(f'Sortie enregistrée. Il reste {reste} poulets dans la bande.', 'success')
@@ -352,6 +370,7 @@ def sortie(numero):
             erreur = str(e)
     return render_template('bandes/sortie.html', bande=bande, erreur=erreur, saisie=request.form,
                            operateurs=operateurs, motifs=MotifSortie.TOUS,
+                           delai=sante.fin_delai_attente(bande),
                            present=indicateurs.calculer(bande)['effectif_present'])
 
 
@@ -426,6 +445,8 @@ def corriger(numero, quoi, ident):
             if indicateurs.calculer(bande)['effectif_present'] < 0:
                 raise regles.RegleBande('Avec ces chiffres, l\'effectif deviendrait négatif.')
             regles.apres_correction(bande, current_user, libelle, motif)
+            db.session.flush()
+            sante.alerte_si_feu_rouge(bande)
             db.session.commit()
             flash('Correction enregistrée (inscrite au journal).', 'success')
             return redirect(url_for('bandes.fiche', numero=bande.numero))

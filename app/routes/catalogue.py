@@ -45,8 +45,12 @@ def _lire(produit=None):
     elif Produit.query.filter(db.func.lower(Produit.nom) == nom.lower(),
                               Produit.id != (produit.id if produit else -1)).first():
         erreur = f'Le produit « {nom} » existe déjà.'
+    delai = f.get('delai_attente_jours', '').strip()
+    if delai and (not delai.isdigit() or int(delai) > 365):
+        erreur = erreur or "Le délai d'attente est un nombre de jours (0 à 365)."
     donnees = {'nom': nom, 'type': type_, 'unite': unite,
-               'poids_sac_kg': poids if unite == UNITE_SACS else None}
+               'poids_sac_kg': poids if unite == UNITE_SACS else None,
+               'delai_attente_jours': int(delai) if delai.isdigit() and type_ == 'Médicament' else None}
     if produit is not None:
         donnees['actif'] = f.get('actif') == 'on'
     return donnees, erreur

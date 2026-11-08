@@ -1,0 +1,43 @@
+{% extends '_base.html' %}
+{% block titre %}Vaccination{% endblock %}
+{% block sous_titre %}Santé animale{% endblock %}
+{% block icone %}capsule{% endblock %}
+{% block page_sous_titre %}<span class="mono">{{ bande.numero }}</span> · {{ present|qte }} poulets présents{% endblock %}
+{% block contenu %}
+<form method="post" class="form-terrain" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if entree %}<input type="hidden" name="calendrier" value="{{ entree.id }}">{% endif %}
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  {% set pid = saisie.get('produit_id') or (entree.produit_id|string if entree else '') %}
+  <div class="form-group">
+    <label class="form-label" for="produit_id">Vaccin</label>
+    <select class="form-control" id="produit_id" name="produit_id" required>
+      <option value="">— Choisir —</option>
+      {% for p in vaccins %}<option value="{{ p.id }}" {% if pid == p.id|string %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+    </select>
+  </div>
+  {% set mo = saisie.get('mode') or (entree.mode if entree else '') %}
+  <div class="form-label">Comment ?</div>
+  <div class="choix-cases choix-petits">
+    {% for m in modes %}<label class="case-choix"><input type="radio" name="mode" value="{{ m }}" {% if mo == m or (not mo and loop.first) %}checked{% endif %}><span>{{ m }}</span></label>{% endfor %}
+  </div>
+  <div class="compteur">
+    <div class="compteur-libelle">Poulets vaccinés</div>
+    <div class="compteur-boutons">
+      <button type="button" class="compteur-moins" aria-label="Moins">−</button>
+      <input type="number" name="nombre" value="{{ saisie.get('nombre') or present }}" min="1" step="10" inputmode="numeric" class="compteur-valeur">
+      <button type="button" class="compteur-plus" aria-label="Plus">+</button>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="quantite">Doses utilisées (stock)</label>
+    <input class="form-control" id="quantite" name="quantite" inputmode="decimal" placeholder="Par défaut : une dose par poulet" value="{{ saisie.get('quantite', '') }}">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="date">Date</label>
+    <input class="form-control" type="date" id="date" name="date" max="{{ today.isoformat() }}" value="{{ saisie.get('date') or today.isoformat() }}">
+  </div>
+  <button type="submit" class="btn-gros"><i class="bi bi-check-lg"></i> Enregistrer la vaccination</button>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/compteurs.js') }}"></script>{% endblock %}

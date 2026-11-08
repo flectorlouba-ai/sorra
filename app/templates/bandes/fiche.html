@@ -75,6 +75,42 @@
   </div>
 </div>
 
+<div class="row g-3 mt-0">
+  <div class="col-lg-6">
+    <div class="card-p h-100">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-capsule"></i> Vaccinations</span></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Jour</th><th>Vaccin</th><th>Mode</th><th>État</th></tr></thead>
+        <tbody>
+        {% set etiquettes = {'fait': ('badge-ok', 'Fait'), 'retard': ('badge-danger', 'En retard'),
+              'aujourdhui': ('badge-warn', "Aujourd'hui"), 'a_faire': ('badge-warn', 'À faire'),
+              'demain': ('badge-info', 'Demain'), 'a_venir': ('badge-neutre', 'À venir'),
+              'avant_suivi': ('badge-off', 'Avant le suivi')} %}
+        {% for vc in vaccins %}
+          <tr><td>J{{ vc.calendrier.age_jours }} · {{ vc.prevu.strftime('%d/%m') }}</td><td>{{ vc.calendrier.produit.nom }}</td><td>{{ vc.calendrier.mode }}</td>
+            <td><span class="badge {{ etiquettes[vc.etat][0] }}">{{ etiquettes[vc.etat][1] }}</span>
+              {% if vc.fait %}<span class="td-sous">{{ vc.fait.date.strftime('%d/%m') }}</span>{% endif %}</td></tr>
+        {% else %}<tr><td colspan="4" class="table-vide">Calendrier vaccinal vide.</td></tr>{% endfor %}
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card-p h-100">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-prescription2"></i> Traitements</span></div>
+      {% if delai %}<div class="card-p-body pb-0"><div class="encadre-rouge">Délai d'attente avant abattage jusqu'au <strong>{{ delai.strftime('%d/%m/%Y') }}</strong></div></div>{% endif %}
+      <div class="table-scroll"><table>
+        <thead><tr><th>Du</th><th>Au</th><th>Médicament</th><th>Motif</th><th>Animaux</th></tr></thead>
+        <tbody>
+        {% for t in traitements %}
+          <tr><td>{{ t.date_debut.strftime('%d/%m') }}</td><td>{{ t.date_fin.strftime('%d/%m') }}</td><td>{{ t.produit.nom }}</td><td>{{ t.motif }}</td><td>{{ t.nombre_animaux|qte }}</td></tr>
+        {% else %}<tr><td colspan="5" class="table-vide">Aucun traitement.</td></tr>{% endfor %}
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
 <div class="card-p mt-3">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-journal-text"></i> Journal de la bande</span></div>
   <div class="table-scroll">

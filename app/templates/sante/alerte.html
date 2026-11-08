@@ -1,0 +1,63 @@
+{% extends '_base.html' %}
+{% block titre %}Alerte {{ a.numero }}{% endblock %}
+{% block sous_titre %}Santé animale{% endblock %}
+{% block icone %}exclamation-triangle{% endblock %}
+{% block page_titre %}Alerte <span class="mono">{{ a.numero }}</span>
+  <span class="badge {{ {'NOUVELLE': 'badge-warn', 'EN_ANALYSE': 'badge-info', 'CONFIRMEE': 'badge-danger', 'INFIRMEE': 'badge-ok', 'CLOSE': 'badge-off'}[a.statut] }}">{{ a.libelle_statut }}</span>{% endblock %}
+{% block page_sous_titre %}{{ a.libelle_origine }} · {{ a.ferme.nom }} ({{ a.ferme.numero }}), {{ a.ferme.localite.nom }} — {{ a.ferme.province.nom }} · {{ a.cree_le|date_locale('%d/%m/%Y %H:%M') }}{% endblock %}
+
+{% block contenu %}
+<div class="row g-3">
+  <div class="col-lg-7">
+    {% set d = a.declaration %}
+    {% if d %}
+    <div class="card-p">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-camera"></i> Déclaration{% if d.saisi_par_agent %} (agent pour l'éleveur){% endif %}</span></div>
+      <div class="card-p-body">
+        <div class="pictos-lecture">{% for s in d.signes %}<span class="picto-lu"><i class="bi bi-{{ icone(s) }}"></i> {{ s }}</span>{% endfor %}</div>
+        <p class="mt-2"><strong>{{ d.nombre_animaux|qte }}</strong> animal(aux) touché(s){% if d.bande %} · bande {{ d.bande.numero }}{% endif %}</p>
+        {% if d.photos %}
+        <div class="photos-lecture">{% for p in d.photos %}<a href="{{ url_for('sante.fichier', ident=d.id, genre='photo', nom=p.fichier) }}" target="_blank"><img src="{{ url_for('sante.fichier', ident=d.id, genre='photo', nom=p.fichier) }}" alt="Photo {{ loop.index }}"></a>{% endfor %}</div>
+        {% endif %}
+        {% if d.audio %}<audio controls src="{{ url_for('sante.fichier', ident=d.id, genre='audio', nom=d.audio) }}" class="mt-2"></audio>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+    {% if a.bande %}
+    <div class="card-p">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-collection"></i> Bande {{ a.bande.numero }}</span></div>
+      <div class="card-p-body"><a href="{{ url_for('bandes.fiche', numero=a.bande.numero) }}">Voir la fiche de la bande (mortalité, courbe, vaccins, traitements)</a></div>
+    </div>
+    {% endif %}
+  </div>
+  <div class="col-lg-5">
+    <div class="card-p">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-clock-history"></i> Suivi de l'alerte</span></div>
+      <div class="card-p-body">
+        <ul class="historique">
+          {% for h in a.historique|reverse %}
+          <li><span class="historique-date">{{ h.date|date_locale('%d/%m %H:%M') }}</span> <strong>{{ {'NOUVELLE': 'Nouvelle', 'EN_ANALYSE': 'En analyse', 'CONFIRMEE': 'Confirmée', 'INFIRMEE': 'Infirmée', 'CLOSE': 'Close'}[h.statut] }}</strong>
+            {% if h.auteur %}<span class="td-sous">par {{ h.auteur.nom_complet }}</span>{% endif %}
+            {% if h.commentaire %}<div class="td-sous">{{ h.commentaire }}</div>{% endif %}</li>
+          {% endfor %}
+        </ul>
+        {% if suivants %}
+        <form method="post" class="mt-3">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+          <div class="choix-cases choix-petits mb-2">
+            {% for code, libelle in suivants %}
+            <label class="case-choix"><input type="radio" name="statut" value="{{ code }}" {% if loop.first %}checked{% endif %}><span>{{ libelle }}</span></label>
+            {% endfor %}
+          </div>
+          <label class="form-label" for="commentaire">Commentaire<span class="req">*</span></label>
+          <textarea class="form-control mb-2" id="commentaire" name="commentaire" rows="3" required></textarea>
+          <button type="submit" class="btn-new">Enregistrer</button>
+          {% if a.statut == 'EN_ANALYSE' %}<div class="form-hint">Une alerte confirmée devient visible de la DGE. Jamais du public.</div>{% endif %}
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

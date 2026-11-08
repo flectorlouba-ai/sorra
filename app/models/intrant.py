@@ -33,6 +33,8 @@ class Produit(HorodatageMixin, db.Model):
     type         = db.Column(db.String(20), nullable=False)
     unite        = db.Column(db.String(20), nullable=False)
     poids_sac_kg = db.Column(db.Numeric(8, 2, asdecimal=False), nullable=True)
+    # Médicaments : jours d'attente entre la fin d'un traitement et l'abattage
+    delai_attente_jours = db.Column(db.Integer, nullable=True)
     actif        = db.Column(db.Boolean, nullable=False, default=True)
 
     @property

@@ -26,6 +26,10 @@ def _listes_de_depart():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     listes['motifs_ecart'] = module.MOTIFS_ECART
+    spec = importlib.util.spec_from_file_location('migration_0006', chemin.with_name('0006_sante.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    listes.update(module.LISTES)
     return listes
 
 

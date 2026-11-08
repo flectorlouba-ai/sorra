@@ -152,7 +152,13 @@ def quantites_utilisees(ferme):
                .join(SaisieJour, SaisieAliment.saisie_id == SaisieJour.id)
                .join(Bande, SaisieJour.bande_id == Bande.id)
                .filter(Bande.ferme_id == ferme.id).group_by(SaisieAliment.produit_id).all())
-    for pid, q in poussins + aliment:
+    from app.models.sante import Vaccination, Traitement
+    soins = []
+    for modele in (Vaccination, Traitement):
+        soins += (db.session.query(modele.produit_id, db.func.sum(modele.quantite))
+                  .join(Bande, modele.bande_id == Bande.id)
+                  .filter(Bande.ferme_id == ferme.id).group_by(modele.produit_id).all())
+    for pid, q in poussins + aliment + soins:
         utilises[pid] = utilises.get(pid, 0) + float(q or 0)
     return utilises
 

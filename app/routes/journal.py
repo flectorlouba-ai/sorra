@@ -35,6 +35,12 @@ TABLES = {
     'saisie_aliment': 'Aliment saisi',
     'pesee': 'Pesée',
     'sortie': 'Sortie de poulets',
+    'declaration': 'Déclaration sanitaire',
+    'declaration_photo': 'Photo de déclaration',
+    'alerte_sanitaire': 'Alerte sanitaire',
+    'calendrier_vaccinal': 'Calendrier vaccinal',
+    'vaccination': 'Vaccination',
+    'traitement': 'Traitement',
 }
 
 CHAMPS = {

@@ -598,3 +598,21 @@ a.alerte-lien{text-decoration:none;}
 .legende{font-size:.7rem;color:var(--gris5);display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;}
 .legende-reelle,.legende-attendue{display:inline-block;width:18px;height:0;border-top:3px solid var(--noir);}
 .legende-attendue{border-top:3px dashed var(--b300);margin-left:.6rem;}
+
+/* ══ Lot 4 — santé animale : photos, pictogrammes, message vocal ═══════ */
+.liens-discrets{display:flex;gap:1rem;flex-wrap:wrap;font-size:.78rem;font-weight:700;}
+.liens-discrets a{color:var(--noir3);}
+a.btn-gros-rouge{text-decoration:none;}
+a.btn-gros-rouge:hover{color:var(--blanc);filter:brightness(1.08);}
+.photos-zone{display:flex;flex-direction:column;gap:.5rem;}
+.photos-vignettes{display:flex;gap:.5rem;flex-wrap:wrap;}
+.photos-vignettes img{width:96px;height:96px;object-fit:cover;border-radius:10px;border:2px solid var(--b200);cursor:pointer;}
+.pictos .case-choix span{min-height:92px;font-weight:700;}
+.pictos .case-choix span i{font-size:2rem;display:block;margin-bottom:.2rem;}
+.pictos .case-choix input:checked + span{border-color:var(--rouge);background:var(--alerte-fond);}
+.btn-gros-secondaire.enregistre{border-color:var(--rouge);color:var(--rouge);}
+.pictos-lecture{display:flex;flex-wrap:wrap;gap:.4rem;}
+.picto-lu{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .6rem;border-radius:20px;background:var(--alerte-fond);
+  border:1px solid var(--alerte-bord);color:var(--danger-encre);font-size:.78rem;font-weight:700;}
+.photos-lecture{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.6rem;}
+.photos-lecture img{width:180px;height:140px;object-fit:cover;border-radius:10px;border:1.5px solid var(--bord);}

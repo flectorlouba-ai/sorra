@@ -1,0 +1,59 @@
+{% extends '_base.html' %}
+{% block titre %}Traitement{% endblock %}
+{% block sous_titre %}Santé animale{% endblock %}
+{% block icone %}prescription2{% endblock %}
+{% block page_sous_titre %}<span class="mono">{{ bande.numero }}</span> · {{ present|qte }} poulets présents{% endblock %}
+{% block contenu %}
+<form method="post" class="form-terrain" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  <div class="form-group">
+    <label class="form-label" for="produit_id">Médicament</label>
+    <select class="form-control" id="produit_id" name="produit_id" required>
+      <option value="">— Choisir —</option>
+      {% for p in medicaments %}<option value="{{ p.id }}" data-delai="{{ p.delai_attente_jours or '' }}" {% if saisie.get('produit_id') == p.id|string %}selected{% endif %}>{{ p.nom }}{% if p.delai_attente_jours %} (délai {{ p.delai_attente_jours }} j){% endif %}</option>{% endfor %}
+    </select>
+    {% if not medicaments %}<div class="form-hint">Aucun médicament au catalogue : demandez à l'administrateur.</div>{% endif %}
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="motif">Pour quoi ?</label>
+    <input class="form-control" id="motif" name="motif" maxlength="200" value="{{ saisie.get('motif', '') }}" placeholder="ex. diarrhée">
+  </div>
+  <div class="form-grid">
+    <div class="form-group"><label class="form-label" for="date_debut">Du</label>
+      <input class="form-control" type="date" id="date_debut" name="date_debut" max="{{ today.isoformat() }}" value="{{ saisie.get('date_debut') or today.isoformat() }}"></div>
+    <div class="form-group"><label class="form-label" for="date_fin">Au</label>
+      <input class="form-control" type="date" id="date_fin" name="date_fin" value="{{ saisie.get('date_fin') or today.isoformat() }}"></div>
+  </div>
+  <div class="compteur">
+    <div class="compteur-libelle">Poulets traités</div>
+    <div class="compteur-boutons">
+      <button type="button" class="compteur-moins" aria-label="Moins">−</button>
+      <input type="number" name="nombre" value="{{ saisie.get('nombre') or present }}" min="1" step="10" inputmode="numeric" class="compteur-valeur">
+      <button type="button" class="compteur-plus" aria-label="Plus">+</button>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="quantite">Quantité de médicament utilisée</label>
+    <input class="form-control" id="quantite" name="quantite" inputmode="decimal" value="{{ saisie.get('quantite', '') }}" placeholder="dans l'unité du produit (flacons, litres…)">
+  </div>
+  <div class="note-numero" id="note-delai"></div>
+  <button type="submit" class="btn-gros"><i class="bi bi-check-lg"></i> Enregistrer le traitement</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/compteurs.js') }}"></script>
+<script>
+(function () {
+  var p = document.getElementById('produit_id'), fin = document.getElementById('date_fin');
+  function note() {
+    var o = p.options[p.selectedIndex], d = o && o.dataset.delai ? parseInt(o.dataset.delai, 10) : 0;
+    var zone = document.getElementById('note-delai');
+    if (!d || !fin.value) { zone.textContent = ''; return; }
+    var x = new Date(fin.value); x.setDate(x.getDate() + d);
+    zone.textContent = 'Pas d\'abattage avant le ' + x.toLocaleDateString('fr-FR') + ' (délai d\'attente).';
+  }
+  p.addEventListener('change', note); fin.addEventListener('change', note); note();
+})();
+</script>
+{% endblock %}

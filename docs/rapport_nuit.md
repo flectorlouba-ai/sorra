@@ -147,3 +147,104 @@ Construit exactement ce qui avait été proposé à l'étape 1, avec vos choix :
 
 - Seuils orange et rouge (0,5 % et 1 %) et courbe de croissance : à faire fixer par les vétérinaires, dans Paramètres.
 - La DGE voit les alertes de bande de toutes les provinces ; l'ADMIN ne les voit pas (votre choix).
+
+---
+
+## Lot 4 — Santé animale (module M2)
+
+**État : terminé.** Commit « Lot 4 : santé animale ». **207 tests réussis** et 1 réservé à PostgreSQL ; 14 tests nouveaux dans `tests/test_sante.py`. Migration **0006**.
+
+### Ce qui a été fait
+
+**A. Déclaration sanitaire**, depuis le bouton rouge « Signaler un poulet malade » (feu orange ou rouge), ou le lien discret « Poulet malade ? » de « Ma bande aujourd'hui ».
+- **Photos :** 1 à 3, avec l'appareil photo du téléphone. Elles sont réduites dans le téléphone (1 600 px, JPEG) avant l'envoi.
+- **Signes observés :** gros pictogrammes avec un mot, tirés de la liste configurable « Signes cliniques » et de ses 9 valeurs de départ.
+- **Compteur** « Animaux touchés ».
+- **Message vocal facultatif :** le bouton n'apparaît que si le navigateur le permet (HTTPS ou localhost). Sur le VPS en HTTP, il n'apparaît pas.
+- Gros bouton « Envoyer au vétérinaire ».
+- **Où sont les fichiers :**
+  - photos et audio sont rangés hors du dossier public (`instance/televersements/sante`) ;
+  - ils ne sont servis qu'aux personnes qui ont le droit de voir la déclaration ;
+  - leur type est vérifié sur le contenu du fichier, pas sur son nom.
+- **Destinataires :** les seuls vétérinaires de la province, plus l'éleveur qui l'a faite (« Mes déclarations ») et l'ADMIN.
+
+**B. Alertes sanitaires**
+- Une alerte naît d'une déclaration, ou d'un **feu rouge** de bande. Une seule alerte « feu rouge » reste ouverte à la fois par bande.
+- Statuts : **Nouvelle → En analyse → Confirmée ou Infirmée → Close**. Chaque passage est daté, avec un commentaire obligatoire.
+- **Seul le VETO change le statut.** L'ADMIN voit tout mais ne qualifie pas.
+- **La DGE ne voit une alerte qu'une fois confirmée** par un vétérinaire. Jamais le public.
+- **Encadré Alertes :**
+  - VETO : les alertes nouvelles et en analyse de sa province ;
+  - DGE : les alertes confirmées.
+
+**C. Calendrier vaccinal**
+- Le VETO (et l'ADMIN) le définit : âge en jours, vaccin du catalogue, mode d'administration (liste configurable : eau de boisson, spray, injection, goutte oculaire).
+- **Calendrier de départ, à valider par les vétérinaires**, avec un bandeau et un bouton « Valider le calendrier » réservé au VETO :
+
+  | Jour | Vaccin | Mode |
+  |---|---|---|
+  | J7 | Newcastle + Bronchite (HB1/H120) | goutte oculaire |
+  | J14 | Gumboro | eau de boisson |
+  | J21 | Newcastle (La Sota) | eau de boisson |
+  | J28 | Gumboro (rappel) | eau de boisson |
+
+  Les 4 vaccins sont ajoutés au catalogue.
+- **« À faire aujourd'hui »** affiche le vaccin du jour, celui du lendemain et ceux en retard, avec un lien direct vers l'enregistrement.
+- **Vaccination :** date, vaccin, mode, nombre d'animaux, doses (1 par poulet par défaut). Les doses sont **déduites du stock**.
+- **Vaccin en retard** (date prévue + 2 jours, réglable) : alerte chez l'agent et le VETO.
+
+**D. Traitements**
+- Début et fin, médicament, motif, nombre d'animaux, quantité. La quantité est déduite du stock.
+- Le catalogue reçoit un champ « **délai d'attente avant abattage** (jours) » pour les médicaments.
+- **Sortie vers l'abattoir pendant un délai d'attente :**
+  - un encadré rouge l'annonce dès l'ouverture de l'écran de sortie ;
+  - après l'enregistrement, un message « ATTENTION » s'affiche, l'enregistrement n'est pas bloqué ;
+  - le journal reçoit l'action « Sortie pendant un délai d'attente ».
+
+**E. Accueil :** l'onglet Santé animale ouvre Alertes sanitaires (VETO, DGE, ADMIN), Déclarations (VETO, ADMIN) et Vaccins et traitements (VETO, ADMIN, AGENT). Biosécurité reste « Bientôt ».
+
+**F. Fiche bande :** nouvelles cartes « Vaccinations » (fait, aujourd'hui, demain, à venir, en retard) et « Traitements » (avec la date de fin du délai d'attente).
+
+### Écrans et chemins de clics
+
+| Écran | Chemin |
+|---|---|
+| Déclarer (téléphone) | « Ma bande aujourd'hui » → bouton rouge, ou « Poulet malade ? ». Photo → pictogrammes → compteur → « Envoyer au vétérinaire » (3 gestes + photo). |
+| Mes déclarations (éleveur) | carte « Ma ferme » → lien « Mes déclarations » |
+| Alertes (VETO, DGE, ADMIN) | onglet Santé animale → Alertes sanitaires → clic sur une alerte. Fiche : signes, nombre, photos, message vocal, lien vers la bande, suivi daté. Le VETO choisit le statut suivant en grosse case, écrit un commentaire, puis « Enregistrer ». |
+| Déclarations (VETO, ADMIN) | onglet Santé animale → Déclarations |
+| Vaccins et traitements | onglet Santé animale → Vaccins et traitements : calendrier (« + Ajouter au calendrier » pour VETO et ADMIN), vaccins en retard, délais d'attente en cours |
+| Vacciner, Traiter (téléphone) | lien du vaccin dans « À faire aujourd'hui », ou lien discret « Traitement » du bloc de la bande |
+
+### Décisions prises cette nuit (lot 4)
+
+1. **L'agent technique ne voit pas les déclarations**, même celles qu'il saisit pour l'éleveur : le cahier dit « aux seuls services vétérinaires ». Il garde le lien avec ses fermes par les alertes de bande (feu) et les vaccins en retard. **→ À trancher par vous** : l'agent doit-il voir les déclarations de ses fermes ?
+2. **ADMIN :** voit toutes les déclarations et alertes, mais ne qualifie pas.
+3. **DGE :** l'onglet Santé animale avec la seule tuile Alertes sanitaires (alertes confirmées).
+4. **L'agent** reçoit l'onglet Santé animale, avec la tuile « Vaccins et traitements ».
+5. **Calendrier « à valider »** : c'est un paramètre oui / non, que seul le VETO bascule avec le bouton « Valider le calendrier ».
+6. **Une bande de rattrapage** n'affiche pas comme « en retard » les vaccins prévus avant son début de suivi : ils sont marqués « Avant le suivi ».
+7. **Doses de vaccin :** 1 dose par poulet par défaut, modifiable à la saisie.
+8. **Fichiers :** 6 Mo au plus par fichier. Types acceptés : JPEG, PNG, WebP pour les photos ; webm, ogg, m4a pour le message vocal.
+9. **Sauvegardes :** les photos et messages vocaux sont des fichiers sur le disque (`instance/televersements`), hors de la base. **→ Ce dossier devra entrer dans la sauvegarde quotidienne** au déploiement : j'ajouterai sa copie au script de sauvegarde.
+
+### Tests que vous ferez demain (lot 4)
+
+1. **Déclarer** (éleveur, téléphone) : « Poulet malade ? » → prenez une photo, touchez « Diarrhée » et « Abattement », 12 animaux → « Envoyer au vétérinaire ». Le message « Envoyé au vétérinaire ✓ » s'affiche.
+2. **Visibilité :**
+   - en **veto** de la province, l'encadré Alertes affiche « ALS-2026-0001 · Déclaration de l'éleveur · Nouvelle » ; la photo s'ouvre ;
+   - en **veto** d'une autre province, et en **agent**, la déclaration n'est pas visible.
+3. **Qualifier** (veto) : En analyse (avec commentaire), puis Confirmée. En **dge**, l'alerte apparaît seulement maintenant, dans la liste et dans l'encadré.
+4. **Feu rouge** : envoyez plus de 1 % de morts. Une alerte « Mortalité anormale (feu rouge) » apparaît chez le vétérinaire.
+5. **Vaccin du jour** : sur une bande au jour 14, « À faire aujourd'hui » affiche « Vaccin du jour : Vaccin Gumboro (eau de boisson) ». Un clic mène à l'enregistrement, puis vérifiez le stock de vaccins de la ferme.
+6. **Traitement et délai d'attente :**
+   - au catalogue (admin), créez un médicament avec un délai de 7 jours, et faites-le livrer ;
+   - « Traitement » → enregistrez-le ;
+   - « Sortie » : l'encadré rouge du délai d'attente s'affiche ; enregistrez une sortie vers l'abattoir, le message « ATTENTION » s'affiche et le journal contient « Sortie pendant un délai d'attente ».
+7. **Calendrier** (veto) : Vaccins et traitements → modifiez un jour, puis « Valider le calendrier ».
+
+### Points à valider (lot 4)
+
+- **L'agent technique doit-il voir les déclarations de ses fermes ?** (aujourd'hui : non)
+- Calendrier vaccinal de départ et délai « en retard » (2 jours) : à valider par les vétérinaires.
+- Sauvegarde du dossier des photos au déploiement.

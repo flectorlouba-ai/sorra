@@ -30,8 +30,10 @@ def test_admin_tous_les_onglets(client, app):
                              'maintenance', 'qhse', 'comptabilite']
     assert tuiles_disponibles(page) == ['Journal des opérations', 'Utilisateurs',
                                         'Provinces et localités', 'Listes', 'Paramètres',
-                                        'Catalogue des intrants', 'Fermes', 'Bandes', 'Intrants', 'Opérateurs']
-    assert page.count('tuile-etiquette">Bientôt') == 16
+                                        'Catalogue des intrants', 'Fermes', 'Bandes', 'Intrants',
+                                        'Alertes sanitaires', 'Déclarations', 'Vaccins et traitements',
+                                        'Opérateurs']
+    assert page.count('tuile-etiquette">Bientôt') == 13
     assert page.count('tuile-etiquette">Option') == 12
     assert '« Lots et QR codes » arrive bientôt : de la ferme au consommateur.' in page
     assert 'Catalogue des intrants' in page
@@ -44,20 +46,21 @@ def test_dge_sans_configuration(client, app):
     page = accueil(client, 'dge', Profil.DGE, ())
     assert onglets(page)[0] == 'fermes' and 'config' not in onglets(page)
     assert len(onglets(page)) == 8
-    assert tuiles_disponibles(page) == ['Fermes', 'Bandes', 'Intrants', 'Opérateurs']
+    assert tuiles_disponibles(page) == ['Fermes', 'Bandes', 'Intrants', 'Alertes sanitaires', 'Opérateurs']
 
 
 def test_agent(client, app):
     page = accueil(client, 'agent', Profil.AGENT)
-    assert onglets(page) == ['fermes', 'tracabilite']
-    assert tuiles_disponibles(page) == ['Fermes', 'Bandes', 'Intrants', 'Opérateurs']
+    assert onglets(page) == ['fermes', 'sante', 'tracabilite']
+    assert tuiles_disponibles(page) == ['Fermes', 'Bandes', 'Intrants', 'Vaccins et traitements', 'Opérateurs']
     assert 'Bandes' in page and 'Lots et QR codes' in page
 
 
 def test_veto(client, app):
     page = accueil(client, 'veto', Profil.VETO)
     assert onglets(page) == ['fermes', 'sante']
-    assert tuiles_disponibles(page) == ['Fermes', 'Bandes']
+    assert tuiles_disponibles(page) == ['Fermes', 'Bandes', 'Alertes sanitaires', 'Déclarations',
+                                        'Vaccins et traitements']
     assert 'Intrants' not in page   # Fermes et élevage : Fermes et Bandes, en lecture
     assert 'Déclarations' in page
 

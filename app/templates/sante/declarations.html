@@ -1,0 +1,28 @@
+{% extends '_base.html' %}
+{% block titre %}{{ 'Mes déclarations' if mes else 'Déclarations sanitaires' }}{% endblock %}
+{% block sous_titre %}Santé animale{% endblock %}
+{% block icone %}camera{% endblock %}
+{% block page_sous_titre %}{{ declarations|length }} déclaration{{ 's' if declarations|length != 1 }}{% if not mes %} · transmises aux services vétérinaires{% endif %}{% endblock %}
+
+{% block contenu %}
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>Date</th><th>Ferme</th><th>Signes</th><th>Animaux</th><th>Photos</th><th>Suite</th></tr></thead>
+    <tbody>
+    {% for d in declarations %}
+      {% set a = alertes.get(d.id) %}
+      <tr {% if a and not mes %}class="tr-click" onclick="location.href='{{ url_for('sante.alerte', numero=a.numero) }}'"{% endif %}>
+        <td class="td-num">{{ d.cree_le|date_locale('%d/%m %H:%M') }}</td>
+        <td>{{ d.ferme.nom }}{% if d.bande %}<br><span class="td-sous">{{ d.bande.numero }}</span>{% endif %}</td>
+        <td>{{ d.signes|join(', ') }}</td>
+        <td>{{ d.nombre_animaux|qte }}</td>
+        <td>{{ d.photos|length }}{% if d.audio %} · <i class="bi bi-mic-fill" title="Message vocal"></i>{% endif %}</td>
+        <td>{% if a %}<span class="badge {{ {'NOUVELLE': 'badge-warn', 'EN_ANALYSE': 'badge-info', 'CONFIRMEE': 'badge-danger', 'INFIRMEE': 'badge-ok', 'CLOSE': 'badge-off'}[a.statut] }}">{{ a.libelle_statut }}</span>{% endif %}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="table-vide"><i class="bi bi-heart-pulse"></i>Aucune déclaration.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

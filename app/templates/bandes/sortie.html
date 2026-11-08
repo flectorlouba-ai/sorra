@@ -7,6 +7,8 @@
 <form method="post" class="form-terrain" novalidate>
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  {% if delai %}<div class="encadre-rouge"><strong>Délai d'attente en cours jusqu'au {{ delai.strftime('%d/%m/%Y') }}</strong> :
+    ces poulets ont reçu un médicament. Ne les envoyez pas à l'abattoir avant cette date.</div>{% endif %}
   <div class="form-label">Pour qui ?</div>
   <div class="choix-cases">
     {% for m in motifs %}

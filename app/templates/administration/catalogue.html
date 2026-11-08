@@ -30,11 +30,11 @@
         <td><strong>{{ p.nom }}</strong></td>
         <td>{{ p.type }}</td>
         <td>{{ p.unite }}</td>
-        <td>{% if p.poids_sac_kg %}{{ p.poids_sac_kg|qte }} kg{% else %}—{% endif %}</td>
+        <td>{% if p.poids_sac_kg %}{{ p.poids_sac_kg|qte }} kg{% elif p.delai_attente_jours %}délai {{ p.delai_attente_jours }} j{% else %}—{% endif %}</td>
         <td>{% if p.actif %}<span class="badge badge-ok">Actif</span>{% else %}<span class="badge badge-off">Inactif</span>{% endif %}</td>
         <td style="text-align:right;">
           <button type="button" class="btn-edit" title="Modifier"
-                  data-p='{{ {"id": p.id, "nom": p.nom, "type": p.type, "unite": p.unite, "poids": p.poids_sac_kg|qte if p.poids_sac_kg else "", "actif": p.actif}|tojson }}'
+                  data-p='{{ {"id": p.id, "nom": p.nom, "type": p.type, "unite": p.unite, "poids": p.poids_sac_kg|qte if p.poids_sac_kg else "", "delai": p.delai_attente_jours or "", "actif": p.actif}|tojson }}'
                   onclick="ouvrirProduit(this)"><i class="bi bi-pencil"></i></button>
         </td>
       </tr>
@@ -74,6 +74,11 @@
             <input class="form-control" id="p-poids" name="poids_sac_kg" inputmode="decimal" placeholder="ex. 25">
             <div class="form-hint">Obligatoire pour un aliment vendu en sacs : le stock s'affiche alors en sacs et en kg.</div>
           </div>
+          <div class="form-group span2" id="bloc-delai">
+            <label class="form-label" for="p-delai">Délai d'attente avant abattage (jours)</label>
+            <input class="form-control" id="p-delai" name="delai_attente_jours" inputmode="numeric" placeholder="ex. 7">
+            <div class="form-hint">Après la fin d'un traitement, les poulets ne doivent pas partir à l'abattoir avant ce délai.</div>
+          </div>
           <div class="form-group span2" id="bloc-p-actif" hidden>
             <label class="coche"><input type="checkbox" name="actif" id="p-actif"> Produit actif</label>
             <div class="form-hint">Un produit ne se supprime pas : décochez pour ne plus le proposer.</div>
@@ -90,6 +95,7 @@
 <script>
 function majPoids() {
   document.getElementById('bloc-poids').hidden = document.getElementById('p-unite').value !== 'sacs';
+  document.getElementById('bloc-delai').hidden = document.getElementById('p-type').value !== 'Médicament';
 }
 function ouvrirProduit(btn) {
   var f = document.getElementById('form-produit');
@@ -102,6 +108,7 @@ function ouvrirProduit(btn) {
     document.getElementById('p-type').value = p.type;
     document.getElementById('p-unite').value = p.unite;
     document.getElementById('p-poids').value = p.poids;
+    document.getElementById('p-delai').value = p.delai;
     document.getElementById('bloc-p-actif').hidden = false;
     document.getElementById('p-actif').checked = p.actif;
   } else {

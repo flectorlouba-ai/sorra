@@ -39,9 +39,11 @@ MODULES = [
          {A, D, Profil.AGENT}),
     ]},
     {'code': 'sante', 'titre': 'Santé animale', 'icone': 'heart-pulse', 'option': False, 'tuiles': [
-        ('Alertes sanitaires', 'Mortalité anormale', 'exclamation-triangle', None, None),
-        ('Déclarations', 'Signes et photos', 'camera', None, None),
-        ('Vaccins et traitements', 'Calendrier vaccinal', 'capsule', None, None),
+        ('Alertes sanitaires', 'Mortalité anormale', 'exclamation-triangle', 'sante.alertes',
+         {A, D, Profil.VETO}),
+        ('Déclarations', 'Signes et photos', 'camera', 'sante.declarations', {A, Profil.VETO}),
+        ('Vaccins et traitements', 'Calendrier vaccinal', 'capsule', 'sante.vaccins',
+         {A, Profil.VETO, Profil.AGENT}),
         ('Biosécurité', 'Contrôles des fermes', 'shield-check', None, None),
     ]},
     {'code': 'tracabilite', 'titre': 'Traçabilité', 'icone': 'qr-code', 'option': False, 'tuiles': [
@@ -89,7 +91,7 @@ MODULES = [
 ONGLETS = {
     Profil.ADMIN:    [m['code'] for m in MODULES],
     Profil.DGE:      [m['code'] for m in MODULES if m['code'] != 'config'],
-    Profil.AGENT:    ['fermes', 'tracabilite'],
+    Profil.AGENT:    ['fermes', 'sante', 'tracabilite'],
     Profil.VETO:     ['sante', 'fermes'],
     Profil.AUDITEUR: ['config'],
 }
@@ -148,6 +150,21 @@ def _alertes(user):
                                  'lien': url_for('bandes.fiche', numero=b.numero), 'nombre': 1,
                                  'niveau': 'urgence' if couleur == 'rouge' else 'warning',
                                  'meta': f'{b.ferme.nom} · bande'})
+    # Santé animale : alertes à qualifier (VETO), confirmées (DGE), vaccins en retard (agent, VETO)
+    from app.services import sante
+    from app.models.sante import AlerteSanitaire, StatutAlerte
+    if user.profil in (Profil.VETO, Profil.DGE):
+        statuts = StatutAlerte.OUVERTES if user.profil == Profil.VETO else (StatutAlerte.CONFIRMEE,)
+        for a in (sante.alertes_visibles(user).filter(AlerteSanitaire.statut.in_(statuts))
+                  .order_by(AlerteSanitaire.cree_le.desc())):
+            resultat.append({'texte': f'{a.numero} · {a.libelle_origine} · {a.libelle_statut}',
+                             'lien': url_for('sante.alerte', numero=a.numero), 'nombre': 1,
+                             'niveau': 'urgence', 'meta': f'{a.ferme.nom} · alerte sanitaire'})
+    if user.profil in (Profil.VETO, Profil.AGENT):
+        for b, retards in sante.vaccins_en_retard(filtre_perimetre(Bande.query)):
+            resultat.append({'texte': f'{b.numero} · vaccin en retard : {retards[0]["calendrier"].produit.nom}',
+                             'lien': url_for('bandes.fiche', numero=b.numero), 'nombre': len(retards),
+                             'niveau': 'warning', 'meta': f'{b.ferme.nom} · vaccins'})
     return resultat
 
 

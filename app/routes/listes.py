@@ -18,6 +18,8 @@ CATEGORIES = {
     'types_operateurs':      "Types d'opérateurs",
     'fournisseurs':          'Fournisseurs',
     'motifs_ecart':          "Motifs d'écart à la réception",
+    'signes_cliniques':      'Signes cliniques',
+    'modes_administration':  "Modes d'administration des vaccins",
 }
 
 

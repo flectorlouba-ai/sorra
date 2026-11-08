@@ -13,3 +13,6 @@ from app.models.intrant import (Produit, Livraison, LivraisonLigne,  # noqa: F40
                                 StatutLivraison)
 from app.models.bande import (Bande, BandePoussins, SaisieJour, SaisieAliment,  # noqa: F401
                               Pesee, Sortie, StatutBande, MotifSortie)
+from app.models.sante import (Declaration, DeclarationPhoto, AlerteSanitaire,  # noqa: F401
+                              AlerteHistorique, CalendrierVaccinal, Vaccination, Traitement,
+                              StatutAlerte, OrigineAlerte)

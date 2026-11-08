@@ -107,7 +107,8 @@
       <a class="btn-gros-secondaire" href="tel:{{ f.agent.telephone|replace(' ', '') }}"><i class="bi bi-telephone-fill"></i> Appeler mon agent</a>
       {% endif %}
       {% endif %}
-      {% if loop.last %}<div class="lien-discret"><a href="{{ url_for('livraisons.mes_livraisons') }}"><i class="bi bi-box-seam"></i> Mes livraisons</a></div>{% endif %}
+      {% if loop.last %}<div class="lien-discret"><a href="{{ url_for('livraisons.mes_livraisons') }}"><i class="bi bi-box-seam"></i> Mes livraisons</a>
+        · <a href="{{ url_for('sante.mes_declarations') }}"><i class="bi bi-heart-pulse"></i> Mes déclarations</a></div>{% endif %}
     </div>
     {% else %}
     <div class="empty-note">Aucune ferme ne vous est encore rattachée. Contactez votre agent technique.</div>

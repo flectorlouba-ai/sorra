@@ -1,0 +1,115 @@
+{% extends '_base.html' %}
+{% block titre %}Poulet malade{% endblock %}
+{% block sous_titre %}Santé animale{% endblock %}
+{% block icone %}heart-pulse{% endblock %}
+{% block page_sous_titre %}{{ ferme.nom }}{% if bande %} · Bâtiment {{ bande.batiment.code }}{% endif %} · envoyé aux services vétérinaires de la province{% endblock %}
+
+{% block contenu %}
+<form method="post" enctype="multipart/form-data" class="form-terrain" id="form-declaration" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if bande %}<input type="hidden" name="bande" value="{{ bande.numero }}">{% else %}<input type="hidden" name="ferme" value="{{ ferme.numero }}">{% endif %}
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+
+  <div class="form-label">Photos (1 à 3)</div>
+  <div class="photos-zone">
+    <div class="photos-vignettes" id="vignettes"></div>
+    <button type="button" class="btn-gros-secondaire" id="btn-photo"><i class="bi bi-camera-fill"></i> Prendre une photo</button>
+    <input type="file" id="capture" accept="image/*" capture="environment" hidden>
+    <input type="file" name="photos" id="photos" multiple hidden>
+  </div>
+
+  <div class="form-label">Ce que vous voyez</div>
+  <div class="choix-cases pictos">
+    {% set coches = saisie.getlist('signes') if saisie else [] %}
+    {% for s, icone in signes %}
+    <label class="case-choix"><input type="checkbox" name="signes" value="{{ s }}" {% if s in coches %}checked{% endif %}>
+      <span><i class="bi bi-{{ icone }}"></i><br>{{ s }}</span></label>
+    {% endfor %}
+  </div>
+
+  <div class="compteur">
+    <div class="compteur-libelle">Animaux touchés</div>
+    <div class="compteur-boutons">
+      <button type="button" class="compteur-moins" aria-label="Moins">−</button>
+      <input type="number" name="nombre" value="{{ saisie.get('nombre') or 1 }}" min="1" inputmode="numeric" class="compteur-valeur">
+      <button type="button" class="compteur-plus" aria-label="Plus">+</button>
+    </div>
+  </div>
+
+  <div id="bloc-vocal" hidden>
+    <button type="button" class="btn-gros-secondaire" id="btn-vocal"><i class="bi bi-mic-fill"></i> <span>Message vocal</span></button>
+    <audio id="ecoute" controls hidden></audio>
+    <input type="file" name="audio" id="audio" hidden>
+  </div>
+
+  <button type="submit" class="btn-gros-rouge"><i class="bi bi-send"></i> Envoyer au vétérinaire</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/compteurs.js') }}"></script>
+<script>
+(function () {
+  var MAX = 3, photos = [];
+  var cible = document.getElementById('photos'), capture = document.getElementById('capture');
+  function maj() {
+    var dt = new DataTransfer();
+    photos.forEach(function (f) { dt.items.add(f); });
+    cible.files = dt.files;
+    var zone = document.getElementById('vignettes');
+    zone.innerHTML = '';
+    photos.forEach(function (f, i) {
+      var img = document.createElement('img');
+      img.src = URL.createObjectURL(f); img.alt = 'Photo ' + (i + 1);
+      img.title = 'Toucher pour retirer';
+      img.addEventListener('click', function () { photos.splice(i, 1); maj(); });
+      zone.appendChild(img);
+    });
+    document.getElementById('btn-photo').hidden = photos.length >= MAX;
+  }
+  // Réduction dans le téléphone (1600 px, JPEG) : envoi plus léger sur réseau faible
+  function reduire(fichier, fin) {
+    var img = new Image();
+    img.onload = function () {
+      var r = Math.min(1, 1600 / Math.max(img.width, img.height));
+      var c = document.createElement('canvas');
+      c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(function (b) { fin(new File([b], 'photo.jpg', {type: 'image/jpeg'})); }, 'image/jpeg', 0.72);
+    };
+    img.onerror = function () { fin(fichier); };
+    img.src = URL.createObjectURL(fichier);
+  }
+  document.getElementById('btn-photo').addEventListener('click', function () { capture.click(); });
+  capture.addEventListener('change', function () {
+    if (!capture.files[0]) return;
+    reduire(capture.files[0], function (f) { photos.push(f); capture.value = ''; maj(); });
+  });
+
+  // Message vocal : seulement si le navigateur le permet (HTTPS ou localhost)
+  if (window.isSecureContext && navigator.mediaDevices && window.MediaRecorder) {
+    document.getElementById('bloc-vocal').hidden = false;
+    var bouton = document.getElementById('btn-vocal'), enreg = null, morceaux = [];
+    bouton.addEventListener('click', function () {
+      if (enreg && enreg.state === 'recording') { enreg.stop(); return; }
+      navigator.mediaDevices.getUserMedia({audio: true}).then(function (flux) {
+        morceaux = []; enreg = new MediaRecorder(flux);
+        enreg.ondataavailable = function (e) { morceaux.push(e.data); };
+        enreg.onstop = function () {
+          flux.getTracks().forEach(function (t) { t.stop(); });
+          var type = enreg.mimeType || 'audio/webm';
+          var f = new File(morceaux, 'message.' + (type.indexOf('mp4') >= 0 ? 'm4a' : type.indexOf('ogg') >= 0 ? 'ogg' : 'webm'), {type: type});
+          var dt = new DataTransfer(); dt.items.add(f); document.getElementById('audio').files = dt.files;
+          var e = document.getElementById('ecoute'); e.src = URL.createObjectURL(f); e.hidden = false;
+          bouton.querySelector('span').textContent = 'Refaire le message vocal';
+          bouton.classList.remove('enregistre');
+        };
+        enreg.start();
+        bouton.querySelector('span').textContent = 'Arrêter l\'enregistrement';
+        bouton.classList.add('enregistre');
+      }).catch(function () { document.getElementById('bloc-vocal').hidden = true; });
+    });
+  }
+})();
+</script>
+{% endblock %}
