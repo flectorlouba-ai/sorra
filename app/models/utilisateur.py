@@ -61,9 +61,11 @@ class UtilisateurFerme(db.Model):
 
 class Utilisateur(UserMixin, HorodatageMixin, db.Model):
     __tablename__ = 'utilisateur'
-    # Journal : la date de connexion n'est pas une modification de la fiche,
-    # le mot de passe n'est jamais recopié, les provinces le sont par leur code.
-    __journal_ignorer__  = {'derniere_connexion'}
+    # Journal : la date de connexion et le compteur d'échecs ne sont pas des
+    # modifications de la fiche (le blocage a ses propres lignes BLOCAGE /
+    # DEBLOCAGE), le mot de passe n'est jamais recopié, les provinces le sont
+    # par leur code.
+    __journal_ignorer__  = {'derniere_connexion', 'echecs_connexion', 'bloque_jusqu_a'}
     __journal_masquer__  = {'mot_de_passe_hash'}
     __journal_relations__ = {'provinces': 'code'}
 
@@ -79,6 +81,8 @@ class Utilisateur(UserMixin, HorodatageMixin, db.Model):
     actif              = db.Column(db.Boolean, nullable=False, default=True)
     doit_changer_mdp   = db.Column(db.Boolean, nullable=False, default=True)
     derniere_connexion = db.Column(db.DateTime(timezone=True), nullable=True)
+    echecs_connexion   = db.Column(db.Integer, nullable=False, default=0, server_default='0')
+    bloque_jusqu_a     = db.Column(db.DateTime(timezone=True), nullable=True)
 
     provinces = db.relationship('Province', secondary=utilisateur_province,
                                 order_by='Province.ordre', lazy='selectin')
@@ -94,6 +98,12 @@ class Utilisateur(UserMixin, HorodatageMixin, db.Model):
     @property
     def est_national(self):
         return self.profil in PROFILS_NATIONAUX
+
+    @property
+    def est_bloque(self):
+        from app.utils.dates import en_utc
+        from app.models.base import maintenant
+        return bool(self.bloque_jusqu_a) and en_utc(self.bloque_jusqu_a) > maintenant()
 
     @property
     def province_ids(self):

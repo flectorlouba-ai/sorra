@@ -42,7 +42,8 @@
         <td>{{ l.identifiant or '—' }}</td>
         <td>
           {% set ton = {'CREATION': 'badge-ok', 'MODIFICATION': 'badge-info', 'SUPPRESSION': 'badge-danger',
-                        'ANNULATION': 'badge-danger', 'ECHEC_CONNEXION': 'badge-warn', 'EXPORT': 'badge-warn'} %}
+                        'ANNULATION': 'badge-danger', 'ECHEC_CONNEXION': 'badge-warn', 'EXPORT': 'badge-warn',
+                        'BLOCAGE': 'badge-danger', 'DEBLOCAGE': 'badge-ok'} %}
           <span class="badge {{ ton.get(l.action, 'badge-neutre') }}">{{ actions.get(l.action, l.action) }}</span>
         </td>
         <td>{{ tables.get(l.table_nom, '') if l.table_nom != 'journal_audit' else 'Journal' }}</td>

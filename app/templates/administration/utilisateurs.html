@@ -38,8 +38,16 @@
         <td>{{ u.nom_complet }}</td>
         <td>{{ u.profil.libelle }}</td>
         <td>{% if u.est_national %}Toutes{% else %}{{ u.provinces|map(attribute='nom')|join(', ') or '—' }}{% endif %}</td>
-        <td>{% if u.actif %}<span class="badge badge-ok">Actif</span>{% else %}<span class="badge badge-off">Désactivé</span>{% endif %}</td>
-        <td style="text-align:right;">
+        <td>{% if not u.actif %}<span class="badge badge-off">Désactivé</span>
+            {% elif u.est_bloque %}<span class="badge badge-warn">Bloqué</span>
+            {% else %}<span class="badge badge-ok">Actif</span>{% endif %}</td>
+        <td style="text-align:right;white-space:nowrap;">
+          {% if u.est_bloque %}
+          <form method="post" action="{{ url_for('utilisateurs.debloquer', user_id=u.id) }}" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-edit" title="Débloquer"><i class="bi bi-unlock"></i> Débloquer</button>
+          </form>
+          {% endif %}
           <button type="button" class="btn-edit" title="Modifier"
                   data-u='{{ {"id": u.id|string, "identifiant": u.identifiant, "nom": u.nom, "prenom": u.prenom or "",
                               "email": u.email or "", "telephone": u.telephone or "", "profil": u.profil.value,

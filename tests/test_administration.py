@@ -123,9 +123,21 @@ def test_listes_comme_yl1(client_admin, monkeypatch):
     assert [v.valeur for v in ListeDeroulante.query.order_by(ListeDeroulante.ordre)] == ['Aliment', 'Poussin']
     client_admin.post(f'/administration/listes/modifier/{poussin.id}', data={'valeur': 'Poussins', 'actif': '0'})
     assert db.session.get(ListeDeroulante, poussin.id).actif is False
-    client_admin.post(f'/administration/listes/supprimer/{aliment.id}')
-    assert ListeDeroulante.query.count() == 1
-    assert 'Poussins' in client_admin.get('/administration/listes/').get_data(as_text=True)
+    client_admin.post(f'/administration/listes/modifier/{poussin.id}', data={'valeur': 'Poussins', 'actif': '1'})
+    assert db.session.get(ListeDeroulante, poussin.id).actif is True
+    # Pas de suppression : ni route, ni bouton
+    assert client_admin.post(f'/administration/listes/supprimer/{aliment.id}').status_code == 404
+    assert ListeDeroulante.query.count() == 2
+    page = client_admin.get('/administration/listes/').get_data(as_text=True)
+    assert 'Poussins' in page and 'btn-del' not in page and 'trash' not in page
+
+
+def test_parametres_securite_au_moins_1(client_admin):
+    p = Parametre.query.filter_by(cle='securite.echecs_avant_blocage').one()
+    r = client_admin.post(f'/administration/parametres/{p.id}/modifier', data={'valeur': '0'},
+                          follow_redirects=True)
+    assert 'au moins 1' in r.get_data(as_text=True)
+    assert db.session.get(Parametre, p.id).valeur == '5'
 
 
 def test_tuile_listes_absente_sans_categorie(client_admin):

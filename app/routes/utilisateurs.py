@@ -136,3 +136,15 @@ def modifier(user_id):
         message += ' Le nouveau mot de passe devra être changé à la prochaine connexion.'
     flash(message, 'success')
     return redirect(url_for('utilisateurs.index'))
+
+
+@utilisateurs_bp.route('/<user_id>/debloquer', methods=['POST'])
+@profil_requis(Profil.ADMIN)
+def debloquer(user_id):
+    from app.routes.auth import _debloquer
+    user = _charger(user_id)
+    if user.bloque_jusqu_a:
+        _debloquer(user, 'par l\'administrateur')
+        db.session.commit()
+        flash(f'Compte « {user.identifiant} » débloqué.', 'success')
+    return redirect(url_for('utilisateurs.index'))

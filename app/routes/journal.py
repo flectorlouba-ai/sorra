@@ -1,13 +1,15 @@
 import csv
 import io
 import json
-from datetime import date, timedelta
+import uuid
+from datetime import date, datetime, timedelta
 
 from flask import Blueprint, render_template, request, Response, abort, current_app
 
 from app import db
-from app.models import JournalAudit, Utilisateur, Profil
-from app.services.journal import enregistrer, Action
+from app.models import JournalAudit, Utilisateur, Profil, Province, TypeParametre
+from app.routes.listes import CATEGORIES
+from app.services.journal import enregistrer, Action, MASQUE
 from app.utils.dates import date_locale, debut_jour_utc
 from app.utils.permissions import profil_requis
 
@@ -30,6 +32,7 @@ CHAMPS = {
     'categorie': 'Liste', 'valeur': 'Valeur', 'cle': 'Réglage', 'type': 'Type',
     'description': 'Description', 'modifie_par': 'Modifié par', 'cree_le': 'Créé le',
     'modifie_le': 'Modifié le', 'derniere_connexion': 'Dernière connexion',
+    'echecs_connexion': 'Échecs de connexion', 'bloque_jusqu_a': 'Bloqué jusqu\'à',
 }
 
 # Champs internes sans intérêt pour le lecteur
@@ -76,13 +79,63 @@ def index():
                            libelle_element=libelle_element)
 
 
+def _date_lisible(texte):
+    try:
+        return date_locale(datetime.fromisoformat(texte))
+    except (TypeError, ValueError):
+        return texte
+
+
+def _lisible(champ, valeur):
+    """Valeur telle qu'un lecteur la comprend : nom du profil, de la province, Oui / Non…"""
+    if valeur is None:
+        return None
+    if valeur == MASQUE + ' (modifié)':
+        return 'Modifié'
+    if valeur == MASQUE:
+        return '(masqué)'
+    if champ == 'profil':
+        try:
+            return Profil(valeur).libelle
+        except ValueError:
+            return valeur
+    if champ == 'province_id':
+        p = db.session.get(Province, valeur)
+        return p.nom if p else valeur
+    if champ == 'provinces':
+        noms = dict(db.session.query(Province.code, Province.nom)
+                    .filter(Province.code.in_(valeur)).all())
+        return [noms.get(c, c) for c in valeur]
+    if champ in ('modifie_par', 'cree_par', 'utilisateur_id'):
+        try:
+            u = db.session.get(Utilisateur, uuid.UUID(valeur))
+        except ValueError:
+            u = None
+        return u.nom_complet if u else valeur
+    if champ == 'type':
+        try:
+            return TypeParametre(valeur).libelle
+        except ValueError:
+            return valeur
+    if champ == 'categorie':
+        return CATEGORIES.get(valeur, valeur)
+    if champ in ('cree_le', 'modifie_le', 'derniere_connexion', 'bloque_jusqu_a'):
+        return _date_lisible(valeur)
+    if valeur is True:
+        return 'Oui'
+    if valeur is False:
+        return 'Non'
+    return valeur
+
+
 @journal_bp.route('/<int:ligne_id>')
 @profil_requis(Profil.ADMIN, Profil.AUDITEUR)
 def detail(ligne_id):
     ligne = db.session.get(JournalAudit, ligne_id) or abort(404)
     avant, apres = ligne.avant or {}, ligne.apres or {}
     champs = [c for c in dict.fromkeys(list(avant) + list(apres)) if c not in _CACHES]
-    lignes = [(CHAMPS.get(c, c), avant.get(c), apres.get(c)) for c in champs]
+    lignes = [(CHAMPS.get(c, c), _lisible(c, avant.get(c)), _lisible(c, apres.get(c)))
+              for c in champs]
     return render_template('journal/detail.html', ligne=ligne, lignes=lignes,
                            tables=TABLES, actions=Action.LIBELLES,
                            element=libelle_element(ligne), filtres=request.args)

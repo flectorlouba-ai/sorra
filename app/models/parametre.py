@@ -23,6 +23,10 @@ PARAMETRES_DEFAUT = [
      'Nombre minimal de caractères d\'un mot de passe.'),
     ('securite.duree_session_minutes', '60', TypeParametre.ENTIER,
      'Durée d\'inactivité, en minutes, au bout de laquelle la session se ferme.'),
+    ('securite.echecs_avant_blocage', '5', TypeParametre.ENTIER,
+     'Nombre d\'échecs de connexion consécutifs avant le blocage du compte.'),
+    ('securite.blocage_minutes', '15', TypeParametre.ENTIER,
+     'Durée du blocage, en minutes, après trop d\'échecs de connexion.'),
 ]
 
 

@@ -1,7 +1,7 @@
 import pytest
 
 from app import db
-from app.models import JournalAudit, Utilisateur, Localite
+from app.models import JournalAudit, Utilisateur, Localite, Parametre
 from app.models.journal import JournalNonModifiable
 from tests.conftest import province
 
@@ -86,6 +86,32 @@ def test_filtres(client_admin):
     assert 'Aucune ligne' in client_admin.get('/journal/?du=2000-01-01&au=2000-01-02').get_data(as_text=True)
     assert 'Aucune ligne' not in client_admin.get('/journal/?personne=admin').get_data(as_text=True)
     assert client_admin.get('/journal/?du=pas-une-date').status_code == 200
+
+
+def test_detail_lisible(client_admin, admin):
+    client_admin.post('/administration/utilisateurs/creer', data={
+        'identifiant': 'agent1', 'nom': 'Mba', 'profil': 'AGENT',
+        'provinces': [str(province('EST').id)], 'mot_de_passe': 'Provisoire-2026'})
+    u = Utilisateur.query.filter_by(identifiant='agent1').one()
+    client_admin.post(f'/administration/utilisateurs/{u.id}/modifier', data={
+        'nom': 'Mba', 'profil': 'VETO', 'provinces': [str(province('HOG').id)],
+        'mot_de_passe': 'Autre-mdp-2026'})
+    ligne = lignes('MODIFICATION', 'utilisateur')[-1]
+    page = client_admin.get(f'/journal/{ligne.id}').get_data(as_text=True)
+    assert 'Agent technique' in page and 'Services vétérinaires' in page
+    assert 'Estuaire' in page and 'Haut-Ogooué' in page
+    assert 'Modifié' in page and '***' not in page
+    assert '>Oui<' in page and '>Non<' in page   # compte actif → désactivé
+    loc = Localite(province=province('NGO'), nom='Mouila')
+    db.session.add(loc)
+    db.session.commit()
+    creation = lignes('CREATION', 'localite')[-1]
+    assert 'Ngounié' in client_admin.get(f'/journal/{creation.id}').get_data(as_text=True)
+    p = Parametre.query.first()
+    client_admin.post(f'/administration/parametres/{p.id}/modifier', data={'valeur': '11'})
+    modif = lignes('MODIFICATION', 'parametre')[-1]
+    page = client_admin.get(f'/journal/{modif.id}').get_data(as_text=True)
+    assert '>11<' in page and str(admin.id) not in page   # aucun identifiant interne
 
 
 def test_export_csv_journalise(client_admin):

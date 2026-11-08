@@ -1,6 +1,7 @@
 """Listes configurables — fonctionnement de YL.1 : les catégories sont
 déclarées ici, l'administrateur gère seulement les valeurs (ajouter, modifier,
-activer / désactiver, supprimer, ordonner par glisser-déposer).
+activer / désactiver, ordonner par glisser-déposer). Une valeur ne se
+supprime pas : des fiches pourront la référencer.
 Aucune catégorie au lot 0 : chaque lot métier ajoutera les siennes,
 ex. 'infrastructures': 'Infrastructures'."""
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, jsonify
@@ -66,17 +67,6 @@ def modifier(id):
         db.session.commit()
         flash('Valeur modifiée.', 'success')
     return redirect(url_for('listes.index') + f'#{item.categorie}')
-
-
-@listes_bp.route('/supprimer/<int:id>', methods=['POST'])
-@profil_requis(Profil.ADMIN)
-def supprimer(id):
-    item = db.session.get(ListeDeroulante, id) or abort(404)
-    cat = item.categorie
-    db.session.delete(item)
-    db.session.commit()
-    flash('Valeur supprimée.', 'success')
-    return redirect(url_for('listes.index') + f'#{cat}')
 
 
 @listes_bp.route('/reordonner', methods=['POST'])

@@ -22,6 +22,9 @@ def modifier(param_id):
     p = db.session.get(Parametre, param_id) or abort(404)
     try:
         valeur = normaliser(p.type, request.form.get('valeur', ''))
+        # Les réglages de sécurité à 0 désactiveraient la protection
+        if p.cle.startswith('securite.') and int(valeur) < 1:
+            raise ValueError('La valeur doit être au moins 1.')
     except ValueError as e:
         flash(f'{p.description} — {e}', 'danger')
         return redirect(url_for('parametres.index'))
