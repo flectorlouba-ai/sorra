@@ -10,7 +10,7 @@ from app.models.base import maintenant
 from app.models.ferme import SourcePosition
 from app.models.liste_deroulante import ld_choices
 from app.services import fermes as regles
-from app.services import geo, import_poufa
+from app.services import geo, import_poufa, intrants
 from app.services.journal import enregistrer, Action
 from app.utils.permissions import profil_requis, filtre_perimetre, a_profil
 
@@ -85,7 +85,8 @@ def fiche(numero):
     controle = controle_position(ferme)
     dessin = geo.dessin(ferme.province.code, ferme.latitude, ferme.longitude)
     return render_template('fermes/fiche.html', ferme=ferme, controle=controle, dessin=dessin,
-                           peut_modifier=regles.peut_modifier(current_user, ferme))
+                           peut_modifier=regles.peut_modifier(current_user, ferme),
+                           stock=intrants.stock_ferme(ferme))
 
 
 # ── Création / modification ─────────────────────────────────────────────

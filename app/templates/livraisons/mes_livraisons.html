@@ -1,0 +1,30 @@
+{% extends '_base.html' %}
+{% from '_macros.html' import badge_livraison %}
+{% block titre %}Mes livraisons{% endblock %}
+{% block icone %}box-seam{% endblock %}
+{% block page_sous_titre %}Ce que vous avez reçu{% endblock %}
+
+{% block contenu %}
+<div class="ma-ferme-zone">
+  {% for liv in livraisons %}
+  <div class="ma-ferme">
+    <div class="ma-ferme-tete">
+      <div>
+        <div class="ma-ferme-titre">{{ liv.date_livraison.strftime('%d/%m/%Y') }}{% if liv.fournisseur %} · {{ liv.fournisseur }}{% endif %}</div>
+        <div class="ma-ferme-num">{{ liv.numero }}</div>
+      </div>
+      {{ badge_livraison(liv) }}
+    </div>
+    <ul class="carte-livraison-lignes">
+      {% for l in liv.lignes %}
+      <li><span class="num">{{ (l.quantite_recue if l.quantite_recue is not none else l.quantite_livree)|qte }}</span>
+        {{ l.produit.unite }} · {{ l.produit.nom }}
+        {% if l.ecart %}<span class="td-sous">(livré {{ l.quantite_livree|qte }})</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% else %}
+  <div class="empty-note">Aucune livraison pour l'instant.</div>
+  {% endfor %}
+</div>
+{% endblock %}

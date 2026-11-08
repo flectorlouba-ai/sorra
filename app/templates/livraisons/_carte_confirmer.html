@@ -1,0 +1,29 @@
+{# Carte « Livraison à confirmer » — écran Ma ferme de l'éleveur, et écran de l'agent qui
+   confirme pour lui. Variable : liv. Deux gros boutons : « Tout reçu », « J'ai reçu moins ». #}
+<div class="carte-livraison">
+  <div class="carte-livraison-titre"><i class="bi bi-box-seam"></i> Livraison à confirmer</div>
+  <div class="carte-livraison-meta">
+    {{ liv.date_livraison.strftime('%d/%m/%Y') }}{% if liv.fournisseur %} · {{ liv.fournisseur }}{% endif %}
+    · {{ liv.ferme.nom }}
+  </div>
+  <form method="post" action="{{ url_for('livraisons.tout_recu', numero=liv.numero) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <ul class="carte-livraison-lignes">
+      {% for l in liv.lignes %}
+      <li><span class="num">{{ l.quantite_livree|qte }}</span> {{ l.produit.unite }} · {{ l.produit.nom }}</li>
+      {% endfor %}
+    </ul>
+    {% for l in liv.lignes if l.produit.type == 'Poussins' %}
+    <div class="compteur">
+      <div class="compteur-libelle">Morts à l'arrivée{% if liv.lignes|selectattr('produit.type', 'equalto', 'Poussins')|list|length > 1 %} · {{ l.produit.nom }}{% endif %}</div>
+      <div class="compteur-boutons">
+        <button type="button" class="compteur-moins" aria-label="Moins">−</button>
+        <input type="number" name="morts-{{ l.id }}" value="0" min="0" max="{{ l.quantite_livree|int }}" inputmode="numeric" class="compteur-valeur">
+        <button type="button" class="compteur-plus" aria-label="Plus">+</button>
+      </div>
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn-gros"><i class="bi bi-check-lg"></i> Tout reçu</button>
+  </form>
+  <a href="{{ url_for('livraisons.recu_moins', numero=liv.numero) }}" class="btn-gros-secondaire"><i class="bi bi-dash-circle"></i> J'ai reçu moins</a>
+</div>

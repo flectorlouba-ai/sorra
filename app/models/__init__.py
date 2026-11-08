@@ -9,3 +9,5 @@ from app.models.journal import JournalAudit  # noqa: F401
 from app.models.ferme import (Ferme, Batiment, FermeStatutHistorique,  # noqa: F401
                               FermeInfrastructure, SourcePosition)
 from app.models.operateur import Operateur  # noqa: F401
+from app.models.intrant import (Produit, Livraison, LivraisonLigne,  # noqa: F401
+                                StatutLivraison)

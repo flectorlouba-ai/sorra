@@ -20,7 +20,13 @@ def _listes_de_depart():
     spec = importlib.util.spec_from_file_location('migration_0003', chemin)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module.LISTES
+    listes = dict(module.LISTES)
+    chemin = chemin.with_name('0004_intrants.py')
+    spec = importlib.util.spec_from_file_location('migration_0004', chemin)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    listes['motifs_ecart'] = module.MOTIFS_ECART
+    return listes
 
 
 @pytest.fixture

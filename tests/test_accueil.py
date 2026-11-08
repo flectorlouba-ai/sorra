@@ -30,10 +30,11 @@ def test_admin_tous_les_onglets(client, app):
                              'maintenance', 'qhse', 'comptabilite']
     assert tuiles_disponibles(page) == ['Journal des opérations', 'Utilisateurs',
                                         'Provinces et localités', 'Listes', 'Paramètres',
-                                        'Fermes', 'Opérateurs']
-    assert page.count('tuile-etiquette">Bientôt') == 18
+                                        'Catalogue des intrants', 'Fermes', 'Intrants', 'Opérateurs']
+    assert page.count('tuile-etiquette">Bientôt') == 17
     assert page.count('tuile-etiquette">Option') == 12
     assert '« Bandes » arrive bientôt : du poussin à la sortie.' in page
+    assert 'Catalogue des intrants' in page
     assert 'Aucune alerte active' in page and 'Suivi et traçabilité de la filière avicole' in page
     assert 'Bonjour, <strong>ADMIN</strong>' in page   # Prénom NOM
     assert '> Accueil<' not in page   # pas de bouton Accueil sur l'accueil
@@ -43,13 +44,13 @@ def test_dge_sans_configuration(client, app):
     page = accueil(client, 'dge', Profil.DGE, ())
     assert onglets(page)[0] == 'fermes' and 'config' not in onglets(page)
     assert len(onglets(page)) == 8
-    assert tuiles_disponibles(page) == ['Fermes', 'Opérateurs']
+    assert tuiles_disponibles(page) == ['Fermes', 'Intrants', 'Opérateurs']
 
 
 def test_agent(client, app):
     page = accueil(client, 'agent', Profil.AGENT)
     assert onglets(page) == ['fermes', 'tracabilite']
-    assert tuiles_disponibles(page) == ['Fermes', 'Opérateurs']
+    assert tuiles_disponibles(page) == ['Fermes', 'Intrants', 'Opérateurs']
     assert 'Bandes' in page and 'Lots et QR codes' in page
 
 

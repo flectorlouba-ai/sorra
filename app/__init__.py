@@ -55,6 +55,8 @@ def create_app(env='default'):
     from app.routes.journal import journal_bp
     from app.routes.fermes import fermes_bp
     from app.routes.operateurs import operateurs_bp
+    from app.routes.livraisons import livraisons_bp
+    from app.routes.catalogue import catalogue_bp
 
     app.register_blueprint(auth_bp,          url_prefix='/auth')
     app.register_blueprint(accueil_bp)
@@ -63,9 +65,11 @@ def create_app(env='default'):
     app.register_blueprint(referentiel_bp,   url_prefix='/administration/provinces')
     app.register_blueprint(listes_bp,        url_prefix='/administration/listes')
     app.register_blueprint(parametres_bp,    url_prefix='/administration/parametres')
+    app.register_blueprint(catalogue_bp,     url_prefix='/administration/catalogue')
     # Métier
     app.register_blueprint(fermes_bp,        url_prefix='/fermes')
     app.register_blueprint(operateurs_bp,    url_prefix='/operateurs')
+    app.register_blueprint(livraisons_bp,    url_prefix='/livraisons')
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
@@ -76,8 +80,10 @@ def create_app(env='default'):
     # ── Globals et filtres Jinja2 ──
     from app.utils.permissions import a_profil
     from app.utils.dates import date_locale
+    from app.utils.nombres import quantite
     app.jinja_env.globals['a_profil'] = a_profil
     app.jinja_env.filters['date_locale'] = date_locale
+    app.jinja_env.filters['qte'] = quantite
 
     _installer_controles_session(app)
     _installer_erreurs(app)

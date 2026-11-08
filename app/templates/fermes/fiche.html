@@ -102,6 +102,28 @@
   </div>
 </div>
 
+<div class="card-p" id="stock">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-box-seam"></i> Stock d'intrants</span></div>
+  {% if stock %}
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Produit</th><th>Stock</th><th>Unité</th></tr></thead>
+      <tbody>
+      {% for s in stock %}
+        <tr>
+          <td><strong>{{ s.produit.nom }}</strong>{% if s.produit.type == 'Poussins' %}<br><span class="td-sous">en attente de bande</span>{% endif %}</td>
+          <td>{{ s.stock|qte }}{% if s.kg is not none %} <span class="td-sous">· {{ s.kg|qte }} kg</span>{% endif %}</td>
+          <td>{{ s.produit.unite }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card-p-body"><div class="empty-note">Aucun intrant reçu pour l'instant.</div></div>
+  {% endif %}
+</div>
+
 <div class="card-p">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-clock-history"></i> Historique du statut</span></div>
   <div class="card-p-body">

@@ -27,6 +27,10 @@ PARAMETRES_DEFAUT = [
      'Nombre d\'échecs de connexion consécutifs avant le blocage du compte.'),
     ('securite.blocage_minutes', '15', TypeParametre.ENTIER,
      'Durée du blocage, en minutes, après trop d\'échecs de connexion.'),
+    ('intrants.delai_confirmation_jours', '3', TypeParametre.JOURS,
+     'Nombre de jours après lesquels une livraison non confirmée est signalée dans les alertes.'),
+    ('intrants.alerte_ecart_jours', '30', TypeParametre.JOURS,
+     'Pendant combien de jours une livraison reçue avec écart reste signalée dans les alertes.'),
 ]
 
 

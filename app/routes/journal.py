@@ -7,7 +7,8 @@ from datetime import date, datetime, timedelta
 from flask import Blueprint, render_template, request, Response, abort, current_app
 
 from app import db
-from app.models import JournalAudit, Utilisateur, Profil, Province, TypeParametre, Localite, Ferme
+from app.models import (JournalAudit, Utilisateur, Profil, Province, TypeParametre, Localite, Ferme,
+                        Produit, StatutLivraison)
 from app.routes.listes import CATEGORIES
 from app.services.journal import enregistrer, Action, MASQUE
 from app.utils.dates import date_locale, debut_jour_utc
@@ -25,6 +26,9 @@ TABLES = {
     'ferme': 'Ferme',
     'batiment': 'Bâtiment',
     'operateur': 'Opérateur',
+    'produit': 'Produit (intrant)',
+    'livraison': 'Livraison',
+    'livraison_ligne': 'Ligne de livraison',
 }
 
 CHAMPS = {
@@ -45,6 +49,14 @@ CHAMPS = {
     'gps_source': 'Source de la position', 'ferme_id': 'Ferme', 'capacite': 'Capacité',
     'contact': 'Contact', 'convention': 'Convention signée',
     'convention_date': 'Date de convention', 'a_verifier': 'À vérifier', 'fermes': 'Fermes',
+    'date_livraison': 'Date de livraison', 'fournisseur': 'Fournisseur',
+    'confirmee_le': 'Confirmée le', 'confirmee_par': 'Confirmée par',
+    'confirmee_par_agent': 'Confirmée par l\'agent pour l\'éleveur', 'annulee_le': 'Annulée le',
+    'annulee_par': 'Annulée par', 'motif_annulation': 'Motif d\'annulation', 'livraison_id': 'Livraison',
+    'produit_id': 'Produit', 'quantite_livree': 'Quantité livrée', 'subventionne': 'Subventionné',
+    'part_subventionnee': 'Part subventionnée (%)', 'valeur_unitaire': 'Valeur unitaire (FCFA)',
+    'quantite_recue': 'Quantité reçue', 'motif_ecart': 'Motif de l\'écart',
+    'morts_arrivee': 'Morts à l\'arrivée', 'unite': 'Unité', 'poids_sac_kg': 'Poids du sac (kg)',
 }
 
 # Champs internes sans intérêt pour le lecteur
@@ -58,6 +70,11 @@ def libelle_element(ligne):
     numero = donnees.get('numero_metier') or donnees.get('numero')
     if numero and donnees.get('nom'):
         return f'{numero} · {donnees["nom"]}'
+    if numero:
+        return str(numero)
+    if donnees.get('produit_id') and donnees.get('quantite_livree') is not None:   # ligne de livraison
+        p = db.session.get(Produit, donnees['produit_id'])
+        return f'{p.nom if p else "Produit"} · {donnees["quantite_livree"]}'
     if donnees.get('code') and donnees.get('capacite') is not None:   # bâtiment
         return f'{donnees["code"]}' + (f' · {donnees["nom"]}' if donnees.get('nom') else '')
     for champ in ('identifiant', 'nom', 'valeur', 'description', 'cle'):
@@ -135,7 +152,12 @@ def _lisible(champ, valeur):
         noms = dict(db.session.query(Province.code, Province.nom)
                     .filter(Province.code.in_(valeur)).all())
         return [noms.get(c, c) for c in valeur]
-    if champ in ('modifie_par', 'cree_par', 'utilisateur_id', 'agent_id'):
+    if champ == 'produit_id':
+        p = db.session.get(Produit, valeur)
+        return p.nom if p else valeur
+    if champ == 'statut' and valeur in StatutLivraison.LIBELLES:
+        return StatutLivraison.LIBELLES[valeur]
+    if champ in ('modifie_par', 'cree_par', 'utilisateur_id', 'agent_id', 'confirmee_par', 'annulee_par'):
         try:
             u = db.session.get(Utilisateur, uuid.UUID(valeur))
         except ValueError:
@@ -148,7 +170,8 @@ def _lisible(champ, valeur):
             return valeur
     if champ == 'categorie':
         return CATEGORIES.get(valeur, valeur)
-    if champ in ('cree_le', 'modifie_le', 'derniere_connexion', 'bloque_jusqu_a', 'gps_date'):
+    if champ in ('cree_le', 'modifie_le', 'derniere_connexion', 'bloque_jusqu_a', 'gps_date',
+                 'confirmee_le', 'annulee_le'):
         return _date_lisible(valeur)
     if valeur is True:
         return 'Oui'

@@ -16,6 +16,8 @@ CATEGORIES = {
     'statuts_ferme':         'Statuts de ferme',
     'types_infrastructures': "Types d'infrastructures",
     'types_operateurs':      "Types d'opérateurs",
+    'fournisseurs':          'Fournisseurs',
+    'motifs_ecart':          "Motifs d'écart à la réception",
 }
 
 

@@ -488,3 +488,43 @@ tfoot .ligne-total td{font-weight:800;color:var(--noir);border-top:2px solid var
   .fiche-lignes dd{margin-bottom:.45rem;}
   .carte-province{width:100%;}
 }
+
+/* ══ Lot 2 — intrants : confirmation de réception, compteurs, stock ════ */
+.carte-livraison{background:var(--blanc);border-radius:14px;border:2px solid var(--att-bord);padding:1rem 1.05rem 1.1rem;
+  box-shadow:0 3px 14px rgba(12,36,97,.08);display:flex;flex-direction:column;gap:.7rem;}
+.carte-livraison-titre{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--att-encre);
+  display:flex;align-items:center;gap:.4rem;}
+.carte-livraison-meta{font-size:.78rem;color:var(--gris5);font-weight:600;}
+.carte-livraison form{display:flex;flex-direction:column;gap:.7rem;}
+.carte-livraison-lignes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.35rem;font-size:.95rem;color:var(--noir);}
+.carte-livraison-lignes .num{font-size:1.25rem;font-weight:800;}
+.btn-gros-secondaire{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;min-height:52px;
+  background:var(--blanc);color:var(--noir3);border:2px solid var(--noir3);border-radius:12px;font-family:inherit;
+  font-size:1rem;font-weight:800;text-decoration:none;}
+.btn-gros-secondaire:hover{background:var(--off);color:var(--noir3);}
+
+/* Gros compteur « − valeur + » */
+.compteur{display:flex;flex-direction:column;gap:.35rem;}
+.compteur-libelle{font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--noir);}
+.compteur-boutons{display:flex;align-items:stretch;gap:.5rem;}
+.compteur-moins,.compteur-plus{width:56px;min-height:52px;border-radius:12px;border:2px solid var(--noir3);background:var(--blanc);
+  color:var(--noir3);font-size:1.6rem;font-weight:800;line-height:1;cursor:pointer;}
+.compteur-moins:active,.compteur-plus:active{background:var(--off);}
+.compteur-valeur{flex:1;min-width:0;text-align:center;font-family:inherit;font-size:1.4rem;font-weight:800;color:var(--noir);
+  border:1.5px solid var(--bord-champ);border-radius:12px;}
+
+.carte-ligne{border:1.5px solid var(--b200);border-radius:12px;padding:.8rem;background:var(--b050);display:flex;flex-direction:column;gap:.6rem;}
+.carte-ligne-titre{font-size:.92rem;font-weight:800;color:var(--noir);}
+
+/* Filet de sécurité « Reçue ✓ — Annuler » */
+.bandeau-annuler{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.75rem .9rem;border-radius:12px;
+  background:var(--ok-fond);border:1.5px solid var(--ok-bord);color:var(--ok-encre);font-weight:800;margin-bottom:1rem;}
+.bandeau-annuler form{margin:0;}
+.bandeau-annuler-btn{background:var(--blanc);border:2px solid var(--ok-encre);color:var(--ok-encre);border-radius:10px;
+  font-family:inherit;font-weight:800;padding:.45rem .8rem;cursor:pointer;min-height:44px;}
+
+.encadre-confirmation{background:var(--ok-fond);border:1px solid var(--ok-bord);color:var(--ok-encre);border-radius:9px;
+  padding:.55rem .8rem;font-size:.8rem;font-weight:600;margin-bottom:.9rem;}
+.ecart{color:var(--danger-encre);font-weight:800;}
+a.alerte-lien{text-decoration:none;}
+.alerte-dot.urgence{background:var(--noir);box-shadow:0 0 0 3px rgba(12,36,97,.2);}

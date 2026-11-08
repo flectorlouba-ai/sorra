@@ -1,0 +1,62 @@
+{% extends '_base.html' %}
+{% from '_macros.html' import badge_livraison, resume_lignes %}
+{% block titre %}Livraisons d'intrants{% endblock %}
+{% block icone %}box-seam{% endblock %}
+{% block page_sous_titre %}{{ total }} livraison{{ 's' if total != 1 }} · {{ a_confirmer }} à confirmer{% endblock %}
+
+{% block actions %}
+{% if peut_creer %}
+<a href="{{ url_for('livraisons.nouvelle') }}" class="btn-new"><i class="bi bi-plus-lg"></i> Nouvelle livraison</a>
+{% endif %}
+{% endblock %}
+
+{% block contenu %}
+{% if filtre.alerte %}
+<div class="flash-item warning"><i class="bi bi-bell"></i>
+  {{ 'Livraisons non confirmées dans le délai' if filtre.alerte == 'retard' else 'Livraisons reçues avec écart (période récente)' }}
+  · <a href="{{ url_for('livraisons.liste') }}">voir toutes les livraisons</a></div>
+{% endif %}
+<form class="filters-bar" method="get">
+  {% if provinces|length > 1 %}
+  <select name="province" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Toutes les provinces</option>
+    {% for p in provinces %}<option value="{{ p.id }}" {% if filtre.province == p.id|string %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+  </select>
+  {% endif %}
+  <select name="ferme" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Toutes les fermes</option>
+    {% for f in fermes %}<option value="{{ f.numero }}" {% if filtre.ferme == f.numero %}selected{% endif %}>{{ f.numero }} — {{ f.nom }}</option>{% endfor %}
+  </select>
+  <select name="produit" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Tous les produits</option>
+    {% for p in produits %}<option value="{{ p.id }}" {% if filtre.produit == p.id|string %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+  </select>
+  <select name="statut" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Tous les statuts</option>
+    {% for code, libelle in statuts.items() %}<option value="{{ code }}" {% if filtre.statut == code %}selected{% endif %}>{{ libelle }}</option>{% endfor %}
+  </select>
+  <span class="filter-label">Du</span><input type="date" name="du" class="filter-date" value="{{ filtre.du }}">
+  <span class="filter-label">Au</span><input type="date" name="au" class="filter-date" value="{{ filtre.au }}">
+  <input type="hidden" name="alerte" value="{{ filtre.alerte }}">
+  <button type="submit" class="btn-filter"><i class="bi bi-funnel"></i></button>
+</form>
+
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>N°</th><th>Date</th><th>Ferme</th><th>Produits</th><th>Statut</th></tr></thead>
+    <tbody>
+    {% for l in livraisons %}
+      <tr class="tr-click" onclick="location.href='{{ url_for('livraisons.fiche', numero=l.numero) }}'">
+        <td class="td-num"><a href="{{ url_for('livraisons.fiche', numero=l.numero) }}">{{ l.numero }}</a></td>
+        <td>{{ l.date_livraison.strftime('%d/%m/%Y') }}</td>
+        <td><strong>{{ l.ferme.nom }}</strong><br><span class="td-sous">{{ l.ferme.numero }}</span></td>
+        <td>{{ resume_lignes(l) }}</td>
+        <td>{{ badge_livraison(l) }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5" class="table-vide"><i class="bi bi-box-seam"></i>Aucune livraison ne correspond.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

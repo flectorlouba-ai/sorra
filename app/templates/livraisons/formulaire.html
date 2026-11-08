@@ -1,0 +1,112 @@
+{% extends '_base.html' %}
+{% block titre %}{{ 'Modifier ' ~ liv.numero if liv else 'Nouvelle livraison' }}{% endblock %}
+{% block sous_titre %}Livraisons d'intrants{% endblock %}
+{% block icone %}{{ 'pencil' if liv else 'plus-lg' }}{% endblock %}
+{% block page_titre %}{{ 'Modifier la livraison' if liv else 'Nouvelle livraison' }}{% endblock %}
+{% block page_sous_titre %}{% if liv %}<span class="mono">{{ liv.numero }}</span> · {{ liv.ferme.nom }}{% endif %}{% endblock %}
+
+{% block contenu %}
+<form method="post" class="form-terrain" id="form-livraison" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% for e in erreurs %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ e }}</div>{% endfor %}
+
+  <div class="form-group">
+    <label class="form-label" for="ferme">Ferme<span class="req">*</span></label>
+    {% if liv %}
+    <div class="champ-fixe">{{ liv.ferme.numero }} — {{ liv.ferme.nom }}</div>
+    {% elif fermes|length == 1 %}
+    <input type="hidden" name="ferme" value="{{ fermes[0].numero }}">
+    <div class="champ-fixe">{{ fermes[0].numero }} — {{ fermes[0].nom }}</div>
+    {% else %}
+    <select class="form-control" id="ferme" name="ferme" required>
+      <option value="">— Choisir —</option>
+      {% for f in fermes %}<option value="{{ f.numero }}" {% if ferme_choisie == f.numero %}selected{% endif %}>{{ f.numero }} — {{ f.nom }}</option>{% endfor %}
+    </select>
+    {% endif %}
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="date_livraison">Date de livraison<span class="req">*</span></label>
+    <input class="form-control" type="date" id="date_livraison" name="date_livraison" max="{{ aujourdhui }}" required
+           value="{{ saisie.get('date_livraison') if saisie else (liv.date_livraison.isoformat() if liv else aujourdhui) }}">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="fournisseur">Fournisseur</label>
+    {% set fo = saisie.get('fournisseur') if saisie else (liv.fournisseur if liv else '') %}
+    <select class="form-control" id="fournisseur" name="fournisseur">
+      <option value="">—</option>
+      {% for v in fournisseurs %}<option value="{{ v }}" {% if fo == v %}selected{% endif %}>{{ v }}</option>{% endfor %}
+      {% if liv and liv.fournisseur and liv.fournisseur not in fournisseurs %}<option value="{{ liv.fournisseur }}" selected>{{ liv.fournisseur }}</option>{% endif %}
+    </select>
+    {% if not fournisseurs %}<div class="form-hint">La liste des fournisseurs est vide : l'administrateur la remplit dans Listes.</div>{% endif %}
+  </div>
+
+  <div class="section-title mt-2">Produits livrés</div>
+  <div id="lignes">
+    {% for l in lignes %}
+    <div class="carte-ligne" data-ligne>
+      <div class="form-group">
+        <label class="form-label">Produit<span class="req">*</span></label>
+        <select class="form-control" data-champ="produit">
+          <option value="">— Choisir —</option>
+          {% for p in produits %}<option value="{{ p.id }}" data-unite="{{ p.unite }}" {% if l.produit == p.id|string %}selected{% endif %}>{{ p.nom }} ({{ p.unite }})</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Quantité livrée<span class="req">*</span> <span class="unite"></span></label>
+        <input class="form-control" data-champ="quantite" inputmode="decimal" value="{{ l.quantite }}">
+      </div>
+      <label class="coche"><input type="checkbox" data-champ="subventionne" {% if l.subventionne %}checked{% endif %}> Subventionné</label>
+      <div class="form-grid">
+        <div class="form-group bloc-part" {% if not l.subventionne %}hidden{% endif %}>
+          <label class="form-label">Part subventionnée (%)</label>
+          <input class="form-control" data-champ="part" inputmode="numeric" value="{{ l.part }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Valeur unitaire (FCFA)</label>
+          <input class="form-control" data-champ="valeur" inputmode="numeric" placeholder="Facultative" value="{{ l.valeur }}">
+        </div>
+      </div>
+      <button type="button" class="lien-discret-inline retirer-ligne">Retirer ce produit</button>
+    </div>
+    {% endfor %}
+  </div>
+  <button type="button" class="lien-discret-inline" id="ajouter-ligne"><i class="bi bi-plus-lg"></i> Ajouter un produit</button>
+
+  <button type="submit" class="btn-gros mt-3">{{ 'Enregistrer' if liv else 'Enregistrer la livraison' }}</button>
+  {% if not liv %}<div class="note-numero">Le numéro est donné automatiquement.</div>{% endif %}
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var zone = document.getElementById('lignes');
+  function numeroter() {
+    zone.querySelectorAll('[data-ligne]').forEach(function (bloc, i) {
+      bloc.querySelectorAll('[data-champ]').forEach(function (c) { c.name = 'ligne-' + i + '-' + c.dataset.champ; });
+      bloc.querySelector('.retirer-ligne').hidden = zone.querySelectorAll('[data-ligne]').length === 1;
+    });
+  }
+  function brancher(bloc) {
+    var sub = bloc.querySelector('[data-champ=subventionne]'), prod = bloc.querySelector('[data-champ=produit]');
+    sub.addEventListener('change', function () { bloc.querySelector('.bloc-part').hidden = !sub.checked; });
+    function unite() {
+      var o = prod.options[prod.selectedIndex];
+      bloc.querySelector('.unite').textContent = o && o.dataset.unite ? '(' + o.dataset.unite + ')' : '';
+    }
+    prod.addEventListener('change', unite); unite();
+    bloc.querySelector('.retirer-ligne').addEventListener('click', function () { bloc.remove(); numeroter(); });
+  }
+  zone.querySelectorAll('[data-ligne]').forEach(brancher);
+  document.getElementById('ajouter-ligne').addEventListener('click', function () {
+    var modele = zone.querySelector('[data-ligne]').cloneNode(true);
+    modele.querySelectorAll('input').forEach(function (c) { if (c.type === 'checkbox') c.checked = false; else c.value = ''; });
+    modele.querySelector('select').value = '';
+    modele.querySelector('.bloc-part').hidden = true;
+    zone.appendChild(modele); brancher(modele); numeroter();
+    modele.querySelector('select').focus();
+  });
+  numeroter();
+})();
+</script>
+{% endblock %}

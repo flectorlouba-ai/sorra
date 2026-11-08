@@ -26,7 +26,7 @@ L'innovation (calculs, alertes, synchronisation, journal) travaille en coulisses
 
 Le lot de réalisation est indiqué entre parenthèses.
 
-1. **Saisie de l'aliment en sacs** : le système convertit en kg avec le poids du sac, qui est un paramètre. *(lot Bandes)*
+1. **Saisie de l'aliment en sacs** : le système convertit en kg avec le poids du sac. Ce poids est propre à chaque produit du catalogue des intrants (25 kg, 50 kg…), et non un paramètre unique (décision du lot 2). *(lot Bandes)*
 2. **« À faire aujourd'hui »** : vaccins, pesées, fin de bande, calculés automatiquement et affichés à l'éleveur. *(lots Bandes et Sanitaire)*
 3. **Déclaration sanitaire par photo** et par **pictogrammes** des signes observés, sans texte à écrire. *(lot Sanitaire)*
 4. **Coches comme WhatsApp** à côté de chaque saisie : ⏳ en attente de réseau, ✓ envoyé. *(lot Hors ligne)*

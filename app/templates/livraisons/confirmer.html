@@ -1,0 +1,16 @@
+{% extends '_base.html' %}
+{% block titre %}Confirmer {{ liv.numero }}{% endblock %}
+{% block sous_titre %}Livraisons d'intrants{% endblock %}
+{% block icone %}check2-square{% endblock %}
+{% block page_titre %}Confirmer pour l'éleveur{% endblock %}
+{% block page_sous_titre %}<span class="mono">{{ liv.numero }}</span> · la confirmation indiquera « confirmé par l'agent {{ current_user.nom_complet }} pour l'éleveur »{% endblock %}
+
+{% block contenu %}
+<div class="ma-ferme-zone">
+  {% include 'livraisons/_carte_confirmer.html' %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/compteurs.js') }}"></script>
+{% endblock %}

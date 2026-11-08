@@ -61,6 +61,8 @@
   {% if eleveur %}
   <!-- ══ ÉLEVEUR : Ma ferme ══ -->
   <div class="ma-ferme-zone">
+    {% if bandeau %}{% with liv=bandeau.livraison, secondes=bandeau.secondes %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
+    {% for liv in a_confirmer %}{% include 'livraisons/_carte_confirmer.html' %}{% endfor %}
     {% for f in fermes %}
     <div class="ma-ferme">
       <div class="ma-ferme-tete">
@@ -84,6 +86,7 @@
       <a class="btn-gros" href="tel:{{ f.agent.telephone|replace(' ', '') }}"><i class="bi bi-telephone-fill"></i> Appeler mon agent</a>
       {% endif %}
       {% endif %}
+      {% if loop.last %}<div class="lien-discret"><a href="{{ url_for('livraisons.mes_livraisons') }}"><i class="bi bi-box-seam"></i> Mes livraisons</a></div>{% endif %}
     </div>
     {% else %}
     <div class="empty-note">Aucune ferme ne vous est encore rattachée. Contactez votre agent technique.</div>
@@ -119,10 +122,21 @@
       <div class="alertes-zone">
         <div class="alertes-header">
           <span class="alertes-title"><i class="bi bi-bell"></i> Alertes</span>
-          <span class="alertes-badge zero">0</span>
+          {% set total_alertes = alertes|sum(attribute='nombre') %}
+          <span class="alertes-badge {{ 'zero' if not total_alertes }}">{{ total_alertes }}</span>
         </div>
         <div class="alertes-list">
+          {% for a in alertes %}
+          <a class="alerte-item alerte-lien" href="{{ a.lien }}">
+            <span class="alerte-dot {{ a.niveau }}"></span>
+            <div class="alerte-body">
+              <div class="alerte-msg">{{ a.texte }}</div>
+              <div class="alerte-meta">Livraisons · voir la liste</div>
+            </div>
+          </a>
+          {% else %}
           <div class="alertes-vide"><i class="bi bi-check-circle"></i>Aucune alerte active</div>
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -138,6 +152,7 @@
 
 </div>
 
+<script src="{{ url_for('static', filename='js/compteurs.js') }}"></script>
 <script>
 (function () {
   var d = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });

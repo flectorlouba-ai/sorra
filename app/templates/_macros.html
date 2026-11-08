@@ -44,3 +44,14 @@
 {%- set tons = {'Opérationnelle': 'badge-ok', 'En préparation': 'badge-warn', 'Suspendue': 'badge-info'} -%}
 <span class="badge {{ tons.get(statut, 'badge-neutre') }}">{{ statut }}</span>
 {%- endmacro %}
+
+{# Pastille de statut d'une livraison #}
+{% macro badge_livraison(liv) -%}
+{%- set tons = {'A_CONFIRMER': 'badge-warn', 'RECUE': 'badge-ok', 'RECUE_ECART': 'badge-danger', 'ANNULEE': 'badge-off'} -%}
+<span class="badge {{ tons.get(liv.statut, 'badge-neutre') }}">{{ liv.libelle_statut }}</span>
+{%- endmacro %}
+
+{# « 1 000 poussins, 40 sacs Aliment démarrage » #}
+{% macro resume_lignes(liv) -%}
+{%- for l in liv.lignes %}{{ l.quantite_livree|qte }} {{ l.produit.unite }} {{ l.produit.nom }}{% if not loop.last %}, {% endif %}{% endfor -%}
+{%- endmacro %}

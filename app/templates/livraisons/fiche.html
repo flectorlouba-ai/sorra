@@ -1,0 +1,77 @@
+{% extends '_base.html' %}
+{% from '_macros.html' import badge_livraison %}
+{% block titre %}{{ liv.numero }}{% endblock %}
+{% block sous_titre %}Livraisons d'intrants{% endblock %}
+{% block icone %}box-seam{% endblock %}
+{% block page_titre %}Livraison <span class="mono">{{ liv.numero }}</span> {{ badge_livraison(liv) }}{% endblock %}
+{% block page_sous_titre %}{{ liv.date_livraison.strftime('%d/%m/%Y') }} · {{ liv.ferme.numero }} {{ liv.ferme.nom }}{% if liv.fournisseur %} · {{ liv.fournisseur }}{% endif %}{% endblock %}
+
+{% block actions %}
+{% if peut_confirmer %}
+<a href="{{ url_for('livraisons.confirmer', numero=liv.numero) }}" class="btn-new"><i class="bi bi-check2-square"></i> Confirmer pour l'éleveur</a>
+{% if peut_modifier %}<a href="{{ url_for('livraisons.modifier', numero=liv.numero) }}" class="btn-ghost"><i class="bi bi-pencil"></i> Modifier</a>{% endif %}
+{% elif peut_modifier %}
+<a href="{{ url_for('livraisons.modifier', numero=liv.numero) }}" class="btn-new"><i class="bi bi-pencil"></i> Modifier</a>
+{% endif %}
+{% if peut_annuler %}<button type="button" class="btn-ghost" onclick="ouvrir('fen-annuler')"><i class="bi bi-x-circle"></i> Annuler la livraison</button>{% endif %}
+{% if peut_corriger %}<a href="{{ url_for('livraisons.corriger', numero=liv.numero) }}" class="btn-ghost"><i class="bi bi-pencil-square"></i> Corriger</a>{% endif %}
+{% endblock %}
+
+{% block contenu %}
+{% if annulable %}{% with secondes=10 %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
+
+{% if liv.confirmee %}
+<div class="encadre-confirmation">
+  <i class="bi bi-check-circle-fill"></i>
+  Confirmée le {{ liv.confirmee_le|date_locale('%d/%m/%Y à %H:%M') }}
+  {% if liv.confirmee_par_agent %}— <strong>confirmé par l'agent {{ liv.confirmateur.nom_complet }} pour l'éleveur</strong>
+  {% elif liv.confirmateur %}par l'éleveur {{ liv.confirmateur.nom_complet }}{% endif %}
+</div>
+{% elif liv.statut == 'ANNULEE' %}
+<div class="flash-item info"><i class="bi bi-x-circle"></i>Annulée le {{ liv.annulee_le|date_locale('%d/%m/%Y') }}{% if liv.annulateur %} par {{ liv.annulateur.nom_complet }}{% endif %} : {{ liv.motif_annulation }}</div>
+{% else %}
+<div class="flash-item warning"><i class="bi bi-hourglass-split"></i>En attente de la confirmation de l'éleveur.</div>
+{% endif %}
+
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>Produit</th><th>Livré</th><th>Reçu</th><th>Écart</th><th>Motif</th><th>Subvention</th><th>Valeur unitaire</th></tr></thead>
+    <tbody>
+    {% for l in liv.lignes %}
+      <tr>
+        <td><strong>{{ l.produit.nom }}</strong><br><span class="td-sous">{{ l.produit.type }}</span></td>
+        <td>{{ l.quantite_livree|qte }} {{ l.produit.unite }}</td>
+        <td>{% if l.quantite_recue is not none %}{{ l.quantite_recue|qte }} {{ l.produit.unite }}{% if l.morts_arrivee %}<br><span class="td-sous">dont {{ l.morts_arrivee|qte }} morts à l'arrivée</span>{% endif %}{% else %}—{% endif %}</td>
+        <td>{% if l.ecart %}<span class="ecart">{{ l.ecart|qte }}</span>{% elif l.ecart == 0 %}0{% else %}—{% endif %}</td>
+        <td>{{ l.motif_ecart or '—' }}</td>
+        <td>{% if l.subventionne %}{{ l.part_subventionnee }} %{% else %}Non{% endif %}</td>
+        <td>{% if l.valeur_unitaire is not none %}{{ l.valeur_unitaire|qte }} FCFA{% else %}—{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+{% if peut_annuler %}
+<div class="modal-overlay" id="fen-annuler" hidden>
+  <div class="modal-box" style="max-width:460px;">
+    <form method="post" action="{{ url_for('livraisons.annuler', numero=liv.numero) }}">
+      <div class="modal-head">
+        <span class="modal-head-title"><i class="bi bi-x-circle"></i> Annuler la livraison</span>
+        <button type="button" class="modal-close" onclick="fermer('fen-annuler')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="form-label" for="motif">Motif<span class="req">*</span></label>
+        <textarea class="form-control" id="motif" name="motif" rows="3" required></textarea>
+        <div class="form-hint">La livraison reste visible, avec le statut « Annulée ».</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-annuler" onclick="fermer('fen-annuler')">Retour</button>
+        <button type="submit" class="btn-enregistrer">Annuler la livraison</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

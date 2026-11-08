@@ -1,9 +1,13 @@
 """Accueil — repris de l'accueil de PERFORM YL.1 : onglets par module, tuiles,
 encadré Alertes (maquette A, docs/maquettes/maquettes_lot1.md)."""
-from flask import Blueprint, render_template, url_for
+from flask import Blueprint, render_template, url_for, session
 from flask_login import login_required, current_user
 
-from app.models import Ferme, Profil
+from app.models import Ferme, Profil, Livraison
+from app.models.base import maintenant
+from app.models.intrant import StatutLivraison
+from app.services import intrants
+from app.utils.dates import en_utc
 from app.utils.permissions import filtre_perimetre
 
 accueil_bp = Blueprint('accueil', __name__)
@@ -20,13 +24,15 @@ MODULES = [
         ('Provinces et localités', 'Référentiel géographique', 'map', 'referentiel.index', {A}),
         ('Listes', 'Valeurs des listes', 'list-ul', 'listes.index', {A}),
         ('Paramètres', 'Seuils et durées', 'sliders', 'parametres.index', {A}),
+        ('Catalogue des intrants', 'Produits, unités, sacs', 'box-seam', 'catalogue.index', {A}),
     ]},
     {'code': 'fermes', 'titre': 'Fermes et élevage', 'icone': 'egg', 'option': False, 'tuiles': [
         ('Indicateurs d\'élevage', 'Mortalité, croissance, aliment', 'graph-up', None, None),
         ('Fermes', 'Fiches, bâtiments, GPS', 'house-door', 'fermes.liste',
          {A, D, Profil.AGENT, Profil.VETO}),
         ('Bandes', 'Du poussin à la sortie', 'collection', None, None),
-        ('Intrants', 'Poussins, aliment, vaccins', 'box-seam', None, None),
+        ('Intrants', 'Poussins, aliment, vaccins', 'box-seam', 'livraisons.liste',
+         {A, D, Profil.AGENT}),
     ]},
     {'code': 'sante', 'titre': 'Santé animale', 'icone': 'heart-pulse', 'option': False, 'tuiles': [
         ('Alertes sanitaires', 'Mortalité anormale', 'exclamation-triangle', None, None),
@@ -123,10 +129,33 @@ def onglets_pour(user):
     return resultat
 
 
+def _alertes(user):
+    if user.profil not in (Profil.ADMIN, Profil.DGE, Profil.AGENT):
+        return []
+    return [{**a, 'lien': url_for('livraisons.liste', alerte=a['filtre'])}
+            for a in intrants.alertes(filtre_perimetre(Livraison.query))]
+
+
+def _bandeau_annulation(user):
+    """Livraison confirmée « Tout reçu » à l'instant : bandeau « Reçue ✓ — Annuler »."""
+    numero = session.get('confirmation_recente')
+    liv = Livraison.query.filter_by(numero_metier=numero).first() if numero else None
+    if liv is None or not intrants.annulation_possible(liv, user):
+        session.pop('confirmation_recente', None)
+        return None
+    ecoule = (maintenant() - en_utc(liv.confirmee_le)).total_seconds()
+    return {'livraison': liv, 'secondes': max(1, round(intrants.DELAI_ANNULATION_SECONDES - ecoule))}
+
+
 @accueil_bp.route('/')
 @login_required
 def index():
     if current_user.profil == Profil.ELEVEUR:
         fermes = filtre_perimetre(Ferme.query).order_by(Ferme.numero_metier).all()
-        return render_template('accueil.html', eleveur=True, fermes=fermes, onglets=[])
-    return render_template('accueil.html', eleveur=False, onglets=onglets_pour(current_user))
+        a_confirmer = (filtre_perimetre(Livraison.query)
+                       .filter(Livraison.statut == StatutLivraison.A_CONFIRMER)
+                       .order_by(Livraison.date_livraison, Livraison.numero_metier).all())
+        return render_template('accueil.html', eleveur=True, fermes=fermes, onglets=[],
+                               a_confirmer=a_confirmer, bandeau=_bandeau_annulation(current_user))
+    return render_template('accueil.html', eleveur=False, onglets=onglets_pour(current_user),
+                           alertes=_alertes(current_user))
