@@ -1,0 +1,91 @@
+"""Listes configurables — fonctionnement de YL.1 : les catégories sont
+déclarées ici, l'administrateur gère seulement les valeurs (ajouter, modifier,
+activer / désactiver, supprimer, ordonner par glisser-déposer).
+Aucune catégorie au lot 0 : chaque lot métier ajoutera les siennes,
+ex. 'infrastructures': 'Infrastructures'."""
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, jsonify
+
+from app import db
+from app.models import ListeDeroulante, Profil
+from app.utils.permissions import profil_requis
+
+listes_bp = Blueprint('listes', __name__)
+
+CATEGORIES = {}
+
+
+@listes_bp.route('/')
+@profil_requis(Profil.ADMIN)
+def index():
+    listes = {cat: ListeDeroulante.query.filter_by(categorie=cat)
+              .order_by(ListeDeroulante.ordre, ListeDeroulante.id).all()
+              for cat in CATEGORIES}
+    return render_template('administration/listes.html', CATEGORIES=CATEGORIES, listes=listes)
+
+
+def _valeur_libre(categorie, valeur, sauf_id=None):
+    q = ListeDeroulante.query.filter(ListeDeroulante.categorie == categorie,
+                                     db.func.lower(ListeDeroulante.valeur) == valeur.lower())
+    if sauf_id:
+        q = q.filter(ListeDeroulante.id != sauf_id)
+    return q.first() is None
+
+
+@listes_bp.route('/ajouter', methods=['POST'])
+@profil_requis(Profil.ADMIN)
+def ajouter():
+    categorie = request.form.get('categorie', '').strip()
+    valeur = request.form.get('valeur', '').strip()
+    if categorie not in CATEGORIES or not valeur:
+        flash('Données invalides.', 'danger')
+        return redirect(url_for('listes.index'))
+    if not _valeur_libre(categorie, valeur):
+        flash(f'« {valeur} » existe déjà dans cette liste.', 'danger')
+        return redirect(url_for('listes.index') + f'#{categorie}')
+    dernier = (ListeDeroulante.query.filter_by(categorie=categorie)
+               .order_by(ListeDeroulante.ordre.desc()).first())
+    ordre = (dernier.ordre + 1) if dernier else 0
+    db.session.add(ListeDeroulante(categorie=categorie, valeur=valeur, ordre=ordre, actif=True))
+    db.session.commit()
+    flash(f'Valeur « {valeur} » ajoutée.', 'success')
+    return redirect(url_for('listes.index') + f'#{categorie}')
+
+
+@listes_bp.route('/modifier/<int:id>', methods=['POST'])
+@profil_requis(Profil.ADMIN)
+def modifier(id):
+    item = db.session.get(ListeDeroulante, id) or abort(404)
+    valeur = request.form.get('valeur', '').strip()
+    if not valeur:
+        flash('La valeur ne peut pas être vide.', 'danger')
+    elif not _valeur_libre(item.categorie, valeur, item.id):
+        flash(f'« {valeur} » existe déjà dans cette liste.', 'danger')
+    else:
+        item.valeur = valeur
+        item.actif = request.form.get('actif') == '1'
+        db.session.commit()
+        flash('Valeur modifiée.', 'success')
+    return redirect(url_for('listes.index') + f'#{item.categorie}')
+
+
+@listes_bp.route('/supprimer/<int:id>', methods=['POST'])
+@profil_requis(Profil.ADMIN)
+def supprimer(id):
+    item = db.session.get(ListeDeroulante, id) or abort(404)
+    cat = item.categorie
+    db.session.delete(item)
+    db.session.commit()
+    flash('Valeur supprimée.', 'success')
+    return redirect(url_for('listes.index') + f'#{cat}')
+
+
+@listes_bp.route('/reordonner', methods=['POST'])
+@profil_requis(Profil.ADMIN)
+def reordonner():
+    ids = (request.get_json(silent=True) or {}).get('ids', [])
+    items = {i.id: i for i in ListeDeroulante.query.filter(ListeDeroulante.id.in_(ids)).all()}
+    for rang, item_id in enumerate(ids):
+        if item_id in items:
+            items[item_id].ordre = rang
+    db.session.commit()
+    return jsonify(ok=True)

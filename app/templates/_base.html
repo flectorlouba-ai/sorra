@@ -1,0 +1,72 @@
+{# ══════════════════════════════════════════════════════════════════════
+   Gabarit commun KIMBA — repris de PERFORM YL.1 (page « Suivi DI / OT »).
+   Blocs : titre, sous_titre, icone, page_titre, page_sous_titre, actions,
+           pastilles, contenu, scripts.
+   ══════════════════════════════════════════════════════════════════════ #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+{% include '_tete.html' %}
+  <title>{% block titre %}KIMBA{% endblock %} — KIMBA</title>
+</head>
+<body>
+<div class="kente-band"></div>
+
+<div class="topbar">
+  <a href="{{ url_for('accueil.index') }}" class="topbar-brand">
+    <div class="logo-texte">KIMBA</div>
+    <div>
+      <div class="topbar-name">KIMBA</div>
+      <div class="topbar-sub">{% block sous_titre %}{{ self.titre() }}{% endblock %}</div>
+    </div>
+  </a>
+  <div class="topbar-right">
+    {% if current_user.is_authenticated %}
+    <span class="topbar-user d-none d-sm-inline"><i class="bi bi-person-circle"></i> {{ current_user.nom_complet }}</span>
+    <a href="{{ url_for('accueil.index') }}" class="btn-top"><i class="bi bi-house-door"></i> Accueil</a>
+    <a href="{{ url_for('auth.mot_de_passe') }}" class="btn-top" title="Changer mon mot de passe"><i class="bi bi-key"></i></a>
+    <form method="post" action="{{ url_for('auth.deconnexion') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn-top" title="Se déconnecter"><i class="bi bi-box-arrow-right"></i></button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="page-body">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}<div class="flash-zone">
+    {% for cat, msg in messages %}
+    <div class="flash-item {{ cat }}"><i class="bi bi-{% if cat=='success' %}check-circle{% elif cat=='danger' %}exclamation-circle{% elif cat=='warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>{{ msg }}</div>
+    {% endfor %}
+  </div>{% endif %}
+  {% endwith %}
+
+  <div class="page-head">
+    <div class="page-head-left">
+      <div class="page-icon"><i class="bi bi-{% block icone %}grid{% endblock %}"></i></div>
+      <div>
+        <div class="page-title">{% block page_titre %}{{ self.titre() }}{% endblock %}</div>
+        <div class="page-sub">{% block page_sous_titre %}{% endblock %}</div>
+      </div>
+    </div>
+    <div class="page-actions">{% block actions %}{% endblock %}</div>
+  </div>
+
+  {% block pastilles %}{% endblock %}
+
+  {% block contenu %}{% endblock %}
+</div>
+
+<script src="{{ url_for('static', filename='vendor/bootstrap-5.3.3/js/bootstrap.bundle.min.js') }}"></script>
+<script>
+// Fenêtres (modales) du socle YL.1 : ouvrir / fermer, Échap pour fermer
+function ouvrir(id) { document.getElementById(id).hidden = false; }
+function fermer(id) { document.getElementById(id).hidden = true; }
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(function (m) { m.hidden = true; });
+});
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

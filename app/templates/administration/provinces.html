@@ -1,0 +1,155 @@
+{% extends '_base.html' %}
+{% from '_macros.html' import tete_fenetre, pied_fenetre %}
+{% block titre %}Provinces et localités{% endblock %}
+{% block icone %}map{% endblock %}
+{% block page_sous_titre %}Choisissez une province pour voir et ajouter ses localités{% endblock %}
+
+{% block actions %}
+{% if province %}
+<button type="button" class="btn-new" onclick="ouvrirLocalite()"><i class="bi bi-plus-lg"></i> Nouvelle localité</button>
+{% endif %}
+{% endblock %}
+
+{% block contenu %}
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="table-wrap"><div class="table-scroll">
+      <table>
+        <thead><tr><th>Code</th><th>Province</th><th>Localités</th><th>État</th><th></th></tr></thead>
+        <tbody>
+        {% for p in provinces %}
+          <tr class="tr-click" {% if province and p.id == province.id %}style="background:var(--off);"{% endif %}
+              onclick="location.href='{{ url_for('referentiel.index', province=p.id) }}'">
+            <td class="td-num">{{ p.code }}</td>
+            <td><strong>{{ p.nom }}</strong></td>
+            <td>{{ p.localites|length }}</td>
+            <td>{% if p.actif %}<span class="badge badge-ok">Active</span>{% else %}<span class="badge badge-off">Désactivée</span>{% endif %}</td>
+            <td style="text-align:right;">
+              <button type="button" class="btn-edit" title="Modifier"
+                      data-p='{{ {"id": p.id, "code": p.code, "nom": p.nom, "actif": p.actif}|tojson }}'
+                      onclick="event.stopPropagation();ouvrirProvince(this)"><i class="bi bi-pencil"></i></button>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div></div>
+  </div>
+
+  {% if province %}
+  <div class="col-lg-6">
+    <div class="card-p">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-geo-alt"></i> Localités — {{ province.nom }}</span></div>
+      {% if province.localites %}
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Localité</th><th>État</th><th></th></tr></thead>
+          <tbody>
+          {% for l in province.localites %}
+            <tr>
+              <td>{{ l.nom }}</td>
+              <td>{% if l.actif %}<span class="badge badge-ok">Active</span>{% else %}<span class="badge badge-off">Désactivée</span>{% endif %}</td>
+              <td style="text-align:right;">
+                <button type="button" class="btn-edit" title="Modifier"
+                        data-l='{{ {"id": l.id, "nom": l.nom, "actif": l.actif}|tojson }}'
+                        onclick="ouvrirLocalite(this)"><i class="bi bi-pencil"></i></button>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="card-p-body"><div class="empty-note">Aucune localité dans cette province pour l'instant.</div></div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="modal-overlay" id="fen-province" hidden>
+  <div class="modal-box" style="max-width:460px;">
+    <form method="post" id="form-province">
+      {{ tete_fenetre('fen-province', 'Modifier la province', 'map') }}
+      <div class="modal-body">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="p-code">Code<span class="req">*</span></label>
+            <input class="form-control" id="p-code" name="code" maxlength="5" required style="text-transform:uppercase;">
+            <div class="form-hint">2 à 5 lettres. Servira au numéro des fermes.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="p-nom">Nom<span class="req">*</span></label>
+            <input class="form-control" id="p-nom" name="nom" maxlength="80" required>
+          </div>
+          <div class="form-group span2">
+            <label class="coche"><input type="checkbox" name="actif" id="p-actif"> Province active</label>
+          </div>
+        </div>
+      </div>
+      {{ pied_fenetre('fen-province') }}
+    </form>
+  </div>
+</div>
+
+{% if province %}
+<div class="modal-overlay" id="fen-localite" hidden>
+  <div class="modal-box" style="max-width:460px;">
+    <form method="post" id="form-localite">
+      {{ tete_fenetre('fen-localite', 'Nouvelle localité', 'geo-alt') }}
+      <div class="modal-body">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group mb-3">
+          <span class="form-label">Province</span>
+          <div style="font-size:.8rem;font-weight:700;color:var(--noir);">{{ province.nom }}</div>
+        </div>
+        <div class="form-group mb-3">
+          <label class="form-label" for="l-nom">Nom de la localité<span class="req">*</span></label>
+          <input class="form-control" id="l-nom" name="nom" maxlength="120" required>
+        </div>
+        <div class="form-group" id="bloc-l-actif" hidden>
+          <label class="coche"><input type="checkbox" name="actif" id="l-actif"> Localité active</label>
+        </div>
+      </div>
+      {{ pied_fenetre('fen-localite') }}
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function ouvrirProvince(btn) {
+  var p = JSON.parse(btn.dataset.p);
+  var f = document.getElementById('form-province');
+  f.action = "{{ url_for('referentiel.modifier_province', province_id=0) }}".replace('/0/', '/' + p.id + '/');
+  document.getElementById('fen-province-titre').textContent = 'Modifier — ' + p.nom;
+  document.getElementById('p-code').value = p.code;
+  document.getElementById('p-nom').value = p.nom;
+  document.getElementById('p-actif').checked = p.actif;
+  ouvrir('fen-province');
+}
+{% if province %}
+function ouvrirLocalite(btn) {
+  var f = document.getElementById('form-localite');
+  f.reset();
+  if (btn) {
+    var l = JSON.parse(btn.dataset.l);
+    f.action = "{{ url_for('referentiel.modifier_localite', localite_id=0) }}".replace('/0/', '/' + l.id + '/');
+    document.getElementById('fen-localite-titre').textContent = 'Modifier la localité';
+    document.getElementById('l-nom').value = l.nom;
+    document.getElementById('bloc-l-actif').hidden = false;
+    document.getElementById('l-actif').checked = l.actif;
+  } else {
+    f.action = "{{ url_for('referentiel.creer_localite', province_id=province.id) }}";
+    document.getElementById('fen-localite-titre').textContent = 'Nouvelle localité';
+    document.getElementById('bloc-l-actif').hidden = true;
+  }
+  ouvrir('fen-localite');
+  document.getElementById('l-nom').focus();
+}
+{% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends '_base.html' %}
+{% block titre %}Mot de passe{% endblock %}
+{% block icone %}key{% endblock %}
+{% block page_titre %}Changer mon mot de passe{% endblock %}
+{% block page_sous_titre %}Au moins {{ longueur_min }} caractères{% endblock %}
+
+{% block contenu %}
+<div class="card-p" style="max-width:460px;">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-shield-lock"></i> Mot de passe</span></div>
+  <div class="card-p-body">
+    {% if obligatoire %}
+    <div class="flash-item warning"><i class="bi bi-exclamation-triangle"></i>Pour continuer, choisissez votre propre mot de passe.</div>
+    {% endif %}
+    {% if erreur %}
+    <div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>
+    {% endif %}
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-group mb-3">
+        <label class="form-label" for="actuel">Mot de passe actuel<span class="req">*</span></label>
+        <input class="form-control" type="password" id="actuel" name="actuel" autocomplete="current-password" required autofocus>
+      </div>
+      <div class="form-group mb-3">
+        <label class="form-label" for="nouveau">Nouveau mot de passe<span class="req">*</span></label>
+        <input class="form-control" type="password" id="nouveau" name="nouveau" autocomplete="new-password" minlength="{{ longueur_min }}" required>
+      </div>
+      <div class="form-group mb-3">
+        <label class="form-label" for="confirmation">Confirmer le nouveau mot de passe<span class="req">*</span></label>
+        <input class="form-control" type="password" id="confirmation" name="confirmation" autocomplete="new-password" required>
+      </div>
+      <div style="display:flex;justify-content:flex-end;">
+        <button type="submit" class="btn-enregistrer">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

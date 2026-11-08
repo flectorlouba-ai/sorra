@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+{% include '_tete.html' %}
+  <title>Accueil — KIMBA</title>
+</head>
+<body class="page-accueil">
+
+<div class="kente-band"></div>
+
+<!-- ══ BARRE DU HAUT ══ -->
+<div class="topbar">
+  <a href="{{ url_for('accueil.index') }}" class="topbar-brand">
+    <div class="logo-texte">KIMBA</div>
+    <div>
+      <div class="topbar-brand-name">KIMBA</div>
+      <div class="topbar-brand-sub">Suivi des fermes avicoles du Gabon</div>
+    </div>
+  </a>
+  <div class="topbar-right">
+    <span class="topbar-user d-none d-lg-inline"><i class="bi bi-person-circle me-1"></i>{{ current_user.nom_complet }}</span>
+    <a href="{{ url_for('auth.mot_de_passe') }}" class="btn-top"><i class="bi bi-key"></i><span class="d-none d-sm-inline"> Mot de passe</span></a>
+    <form method="post" action="{{ url_for('auth.deconnexion') }}" class="d-inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn-top quitter"><i class="bi bi-box-arrow-right"></i><span class="d-none d-sm-inline"> Quitter</span></button>
+    </form>
+  </div>
+</div>
+
+<!-- ══ SALUTATION ══ -->
+<div class="greeting-bar">
+  <div>
+    <div class="greeting-hello">Bonjour, <strong>{{ current_user.nom_complet }}</strong></div>
+    <div class="greeting-role">{{ current_user.profil.libelle }}</div>
+  </div>
+  <div class="greeting-date" id="greeting-date"></div>
+</div>
+
+<!-- ══ ONGLETS ══ -->
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="espace"><i class="bi bi-house-door"></i> Mon espace</button>
+  {% if a_profil('ADMIN') %}
+  <button class="tab-btn" data-tab="admin"><i class="bi bi-building"></i> Administration</button>
+  {% endif %}
+</div>
+
+<!-- ══ CONTENU ══ -->
+<div class="content">
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}<div class="flash-zone">
+    {% for cat, msg in messages %}
+    <div class="flash-item {{ cat }}"><i class="bi bi-{% if cat=='success' %}check-circle{% elif cat=='danger' %}exclamation-circle{% elif cat=='warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>{{ msg }}</div>
+    {% endfor %}
+  </div>{% endif %}
+  {% endwith %}
+
+  <!-- Mon espace -->
+  <div class="tab-panel active" id="tab-espace">
+    <div class="modules-col">
+      {% if a_profil('AUDITEUR') %}
+      <div class="modules-grid mb-3">
+        <a href="{{ url_for('journal.index') }}" class="module-card mc-amber">
+          <i class="bi bi-journal-text"></i>
+          <div class="mc-title">Journal des opérations</div>
+          <div class="mc-sub">Qui a fait quoi, et quand</div>
+        </a>
+      </div>
+      {% endif %}
+      <div class="empty-note">
+        <i class="bi bi-cone-striped" style="font-size:1.5rem;display:block;margin-bottom:.4rem;"></i>
+        <strong>Votre espace est en construction.</strong><br>
+        Vous y trouverez bientôt : {{ a_venir }}
+      </div>
+    </div>
+
+    <div class="alertes-col">
+      <div class="alertes-zone">
+        <div class="alertes-header">
+          <span class="alertes-title"><i class="bi bi-geo-alt"></i>
+            {% if current_user.est_national %}Toutes les provinces{% else %}Mon périmètre{% endif %}</span>
+          <span class="alertes-badge">{{ provinces|length }}</span>
+        </div>
+        <div class="alertes-list">
+          {% for p in provinces %}
+          {% set locs = par_province.get(p.id, []) %}
+          <div class="alerte-item">
+            <span class="alerte-dot {{ 'warning' if locs else 'info' }}"></span>
+            <div class="alerte-body">
+              <div class="alerte-msg">{{ p.nom }}</div>
+              <div class="alerte-meta">{% if locs %}{{ locs|map(attribute='nom')|join(', ') }}{% else %}Aucune localité{% endif %}</div>
+            </div>
+          </div>
+          {% else %}
+          <div class="alertes-vide"><i class="bi bi-geo"></i>Aucune province ne vous est encore attribuée.<br>Contactez l'administrateur.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if a_profil('ADMIN') %}
+  <!-- Administration -->
+  <div class="tab-panel" id="tab-admin">
+    <div class="modules-col">
+      <div class="modules-grid">
+        <a href="{{ url_for('utilisateurs.index') }}" class="module-card mc-navy">
+          <i class="bi bi-people-fill"></i>
+          <div class="mc-title">Utilisateurs</div>
+          <div class="mc-sub">Comptes, profils, provinces</div>
+        </a>
+        <a href="{{ url_for('referentiel.index') }}" class="module-card mc-cobalt">
+          <i class="bi bi-map"></i>
+          <div class="mc-title">Provinces et localités</div>
+          <div class="mc-sub">Les 9 provinces du Gabon</div>
+        </a>
+        {% if listes_presentes %}
+        <a href="{{ url_for('listes.index') }}" class="module-card mc-royal">
+          <i class="bi bi-list-ul"></i>
+          <div class="mc-title">Listes</div>
+          <div class="mc-sub">Valeurs proposées dans les formulaires</div>
+        </a>
+        {% endif %}
+        <a href="{{ url_for('parametres.index') }}" class="module-card mc-blue">
+          <i class="bi bi-sliders"></i>
+          <div class="mc-title">Paramètres</div>
+          <div class="mc-sub">Réglages de l'application</div>
+        </a>
+        <a href="{{ url_for('journal.index') }}" class="module-card mc-amber">
+          <i class="bi bi-journal-text"></i>
+          <div class="mc-title">Journal des opérations</div>
+          <div class="mc-sub">Qui a fait quoi, et quand</div>
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+(function () {
+  var d = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('greeting-date').textContent = d.charAt(0).toUpperCase() + d.slice(1);
+
+  var boutons = document.querySelectorAll('.tab-btn');
+  function montrer(nom) {
+    boutons.forEach(function (b) { b.classList.toggle('active', b.dataset.tab === nom); });
+    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.toggle('active', p.id === 'tab-' + nom); });
+    try { sessionStorage.setItem('kimba-onglet', nom); } catch (e) {}
+  }
+  boutons.forEach(function (b) { b.addEventListener('click', function () { montrer(b.dataset.tab); }); });
+  try {
+    var memo = sessionStorage.getItem('kimba-onglet');
+    if (memo && document.getElementById('tab-' + memo)) montrer(memo);
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

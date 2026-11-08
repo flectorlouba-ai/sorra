@@ -1,0 +1,70 @@
+{% extends '_base.html' %}
+{% from '_macros.html' import tete_fenetre, pied_fenetre %}
+{% block titre %}Paramètres{% endblock %}
+{% block icone %}sliders{% endblock %}
+{% block page_sous_titre %}Réglages de l'application{% endblock %}
+
+{% block contenu %}
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>Réglage</th><th>Valeur</th><th>Modifié le</th><th>Par</th><th></th></tr></thead>
+    <tbody>
+    {% for p in parametres %}
+      <tr>
+        <td>{{ p.description }}</td>
+        <td class="td-num">{{ p.valeur }}</td>
+        <td>{{ p.modifie_le|date_locale }}</td>
+        <td>{{ p.auteur.nom_complet if p.auteur else '' }}</td>
+        <td style="text-align:right;">
+          <button type="button" class="btn-edit" title="Modifier"
+                  data-p='{{ {"id": p.id, "valeur": p.valeur, "type": p.type.value, "description": p.description, "aide": p.type.libelle}|tojson }}'
+                  onclick="ouvrirParametre(this)"><i class="bi bi-pencil"></i></button>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5" class="table-vide"><i class="bi bi-sliders"></i>Aucun réglage.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+<div class="modal-overlay" id="fen-param" hidden>
+  <div class="modal-box" style="max-width:460px;">
+    <form method="post" id="form-param">
+      {{ tete_fenetre('fen-param', 'Modifier le réglage', 'sliders') }}
+      <div class="modal-body">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+          <label class="form-label" for="param-valeur" id="param-libelle">Valeur</label>
+          <input class="form-control" id="param-valeur" name="valeur">
+          <select class="form-control" id="param-booleen" hidden>
+            <option value="oui">Oui</option>
+            <option value="non">Non</option>
+          </select>
+          <div class="form-hint" id="param-aide"></div>
+        </div>
+      </div>
+      {{ pied_fenetre('fen-param') }}
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function ouvrirParametre(btn) {
+  var p = JSON.parse(btn.dataset.p);
+  var f = document.getElementById('form-param');
+  var champ = document.getElementById('param-valeur');
+  var choix = document.getElementById('param-booleen');
+  var booleen = p.type === 'BOOLEEN';
+  f.action = "{{ url_for('parametres.modifier', param_id=0) }}".replace('/0/', '/' + p.id + '/');
+  document.getElementById('param-libelle').textContent = p.description;
+  document.getElementById('param-aide').textContent = 'Attendu : ' + p.aide.toLowerCase() + '.';
+  champ.hidden = booleen; champ.name = booleen ? '' : 'valeur'; champ.value = p.valeur;
+  champ.inputMode = (p.type === 'ENTIER' || p.type === 'JOURS') ? 'numeric' : (p.type === 'DECIMAL' ? 'decimal' : 'text');
+  choix.hidden = !booleen; choix.name = booleen ? 'valeur' : ''; choix.value = p.valeur;
+  ouvrir('fen-param');
+}
+</script>
+{% endblock %}

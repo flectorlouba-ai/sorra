@@ -1,0 +1,39 @@
+{# Composants réutilisables (repris de PERFORM YL.1) #}
+
+{# Pastille de statistique — rendu unique dans toute l'application.
+   ton : '' (neutre) | 'ot' (bleu) | 'ok' (vert) | 'warn' (ambre) | 'alerte' (rouge)
+   lien : URL facultative, la pastille devient cliquable
+   icone : nom d'icône bootstrap facultatif #}
+{% macro pastille(valeur, libelle, ton='', lien=None, icone=None) -%}
+  {%- if lien -%}
+  <a href="{{ lien }}" class="stat-chip {{ ton }}">
+    {%- if icone %}<i class="bi bi-{{ icone }}"></i>{% endif -%}
+    <span class="num">{{ valeur }}</span> {{ libelle }}
+  </a>
+  {%- else -%}
+  <span class="stat-chip {{ ton }}">
+    {%- if icone %}<i class="bi bi-{{ icone }}"></i>{% endif -%}
+    <span class="num">{{ valeur }}</span> {{ libelle }}
+  </span>
+  {%- endif -%}
+{%- endmacro %}
+
+{# Barre de pastilles : {% call barre_pastilles() %}{{ pastille(...) }}...{% endcall %} #}
+{% macro barre_pastilles() -%}
+<div class="stat-bar">{{ caller() }}</div>
+{%- endmacro %}
+
+{# En-tête et pied d'une fenêtre (modale) #}
+{% macro tete_fenetre(id, titre, icone) -%}
+<div class="modal-head">
+  <span class="modal-head-title"><i class="bi bi-{{ icone }}"></i> <span id="{{ id }}-titre">{{ titre }}</span></span>
+  <button type="button" class="modal-close" onclick="fermer('{{ id }}')">&times;</button>
+</div>
+{%- endmacro %}
+
+{% macro pied_fenetre(id) -%}
+<div class="modal-footer">
+  <button type="button" class="btn-annuler" onclick="fermer('{{ id }}')">Annuler</button>
+  <button type="submit" class="btn-enregistrer">Enregistrer</button>
+</div>
+{%- endmacro %}

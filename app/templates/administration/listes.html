@@ -1,0 +1,100 @@
+{% extends '_base.html' %}
+{% block titre %}Listes{% endblock %}
+{% block icone %}list-ul{% endblock %}
+{% block page_sous_titre %}Gérer les valeurs de chaque liste{% endblock %}
+
+{% block contenu %}
+{% for cat, label in CATEGORIES.items() %}
+{% set items = listes[cat] %}
+<div class="cat-card" id="{{ cat }}">
+  <div class="cat-head">
+    <span class="cat-title"><i class="bi bi-list-check"></i> {{ label }}</span>
+    <span class="cat-count">{{ items|length }} valeur{% if items|length != 1 %}s{% endif %}</span>
+  </div>
+  <div class="cat-body">
+    <ul class="val-list" data-cat="{{ cat }}">
+      {% for item in items %}
+      <li class="val-item {% if not item.actif %}inactif{% endif %}" data-id="{{ item.id }}">
+        <i class="bi bi-grip-vertical drag-handle"></i>
+        <span class="val-text">{{ item.valeur }}</span>
+        <span class="badge-actif {{ 'on' if item.actif else 'off' }}">{{ 'Actif' if item.actif else 'Inactif' }}</span>
+        <button class="btn-edit" data-v='{{ {"id": item.id, "valeur": item.valeur, "actif": item.actif}|tojson }}'
+                onclick="ouvrirEdition(this)"><i class="bi bi-pencil"></i></button>
+        <form method="post" action="{{ url_for('listes.supprimer', id=item.id) }}"
+              onsubmit="return confirm('Supprimer « ' + this.dataset.valeur + ' » ?')" data-valeur="{{ item.valeur }}" style="display:inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn-del"><i class="bi bi-trash3"></i></button>
+        </form>
+      </li>
+      {% else %}
+      <li style="font-size:.75rem;color:var(--grisb);padding:.4rem .5rem;">Aucune valeur — ajoutez-en une ci-dessous.</li>
+      {% endfor %}
+    </ul>
+
+    <form method="post" action="{{ url_for('listes.ajouter') }}" class="add-row">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="categorie" value="{{ cat }}">
+      <input type="text" name="valeur" class="add-input" placeholder="Nouvelle valeur…" autocomplete="off" required>
+      <button type="submit" class="btn-add"><i class="bi bi-plus-lg"></i> Ajouter</button>
+    </form>
+  </div>
+</div>
+{% else %}
+<div class="empty-note">Aucune liste pour l'instant : elles arriveront avec les modules.</div>
+{% endfor %}
+
+<div class="modal-overlay" id="editModal" hidden>
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-head-title"><i class="bi bi-pencil-fill"></i> Modifier la valeur</span>
+      <button class="modal-close" onclick="fermer('editModal')">&times;</button>
+    </div>
+    <form id="editForm" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="modal-body">
+        <label class="form-label-sm">Valeur</label>
+        <input type="text" name="valeur" id="editValeur" class="form-control-sm2" required>
+        <div class="toggle-row">
+          <label class="form-label-sm" style="margin-bottom:0;">Actif</label>
+          <select name="actif" id="editActif" class="form-control-sm2" style="width:auto;margin-bottom:0;">
+            <option value="1">Oui</option>
+            <option value="0">Non</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="fermer('editModal')">Annuler</button>
+        <button type="submit" class="btn-save"><i class="bi bi-check-lg"></i> Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/sortablejs-1.15.0/Sortable.min.js') }}"></script>
+<script>
+function ouvrirEdition(btn) {
+  var v = JSON.parse(btn.dataset.v);
+  document.getElementById('editForm').action = "{{ url_for('listes.modifier', id=0) }}".replace(/0$/, v.id);
+  document.getElementById('editValeur').value = v.valeur;
+  document.getElementById('editActif').value = v.actif ? '1' : '0';
+  ouvrir('editModal');
+}
+
+document.querySelectorAll('.val-list').forEach(function (ul) {
+  Sortable.create(ul, {
+    handle: '.drag-handle',
+    animation: 150,
+    onEnd: function () {
+      var ids = Array.from(ul.querySelectorAll('.val-item')).map(function (li) { return parseInt(li.dataset.id, 10); });
+      fetch("{{ url_for('listes.reordonner') }}", {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('[name=csrf_token]').value},
+        body: JSON.stringify({ids: ids})
+      });
+    }
+  });
+});
+</script>
+{% endblock %}

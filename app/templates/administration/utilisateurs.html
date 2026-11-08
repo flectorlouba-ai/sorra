@@ -1,0 +1,181 @@
+{% extends '_base.html' %}
+{% from '_macros.html' import tete_fenetre, pied_fenetre %}
+{% block titre %}Utilisateurs{% endblock %}
+{% block icone %}people-fill{% endblock %}
+{% block page_sous_titre %}Comptes, profils et provinces de rattachement{% endblock %}
+
+{% block actions %}
+<button type="button" class="btn-new" onclick="ouvrirCreation()"><i class="bi bi-plus-lg"></i> Nouvel utilisateur</button>
+{% endblock %}
+
+{% block contenu %}
+<form class="filters-bar" method="get">
+  <span class="filter-label">Profil</span>
+  <select name="profil" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Tous</option>
+    {% for p in profils %}<option value="{{ p.value }}" {% if filtre.profil == p.value %}selected{% endif %}>{{ p.libelle }}</option>{% endfor %}
+  </select>
+  <span class="filter-label">Province</span>
+  <select name="province" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Toutes</option>
+    {% for p in provinces %}<option value="{{ p.id }}" {% if filtre.province == p.id|string %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+  </select>
+  <span class="filter-label">Comptes</span>
+  <select name="statut" class="filter-sel" onchange="this.form.submit()">
+    <option value="actifs" {% if filtre.statut == 'actifs' %}selected{% endif %}>Actifs</option>
+    <option value="inactifs" {% if filtre.statut == 'inactifs' %}selected{% endif %}>Désactivés</option>
+    <option value="tous" {% if filtre.statut == 'tous' %}selected{% endif %}>Tous</option>
+  </select>
+</form>
+
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>Identifiant</th><th>Nom</th><th>Profil</th><th>Provinces</th><th>État</th><th></th></tr></thead>
+    <tbody>
+    {% for u in utilisateurs %}
+      <tr>
+        <td class="td-num">{{ u.identifiant }}</td>
+        <td>{{ u.nom_complet }}</td>
+        <td>{{ u.profil.libelle }}</td>
+        <td>{% if u.est_national %}Toutes{% else %}{{ u.provinces|map(attribute='nom')|join(', ') or '—' }}{% endif %}</td>
+        <td>{% if u.actif %}<span class="badge badge-ok">Actif</span>{% else %}<span class="badge badge-off">Désactivé</span>{% endif %}</td>
+        <td style="text-align:right;">
+          <button type="button" class="btn-edit" title="Modifier"
+                  data-u='{{ {"id": u.id|string, "identifiant": u.identifiant, "nom": u.nom, "prenom": u.prenom or "",
+                              "email": u.email or "", "telephone": u.telephone or "", "profil": u.profil.value,
+                              "provinces": u.province_ids, "actif": u.actif}|tojson }}'
+                  onclick="ouvrirModification(this)"><i class="bi bi-pencil"></i></button>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="table-vide"><i class="bi bi-people"></i>Aucun compte ne correspond.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+<div class="modal-overlay" id="fen-user" hidden>
+  <div class="modal-box">
+    <form method="post" id="form-user" action="{{ url_for('utilisateurs.creer') }}">
+      {{ tete_fenetre('fen-user', 'Nouvel utilisateur', 'person-plus') }}
+      <div class="modal-body">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="section-block">
+          <div class="section-title">Personne</div>
+          <div class="form-grid">
+            <div class="form-group" id="bloc-identifiant">
+              <label class="form-label" for="identifiant">Identifiant<span class="req">*</span></label>
+              <input class="form-control" id="identifiant" name="identifiant" autocapitalize="none" maxlength="64">
+              <div class="form-hint">Sert à se connecter. Ne peut plus être changé ensuite.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="profil">Profil<span class="req">*</span></label>
+              <select class="form-control" id="profil" name="profil" required onchange="majProvinces()">
+                <option value="">— Choisir —</option>
+                {% for p in profils %}<option value="{{ p.value }}">{{ p.libelle }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="nom">Nom<span class="req">*</span></label>
+              <input class="form-control" id="nom" name="nom" required maxlength="120">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="prenom">Prénom</label>
+              <input class="form-control" id="prenom" name="prenom" maxlength="120">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="email">E-mail</label>
+              <input class="form-control" id="email" name="email" type="email" maxlength="120">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="telephone">Téléphone</label>
+              <input class="form-control" id="telephone" name="telephone" type="tel" maxlength="30">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-block" id="bloc-provinces">
+          <div class="section-title">Provinces<span class="req" style="color:var(--requis);">*</span></div>
+          <div class="coches">
+            {% for p in provinces %}
+            <label class="coche"><input type="checkbox" name="provinces" value="{{ p.id }}"> {{ p.nom }}</label>
+            {% endfor %}
+          </div>
+          <div class="form-hint">La personne ne verra que les données de ces provinces.</div>
+        </div>
+        <div class="section-block" id="bloc-national" hidden>
+          <div class="form-hint">Ce profil voit toutes les provinces.</div>
+        </div>
+
+        <div class="section-block">
+          <div class="section-title">Connexion</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="mot_de_passe" id="label-mdp">Mot de passe provisoire<span class="req">*</span></label>
+              <input class="form-control" id="mot_de_passe" name="mot_de_passe" type="text" autocomplete="off" minlength="{{ longueur_min }}">
+              <div class="form-hint" id="aide-mdp">Au moins {{ longueur_min }} caractères. La personne le changera à sa première connexion.</div>
+            </div>
+            <div class="form-group" id="bloc-actif" hidden>
+              <span class="form-label">Compte</span>
+              <label class="coche mt-1"><input type="checkbox" name="actif" id="actif"> Compte actif</label>
+              <div class="form-hint">Décocher pour désactiver le compte : la personne ne pourra plus se connecter.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{ pied_fenetre('fen-user') }}
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var NATIONAUX = {{ nationaux|tojson }};
+var form = document.getElementById('form-user');
+
+function majProvinces() {
+  var national = NATIONAUX.indexOf(document.getElementById('profil').value) !== -1;
+  document.getElementById('bloc-provinces').hidden = national;
+  document.getElementById('bloc-national').hidden = !national;
+}
+
+function cocherProvinces(ids) {
+  form.querySelectorAll('input[name=provinces]').forEach(function (c) {
+    c.checked = ids.indexOf(parseInt(c.value, 10)) !== -1;
+  });
+}
+
+function ouvrirCreation() {
+  form.reset();
+  form.action = "{{ url_for('utilisateurs.creer') }}";
+  document.getElementById('fen-user-titre').textContent = 'Nouvel utilisateur';
+  document.getElementById('bloc-identifiant').hidden = false;
+  document.getElementById('identifiant').required = true;
+  document.getElementById('bloc-actif').hidden = true;
+  document.getElementById('mot_de_passe').required = true;
+  document.getElementById('label-mdp').innerHTML = 'Mot de passe provisoire<span class="req">*</span>';
+  document.getElementById('aide-mdp').textContent = 'Au moins {{ longueur_min }} caractères. La personne le changera à sa première connexion.';
+  majProvinces();
+  ouvrir('fen-user');
+}
+
+function ouvrirModification(btn) {
+  var u = JSON.parse(btn.dataset.u);
+  form.reset();
+  form.action = "{{ url_for('utilisateurs.modifier', user_id='__ID__') }}".replace('__ID__', u.id);
+  document.getElementById('fen-user-titre').textContent = 'Modifier — ' + u.identifiant;
+  document.getElementById('bloc-identifiant').hidden = true;
+  document.getElementById('identifiant').required = false;
+  ['nom', 'prenom', 'email', 'telephone', 'profil'].forEach(function (k) { document.getElementById(k).value = u[k]; });
+  cocherProvinces(u.provinces);
+  document.getElementById('bloc-actif').hidden = false;
+  document.getElementById('actif').checked = u.actif;
+  document.getElementById('mot_de_passe').required = false;
+  document.getElementById('label-mdp').textContent = 'Nouveau mot de passe provisoire';
+  document.getElementById('aide-mdp').textContent = 'Laisser vide pour ne pas le changer.';
+  majProvinces();
+  ouvrir('fen-user');
+}
+</script>
+{% endblock %}

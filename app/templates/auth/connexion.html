@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+{% include '_tete.html' %}
+  <title>Connexion — KIMBA</title>
+</head>
+<body class="page-connexion">
+
+<div class="kente-top"></div>
+
+<div class="login-card">
+  <div class="login-head">
+    <div class="login-head-logo">KIMBA</div>
+    <h1>KIMBA</h1>
+    <p>Suivi des fermes avicoles du Gabon</p>
+  </div>
+
+  <div class="login-body">
+    {% if erreur %}
+      <div class="erreur-box"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ erreur }}</div>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }} mb-3 p-2" style="font-size:.82rem;border-radius:0;">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="post" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="mb-3">
+        <label class="form-label" for="identifiant">Identifiant</label>
+        <input type="text" id="identifiant" name="identifiant"
+               class="form-control" placeholder="Votre identifiant"
+               autocomplete="username" autocapitalize="none" autofocus required>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label" for="mot_de_passe">Mot de passe</label>
+        <div class="input-group" style="border-radius:0;">
+          <input type="password" id="mot_de_passe" name="mot_de_passe"
+                 class="form-control" placeholder="Mot de passe"
+                 autocomplete="current-password" required>
+          <button type="button" class="btn btn-outline-secondary btn-oeil" onclick="togglePwd()">
+            <i class="bi bi-eye" id="pwdIcon"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login">
+        <i class="bi bi-box-arrow-in-right me-1"></i>Se connecter
+      </button>
+    </form>
+  </div>
+
+  <div class="login-foot">
+    &copy; 2026 LOUBAPRO — KIMBA
+  </div>
+</div>
+
+<script>
+function togglePwd() {
+  var f = document.getElementById('mot_de_passe');
+  var i = document.getElementById('pwdIcon');
+  f.type = f.type === 'password' ? 'text' : 'password';
+  i.className = f.type === 'text' ? 'bi bi-eye-slash' : 'bi bi-eye';
+}
+</script>
+</body>
+</html>
