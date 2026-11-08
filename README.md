@@ -46,8 +46,10 @@ SECRET_KEY=<longue chaîne aléatoire>
 DATABASE_URL=postgresql+psycopg2://kimba:<mot de passe>@127.0.0.1:5432/kimba
 ```
 
-Puis `flask db upgrade`, `flask init-kimba`, et lancement par gunicorn :
-`gunicorn -w 3 -b 0.0.0.0:5020 kimba:app`.
+Puis `flask db upgrade`, `flask init-kimba`, et lancement par gunicorn derrière nginx.
+Installation réelle sur le VPS (port public 5021, le 5020 étant pris par EPIKAÏZO),
+commandes de redémarrage, journaux, sauvegarde et restauration : voir
+[`docs/exploitation.md`](docs/exploitation.md). Fichiers serveur : dossier `deploiement/`.
 
 ## Organisation
 
