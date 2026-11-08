@@ -65,8 +65,8 @@ def create_app(env='default'):
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
     # ── CLI ──
-    from app.commandes import init_kimba
-    app.cli.add_command(init_kimba)
+    from app.commandes import init_performyl2
+    app.cli.add_command(init_performyl2)
 
     # ── Globals et filtres Jinja2 ──
     from app.utils.permissions import a_profil

@@ -1,5 +1,5 @@
 {# ══════════════════════════════════════════════════════════════════════
-   Gabarit commun KIMBA — repris de PERFORM YL.1 (page « Suivi DI / OT »).
+   Gabarit commun PERFORM YL.2 — repris de PERFORM YL.1 (page « Suivi DI / OT »).
    Blocs : titre, sous_titre, icone, page_titre, page_sous_titre, actions,
            pastilles, contenu, scripts.
    ══════════════════════════════════════════════════════════════════════ #}
@@ -7,16 +7,16 @@
 <html lang="fr">
 <head>
 {% include '_tete.html' %}
-  <title>{% block titre %}KIMBA{% endblock %} — KIMBA</title>
+  <title>{% block titre %}PERFORM YL.2{% endblock %} — PERFORM YL.2</title>
 </head>
 <body>
 <div class="kente-band"></div>
 
 <div class="topbar">
   <a href="{{ url_for('accueil.index') }}" class="topbar-brand">
-    <div class="logo-texte">KIMBA</div>
+    <div class="logo-texte">YL.2</div>
     <div>
-      <div class="topbar-name">KIMBA</div>
+      <div class="topbar-name">PERFORM YL.2</div>
       <div class="topbar-sub">{% block sous_titre %}{{ self.titre() }}{% endblock %}</div>
     </div>
   </a>
@@ -60,7 +60,7 @@
 
 <script src="{{ url_for('static', filename='vendor/bootstrap-5.3.3/js/bootstrap.bundle.min.js') }}"></script>
 <script>
-// Fenêtres (modales) du socle YL.1 : ouvrir / fermer, Échap pour fermer
+// Fenêtres (modales) : ouvrir / fermer, Échap pour fermer
 function ouvrir(id) { document.getElementById(id).hidden = false; }
 function fermer(id) { document.getElementById(id).hidden = true; }
 document.addEventListener('keydown', function (e) {

@@ -12,9 +12,9 @@ def _oui(nom, defaut='0'):
 
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'kimba-dev-cle-a-changer')
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'performyl2-dev-cle-a-changer')
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL', f'sqlite:///{os.path.join(BASE_DIR, "kimba_dev.db")}')
+        'DATABASE_URL', f'sqlite:///{os.path.join(BASE_DIR, "performyl2_dev.db")}')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_ENABLED = True
     # Jeton valable le temps de la session (repris de YL.1) : évite le
@@ -22,7 +22,7 @@ class Config:
     WTF_CSRF_TIME_LIMIT = None
 
     # Cookies de session. SECURE seulement derrière HTTPS : en HTTP simple
-    # (port 5020 ouvert directement) le navigateur ne renverrait plus le cookie.
+    # (cas actuel, port 5021 sans HTTPS) le navigateur ne renverrait plus le cookie.
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     SESSION_COOKIE_SECURE = _oui('COOKIE_SECURE')

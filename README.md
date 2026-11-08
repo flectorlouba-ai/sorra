@@ -1,11 +1,11 @@
-# KIMBA — démarrage
+# PERFORM YL.2 — démarrage
 
 Application web de suivi technico-économique et de traçabilité des fermes avicoles
 du Gabon (programme POUFA). Ce dépôt contient le **lot 0 : socle technique**.
 
-## Lancer KIMBA sur votre poste (Windows)
+## Lancer PERFORM YL.2 sur votre poste (Windows)
 
-Dans PowerShell, depuis le dossier `kimba` :
+Dans PowerShell, depuis le dossier du dépôt :
 
 ```powershell
 # 1. Environnement Python (une seule fois)
@@ -14,26 +14,26 @@ venv\Scripts\pip install -r requirements.txt
 
 # 2. Réglages : copier le modèle puis remplir SECRET_KEY
 copy .env.exemple .env
-#    (sans DATABASE_URL, la base est le fichier kimba_dev.db, créé à l'étape 3)
+#    (sans DATABASE_URL, la base est le fichier performyl2_dev.db, créé à l'étape 3)
 
 # 3. Créer la base et le compte administrateur (une seule fois)
 venv\Scripts\flask db upgrade
-venv\Scripts\flask init-kimba
+venv\Scripts\flask init-yl2
 #    → note le mot de passe affiché : il ne sera plus montré
 
 # 4. Démarrer
-venv\Scripts\python kimba.py
+venv\Scripts\python performyl2.py
 ```
 
 Ouvrir ensuite <http://localhost:5020>, se connecter avec `admin` et le mot de passe
-affiché à l'étape 3. KIMBA demande aussitôt d'en choisir un nouveau.
+affiché à l'étape 3. PERFORM YL.2 demande aussitôt d'en choisir un nouveau.
 
 ## Commandes utiles
 
 | Commande | Rôle |
 |---|---|
 | `venv\Scripts\flask db upgrade` | Met la base à jour (à faire après chaque nouveau lot) |
-| `venv\Scripts\flask init-kimba` | Crée le compte `admin` s'il n'existe pas |
+| `venv\Scripts\flask init-yl2` | Crée le compte `admin` s'il n'existe pas |
 | `venv\Scripts\python -m pytest -q` | Lance les tests automatiques (≈ 2 min) |
 
 ## Production (PostgreSQL)
@@ -41,12 +41,12 @@ affiché à l'étape 3. KIMBA demande aussitôt d'en choisir un nouveau.
 Dans le `.env` du serveur :
 
 ```
-KIMBA_ENV=production
+YL2_ENV=production
 SECRET_KEY=<longue chaîne aléatoire>
-DATABASE_URL=postgresql+psycopg2://kimba:<mot de passe>@127.0.0.1:5432/kimba
+DATABASE_URL=postgresql+psycopg2://performyl2:<mot de passe>@127.0.0.1:5432/performyl2
 ```
 
-Puis `flask db upgrade`, `flask init-kimba`, et lancement par gunicorn derrière nginx.
+Puis `flask db upgrade`, `flask init-yl2`, et lancement par gunicorn derrière nginx.
 Installation réelle sur le VPS (port public 5021, le 5020 étant pris par EPIKAÏZO),
 commandes de redémarrage, journaux, sauvegarde et restauration : voir
 [`docs/exploitation.md`](docs/exploitation.md). Fichiers serveur : dossier `deploiement/`.
@@ -54,7 +54,7 @@ commandes de redémarrage, journaux, sauvegarde et restauration : voir
 ## Organisation
 
 ```
-kimba.py              point d'entrée (flask --app kimba, gunicorn kimba:app)
+performyl2.py         point d'entrée (flask --app performyl2, gunicorn performyl2:app)
 config.py             réglages lus dans le .env
 app/
   models/             tables (base.py : mixin des futures saisies terrain)
@@ -70,6 +70,8 @@ tests/                tests automatiques
 ```
 
 ## Règles pour les lots suivants
+
+**Avant tout lot : relire et appliquer [`docs/ergonomie.md`](docs/ergonomie.md).**
 
 - Une table de saisie terrain hérite de `SaisieTerrainMixin` (identifiant UUID créé par
   l'application, numéro provisoire, appareil, état de synchronisation).

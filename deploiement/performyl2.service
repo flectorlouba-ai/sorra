@@ -1,0 +1,15 @@
+[Unit]
+Description=PERFORM YL.2 — Flask/Gunicorn
+After=network.target postgresql.service
+
+[Service]
+User=performyl2
+Group=performyl2
+WorkingDirectory=/var/www/performyl2
+EnvironmentFile=/var/www/performyl2/.env
+ExecStart=/var/www/performyl2/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8007 --timeout 120 --access-logfile /var/log/performyl2/access.log --error-logfile /var/log/performyl2/error.log performyl2:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

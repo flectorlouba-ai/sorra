@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-os.environ['KIMBA_ENV'] = 'testing'
+os.environ['YL2_ENV'] = 'testing'
 
 from app import create_app, db  # noqa: E402
 from app.models import Utilisateur, Profil, Province, Localite, Parametre  # noqa: E402

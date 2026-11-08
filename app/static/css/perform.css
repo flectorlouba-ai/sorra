@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════════
-   KIMBA — charte graphique de PERFORM YL.1, reprise à l'identique.
+   PERFORM YL.2 — charte graphique de PERFORM YL.1, reprise à l'identique.
    Toutes les couleurs sont déclarées ici, dans :root, avec la valeur
    qu'elles avaient dans YL.1 (perform.css, accueil, connexion, listes).
    Aucune couleur nouvelle. Seuls les voiles et ombres transparents
@@ -63,7 +63,7 @@ body{font-family:'Space Grotesk','Segoe UI',system-ui,sans-serif;background:var(
 .btn-top:hover{background:var(--blanc);color:var(--noir);border-color:var(--blanc);}
 .btn-top.actif{background:var(--noir3);border-color:var(--noir3);color:var(--blanc);}
 
-/* Emplacement du logo : texte « KIMBA » en attendant l'image (même taille, même ombre) */
+/* Emplacement du logo : texte « PERFORM YL.2 » en attendant l'image (même taille, même ombre) */
 .logo-texte{width:32px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
      font-size:.46rem;font-weight:800;letter-spacing:.03em;color:var(--blanc);
      filter:drop-shadow(0 1px 4px rgba(0,0,0,.5));}

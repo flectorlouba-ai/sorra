@@ -87,7 +87,20 @@ def test_valeurs_couleurs_de_yl1():
     assert couleurs <= yl1, couleurs - yl1
 
 
-def test_nom_affiche_kimba():
+def test_nom_affiche_perform_yl2():
     for f in GABARITS.rglob('*.html'):
         affiche = re.sub(r'\{#.*?#\}', '', f.read_text(encoding='utf-8'), flags=re.S)
-        assert 'PERFORM' not in affiche, f
+        assert 'YL.1' not in affiche, f
+    for f in ('_base.html', 'accueil.html', 'auth/connexion.html'):
+        assert 'PERFORM YL.2' in (GABARITS / f).read_text(encoding='utf-8'), f
+
+
+def test_ancien_nom_absent_partout():
+    """L'ancien nom de travail ne doit plus apparaître dans aucun fichier du dépôt."""
+    import subprocess
+    ancien = ''.join(['K', 'I', 'M', 'B', 'A'])   # écrit en morceaux pour ne pas se trouver lui-même
+    fichiers = subprocess.run(['git', 'ls-files'], cwd=RACINE, capture_output=True, text=True).stdout.split()
+    trouves = [f for f in fichiers if ancien.lower() in f.lower()
+               or (not f.endswith(('.woff', '.woff2'))
+                   and ancien.lower() in (RACINE / f).read_text(encoding='utf-8', errors='ignore').lower())]
+    assert trouves == []

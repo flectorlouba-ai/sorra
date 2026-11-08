@@ -18,10 +18,10 @@ def _mot_de_passe_aleatoire(longueur=14):
             return mdp
 
 
-@click.command('init-kimba')
+@click.command('init-yl2')
 @click.option('--identifiant', default='admin', show_default=True)
 @with_appcontext
-def init_kimba(identifiant):
+def init_performyl2(identifiant):
     """Crée le compte ADMIN initial (mot de passe à changer à la première connexion).
     Complète aussi provinces et paramètres s'ils manquent (normalement posés par la migration)."""
     for i, (code, nom) in enumerate(PROVINCES_GABON, start=1):

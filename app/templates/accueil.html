@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 {% include '_tete.html' %}
-  <title>Accueil — KIMBA</title>
+  <title>Accueil — PERFORM YL.2</title>
 </head>
 <body class="page-accueil">
 
@@ -11,9 +11,9 @@
 <!-- ══ BARRE DU HAUT ══ -->
 <div class="topbar">
   <a href="{{ url_for('accueil.index') }}" class="topbar-brand">
-    <div class="logo-texte">KIMBA</div>
+    <div class="logo-texte">YL.2</div>
     <div>
-      <div class="topbar-brand-name">KIMBA</div>
+      <div class="topbar-brand-name">PERFORM YL.2</div>
       <div class="topbar-brand-sub">Suivi des fermes avicoles du Gabon</div>
     </div>
   </a>
@@ -147,11 +147,11 @@
   function montrer(nom) {
     boutons.forEach(function (b) { b.classList.toggle('active', b.dataset.tab === nom); });
     document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.toggle('active', p.id === 'tab-' + nom); });
-    try { sessionStorage.setItem('kimba-onglet', nom); } catch (e) {}
+    try { sessionStorage.setItem('yl2-onglet', nom); } catch (e) {}
   }
   boutons.forEach(function (b) { b.addEventListener('click', function () { montrer(b.dataset.tab); }); });
   try {
-    var memo = sessionStorage.getItem('kimba-onglet');
+    var memo = sessionStorage.getItem('yl2-onglet');
     if (memo && document.getElementById('tab-' + memo)) montrer(memo);
   } catch (e) {}
 })();

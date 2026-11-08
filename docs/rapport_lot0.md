@@ -1,17 +1,19 @@
-# KIMBA — Lot 0 : socle technique — rapport
+# PERFORM YL.2 — Lot 0 : socle technique — rapport
 
-Date : 8 novembre 2026. Dossier : `Desktop\KIMBA\kimba` (nouveau dépôt git).
+> Rapport écrit avant le renommage de l'application (lot 0 bis) : les noms y sont mis à jour.
+
+Date : 8 novembre 2026. Dossier : le dépôt git de l'application.
 État : construit et testé en local (77 tests automatiques réussis). Pas encore déployé.
 
 ## 1. Ce qui a été fait
 
 | Fichier | Contenu |
 |---|---|
-| `kimba.py` | Point d'entrée. Lance l'application sur le port 5020. |
+| `performyl2.py` | Point d'entrée. Lance l'application sur le port 5020. |
 | `config.py` | Réglages lus dans le `.env` : clé secrète, base de données (SQLite par défaut, PostgreSQL par `DATABASE_URL`), cookies protégés. En production, refuse de démarrer sans clé ni base. |
 | `.env.exemple`, `requirements.txt`, `README.md` | Modèle de réglages, bibliothèques (versions figées), mode d'emploi du démarrage. |
 | `app/__init__.py` | Assemble l'application. Ferme la session après une période d'inactivité (paramètre). Oblige à changer le mot de passe tant que c'est demandé. Affiche des pages claires pour « accès refusé », « page introuvable » et « session expirée ». |
-| `app/commandes.py` | Commande `flask init-kimba` : crée le compte `admin` avec un mot de passe tiré au hasard, affiché une seule fois et à changer à la première connexion. |
+| `app/commandes.py` | Commande `flask init-yl2` : crée le compte `admin` avec un mot de passe tiré au hasard, affiché une seule fois et à changer à la première connexion. |
 | `app/models/base.py` | Mixin `SaisieTerrainMixin` pour les futures saisies terrain : identifiant UUID créé par l'application, `numero_metier`, `numero_provisoire`, `cree_le`, `modifie_le`, `cree_par`, `modifie_par` (remplis automatiquement), `appareil_id`, `statut_synchro` (LOCAL, SYNCHRONISE, CONFLIT). |
 | `app/models/utilisateur.py` | Les 9 profils, les comptes et le rattachement aux provinces. La table de rattachement aux fermes est prête ; son lien vers `Ferme` sera posé au lot 1. Un compte désactivé perd sa session à la requête suivante. |
 | `app/models/referentiel.py` | Provinces (avec leur code) et localités. |
@@ -52,8 +54,8 @@ Le journal est protégé à trois niveaux :
 Les couleurs écrites en dur dans YL.1 sont devenues des variables, avec la même valeur. Un test vérifie qu'aucune couleur n'a été inventée. Un autre vérifie qu'aucune couleur n'est écrite hors de `:root`. Seules les transparences (ombres, voiles blancs) restent écrites en place.
 
 **Changements de nom et d'emplacement du logo :**
-- le nom affiché est « KIMBA » ;
-- le texte « KIMBA » remplace l'image du logo, au même emplacement et avec la même ombre.
+- le nom affiché est « PERFORM YL.2 » ;
+- le texte « PERFORM YL.2 » remplace l'image du logo, au même emplacement et avec la même ombre.
 
 **Corrigé au passage :**
 - déconnexion par un bouton (POST) au lieu d'un lien ;
@@ -65,13 +67,13 @@ Les couleurs écrites en dur dans YL.1 sont devenues des variables, avec la mêm
 
 ## 3. Lancer l'application en local
 
-Voir `README.md`. En bref, dans PowerShell, depuis `Desktop\KIMBA\kimba` :
+Voir `README.md`. En bref, dans PowerShell, depuis le dossier du dépôt :
 
 ```powershell
 copy .env.exemple .env          # puis remplacer SECRET_KEY par une longue chaîne
 venv\Scripts\flask db upgrade
-venv\Scripts\flask init-kimba   # noter le mot de passe affiché
-venv\Scripts\python kimba.py
+venv\Scripts\flask init-yl2   # noter le mot de passe affiché
+venv\Scripts\python performyl2.py
 ```
 
 Ouvrir ensuite <http://localhost:5020>. L'environnement `venv` est déjà installé sur ce poste.
@@ -138,20 +140,20 @@ Ajoutez ensuite deux localités (test 5) : *Libreville* dans l'Estuaire et *Fran
 - Connecté avec ce compte, l'accueil montre la tuile « Journal des opérations » : la consultation et l'export fonctionnent, mais il n'y a pas d'administration.
 
 ### Test 10 — Comparaison visuelle avec YL.1
-Ouvrez YL.1 et KIMBA côte à côte (YL.1 sur `localhost:5010` ou sur le serveur).
+Ouvrez YL.1 et PERFORM YL.2 côte à côte (YL.1 sur `localhost:5010` ou sur le serveur).
 
 | À comparer | Résultat attendu |
 |---|---|
 | Écran de connexion | Même dégradé bleu, même carte, même bouton « Se connecter », même pied de page. Seuls le nom et le texte du logo changent. |
 | Accueil | Même barre du haut (« Quitter » en rouge), même salutation, mêmes onglets, mêmes tuiles en dégradé (navy, cobalt, bleu, ambre). |
-| Écran Utilisateurs de KIMBA face à « Suivi DI/OT » ou « Comptes » de YL.1 | Même bandeau kente, même barre du haut, même en-tête avec icône carrée, même barre de filtres, mêmes en-têtes de tableau bleu nuit, même bouton « + NOUVEAU… », mêmes ✏️. |
+| Écran Utilisateurs de PERFORM YL.2 face à « Suivi DI/OT » ou « Comptes » de YL.1 | Même bandeau kente, même barre du haut, même en-tête avec icône carrée, même barre de filtres, mêmes en-têtes de tableau bleu nuit, même bouton « + NOUVEAU… », mêmes ✏️. |
 | Fenêtres | Même en-tête bleu nuit, mêmes boutons Annuler / ENREGISTRER. |
-| Téléphone | Ouvrez KIMBA sur un téléphone (ou réduisez la fenêtre) : pas de défilement horizontal de la page, et les tableaux défilent à l'intérieur de leur cadre comme dans YL.1. |
+| Téléphone | Ouvrez PERFORM YL.2 sur un téléphone (ou réduisez la fenêtre) : pas de défilement horizontal de la page, et les tableaux défilent à l'intérieur de leur cadre comme dans YL.1. |
 
 ## 5. Points d'attention
 
 - **Listes configurables** : comme dans YL.1, les catégories sont écrites dans le code. Le lot 0 n'en contient aucune, donc la tuile *Listes* n'apparaît pas encore (pas de tuile inutile). L'écran existe et a été testé automatiquement avec une liste d'essai ; la tuile apparaîtra avec la première liste du lot 1.
-- **Logo** : « KIMBA » apparaît deux fois côte à côte, une fois à la place du logo et une fois comme nom. C'est ce que vous avez demandé ; cela disparaîtra avec le vrai logo.
+- **Logo** : « PERFORM YL.2 » apparaît deux fois côte à côte, une fois à la place du logo et une fois comme nom. C'est ce que vous avez demandé ; cela disparaîtra avec le vrai logo.
 - **Déploiement en HTTP simple sur le port 5020** : sans HTTPS, les mots de passe circulent en clair sur le réseau. Les cookies « sécurisés » sont donc désactivés par défaut (`COOKIE_SECURE=0`), sinon la connexion ne marcherait pas en HTTP.
 
 ## 6. Tests automatiques
@@ -170,7 +172,7 @@ J'ai aussi ouvert chaque écran dans un vrai navigateur, au format ordinateur et
 
 ## 7. Options proposées (non codées)
 
-1. **HTTPS** pour KIMBA, avec un nom de domaine et nginx devant le port 5020. Cela permettrait ensuite `COOKIE_SECURE=1`.
+1. **HTTPS** pour PERFORM YL.2, avec un nom de domaine et nginx devant le port 5020. Cela permettrait ensuite `COOKIE_SECURE=1`.
 2. **Blocage temporaire après plusieurs échecs de connexion**, par exemple 5 échecs donnent 15 minutes d'attente, contre les essais de mots de passe en série.
-3. **Sauvegarde automatique chiffrée** de la base `kimba`, sur le modèle de celle de PERFORM YL.
+3. **Sauvegarde automatique chiffrée** de la base `performyl2`, sur le modèle de celle de PERFORM YL.
 4. **Libellés dans le détail du journal** : afficher « Agent technique » au lieu de « AGENT », et le nom de la province au lieu de son numéro.
