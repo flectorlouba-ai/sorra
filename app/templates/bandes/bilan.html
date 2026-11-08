@@ -1,0 +1,41 @@
+{% extends '_base.html' %}
+{% block titre %}Bilan {{ bande.numero }}{% endblock %}
+{% block sous_titre %}Bandes{% endblock %}
+{% block icone %}clipboard-data{% endblock %}
+{% block page_titre %}Bilan de la bande <span class="mono">{{ bande.numero }}</span>{% endblock %}
+{% block page_sous_titre %}{{ bande.ferme.nom }} · Bâtiment {{ bande.batiment.code }} · du {{ bande.date_mise_en_place.strftime('%d/%m/%Y') }} au {{ bande.date_cloture.strftime('%d/%m/%Y') }} ({{ b.duree_jours }} jour{{ 's' if b.duree_jours > 1 }}){% if bande.cloturant %} · clôturée par {{ bande.cloturant.nom_complet }}{% endif %}{% endblock %}
+
+{% block actions %}
+{% if current_user.profil.value != 'ELEVEUR' %}<a href="{{ url_for('bandes.fiche', numero=bande.numero) }}" class="btn-ghost"><i class="bi bi-arrow-left"></i> Fiche de la bande</a>{% endif %}
+{% endblock %}
+
+{% block contenu %}
+{% if b.partiels %}<div class="flash-item info"><i class="bi bi-info-circle"></i>Bande de rattrapage : indicateurs partiels.</div>{% endif %}
+{% if bande.motif_cloture %}<div class="flash-item warning"><i class="bi bi-flag"></i>Clôturée avec des poulets présents : {{ bande.motif_cloture }}</div>{% endif %}
+<div class="cartes-chiffres">
+  <div class="carte-chiffre"><div class="cc-libelle">Mortalité</div><div class="cc-valeur">{{ b.mortalite|qte }} %</div>
+    <div class="cc-sous">{{ b.morts|qte }} morts sur {{ b.mis_en_place|qte }} · viabilité {{ b.viabilite|qte }} %</div></div>
+  <div class="carte-chiffre"><div class="cc-libelle">Poids moyen à la sortie</div>
+    <div class="cc-valeur">{% if b.poids_moyen_sortie_kg %}{{ b.poids_moyen_sortie_kg|qte }} kg{% else %}—{% endif %}</div>
+    <div class="cc-sous">GMQ {{ b.gmq|qte if b.gmq is not none else '—' }} g/j</div></div>
+  <div class="carte-chiffre"><div class="cc-libelle">Indice de consommation</div>
+    <div class="cc-valeur">{{ b.indice_consommation|qte if b.indice_consommation else '—' }}</div>
+    <div class="cc-sous">{{ b.aliment_kg|qte }} kg d'aliment</div></div>
+  <div class="carte-chiffre"><div class="cc-libelle">Poids vif produit</div>
+    <div class="cc-valeur">{{ b.poids_vif_produit_kg|qte if b.poids_vif_produit_kg is not none else '—' }} kg</div>
+    <div class="cc-sous">{{ b.sortis|qte }} poulets sortis · régularité {{ b.regularite|qte }} %</div></div>
+</div>
+
+<div class="card-p">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-truck"></i> Sorties par destinataire</span></div>
+  <div class="table-scroll"><table>
+    <thead><tr><th>Destinataire</th><th>Motif</th><th>Poulets</th><th>Poids (kg)</th></tr></thead>
+    <tbody>
+    {% for s in b.sorties_par_destinataire %}
+      <tr><td>{{ s.destinataire }}</td><td>{{ s.motif }}</td><td>{{ s.nombre|qte }}</td><td>{{ s.poids_kg|qte }}</td></tr>
+    {% else %}<tr><td colspan="4" class="table-vide">Aucune sortie.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+</div>
+<div class="empty-note"><i class="bi bi-lock"></i> Bande en lecture seule, correction par l'ADMIN avec motif.</div>
+{% endblock %}

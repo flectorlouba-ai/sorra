@@ -1,0 +1,17 @@
+{% extends '_base.html' %}
+{% block titre %}Ouvrir une bande{% endblock %}
+{% block sous_titre %}Bandes{% endblock %}
+{% block icone %}house-door{% endblock %}
+{% block page_sous_titre %}Choisissez la ferme{% endblock %}
+{% block contenu %}
+<form method="get" action="{{ url_for(cible) }}" class="form-terrain">
+  <div class="form-group">
+    <label class="form-label" for="ferme">Ferme</label>
+    <select class="form-control" id="ferme" name="ferme" required>
+      <option value="">— Choisir —</option>
+      {% for f in fermes %}<option value="{{ f.numero }}">{{ f.numero }} — {{ f.nom }}</option>{% endfor %}
+    </select>
+  </div>
+  <button type="submit" class="btn-gros">Continuer</button>
+</form>
+{% endblock %}

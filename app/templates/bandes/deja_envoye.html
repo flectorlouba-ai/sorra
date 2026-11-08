@@ -1,0 +1,23 @@
+{% extends '_base.html' %}
+{% block titre %}Déjà envoyé{% endblock %}
+{% block sous_titre %}Bandes{% endblock %}
+{% block icone %}question-circle{% endblock %}
+{% block page_sous_titre %}<span class="mono">{{ bande.numero }}</span> · {{ jour.strftime('%d/%m') }}{% endblock %}
+{% block contenu %}
+<div class="ma-ferme-zone">
+  <div class="carte-livraison">
+    <div class="carte-livraison-titre"><i class="bi bi-question-circle"></i> Vous avez déjà envoyé {{ "aujourd'hui" if jour == today else 'ce jour-là' }}</div>
+    <div class="carte-livraison-lignes">
+      <div>Déjà envoyé : <span class="num">{{ existante.morts|qte }}</span> morts · <span class="num">{{ existante.sacs|qte }}</span> sacs</div>
+      <div>Ajouter : <span class="num">{{ morts|qte }}</span> morts{% for p, s in aliments.items() %} · <span class="num">{{ s|qte }}</span> sacs {{ p.nom }}{% endfor %}</div>
+    </div>
+    <form method="post" action="{{ url_for('bandes.saisie', numero=bande.numero) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {% for cle in ['jour', 'morts', 'sacs', 'aliment_choisi'] %}{% if form.get(cle) %}<input type="hidden" name="{{ cle }}" value="{{ form.get(cle) }}">{% endif %}{% endfor %}
+      <input type="hidden" name="ajouter" value="1">
+      <button type="submit" class="btn-gros"><i class="bi bi-plus-lg"></i> Oui, ajouter</button>
+    </form>
+    <a class="btn-gros-secondaire" href="{{ url_for('accueil.index') if current_user.profil.value == 'ELEVEUR' else url_for('bandes.fiche', numero=bande.numero) }}">Non</a>
+  </div>
+</div>
+{% endblock %}

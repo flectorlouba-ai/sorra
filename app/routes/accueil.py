@@ -3,7 +3,10 @@ encadré Alertes (maquette A, docs/maquettes/maquettes_lot1.md)."""
 from flask import Blueprint, render_template, url_for, session
 from flask_login import login_required, current_user
 
-from app.models import Ferme, Profil, Livraison
+from app import indicateurs
+from app.models import Ferme, Profil, Livraison, Bande
+from app.models.bande import StatutBande
+from app.services import bandes as regles_bandes
 from app.models.base import maintenant
 from app.models.intrant import StatutLivraison
 from app.services import intrants
@@ -30,7 +33,8 @@ MODULES = [
         ('Indicateurs d\'élevage', 'Mortalité, croissance, aliment', 'graph-up', None, None),
         ('Fermes', 'Fiches, bâtiments, GPS', 'house-door', 'fermes.liste',
          {A, D, Profil.AGENT, Profil.VETO}),
-        ('Bandes', 'Du poussin à la sortie', 'collection', None, None),
+        ('Bandes', 'Du poussin à la sortie', 'collection', 'bandes.liste',
+         {A, D, Profil.AGENT, Profil.VETO}),
         ('Intrants', 'Poussins, aliment, vaccins', 'box-seam', 'livraisons.liste',
          {A, D, Profil.AGENT}),
     ]},
@@ -91,7 +95,7 @@ ONGLETS = {
 }
 SEULEMENT_DISPONIBLES = {
     Profil.AUDITEUR: {'config'},   # Configuration avec le Journal seul
-    Profil.VETO: {'fermes'},       # Fermes et élevage avec la tuile Fermes seule
+    Profil.VETO: {'fermes'},       # Fermes et élevage : Fermes et Bandes, en lecture
 }
 COULEURS = ['mc-navy', 'mc-blue', 'mc-steel', 'mc-cobalt']
 
@@ -130,10 +134,43 @@ def onglets_pour(user):
 
 
 def _alertes(user):
-    if user.profil not in (Profil.ADMIN, Profil.DGE, Profil.AGENT):
-        return []
-    return [{**a, 'lien': url_for('livraisons.liste', alerte=a['filtre'])}
-            for a in intrants.alertes(filtre_perimetre(Livraison.query))]
+    resultat = []
+    if user.profil in (Profil.ADMIN, Profil.DGE, Profil.AGENT):
+        resultat += [{**a, 'lien': url_for('livraisons.liste', alerte=a['filtre'])}
+                     for a in intrants.alertes(filtre_perimetre(Livraison.query))]
+    if user.profil in (Profil.DGE, Profil.AGENT, Profil.VETO):
+        # Feu orange ou rouge : agent référent, DGE, vétérinaires de la province (pas l'ADMIN)
+        for b in filtre_perimetre(Bande.query.filter_by(statut=StatutBande.EN_COURS)).order_by(Bande.numero_metier):
+            v = indicateurs.calculer(b)
+            couleur, raison = indicateurs.feu(b, valeurs=v)
+            if couleur in ('orange', 'rouge'):
+                resultat.append({'texte': f'{b.numero} · {indicateurs.phrase(b, couleur, raison, v)}',
+                                 'lien': url_for('bandes.fiche', numero=b.numero), 'nombre': 1,
+                                 'niveau': 'urgence' if couleur == 'rouge' else 'warning',
+                                 'meta': f'{b.ferme.nom} · bande'})
+    return resultat
+
+
+def _espace_eleveur(fermes):
+    """Pour chaque ferme : poussins en attente, puis un bloc par bâtiment actif."""
+    from app.routes.bandes import contexte_bloc
+    espace = []
+    for f in fermes:
+        blocs = []
+        for b in f.batiments:
+            if not b.actif:
+                continue
+            etat = regles_bandes.etat_batiment(b)
+            if etat['etat'] == 'bande':
+                blocs.append({'type': 'bande', **contexte_bloc(etat['bande'])})
+            else:
+                derniere = etat.get('derniere')
+                blocs.append({'type': 'vide', 'batiment': b, **etat,
+                              'avant': regles_bandes.precedente(derniere) if derniere else None})
+        attente = regles_bandes.poussins_en_attente(f)
+        espace.append({'ferme': f, 'blocs': blocs,
+                       'attente': sum(d for _, d in attente) if regles_bandes.batiments_libres(f) else 0})
+    return espace
 
 
 def _bandeau_annulation(user):
@@ -156,6 +193,7 @@ def index():
                        .filter(Livraison.statut == StatutLivraison.A_CONFIRMER)
                        .order_by(Livraison.date_livraison, Livraison.numero_metier).all())
         return render_template('accueil.html', eleveur=True, fermes=fermes, onglets=[],
-                               a_confirmer=a_confirmer, bandeau=_bandeau_annulation(current_user))
+                               a_confirmer=a_confirmer, bandeau=_bandeau_annulation(current_user),
+                               espace=_espace_eleveur(fermes))
     return render_template('accueil.html', eleveur=False, onglets=onglets_pour(current_user),
                            alertes=_alertes(current_user))

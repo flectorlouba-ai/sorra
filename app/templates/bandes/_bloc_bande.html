@@ -1,0 +1,106 @@
+{# « Ma bande aujourd'hui » — un bloc par bâtiment (maquettes A2 et A5).
+   Variables : bande, v, couleur, raison, phrase, a_faire, encouragement, aliments, stock,
+   deja, historique, cloture_proposee, agent (facultatif), jour_saisie (facultatif). #}
+<div class="bloc-bande feu-{{ couleur }}" id="bande-{{ bande.numero }}">
+  <div class="bloc-bande-tete">
+    <span class="feu feu-{{ couleur }}" aria-label="Feu {{ couleur }}"></span>
+    <div>
+      <div class="bloc-jour">Jour {{ v.age }} · Bâtiment {{ bande.batiment.code }}</div>
+      <div class="bloc-phrase">{{ phrase }}</div>
+      <div class="bloc-presents"><span class="num">{{ v.effectif_present|qte }}</span> poulets présents</div>
+    </div>
+  </div>
+
+  {% if raison == 'mortalite' %}
+  {% set sj = bande.saisies|selectattr('date', 'equalto', v.jour_considere)|first %}
+  <div class="encadre-rouge">
+    <strong>{{ v.morts_jour|qte }} morts {{ "aujourd'hui" if v.jour_considere == today else 'hier' }}</strong>
+    {% if agent %}— Votre agent {{ agent.prenom or agent.nom }} a été prévenu{% endif %}
+  </div>
+  <button type="button" class="btn-gros-rouge" data-phrase="« Signaler un poulet malade » arrive bientôt (Santé animale). En attendant, appelez votre agent."
+          onclick="this.nextElementSibling.textContent = this.dataset.phrase; this.nextElementSibling.hidden = false;">
+    <i class="bi bi-heart-pulse"></i> Signaler un poulet malade</button>
+  <div class="tuile-phrase" hidden></div>
+  {% endif %}
+
+  {% if cloture_proposee %}
+  <div class="carte-ligne">
+    <div class="carte-ligne-titre">Tous les poulets sont sortis : clôturer la bande ?</div>
+    <form method="post" action="{{ url_for('bandes.cloturer', numero=bande.numero) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn-gros"><i class="bi bi-flag"></i> Clôturer la bande</button>
+    </form>
+  </div>
+  {% else %}
+
+  {% if a_faire and not jour_saisie %}
+  <div class="a-faire">
+    <div class="a-faire-titre"><i class="bi bi-list-check"></i> À faire aujourd'hui</div>
+    <ul>{% for t in a_faire %}<li>{{ t }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('bandes.saisie', numero=bande.numero) }}" class="form-saisie">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if jour_saisie %}
+    <div class="form-group">
+      <label class="form-label" for="jour-{{ bande.numero }}">Jour oublié</label>
+      <input class="form-control" type="date" id="jour-{{ bande.numero }}" name="jour" min="{{ limite.isoformat() }}" max="{{ today.isoformat() }}" value="{{ jour_saisie.isoformat() }}" required>
+    </div>
+    {% endif %}
+    <div class="compteur">
+      <div class="compteur-libelle">Morts {{ 'ce jour-là' if jour_saisie else "aujourd'hui" }}</div>
+      <div class="compteur-boutons">
+        <button type="button" class="compteur-moins" aria-label="Moins">−</button>
+        <input type="number" name="morts" value="0" min="0" max="{{ v.effectif_present }}" inputmode="numeric" class="compteur-valeur">
+        <button type="button" class="compteur-plus" aria-label="Plus">+</button>
+      </div>
+    </div>
+    {% if aliments %}
+    {% if aliments|length > 1 %}
+    <div class="choix-cases choix-petits">
+      {% for p in aliments %}
+      <label class="case-choix"><input type="radio" name="aliment_choisi" value="{{ p.id }}" {% if loop.first %}checked{% endif %}>
+        <span>{{ p.nom }}</span></label>
+      {% endfor %}
+    </div>
+    {% else %}
+    <input type="hidden" name="aliment_choisi" value="{{ aliments[0].id }}">
+    {% endif %}
+    <div class="compteur">
+      <div class="compteur-libelle">Sacs d'aliment{% if aliments|length == 1 and aliments[0].poids_sac_kg %} (sac de {{ aliments[0].poids_sac_kg|qte }} kg){% endif %}</div>
+      <div class="compteur-boutons">
+        <button type="button" class="compteur-moins" aria-label="Moins">−</button>
+        <input type="number" name="sacs" value="0" min="0" step="1" inputmode="decimal" class="compteur-valeur">
+        <button type="button" class="compteur-plus" aria-label="Plus">+</button>
+      </div>
+    </div>
+    {% else %}
+    <div class="form-hint">Aucun aliment en stock : confirmez d'abord la livraison d'aliment.</div>
+    {% endif %}
+    <button type="submit" class="btn-gros"><i class="bi bi-send"></i> Envoyer</button>
+    {% if deja and not jour_saisie %}
+    <div class="note-numero">Déjà envoyé aujourd'hui : {{ deja.morts|qte }} morts, {{ deja.sacs|qte }} sacs ✓</div>
+    {% endif %}
+  </form>
+  {% if not jour_saisie %}
+  <a class="lien-discret-inline" href="{{ url_for('bandes.oublie', numero=bande.numero) }}">Oublié un jour ?</a>
+
+  <div class="boutons-secondaires">
+    <a class="btn-gros-secondaire" href="{{ url_for('bandes.pesee', numero=bande.numero) }}"><i class="bi bi-speedometer"></i> Peser</a>
+    <a class="btn-gros-secondaire" href="{{ url_for('bandes.sortie', numero=bande.numero) }}"><i class="bi bi-truck"></i> Sortie</a>
+  </div>
+
+  {% if historique %}
+  <ul class="historique-saisies">
+    {% for s in historique %}
+    <li><span class="historique-date">{{ s.date.strftime('%d/%m') }}</span>
+      {{ s.morts|qte }} morts · {{ s.sacs|qte }} sacs
+      <span class="coche-envoye" title="Envoyé">✓ envoyé</span></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if encouragement %}<div class="encouragement"><i class="bi bi-star-fill"></i> {{ encouragement }}</div>{% endif %}
+  {% endif %}
+  {% endif %}
+</div>

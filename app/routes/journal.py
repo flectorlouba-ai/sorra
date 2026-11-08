@@ -8,7 +8,7 @@ from flask import Blueprint, render_template, request, Response, abort, current_
 
 from app import db
 from app.models import (JournalAudit, Utilisateur, Profil, Province, TypeParametre, Localite, Ferme,
-                        Produit, StatutLivraison)
+                        Produit, StatutLivraison, StatutBande)
 from app.routes.listes import CATEGORIES
 from app.services.journal import enregistrer, Action, MASQUE
 from app.utils.dates import date_locale, debut_jour_utc
@@ -29,6 +29,12 @@ TABLES = {
     'produit': 'Produit (intrant)',
     'livraison': 'Livraison',
     'livraison_ligne': 'Ligne de livraison',
+    'bande': 'Bande',
+    'bande_poussins': 'Poussins mis en bande',
+    'saisie_jour': 'Saisie du jour',
+    'saisie_aliment': 'Aliment saisi',
+    'pesee': 'Pesée',
+    'sortie': 'Sortie de poulets',
 }
 
 CHAMPS = {
@@ -157,6 +163,8 @@ def _lisible(champ, valeur):
         return p.nom if p else valeur
     if champ == 'statut' and valeur in StatutLivraison.LIBELLES:
         return StatutLivraison.LIBELLES[valeur]
+    if champ == 'statut' and valeur in StatutBande.LIBELLES:
+        return StatutBande.LIBELLES[valeur]
     if champ in ('modifie_par', 'cree_par', 'utilisateur_id', 'agent_id', 'confirmee_par', 'annulee_par'):
         try:
             u = db.session.get(Utilisateur, uuid.UUID(valeur))

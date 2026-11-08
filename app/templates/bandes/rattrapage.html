@@ -1,0 +1,42 @@
+{% extends '_base.html' %}
+{% block titre %}Bande déjà en cours{% endblock %}
+{% block sous_titre %}Bandes{% endblock %}
+{% block icone %}clock-history{% endblock %}
+{% block page_sous_titre %}{{ ferme.nom }} ({{ ferme.numero }}) · rattrapage : indicateurs partiels{% endblock %}
+
+{% block contenu %}
+<form method="post" class="form-terrain" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="ferme" value="{{ ferme.numero }}">
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  <p class="texte-aide">Pour une bande déjà commencée avant la mise en service de l'application. Les poussins ne sont pas pris dans le stock.</p>
+  {% if not libres %}
+  <div class="empty-note">Tous les bâtiments ont déjà une bande en cours.</div>
+  {% else %}
+  <div class="form-label">Dans quel bâtiment ?</div>
+  <div class="choix-cases">
+    {% for b in libres %}
+    <label class="case-choix"><input type="radio" name="batiment" value="{{ b.id }}" {% if saisie.get('batiment') == b.id|string or libres|length == 1 %}checked{% endif %}>
+      <span><strong>{{ b.code }}</strong><br>{{ b.capacite|qte }} places</span></label>
+    {% endfor %}
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="date">Date réelle de mise en place<span class="req">*</span></label>
+    <input class="form-control" type="date" id="date" name="date" max="{{ today.isoformat() }}" value="{{ saisie.get('date', '') }}" required>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="effectif">Effectif de départ<span class="req">*</span></label>
+    <input class="form-control" id="effectif" name="effectif" inputmode="numeric" value="{{ saisie.get('effectif', '') }}" required>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="morts">Morts à ce jour</label>
+    <input class="form-control" id="morts" name="morts" inputmode="numeric" value="{{ saisie.get('morts', '0') }}">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="poids_g">Poids moyen d'un poussin à l'arrivée (g)</label>
+    <input class="form-control" id="poids_g" name="poids_g" inputmode="decimal" placeholder="Facultatif" value="{{ saisie.get('poids_g', '') }}">
+  </div>
+  <button type="submit" class="btn-gros">Enregistrer la bande</button>
+  {% endif %}
+</form>
+{% endblock %}

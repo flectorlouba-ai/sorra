@@ -528,3 +528,73 @@ tfoot .ligne-total td{font-weight:800;color:var(--noir);border-top:2px solid var
 .ecart{color:var(--danger-encre);font-weight:800;}
 a.alerte-lien{text-decoration:none;}
 .alerte-dot.urgence{background:var(--noir);box-shadow:0 0 0 3px rgba(12,36,97,.2);}
+
+/* ══ Lot 3 — bandes : « Ma bande aujourd'hui », feu, fiche, courbe ══════ */
+.feu{display:inline-block;width:46px;height:46px;border-radius:50%;flex-shrink:0;border:3px solid var(--blanc);
+  box-shadow:0 0 0 2px var(--bord);}
+.feu-petit{width:16px;height:16px;border-width:2px;}
+.feu.feu-vert{background:var(--vert);}
+.feu.feu-orange{background:var(--ambre);}
+.feu.feu-rouge{background:var(--rouge);}
+.feu.feu-gris{background:var(--grisb);}
+.bloc-bande{background:var(--blanc);border-radius:14px;border:2px solid var(--b100);padding:1rem 1.05rem 1.1rem;
+  box-shadow:0 3px 14px rgba(12,36,97,.08);display:flex;flex-direction:column;gap:.75rem;}
+.bloc-bande.feu-orange{border-color:var(--att-bord);}
+.bloc-bande.feu-rouge{border-color:var(--alerte-bord);}
+.bloc-bande-tete{display:flex;gap:.85rem;align-items:center;}
+.bloc-jour{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--b-attenue);}
+.bloc-phrase{font-size:1.1rem;font-weight:800;color:var(--noir);line-height:1.25;}
+.bloc-presents{font-size:.85rem;color:var(--gris5);font-weight:600;}
+.bloc-presents .num{font-size:1.2rem;font-weight:800;color:var(--noir);}
+.encadre-rouge{background:var(--alerte-fond);border:1.5px solid var(--alerte-bord);color:var(--danger-encre);
+  border-radius:10px;padding:.6rem .75rem;font-size:.88rem;}
+.btn-gros-rouge{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;min-height:52px;border:none;
+  border-radius:12px;background:var(--rouge);color:var(--blanc);font-family:inherit;font-size:1rem;font-weight:800;cursor:pointer;}
+.a-faire{background:var(--att-fond);border:1.5px solid var(--att-bord);border-radius:10px;padding:.6rem .8rem;color:var(--att-encre);}
+.a-faire-titre{font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.25rem;}
+.a-faire ul{margin:0;padding-left:1.1rem;font-size:.88rem;font-weight:600;}
+.form-saisie{display:flex;flex-direction:column;gap:.7rem;}
+.boutons-secondaires{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;}
+.historique-saisies{list-style:none;margin:0;padding:0;font-size:.82rem;color:var(--gris5);display:flex;flex-direction:column;gap:.2rem;}
+.coche-envoye{color:var(--vert);font-weight:800;margin-left:.3rem;font-size:.75rem;}
+.encouragement{background:var(--b050);border-radius:10px;padding:.55rem .75rem;font-size:.85rem;font-weight:700;color:var(--noir3);}
+.encouragement i{color:var(--ambre);}
+.carte-poussins{border-color:var(--ok-bord);}
+.carte-poussins .carte-livraison-titre{color:var(--ok-encre);}
+
+/* Grosses cases de choix (bâtiment, motif de sortie, aliment) */
+.choix-cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:.55rem;}
+.choix-petits{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
+.case-choix{position:relative;cursor:pointer;}
+.case-choix input{position:absolute;opacity:0;}
+.case-choix span{display:block;text-align:center;padding:.75rem .5rem;border:2px solid var(--bord-champ);border-radius:12px;
+  background:var(--blanc);font-size:.85rem;color:var(--noir);min-height:64px;}
+.case-choix span i{font-size:1.3rem;color:var(--noir3);}
+.case-choix input:checked + span{border-color:var(--noir3);background:var(--b050);box-shadow:0 0 0 2px var(--b200);}
+.case-choix.indisponible span{opacity:.5;cursor:not-allowed;}
+.carte-choix-livraison{display:flex;gap:.7rem;align-items:center;border:2px solid var(--ok-bord);background:var(--ok-fond);
+  border-radius:12px;padding:.75rem;cursor:pointer;}
+.carte-choix-livraison input{width:22px;height:22px;accent-color:var(--noir3);}
+.carte-choix-livraison > span{display:flex;flex-direction:column;}
+.ccl-titre{font-size:.75rem;font-weight:800;color:var(--ok-encre);}
+.ccl-nombre .num{font-size:1.4rem;font-weight:800;color:var(--noir);}
+.champ-gros{font-size:1.4rem!important;font-weight:800;text-align:center;}
+
+/* Fiche bande (ordinateur) */
+.bandeau-feu{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;border-radius:10px;background:var(--blanc);
+  border:1.5px solid var(--bord);font-weight:800;color:var(--noir);margin-bottom:.9rem;}
+.bandeau-feu .feu{width:22px;height:22px;}
+.cartes-chiffres{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem;margin-bottom:1rem;}
+.carte-chiffre{background:var(--blanc);border:1.5px solid var(--bord);border-radius:10px;padding:.75rem .9rem;}
+.cc-libelle{font-size:.6rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gris8);}
+.cc-valeur{font-size:1.5rem;font-weight:800;color:var(--noir);line-height:1.2;}
+.cc-sous{font-size:.7rem;color:var(--gris5);font-weight:600;}
+.courbe{width:100%;height:auto;}
+.courbe-grille{stroke:var(--grise);stroke-width:1;}
+.courbe-texte{font-size:9px;fill:var(--gris8);font-family:inherit;}
+.courbe-attendue{fill:none;stroke:var(--b300);stroke-width:2;stroke-dasharray:5 4;}
+.courbe-reelle{fill:none;stroke:var(--noir);stroke-width:2.5;}
+.courbe-point{fill:var(--noir);}
+.legende{font-size:.7rem;color:var(--gris5);display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;}
+.legende-reelle,.legende-attendue{display:inline-block;width:18px;height:0;border-top:3px solid var(--noir);}
+.legende-attendue{border-top:3px dashed var(--b300);margin-left:.6rem;}

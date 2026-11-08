@@ -46,10 +46,11 @@ class Action:
     CONFIRMATION    = 'CONFIRMATION'
     CONFIRMATION_ANNULEE = 'CONF_ANNULEE'
     CORRECTION      = 'CORRECTION'
+    POUR_ELEVEUR    = 'POUR_ELEVEUR'
 
     TOUTES = [CREATION, MODIFICATION, SUPPRESSION, ANNULATION, CONNEXION,
               ECHEC_CONNEXION, DECONNEXION, CHANGEMENT_MDP, EXPORT, BLOCAGE, DEBLOCAGE, IMPORT, FUSION,
-              CONFIRMATION, CONFIRMATION_ANNULEE, CORRECTION]
+              CONFIRMATION, CONFIRMATION_ANNULEE, CORRECTION, POUR_ELEVEUR]
 
     LIBELLES = {
         CREATION: 'Création', MODIFICATION: 'Modification', SUPPRESSION: 'Suppression',
@@ -58,7 +59,7 @@ class Action:
         EXPORT: 'Export', BLOCAGE: 'Blocage du compte', DEBLOCAGE: 'Déblocage du compte',
         IMPORT: 'Import', FUSION: 'Fusion de localités',
         CONFIRMATION: 'Confirmation de réception', CONFIRMATION_ANNULEE: 'Confirmation annulée',
-        CORRECTION: 'Correction',
+        CORRECTION: 'Correction', POUR_ELEVEUR: "Saisie de l'agent pour l'éleveur",
     }
 
 

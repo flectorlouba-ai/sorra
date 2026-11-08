@@ -11,6 +11,8 @@ from app.models.ferme import SourcePosition
 from app.models.liste_deroulante import ld_choices
 from app.services import fermes as regles
 from app.services import geo, import_poufa, intrants
+from app.services import bandes as regles_bandes
+from app.models import Bande
 from app.services.journal import enregistrer, Action
 from app.utils.permissions import profil_requis, filtre_perimetre, a_profil
 
@@ -86,7 +88,10 @@ def fiche(numero):
     dessin = geo.dessin(ferme.province.code, ferme.latitude, ferme.longitude)
     return render_template('fermes/fiche.html', ferme=ferme, controle=controle, dessin=dessin,
                            peut_modifier=regles.peut_modifier(current_user, ferme),
-                           stock=intrants.stock_ferme(ferme))
+                           stock=intrants.stock_ferme(ferme),
+                           etats={b.id: regles_bandes.etat_batiment(b) for b in ferme.batiments},
+                           bandes=Bande.query.filter_by(ferme_id=ferme.id)
+                           .order_by(Bande.date_mise_en_place.desc()).all())
 
 
 # ── Création / modification ─────────────────────────────────────────────

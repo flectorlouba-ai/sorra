@@ -82,7 +82,7 @@
         <tr {% if not b.actif %}class="ligne-inactive"{% endif %}>
           <td><strong>{{ b.code }}</strong>{% if b.nom %} — {{ b.nom }}{% endif %}{% if not b.actif %} <span class="badge badge-off">Inactif</span>{% endif %}</td>
           <td>{{ '{:,}'.format(b.capacite).replace(',', ' ') }}</td>
-          <td>—</td>
+          <td>{% set e = etats[b.id] %}{% if e.etat == 'bande' %}<a href="{{ url_for('bandes.fiche', numero=e.bande.numero) }}">{{ e.bande.numero }}</a>{% elif e.etat == 'vide' %}<span class="td-sous">vide sanitaire · {{ e.jours }} j</span>{% else %}—{% endif %}</td>
           <td style="text-align:right;">
             {% if peut_modifier %}
             <button type="button" class="btn-edit" title="Modifier"
@@ -100,6 +100,29 @@
       {% endif %}
     </table>
   </div>
+</div>
+
+<div class="card-p" id="bandes">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-collection"></i> Historique des bandes</span></div>
+  {% if bandes %}
+  <div class="table-scroll"><table>
+    <thead><tr><th>Bande</th><th>Bâtiment</th><th>Mise en place</th><th>Clôture</th><th>Mortalité</th><th>Statut</th></tr></thead>
+    <tbody>
+    {% for bd in bandes %}
+      <tr class="tr-click" onclick="location.href='{{ url_for('bandes.fiche', numero=bd.numero) }}'">
+        <td class="td-num"><a href="{{ url_for('bandes.fiche', numero=bd.numero) }}">{{ bd.numero }}</a></td>
+        <td>{{ bd.batiment.code }}</td>
+        <td>{{ bd.date_mise_en_place.strftime('%d/%m/%Y') }}</td>
+        <td>{{ bd.date_cloture.strftime('%d/%m/%Y') if bd.date_cloture else '—' }}</td>
+        <td>{% if bd.bilan %}{{ bd.bilan.mortalite|qte }} %{% else %}—{% endif %}</td>
+        <td><span class="badge {{ 'badge-info' if bd.en_cours else 'badge-off' }}">{{ bd.libelle_statut }}</span></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+  <div class="card-p-body"><div class="empty-note">Aucune bande pour l'instant.</div></div>
+  {% endif %}
 </div>
 
 <div class="card-p" id="stock">

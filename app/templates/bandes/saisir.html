@@ -1,0 +1,11 @@
+{% extends '_base.html' %}
+{% block titre %}Saisir pour l'éleveur{% endblock %}
+{% block sous_titre %}Bandes{% endblock %}
+{% block icone %}pencil-square{% endblock %}
+{% block page_sous_titre %}<span class="mono">{{ bande.numero }}</span> · {{ bande.ferme.nom }} · vos saisies seront marquées « Agent pour l'éleveur »{% endblock %}
+{% block contenu %}
+<div class="ma-ferme-zone">
+  {% with agent=None %}{% include 'bandes/_bloc_bande.html' %}{% endwith %}
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/compteurs.js') }}"></script>{% endblock %}

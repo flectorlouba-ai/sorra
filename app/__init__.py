@@ -57,6 +57,7 @@ def create_app(env='default'):
     from app.routes.operateurs import operateurs_bp
     from app.routes.livraisons import livraisons_bp
     from app.routes.catalogue import catalogue_bp
+    from app.routes.bandes import bandes_bp
 
     app.register_blueprint(auth_bp,          url_prefix='/auth')
     app.register_blueprint(accueil_bp)
@@ -70,6 +71,7 @@ def create_app(env='default'):
     app.register_blueprint(fermes_bp,        url_prefix='/fermes')
     app.register_blueprint(operateurs_bp,    url_prefix='/operateurs')
     app.register_blueprint(livraisons_bp,    url_prefix='/livraisons')
+    app.register_blueprint(bandes_bp,        url_prefix='/bandes')
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
@@ -84,6 +86,12 @@ def create_app(env='default'):
     app.jinja_env.globals['a_profil'] = a_profil
     app.jinja_env.filters['date_locale'] = date_locale
     app.jinja_env.filters['qte'] = quantite
+
+    from datetime import date as _date
+
+    @app.context_processor
+    def _aujourdhui():
+        return {'today': _date.today()}
 
     _installer_controles_session(app)
     _installer_erreurs(app)

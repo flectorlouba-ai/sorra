@@ -1,0 +1,22 @@
+{# Bâtiment sans bande (maquette A6). Variables : batiment, etat, jours, derniere, avant. #}
+<div class="bloc-bande feu-gris">
+  <div class="bloc-bande-tete">
+    <span class="feu feu-gris" aria-label="Pas de bande"></span>
+    <div>
+      <div class="bloc-jour">Bâtiment {{ batiment.code }}{% if etat == 'vide' %} · vide sanitaire · depuis {{ jours }} jour{{ 's' if jours > 1 }}{% endif %}</div>
+      <div class="bloc-phrase">En attente de nouveaux poussins</div>
+    </div>
+  </div>
+  {% if derniere and derniere.bilan %}
+  {% set b = derniere.bilan %}
+  <div class="carte-ligne">
+    <div class="carte-ligne-titre">Dernière bande ({{ derniere.batiment.code }}-{{ '%02d'|format(derniere.rang) }})</div>
+    <div>Mortalité {{ b.mortalite|qte }} %{% if b.poids_moyen_sortie_kg %} · {{ b.poids_moyen_sortie_kg|qte }} kg par poulet{% endif %}</div>
+    {% if avant and avant.bilan %}
+    <div class="td-sous">Bande précédente : mortalité {{ avant.bilan.mortalite|qte }} %{% if avant.bilan.poids_moyen_sortie_kg %} · {{ avant.bilan.poids_moyen_sortie_kg|qte }} kg par poulet{% endif %}
+      {% if b.mortalite is not none and avant.bilan.mortalite is not none %}{% if b.mortalite < avant.bilan.mortalite %} — en progrès ✓{% endif %}{% endif %}</div>
+    {% endif %}
+    <a class="lien-discret-inline" href="{{ url_for('bandes.bilan', numero=derniere.numero) }}">Voir le bilan</a>
+  </div>
+  {% endif %}
+</div>

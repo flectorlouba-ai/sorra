@@ -140,9 +140,21 @@ def annuler(livraison, user, motif):
 # ── Stock ───────────────────────────────────────────────────────────────
 
 def quantites_utilisees(ferme):
-    """Quantités consommées par produit ({produit_id: quantité}).
-    Le lot Bandes la remplira (mises en bande, aliment distribué, traitements)."""
-    return {}
+    """Quantités consommées par produit ({produit_id: quantité}) : poussins mis en
+    bande, sacs d'aliment saisis chaque jour (et, plus tard, vaccins et traitements)."""
+    from app.models.bande import Bande, BandePoussins, SaisieJour, SaisieAliment
+    utilises = {}
+    poussins = (db.session.query(LivraisonLigne.produit_id, db.func.sum(BandePoussins.quantite))
+                .join(BandePoussins, BandePoussins.livraison_ligne_id == LivraisonLigne.id)
+                .join(Bande, BandePoussins.bande_id == Bande.id)
+                .filter(Bande.ferme_id == ferme.id).group_by(LivraisonLigne.produit_id).all())
+    aliment = (db.session.query(SaisieAliment.produit_id, db.func.sum(SaisieAliment.sacs))
+               .join(SaisieJour, SaisieAliment.saisie_id == SaisieJour.id)
+               .join(Bande, SaisieJour.bande_id == Bande.id)
+               .filter(Bande.ferme_id == ferme.id).group_by(SaisieAliment.produit_id).all())
+    for pid, q in poussins + aliment:
+        utilises[pid] = utilises.get(pid, 0) + float(q or 0)
+    return utilises
 
 
 def stock_ferme(ferme):

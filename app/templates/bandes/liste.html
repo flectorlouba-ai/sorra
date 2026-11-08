@@ -1,0 +1,57 @@
+{% extends '_base.html' %}
+{% block titre %}Bandes{% endblock %}
+{% block icone %}collection{% endblock %}
+{% block page_sous_titre %}{{ lignes|length }} bande{{ 's' if lignes|length != 1 }} · du poussin à la sortie{% endblock %}
+
+{% block actions %}
+{% if peut_ouvrir %}
+<a href="{{ url_for('bandes.ouvrir') }}" class="btn-new"><i class="bi bi-plus-lg"></i> Ouvrir une bande</a>
+{% endif %}
+{% endblock %}
+
+{% block contenu %}
+<form class="filters-bar" method="get">
+  {% if provinces|length > 1 %}
+  <select name="province" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Toutes les provinces</option>
+    {% for p in provinces %}<option value="{{ p.id }}" {% if filtre.province == p.id|string %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+  </select>
+  {% endif %}
+  <select name="ferme" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Toutes les fermes</option>
+    {% for f in fermes %}<option value="{{ f.numero }}" {% if filtre.ferme == f.numero %}selected{% endif %}>{{ f.numero }} — {{ f.nom }}</option>{% endfor %}
+  </select>
+  <select name="statut" class="filter-sel" onchange="this.form.submit()">
+    <option value="EN_COURS" {% if filtre.statut == 'EN_COURS' %}selected{% endif %}>En cours</option>
+    <option value="CLOTUREE" {% if filtre.statut == 'CLOTUREE' %}selected{% endif %}>Clôturées</option>
+    <option value="toutes" {% if filtre.statut == 'toutes' %}selected{% endif %}>Toutes</option>
+  </select>
+  <select name="feu" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Tous les feux</option>
+    {% for c, l in [('rouge', 'Rouge'), ('orange', 'Orange'), ('vert', 'Vert')] %}<option value="{{ c }}" {% if filtre.feu == c %}selected{% endif %}>{{ l }}</option>{% endfor %}
+  </select>
+</form>
+
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>N°</th><th>Ferme</th><th>Bâtiment</th><th>Jour</th><th>Présents</th><th>Mortalité</th><th>Feu</th><th>Statut</th></tr></thead>
+    <tbody>
+    {% for l in lignes %}
+      {% set b = l.bande %}
+      <tr class="tr-click" onclick="location.href='{{ url_for('bandes.fiche', numero=b.numero) }}'">
+        <td class="td-num"><a href="{{ url_for('bandes.fiche', numero=b.numero) }}">{{ b.numero }}</a>{% if b.rattrapage %}<br><span class="td-sous">rattrapage</span>{% endif %}</td>
+        <td>{{ b.ferme.nom }}</td>
+        <td>{{ b.batiment.code }}</td>
+        <td>{{ l.v.age }}</td>
+        <td>{{ l.v.effectif_present|qte }}</td>
+        <td>{{ (l.v.mortalite or 0)|round(1)|qte }} %</td>
+        <td><span class="feu feu-petit feu-{{ l.couleur }}" title="{{ l.couleur }}"></span></td>
+        <td><span class="badge {{ 'badge-info' if b.en_cours else 'badge-off' }}">{{ b.libelle_statut }}</span></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="8" class="table-vide"><i class="bi bi-collection"></i>Aucune bande ne correspond.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

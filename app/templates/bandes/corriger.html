@@ -1,0 +1,29 @@
+{% extends '_base.html' %}
+{% block titre %}Corriger{% endblock %}
+{% block sous_titre %}Bandes{% endblock %}
+{% block icone %}pencil-square{% endblock %}
+{% block page_titre %}Corriger {{ {'saisie': 'la saisie', 'pesee': 'la pesée', 'sortie': 'la sortie'}[quoi] }} du {{ objet.date.strftime('%d/%m/%Y') }}{% endblock %}
+{% block page_sous_titre %}<span class="mono">{{ bande.numero }}</span>{% if not bande.en_cours %} · bande clôturée : le bilan sera recalculé{% endif %}{% endblock %}
+{% block contenu %}
+<form method="post" class="form-terrain" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  {% if quoi == 'saisie' %}
+  <div class="form-group"><label class="form-label" for="morts">Morts</label>
+    <input class="form-control" id="morts" name="morts" inputmode="numeric" value="{{ objet.morts }}"></div>
+  {% for a in objet.aliments %}
+  <div class="form-group"><label class="form-label" for="aliment-{{ a.produit_id }}">Sacs — {{ a.produit.nom }}</label>
+    <input class="form-control" id="aliment-{{ a.produit_id }}" name="aliment-{{ a.produit_id }}" inputmode="decimal" value="{{ a.sacs|qte|replace(' ', '') }}"></div>
+  {% endfor %}
+  {% else %}
+  <div class="form-group"><label class="form-label" for="nombre">{{ 'Poulets pesés' if quoi == 'pesee' else 'Nombre de poulets' }}</label>
+    <input class="form-control" id="nombre" name="nombre" inputmode="numeric" value="{{ objet.nombre_pesees if quoi == 'pesee' else objet.nombre }}"></div>
+  <div class="form-group"><label class="form-label" for="poids_total">Poids total (kg)</label>
+    <input class="form-control" id="poids_total" name="poids_total" inputmode="decimal" value="{{ objet.poids_total_kg|qte|replace(' ', '') }}"></div>
+  {% endif %}
+  <div class="form-group"><label class="form-label" for="motif">Motif de la correction<span class="req">*</span></label>
+    <textarea class="form-control" id="motif" name="motif" rows="2" required></textarea>
+    <div class="form-hint">Inscrit au journal des opérations.</div></div>
+  <button type="submit" class="btn-gros">Enregistrer la correction</button>
+</form>
+{% endblock %}

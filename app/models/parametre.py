@@ -31,6 +31,29 @@ PARAMETRES_DEFAUT = [
      'Nombre de jours après lesquels une livraison non confirmée est signalée dans les alertes.'),
     ('intrants.alerte_ecart_jours', '30', TypeParametre.JOURS,
      'Pendant combien de jours une livraison reçue avec écart reste signalée dans les alertes.'),
+] + [
+    # Lot 3 — bandes d'élevage
+    ('bandes.duree_reference_jours', '45', TypeParametre.JOURS,
+     'Durée de référence d\'une bande (jours) : fixe la date de fin prévue.'),
+    ('bandes.poids_poussin_g', '40', TypeParametre.DECIMAL,
+     'Poids moyen d\'un poussin à la mise en place (g), quand il n\'est pas pesé.'),
+    ('bandes.saisie_passee_jours', '3', TypeParametre.JOURS,
+     'L\'éleveur peut saisir un jour passé jusqu\'à ce nombre de jours (au-delà : agent ou ADMIN).'),
+    ('bandes.frequence_pesee_jours', '7', TypeParametre.JOURS,
+     'Une pesée est prévue tous les … jours.'),
+    ('bandes.pesee_nombre_defaut', '10', TypeParametre.ENTIER,
+     'Nombre de poulets à peser, proposé par défaut.'),
+    ('bandes.ecart_courbe_pct', '10', TypeParametre.DECIMAL,
+     'Écart toléré sous la courbe de croissance attendue (%), à valider par les vétérinaires.'),
+    ('bandes.fin_proche_jours', '3', TypeParametre.JOURS,
+     '« Fin de bande proche » affiché ce nombre de jours avant la fin prévue.'),
+    ('bandes.seuil_orange_pct', '0.5', TypeParametre.DECIMAL,
+     'Feu orange : morts du jour au-delà de ce % de l\'effectif présent, à valider par les vétérinaires.'),
+    ('bandes.seuil_rouge_pct', '1', TypeParametre.DECIMAL,
+     'Feu rouge : morts du jour au-delà de ce % de l\'effectif présent, à valider par les vétérinaires.'),
+    ('bandes.courbe_poids', '0:42; 7:180; 14:450; 21:900; 28:1450; 35:2050; 42:2650; 49:3150',
+     TypeParametre.TEXTE,
+     'Courbe de croissance attendue « âge en jours : poids en g », à valider par les vétérinaires.'),
 ]
 
 

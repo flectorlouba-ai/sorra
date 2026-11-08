@@ -25,6 +25,9 @@ def modifier(param_id):
         # Les réglages de sécurité à 0 désactiveraient la protection
         if p.cle.startswith('securite.') and int(valeur) < 1:
             raise ValueError('La valeur doit être au moins 1.')
+        if p.cle == 'bandes.courbe_poids':
+            from app.indicateurs import lire_courbe
+            lire_courbe(valeur)
     except ValueError as e:
         flash(f'{p.description} — {e}', 'danger')
         return redirect(url_for('parametres.index'))

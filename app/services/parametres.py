@@ -1,6 +1,8 @@
 """Lecture et contrôle des paramètres (table Parametre)."""
 from decimal import Decimal, InvalidOperation
 
+from flask import has_request_context, request
+
 from app.models.parametre import Parametre, TypeParametre
 
 _VRAI = {'oui', 'true', '1', 'vrai'}
@@ -44,11 +46,27 @@ def normaliser(type_, texte):
     return str(v)
 
 
+def _tous():
+    """Tous les paramètres, lus une fois par requête web (les indicateurs en lisent beaucoup)."""
+    if has_request_context():
+        cache = getattr(request, '_yl2_parametres', None)
+        if cache is None:
+            cache = {p.cle: (p.type, p.valeur) for p in Parametre.query}
+            request._yl2_parametres = cache
+        return cache
+    return {p.cle: (p.type, p.valeur) for p in Parametre.query}
+
+
+def oublier_cache():
+    if has_request_context() and hasattr(request, '_yl2_parametres'):
+        del request._yl2_parametres
+
+
 def obtenir(cle, defaut=None):
-    p = Parametre.query.filter_by(cle=cle).first()
+    p = _tous().get(cle)
     if p is None:
         return defaut
     try:
-        return convertir(p.type, p.valeur)
+        return convertir(*p)
     except ValueError:
         return defaut
