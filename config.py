@@ -34,6 +34,7 @@ class Config:
     DERRIERE_PROXY = _oui('DERRIERE_PROXY')
 
     JOURNAL_PAR_PAGE = 50
+    MAX_CONTENT_LENGTH = 10 * 1024 * 1024   # fichier d'import POUFA
 
     @classmethod
     def verifier(cls):

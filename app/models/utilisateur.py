@@ -50,13 +50,18 @@ utilisateur_province = db.Table(
 
 
 class UtilisateurFerme(db.Model):
-    """Rattachement d'un utilisateur à une ou plusieurs fermes.
-    La clé étrangère vers `ferme` sera posée au lot 1, avec la table Ferme."""
+    """Rattachement d'un éleveur à sa ou ses fermes."""
     __tablename__ = 'utilisateur_ferme'
 
     utilisateur_id = db.Column(db.Uuid, db.ForeignKey('utilisateur.id', ondelete='CASCADE'),
                                primary_key=True)
-    ferme_id       = db.Column(db.Uuid, primary_key=True)
+    ferme_id       = db.Column(db.Uuid, db.ForeignKey('ferme.id'), primary_key=True)
+
+    ferme = db.relationship('Ferme')
+
+    @property
+    def numero_ferme(self):
+        return self.ferme.numero_metier if self.ferme else str(self.ferme_id)
 
 
 class Utilisateur(UserMixin, HorodatageMixin, db.Model):
@@ -67,7 +72,7 @@ class Utilisateur(UserMixin, HorodatageMixin, db.Model):
     # par leur code.
     __journal_ignorer__  = {'derniere_connexion', 'echecs_connexion', 'bloque_jusqu_a'}
     __journal_masquer__  = {'mot_de_passe_hash'}
-    __journal_relations__ = {'provinces': 'code'}
+    __journal_relations__ = {'provinces': 'code', 'fermes': 'numero_ferme'}
 
     id                 = db.Column(db.Uuid, primary_key=True, default=uuid.uuid4)
     identifiant        = db.Column(db.String(64), unique=True, nullable=False)

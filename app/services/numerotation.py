@@ -27,8 +27,9 @@ def _verrouiller(type_, prefixe, annee):
     return db.session.execute(requete).scalar_one_or_none()
 
 
-def generer_numero(type_, prefixe, annuel=False, largeur=6):
-    annee = datetime.now(timezone.utc).year if annuel else 0
+def prochain_rang(type_, prefixe, annee=0):
+    """Rang suivant d'une série (1, 2, 3…), sous verrou. Sert aussi aux codes
+    courts comme les bâtiments d'une ferme (B1, B2…)."""
     compteur = _verrouiller(type_, prefixe, annee)
     if compteur is None:
         # Premier numéro de la série : deux appels simultanés peuvent tenter
@@ -42,7 +43,12 @@ def generer_numero(type_, prefixe, annuel=False, largeur=6):
         compteur = _verrouiller(type_, prefixe, annee)
     compteur.dernier_numero += 1
     db.session.flush()
-    n = compteur.dernier_numero
+    return compteur.dernier_numero
+
+
+def generer_numero(type_, prefixe, annuel=False, largeur=6):
+    annee = datetime.now(timezone.utc).year if annuel else 0
+    n = prochain_rang(type_, prefixe, annee)
     if annuel:
         return f'{prefixe}-{annee}-{n:0{largeur}d}'
     return f'{prefixe}-{n:0{largeur}d}'

@@ -1,0 +1,62 @@
+{% extends '_base.html' %}
+{% block titre %}Importer la liste POUFA{% endblock %}
+{% block sous_titre %}Fermes{% endblock %}
+{% block icone %}file-earmark-spreadsheet{% endblock %}
+{% block page_sous_titre %}{% if resultats is none %}1. Déposez le fichier Excel · 2. Vérifiez · 3. Importez{% else %}Aperçu : rien n'est encore importé{% endif %}{% endblock %}
+
+{% block actions %}
+{% if resultats is not none and resume.ok %}
+<form method="post" action="{{ url_for('fermes.import_importer') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" class="btn-new"><i class="bi bi-check2-all"></i> Importer les lignes valides ({{ resume.ok }})</button>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block contenu %}
+{% if resultats is none %}
+<div class="card-p" style="max-width:640px;">
+  <div class="card-p-body">
+    <p class="texte-aide">Une ligne par ferme. Commencez par le modèle : il contient une feuille d'explication.</p>
+    <p><a href="{{ url_for('fermes.import_modele') }}" class="btn-ghost"><i class="bi bi-download"></i> Télécharger le modèle Excel</a></p>
+    <form method="post" action="{{ url_for('fermes.import_verifier') }}" enctype="multipart/form-data" class="mt-3">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-group mb-3">
+        <label class="form-label" for="fichier">Fichier rempli (.xlsx)<span class="req">*</span></label>
+        <input class="form-control" type="file" id="fichier" name="fichier" accept=".xlsx" required>
+      </div>
+      <button type="submit" class="btn-new"><i class="bi bi-search"></i> Vérifier le fichier</button>
+    </form>
+  </div>
+</div>
+
+{% else %}
+<div class="stat-bar">
+  <span class="stat-chip"><span class="num">{{ resume.total }}</span> lignes</span>
+  <span class="stat-chip ok"><span class="num">{{ resume.ok }}</span> valides</span>
+  <span class="stat-chip {{ 'alerte' if resume.refusees }}"><span class="num">{{ resume.refusees }}</span> refusées</span>
+  {% if resume.nouvelles %}<span class="stat-chip warn"><span class="num">{{ resume.nouvelles }}</span> localités nouvelles</span>{% endif %}
+</div>
+
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>Ligne</th><th>Ferme</th><th>Province / localité</th><th>Résultat</th></tr></thead>
+    <tbody>
+    {% for r in resultats %}
+      <tr>
+        <td class="td-num">{{ r.ligne }}</td>
+        <td><strong>{{ r.brut.nom or '—' }}</strong><br><span class="td-sous">{{ r.brut.exploitant_nom }}</span></td>
+        <td>{{ r.brut.province }}<br><span class="td-sous">{{ r.brut.localite }}</span></td>
+        <td>
+          {% if r.ok %}<span class="badge badge-ok">OK</span>{% else %}<span class="badge badge-danger">Refusée</span>{% endif %}
+          {% for e in r.erreurs %}<div class="import-erreur">{{ e }}</div>{% endfor %}
+          {% for a in r.avertissements %}<div class="import-avert {{ 'fort' if a.startswith('⚠') }}">{{ a }}</div>{% endfor %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+<div class="lien-discret"><a href="{{ url_for('fermes.import_page') }}"><i class="bi bi-arrow-repeat"></i> Corriger le fichier et le vérifier de nouveau</a></div>
+{% endif %}
+{% endblock %}

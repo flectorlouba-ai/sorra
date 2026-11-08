@@ -2,7 +2,7 @@
 {% from '_macros.html' import tete_fenetre, pied_fenetre %}
 {% block titre %}Provinces et localités{% endblock %}
 {% block icone %}map{% endblock %}
-{% block page_sous_titre %}Choisissez une province pour voir et ajouter ses localités{% endblock %}
+{% block page_sous_titre %}{% if vue_a_verifier %}Localités ajoutées sur le terrain : validez-les ou fusionnez-les{% else %}Choisissez une province pour voir et ajouter ses localités{% endif %}{% endblock %}
 
 {% block actions %}
 {% if province %}
@@ -10,7 +10,42 @@
 {% endif %}
 {% endblock %}
 
+{%- macro actions_a_verifier(l, depuis='') -%}
+<form method="post" action="{{ url_for('referentiel.valider_localite', localite_id=l.id) }}" class="d-inline">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="depuis" value="{{ depuis }}">
+  <button type="submit" class="btn-edit"><i class="bi bi-check-lg"></i> Valider</button>
+</form>
+<button type="button" class="btn-edit" onclick="ouvrirFusion(this)" data-depuis="{{ depuis }}"
+        data-l='{{ {"id": l.id, "nom": l.nom, "province_id": l.province_id}|tojson }}'><i class="bi bi-intersect"></i> Fusionner</button>
+{%- endmacro %}
+
 {% block contenu %}
+<div class="filters-bar">
+  <a href="{{ url_for('referentiel.index') }}" class="stat-chip {% if not vue_a_verifier %}ot{% endif %}"><i class="bi bi-map"></i> Toutes les provinces</a>
+  <a href="{{ url_for('referentiel.index', a_verifier=1) }}" class="stat-chip {{ 'warn' if a_verifier }}"><span class="num">{{ a_verifier|length }}</span> à vérifier</a>
+</div>
+
+{% if vue_a_verifier %}
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>Province</th><th>Localité</th><th>Fermes</th><th></th></tr></thead>
+    <tbody>
+    {% for l in a_verifier %}
+      <tr>
+        <td>{{ l.province.nom }}</td>
+        <td><strong>{{ l.nom }}</strong></td>
+        <td>{{ fermes_par_localite.get(l.id, 0) }}</td>
+        <td style="text-align:right;white-space:nowrap;">{{ actions_a_verifier(l, 'a_verifier') }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="4" class="table-vide"><i class="bi bi-check-circle"></i>Aucune localité à vérifier.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+{% else %}
 <div class="row g-3">
   <div class="col-lg-6">
     <div class="table-wrap"><div class="table-scroll">
@@ -20,13 +55,13 @@
         {% for p in provinces %}
           <tr class="tr-click" {% if province and p.id == province.id %}style="background:var(--off);"{% endif %}
               onclick="location.href='{{ url_for('referentiel.index', province=p.id) }}'">
-            <td class="td-num">{{ p.code }}</td>
+            <td class="td-num">{{ p.code }}{% if p.id in avec_fermes %} <i class="bi bi-lock-fill" title="Code verrouillé : des fermes le portent"></i>{% endif %}</td>
             <td><strong>{{ p.nom }}</strong></td>
             <td>{{ p.localites|length }}</td>
             <td>{% if p.actif %}<span class="badge badge-ok">Active</span>{% else %}<span class="badge badge-off">Désactivée</span>{% endif %}</td>
             <td style="text-align:right;">
               <button type="button" class="btn-edit" title="Modifier"
-                      data-p='{{ {"id": p.id, "code": p.code, "nom": p.nom, "actif": p.actif}|tojson }}'
+                      data-p='{{ {"id": p.id, "code": p.code, "nom": p.nom, "actif": p.actif, "verrou": p.id in avec_fermes}|tojson }}'
                       onclick="event.stopPropagation();ouvrirProvince(this)"><i class="bi bi-pencil"></i></button>
             </td>
           </tr>
@@ -43,13 +78,15 @@
       {% if province.localites %}
       <div class="table-scroll">
         <table>
-          <thead><tr><th>Localité</th><th>État</th><th></th></tr></thead>
+          <thead><tr><th>Localité</th><th>Fermes</th><th>État</th><th></th></tr></thead>
           <tbody>
           {% for l in province.localites %}
             <tr>
               <td>{{ l.nom }}</td>
-              <td>{% if l.actif %}<span class="badge badge-ok">Active</span>{% else %}<span class="badge badge-off">Désactivée</span>{% endif %}</td>
-              <td style="text-align:right;">
+              <td>{{ fermes_par_localite.get(l.id, 0) }}</td>
+              <td>{% if l.a_verifier %}<span class="badge badge-warn">À vérifier</span>{% elif l.actif %}<span class="badge badge-ok">Active</span>{% else %}<span class="badge badge-off">Désactivée</span>{% endif %}</td>
+              <td style="text-align:right;white-space:nowrap;">
+                {% if l.a_verifier %}{{ actions_a_verifier(l) }}{% endif %}
                 <button type="button" class="btn-edit" title="Modifier"
                         data-l='{{ {"id": l.id, "nom": l.nom, "actif": l.actif}|tojson }}'
                         onclick="ouvrirLocalite(this)"><i class="bi bi-pencil"></i></button>
@@ -66,6 +103,7 @@
   </div>
   {% endif %}
 </div>
+{% endif %}
 
 <div class="modal-overlay" id="fen-province" hidden>
   <div class="modal-box" style="max-width:460px;">
@@ -77,7 +115,7 @@
           <div class="form-group">
             <label class="form-label" for="p-code">Code<span class="req">*</span></label>
             <input class="form-control" id="p-code" name="code" maxlength="5" required style="text-transform:uppercase;">
-            <div class="form-hint">2 à 5 lettres. Servira au numéro des fermes.</div>
+            <div class="form-hint" id="p-code-aide">2 à 5 lettres. Servira au numéro des fermes.</div>
           </div>
           <div class="form-group">
             <label class="form-label" for="p-nom">Nom<span class="req">*</span></label>
@@ -89,6 +127,29 @@
         </div>
       </div>
       {{ pied_fenetre('fen-province') }}
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="fen-fusion" hidden>
+  <div class="modal-box" style="max-width:460px;">
+    <form method="post" id="form-fusion">
+      {{ tete_fenetre('fen-fusion', 'Fusionner la localité', 'intersect') }}
+      <div class="modal-body">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="depuis" id="fusion-depuis">
+        <p class="texte-aide">Les fermes de « <strong id="fusion-nom"></strong> » seront rattachées à la localité choisie, puis « <span id="fusion-nom2"></span> » sera retirée de la liste.</p>
+        <div class="form-group">
+          <label class="form-label" for="fusion-cible">Remplacer par<span class="req">*</span></label>
+          <select class="form-control" id="fusion-cible" name="cible_id" required>
+            <option value="">— Choisir —</option>
+            {% for p in provinces %}{% for l in p.localites %}{% if not l.a_verifier %}
+            <option value="{{ l.id }}" data-province="{{ p.id }}">{{ l.nom }}</option>
+            {% endif %}{% endfor %}{% endfor %}
+          </select>
+        </div>
+      </div>
+      {{ pied_fenetre('fen-fusion') }}
     </form>
   </div>
 </div>
@@ -126,10 +187,29 @@ function ouvrirProvince(btn) {
   var f = document.getElementById('form-province');
   f.action = "{{ url_for('referentiel.modifier_province', province_id=0) }}".replace('/0/', '/' + p.id + '/');
   document.getElementById('fen-province-titre').textContent = 'Modifier — ' + p.nom;
-  document.getElementById('p-code').value = p.code;
+  var code = document.getElementById('p-code');
+  code.value = p.code;
+  code.readOnly = p.verrou;
+  document.getElementById('p-code-aide').textContent = p.verrou
+    ? 'Des fermes portent ce code : il ne peut plus changer.'
+    : '2 à 5 lettres. Servira au numéro des fermes.';
   document.getElementById('p-nom').value = p.nom;
   document.getElementById('p-actif').checked = p.actif;
   ouvrir('fen-province');
+}
+function ouvrirFusion(btn) {
+  var l = JSON.parse(btn.dataset.l);
+  var f = document.getElementById('form-fusion');
+  f.action = "{{ url_for('referentiel.fusionner_localite', localite_id=0) }}".replace('/0/', '/' + l.id + '/');
+  document.getElementById('fusion-depuis').value = btn.dataset.depuis || '';
+  document.getElementById('fusion-nom').textContent = l.nom;
+  document.getElementById('fusion-nom2').textContent = l.nom;
+  var choix = document.getElementById('fusion-cible');
+  choix.value = '';
+  Array.prototype.forEach.call(choix.options, function (o) {
+    if (o.dataset.province) o.hidden = o.dataset.province !== String(l.province_id) || o.value === String(l.id);
+  });
+  ouvrir('fen-fusion');
 }
 {% if province %}
 function ouvrirLocalite(btn) {

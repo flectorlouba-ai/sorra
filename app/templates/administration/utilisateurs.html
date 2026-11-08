@@ -37,7 +37,7 @@
         <td class="td-num">{{ u.identifiant }}</td>
         <td>{{ u.nom_complet }}</td>
         <td>{{ u.profil.libelle }}</td>
-        <td>{% if u.est_national %}Toutes{% else %}{{ u.provinces|map(attribute='nom')|join(', ') or '—' }}{% endif %}</td>
+        <td>{% if u.est_national %}Toutes{% elif u.profil.value == 'ELEVEUR' %}{{ u.fermes|map(attribute='numero_ferme')|join(', ') or '—' }}{% else %}{{ u.provinces|map(attribute='nom')|join(', ') or '—' }}{% endif %}</td>
         <td>{% if not u.actif %}<span class="badge badge-off">Désactivé</span>
             {% elif u.est_bloque %}<span class="badge badge-warn">Bloqué</span>
             {% else %}<span class="badge badge-ok">Actif</span>{% endif %}</td>
@@ -51,7 +51,7 @@
           <button type="button" class="btn-edit" title="Modifier"
                   data-u='{{ {"id": u.id|string, "identifiant": u.identifiant, "nom": u.nom, "prenom": u.prenom or "",
                               "email": u.email or "", "telephone": u.telephone or "", "profil": u.profil.value,
-                              "provinces": u.province_ids, "actif": u.actif}|tojson }}'
+                              "provinces": u.province_ids, "fermes": u.ferme_ids|map('string')|list, "actif": u.actif}|tojson }}'
                   onclick="ouvrirModification(this)"><i class="bi bi-pencil"></i></button>
         </td>
       </tr>
@@ -111,6 +111,21 @@
           </div>
           <div class="form-hint">La personne ne verra que les données de ces provinces.</div>
         </div>
+        <div class="section-block" id="bloc-fermes" hidden>
+          <div class="section-title">Fermes<span class="req" style="color:var(--requis);">*</span></div>
+          <select class="form-control mb-2" id="fermes-province" onchange="filtrerFermes()">
+            <option value="">— Choisir la province —</option>
+            {% for p in provinces %}<option value="{{ p.id }}">{{ p.nom }}</option>{% endfor %}
+          </select>
+          <div class="coches" id="liste-fermes">
+            {% for fe in fermes %}
+            <label class="coche" data-province="{{ fe.province_id }}" hidden><input type="checkbox" name="fermes" value="{{ fe.id }}" onchange="resumeFermes()"> {{ fe.numero }} — {{ fe.nom }}</label>
+            {% else %}
+            <div class="form-hint">Aucune ferme enregistrée pour l'instant.</div>
+            {% endfor %}
+          </div>
+          <div class="form-hint" id="fermes-choisies"></div>
+        </div>
         <div class="section-block" id="bloc-national" hidden>
           <div class="form-hint">Ce profil voit toutes les provinces.</div>
         </div>
@@ -143,9 +158,29 @@ var NATIONAUX = {{ nationaux|tojson }};
 var form = document.getElementById('form-user');
 
 function majProvinces() {
-  var national = NATIONAUX.indexOf(document.getElementById('profil').value) !== -1;
-  document.getElementById('bloc-provinces').hidden = national;
+  var profil = document.getElementById('profil').value;
+  var national = NATIONAUX.indexOf(profil) !== -1, eleveur = profil === 'ELEVEUR';
+  document.getElementById('bloc-provinces').hidden = national || eleveur;
   document.getElementById('bloc-national').hidden = !national;
+  document.getElementById('bloc-fermes').hidden = !eleveur;
+}
+
+function filtrerFermes() {
+  var p = document.getElementById('fermes-province').value;
+  document.querySelectorAll('#liste-fermes .coche').forEach(function (c) { c.hidden = c.dataset.province !== p; });
+}
+
+function resumeFermes() {
+  var choisies = Array.prototype.map.call(form.querySelectorAll('input[name=fermes]:checked'),
+    function (c) { return c.parentNode.textContent.trim().split(' — ')[0]; });
+  document.getElementById('fermes-choisies').textContent = choisies.length ? 'Fermes choisies : ' + choisies.join(', ') : '';
+}
+
+function cocherFermes(ids) {
+  form.querySelectorAll('input[name=fermes]').forEach(function (c) { c.checked = ids.indexOf(c.value) !== -1; });
+  document.getElementById('fermes-province').value = '';
+  filtrerFermes();
+  resumeFermes();
 }
 
 function cocherProvinces(ids) {
@@ -164,6 +199,7 @@ function ouvrirCreation() {
   document.getElementById('mot_de_passe').required = true;
   document.getElementById('label-mdp').innerHTML = 'Mot de passe provisoire<span class="req">*</span>';
   document.getElementById('aide-mdp').textContent = 'Au moins {{ longueur_min }} caractères. La personne le changera à sa première connexion.';
+  cocherFermes([]);
   majProvinces();
   ouvrir('fen-user');
 }
@@ -177,6 +213,7 @@ function ouvrirModification(btn) {
   document.getElementById('identifiant').required = false;
   ['nom', 'prenom', 'email', 'telephone', 'profil'].forEach(function (k) { document.getElementById(k).value = u[k]; });
   cocherProvinces(u.provinces);
+  cocherFermes(u.fermes);
   document.getElementById('bloc-actif').hidden = false;
   document.getElementById('actif').checked = u.actif;
   document.getElementById('mot_de_passe').required = false;

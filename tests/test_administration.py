@@ -118,16 +118,17 @@ def test_listes_comme_yl1(client_admin, monkeypatch):
     r = client_admin.post('/administration/listes/ajouter', data={'categorie': 'autre', 'valeur': 'x'},
                           follow_redirects=True)
     assert 'Données invalides' in r.get_data(as_text=True)
-    poussin, aliment = ListeDeroulante.query.order_by(ListeDeroulante.ordre).all()
+    essai = ListeDeroulante.query.filter_by(categorie='essai')
+    poussin, aliment = essai.order_by(ListeDeroulante.ordre).all()
     client_admin.post('/administration/listes/reordonner', json={'ids': [aliment.id, poussin.id]})
-    assert [v.valeur for v in ListeDeroulante.query.order_by(ListeDeroulante.ordre)] == ['Aliment', 'Poussin']
+    assert [v.valeur for v in essai.order_by(ListeDeroulante.ordre)] == ['Aliment', 'Poussin']
     client_admin.post(f'/administration/listes/modifier/{poussin.id}', data={'valeur': 'Poussins', 'actif': '0'})
     assert db.session.get(ListeDeroulante, poussin.id).actif is False
     client_admin.post(f'/administration/listes/modifier/{poussin.id}', data={'valeur': 'Poussins', 'actif': '1'})
     assert db.session.get(ListeDeroulante, poussin.id).actif is True
     # Pas de suppression : ni route, ni bouton
     assert client_admin.post(f'/administration/listes/supprimer/{aliment.id}').status_code == 404
-    assert ListeDeroulante.query.count() == 2
+    assert essai.count() == 2
     page = client_admin.get('/administration/listes/').get_data(as_text=True)
     assert 'Poussins' in page and 'btn-del' not in page and 'trash' not in page
 
@@ -140,5 +141,10 @@ def test_parametres_securite_au_moins_1(client_admin):
     assert db.session.get(Parametre, p.id).valeur == '5'
 
 
-def test_tuile_listes_absente_sans_categorie(client_admin):
-    assert 'Valeurs proposées' not in client_admin.get('/').get_data(as_text=True)
+def test_listes_du_lot_1_avec_valeurs_de_depart(client_admin):
+    assert 'Valeurs des listes' in client_admin.get('/').get_data(as_text=True)
+    page = client_admin.get('/administration/listes/').get_data(as_text=True)
+    for titre in ('Statuts de ferme', 'Types d&#39;infrastructures', 'Types d&#39;opérateurs'):
+        assert titre in page
+    assert 'Opérationnelle' in page and 'Pédiluve' in page and 'Abattoir' in page
+    assert 'Bâtiment d&#39;élevage' not in page

@@ -1,0 +1,58 @@
+{% extends '_base.html' %}
+{% from '_macros.html' import badge_statut %}
+{% block titre %}Fermes{% endblock %}
+{% block icone %}house-door{% endblock %}
+{% block page_sous_titre %}{{ total }} ferme{{ 's' if total != 1 }} · {{ operationnelles }} opérationnelle{{ 's' if operationnelles != 1 }}{% endblock %}
+
+{% block actions %}
+{% if peut_creer %}
+<a href="{{ url_for('fermes.nouvelle') }}" class="btn-new"><i class="bi bi-plus-lg"></i> Nouvelle ferme</a>
+{% endif %}
+{% endblock %}
+
+{% block contenu %}
+<form class="filters-bar" method="get">
+  {% if provinces|length > 1 %}
+  <select name="province" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Toutes les provinces</option>
+    {% for p in provinces %}<option value="{{ p.id }}" {% if filtre.province == p.id|string %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+  </select>
+  {% endif %}
+  <select name="cohorte" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Toutes les cohortes</option>
+    <option value="1" {% if filtre.cohorte == '1' %}selected{% endif %}>Cohorte 1</option>
+    <option value="2" {% if filtre.cohorte == '2' %}selected{% endif %}>Cohorte 2</option>
+    <option value="aucune" {% if filtre.cohorte == 'aucune' %}selected{% endif %}>Sans cohorte</option>
+  </select>
+  <select name="statut" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Tous les statuts</option>
+    {% for s in statuts %}<option value="{{ s }}" {% if filtre.statut == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+  </select>
+  <input type="search" name="q" class="filter-search" placeholder="Rechercher une ferme…" value="{{ filtre.q }}">
+  <button type="submit" class="btn-filter"><i class="bi bi-search"></i></button>
+</form>
+
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>N°</th><th>Ferme</th><th>Province</th><th>Cohorte</th><th>Places</th><th>Statut</th></tr></thead>
+    <tbody>
+    {% for f in fermes %}
+      <tr class="tr-click" onclick="location.href='{{ url_for('fermes.fiche', numero=f.numero) }}'">
+        <td class="td-num"><a href="{{ url_for('fermes.fiche', numero=f.numero) }}">{{ f.numero }}</a></td>
+        <td><strong>{{ f.nom }}</strong><br><span class="td-sous">{{ f.localite.nom }}</span></td>
+        <td>{{ f.province.nom }}</td>
+        <td>{{ f.cohorte or '—' }}</td>
+        <td>{{ '{:,}'.format(f.capacite).replace(',', ' ') }}</td>
+        <td>{{ badge_statut(f.statut) }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="table-vide"><i class="bi bi-house"></i>Aucune ferme ne correspond.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+{% if a_profil('ADMIN') %}
+<div class="lien-discret"><a href="{{ url_for('fermes.import_page') }}"><i class="bi bi-file-earmark-spreadsheet"></i> Importer la liste POUFA (Excel)</a></div>
+{% endif %}
+{% endblock %}

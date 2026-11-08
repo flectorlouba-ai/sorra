@@ -8,15 +8,15 @@
 
 Pour être filtrable, un modèle déclare la colonne qui porte la province :
 `__perimetre__ = 'province_id'` (ou `'id'` pour la table Province).
-Au lot 1, les modèles rattachés à une ferme déclareront aussi
-`__perimetre_ferme__ = 'ferme_id'` : un utilisateur rattaché à des fermes
-(éleveur, agent) sera alors limité à ces fermes.
+Un modèle rattaché à une ferme déclare `__perimetre_ferme__` (`'id'` pour la
+ferme, `'ferme_id'` ailleurs) : la règle des fermes s'applique alors (agent
+référent, éleveur rattaché, vétérinaire de la province).
 """
 from functools import wraps
 
 from flask import abort
 from flask_login import current_user, login_required
-from sqlalchemy import Select, false
+from sqlalchemy import Select, false, select
 
 from app.models.utilisateur import Profil
 
@@ -48,6 +48,19 @@ def _restreindre(requete, condition):
     return requete.where(condition) if isinstance(requete, Select) else requete.filter(condition)
 
 
+def _condition_fermes(colonne, user):
+    """Fermes visibles : l'agent celles dont il est le référent, l'éleveur les siennes,
+    le vétérinaire celles de ses provinces ; les autres profils aucune (lot 1)."""
+    from app.models.ferme import Ferme
+    if user.profil == Profil.AGENT:
+        return colonne.in_(select(Ferme.id).where(Ferme.agent_id == user.id))
+    if user.profil == Profil.ELEVEUR:
+        return colonne.in_(user.ferme_ids)
+    if user.profil == Profil.VETO:
+        return colonne.in_(select(Ferme.id).where(Ferme.province_id.in_(user.province_ids)))
+    return false()
+
+
 def filtre_perimetre(requete, modele=None, utilisateur=None):
     user = utilisateur or current_user
     if not user or not user.is_authenticated:
@@ -55,11 +68,10 @@ def filtre_perimetre(requete, modele=None, utilisateur=None):
     if user.est_national:
         return requete
     modele = modele or _modele(requete)
+    attr_ferme = getattr(modele, '__perimetre_ferme__', None)
+    if attr_ferme:
+        return _restreindre(requete, _condition_fermes(getattr(modele, attr_ferme), user))
     attr = getattr(modele, '__perimetre__', None)
     if attr is None:
         raise TypeError(f'{modele.__name__} ne déclare pas de colonne de périmètre.')
-    requete = _restreindre(requete, getattr(modele, attr).in_(user.province_ids))
-    attr_ferme = getattr(modele, '__perimetre_ferme__', None)
-    if attr_ferme and user.ferme_ids:
-        requete = _restreindre(requete, getattr(modele, attr_ferme).in_(user.ferme_ids))
-    return requete
+    return _restreindre(requete, getattr(modele, attr).in_(user.province_ids))

@@ -1,0 +1,88 @@
+{% extends '_base.html' %}
+{% block titre %}{{ 'Modifier ' ~ op.numero if op else 'Nouvel opérateur' }}{% endblock %}
+{% block sous_titre %}Opérateurs{% endblock %}
+{% block icone %}{{ 'pencil' if op else 'plus-lg' }}{% endblock %}
+{% block page_titre %}{{ 'Modifier l\'opérateur' if op else 'Nouvel opérateur' }}{% endblock %}
+{% block page_sous_titre %}{% if op %}<span class="mono">{{ op.numero }}</span> · {{ op.nom }}{% endif %}{% endblock %}
+
+{%- macro val(champ, defaut='') -%}
+{%- if saisie -%}{{ saisie.get(champ, '') }}{%- else -%}{{ defaut if defaut is not none else '' }}{%- endif -%}
+{%- endmacro %}
+
+{% block contenu %}
+<form method="post" class="form-terrain" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% for e in erreurs %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ e }}</div>{% endfor %}
+
+  <div class="form-group">
+    <label class="form-label" for="nom">Nom<span class="req">*</span></label>
+    <input class="form-control" id="nom" name="nom" maxlength="150" required value="{{ val('nom', op.nom if op else '') }}">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="type">Type<span class="req">*</span></label>
+    {% set ty = val('type', op.type if op else '') %}
+    <select class="form-control" id="type" name="type" required>
+      <option value="">— Choisir —</option>
+      {% for t in types %}<option value="{{ t }}" {% if ty == t %}selected{% endif %}>{{ t }}</option>{% endfor %}
+      {% if op and op.type not in types %}<option value="{{ op.type }}" selected>{{ op.type }}</option>{% endif %}
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="province_id">Province<span class="req">*</span></label>
+    {% set pid = val('province_id', op.province_id if op else '') %}
+    <select class="form-control" id="province_id" name="province_id" required onchange="filtrerLocalites()">
+      <option value="">— Choisir —</option>
+      {% for p in provinces %}<option value="{{ p.id }}" {% if pid == p.id|string %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="localite_id">Localité</label>
+    {% set lid = val('localite_id', op.localite_id if op and op.localite_id else '') %}
+    <select class="form-control" id="localite_id" name="localite_id">
+      <option value="">—</option>
+      {% for l in localites %}<option value="{{ l.id }}" data-province="{{ l.province_id }}" {% if lid == l.id|string %}selected{% endif %}>{{ l.nom }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="contact">Personne à contacter</label>
+    <input class="form-control" id="contact" name="contact" maxlength="150" value="{{ val('contact', op.contact if op else '') }}">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="telephone">Téléphone</label>
+    <input class="form-control" id="telephone" name="telephone" type="tel" inputmode="tel" maxlength="30" value="{{ val('telephone', op.telephone if op else '') }}">
+  </div>
+  {% set conv = (saisie.get('convention') == 'on') if saisie else (op.convention if op else false) %}
+  <div class="form-group">
+    <label class="coche"><input type="checkbox" name="convention" id="convention" {% if conv %}checked{% endif %} onchange="document.getElementById('bloc-date').hidden = !this.checked"> Convention signée</label>
+    <div id="bloc-date" {% if not conv %}hidden{% endif %}>
+      <label class="form-label mt-2" for="convention_date">Date de signature</label>
+      <input class="form-control" type="date" id="convention_date" name="convention_date"
+             value="{{ val('convention_date', op.convention_date.isoformat() if op and op.convention_date else '') }}">
+    </div>
+  </div>
+  {% if op %}
+  {% set act = (saisie.get('actif') == 'on') if saisie else op.actif %}
+  <div class="form-group">
+    <label class="coche"><input type="checkbox" name="actif" {% if act %}checked{% endif %}> Opérateur actif</label>
+    <div class="form-hint">Un opérateur ne se supprime pas : décochez pour le désactiver.</div>
+  </div>
+  {% endif %}
+
+  <button type="submit" class="btn-gros mt-3">Enregistrer</button>
+  {% if not op %}<div class="note-numero">Le numéro est donné automatiquement.</div>{% endif %}
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filtrerLocalites() {
+  var p = document.getElementById('province_id').value, loc = document.getElementById('localite_id');
+  Array.prototype.forEach.call(loc.options, function (o) {
+    if (!o.dataset.province) return;
+    o.hidden = o.dataset.province !== p;
+    if (o.hidden && o.selected) loc.value = '';
+  });
+}
+filtrerLocalites();
+</script>
+{% endblock %}

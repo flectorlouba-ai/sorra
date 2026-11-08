@@ -1,0 +1,231 @@
+{% extends '_base.html' %}
+{% block titre %}{{ 'Modifier ' ~ ferme.numero if ferme else 'Nouvelle ferme' }}{% endblock %}
+{% block sous_titre %}Fermes{% endblock %}
+{% block icone %}{{ 'pencil' if ferme else 'plus-lg' }}{% endblock %}
+{% block page_titre %}{{ 'Modifier la ferme' if ferme else 'Nouvelle ferme' }}{% endblock %}
+{% block page_sous_titre %}{% if ferme %}<span class="mono">{{ ferme.numero }}</span> · {{ ferme.nom }}{% endif %}{% endblock %}
+
+{%- macro val(champ, defaut='') -%}
+{%- if saisie -%}{{ saisie.get(champ, '') }}{%- else -%}{{ defaut if defaut is not none else '' }}{%- endif -%}
+{%- endmacro %}
+
+{% block contenu %}
+{% set fe = ferme %}
+<form method="post" class="form-terrain" id="form-ferme" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  {% for e in erreurs %}
+  <div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ e }}</div>
+  {% endfor %}
+
+  {% if suggestions %}
+  <div class="question-localite">
+    <div class="question-titre"><i class="bi bi-question-circle"></i>
+      Vouliez-vous dire {% for s in suggestions %}« {{ s.nom }} »{% if not loop.last %} ou {% endif %}{% endfor %} ?</div>
+    <div class="question-choix">
+      {% for s in suggestions %}
+      <button type="submit" name="localite_choisie" value="{{ s.id }}" class="btn-ghost">Oui, {{ s.nom }}</button>
+      {% endfor %}
+      <button type="submit" name="confirmer_nouvelle" value="1" class="btn-ghost">Non, créer « {{ saisie.get('localite_nouvelle') }} »</button>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="form-group">
+    <label class="form-label" for="nom">Nom de la ferme<span class="req">*</span></label>
+    <input class="form-control" id="nom" name="nom" maxlength="150" required value="{{ val('nom', fe.nom if fe else '') }}">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="exploitant_nom">Exploitant<span class="req">*</span></label>
+    <input class="form-control" id="exploitant_nom" name="exploitant_nom" maxlength="150" required
+           value="{{ val('exploitant_nom', fe.exploitant_nom if fe else '') }}">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="exploitant_telephone">Téléphone<span class="req">*</span></label>
+    <input class="form-control" id="exploitant_telephone" name="exploitant_telephone" type="tel" inputmode="tel" maxlength="30" required
+           value="{{ val('exploitant_telephone', fe.exploitant_telephone if fe else '') }}">
+  </div>
+
+  <div class="form-group">
+    <label class="form-label" for="province_id">Province<span class="req">*</span></label>
+    {% set pid = val('province_id', fe.province_id if fe else (provinces[0].id if provinces|length == 1 else '')) %}
+    {% if not province_modifiable %}
+    <div class="champ-fixe">{{ fe.province.nom }}</div>
+    {% elif provinces|length == 1 %}
+    <input type="hidden" id="province_id" name="province_id" value="{{ provinces[0].id }}">
+    <div class="champ-fixe">{{ provinces[0].nom }}</div>
+    {% else %}
+    <select class="form-control" id="province_id" name="province_id" required onchange="filtrerLocalites()">
+      <option value="">— Choisir —</option>
+      {% for p in provinces %}<option value="{{ p.id }}" {% if pid == p.id|string %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+    </select>
+    {% if fe %}<div class="form-hint">Le numéro {{ fe.numero }} ne change pas si la province change.</div>{% endif %}
+    {% endif %}
+  </div>
+
+  <div class="form-group">
+    <label class="form-label" for="localite_id">Localité<span class="req">*</span></label>
+    {% set lid = val('localite_id', fe.localite_id if fe else '') %}
+    <select class="form-control" id="localite_id" name="localite_id" required onchange="majNouvelle()">
+      <option value="">— Choisir —</option>
+      {% for l in localites %}<option value="{{ l.id }}" data-province="{{ l.province_id }}" {% if lid == l.id|string %}selected{% endif %}>{{ l.nom }}</option>{% endfor %}
+      {% if fe and fe.localite and not fe.localite.actif %}<option value="{{ fe.localite_id }}" data-province="{{ fe.province_id }}" selected>{{ fe.localite.nom }}</option>{% endif %}
+      <option value="nouvelle" {% if lid == 'nouvelle' %}selected{% endif %}>Autre localité (absente de la liste)…</option>
+    </select>
+    <div id="bloc-nouvelle" {% if lid != 'nouvelle' %}hidden{% endif %}>
+      <input class="form-control mt-2" id="localite_nouvelle" name="localite_nouvelle" maxlength="120"
+             placeholder="Nom de la localité" value="{{ val('localite_nouvelle') }}">
+      <div class="form-hint">Elle sera ajoutée à la liste, puis vérifiée par l'administrateur.</div>
+    </div>
+  </div>
+
+  {# ── Position GPS ── #}
+  {% set lat = val('latitude', fe.latitude if fe else '') %}
+  {% set lon = val('longitude', fe.longitude if fe else '') %}
+  {% set prec = val('gps_precision_m', fe.gps_precision_m if fe else '') %}
+  {% set src = val('gps_source', fe.gps_source if fe else '') %}
+  <div class="bloc-gps">
+    <div class="form-label">Position de la ferme</div>
+    <button type="button" class="btn-gps" id="btn-gps"><i class="bi bi-crosshair"></i> {{ 'Reprendre la position' if lat else 'Prendre la position' }}</button>
+    <div class="gps-ok" id="gps-ok" {% if not lat %}hidden{% endif %}>
+      <i class="bi bi-check-circle-fill"></i> <span id="gps-ok-texte">Position enregistrée ✓ — {{ lat }}, {{ lon }}{% if prec %} · précision {{ prec }} m{% endif %}</span>
+    </div>
+    <div class="gps-message" id="gps-message" hidden></div>
+    <a href="#" class="lien-discret-inline" id="lien-manuel">Saisir à la main</a>
+    <div class="gps-manuel" id="gps-manuel" hidden>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="latitude">Latitude</label>
+          <input class="form-control" id="latitude" name="latitude" inputmode="decimal" placeholder="ex. 0,3921" value="{{ lat }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="longitude">Longitude</label>
+          <input class="form-control" id="longitude" name="longitude" inputmode="decimal" placeholder="ex. 9,6103" value="{{ lon }}">
+        </div>
+      </div>
+    </div>
+    <input type="hidden" name="gps_precision_m" id="gps_precision_m" value="{{ prec }}">
+    <input type="hidden" name="gps_source" id="gps_source" value="{{ src }}">
+  </div>
+
+  {% if agents %}
+  <div class="form-group">
+    <label class="form-label" for="agent_id">Agent technique référent</label>
+    {% set aid = val('agent_id', fe.agent_id if fe and fe.agent_id else '') %}
+    <select class="form-control" id="agent_id" name="agent_id">
+      <option value="">— Aucun pour l'instant —</option>
+      {% for a in agents %}<option value="{{ a.id }}" {% if aid == a.id|string %}selected{% endif %}>{{ a.nom_complet }} ({{ a.provinces|map(attribute='code')|join(', ') }})</option>{% endfor %}
+    </select>
+  </div>
+  {% endif %}
+
+  {% if fe %}
+  <div class="section-title mt-2">Compléments</div>
+  <div class="form-grid">
+    <div class="form-group">
+      <label class="form-label" for="reference_ami">Référence AMI</label>
+      <input class="form-control" id="reference_ami" name="reference_ami" maxlength="60" value="{{ val('reference_ami', fe.reference_ami) }}">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="cohorte">Cohorte</label>
+      {% set coh = val('cohorte', fe.cohorte) %}
+      <select class="form-control" id="cohorte" name="cohorte">
+        <option value="">—</option>
+        <option value="1" {% if coh == '1' %}selected{% endif %}>Cohorte 1</option>
+        <option value="2" {% if coh == '2' %}selected{% endif %}>Cohorte 2</option>
+      </select>
+    </div>
+    <div class="form-group span2">
+      <label class="form-label" for="statut">Statut</label>
+      {% set st = val('statut', fe.statut) %}
+      <select class="form-control" id="statut" name="statut">
+        {% for s in statuts %}<option value="{{ s }}" {% if st == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+        {% if fe.statut not in statuts %}<option value="{{ fe.statut }}" {% if st == fe.statut %}selected{% endif %}>{{ fe.statut }}</option>{% endif %}
+      </select>
+      <div class="form-hint">Une ferme ne se supprime pas : pour l'arrêter, choisissez « Suspendue ».</div>
+    </div>
+    <div class="form-group span2">
+      <span class="form-label">Infrastructures</span>
+      {% set coches = saisie.getlist('infrastructures') if saisie else fe.infrastructures|map(attribute='infrastructure')|list %}
+      <div class="coches">
+        {% for i in infrastructures %}
+        <label class="coche"><input type="checkbox" name="infrastructures" value="{{ i }}" {% if i in coches %}checked{% endif %}> {{ i }}</label>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="form-group span2">
+      <label class="form-label" for="observations">Observations</label>
+      <textarea class="form-control" id="observations" name="observations" rows="3">{{ val('observations', fe.observations) }}</textarea>
+    </div>
+  </div>
+  {% endif %}
+
+  <button type="submit" class="btn-gros mt-3">{{ 'Enregistrer' if fe else 'Enregistrer la ferme' }}</button>
+  {% if not fe %}<div class="note-numero">Le numéro est donné automatiquement.</div>{% endif %}
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var prov = document.getElementById('province_id');
+  var loc = document.getElementById('localite_id');
+  window.filtrerLocalites = function () {
+    if (!prov || prov.tagName !== 'SELECT') return;
+    Array.prototype.forEach.call(loc.options, function (o) {
+      if (!o.dataset.province) return;
+      o.hidden = o.dataset.province !== prov.value;
+      if (o.hidden && o.selected) loc.value = '';
+    });
+  };
+  window.majNouvelle = function () {
+    document.getElementById('bloc-nouvelle').hidden = loc.value !== 'nouvelle';
+    if (loc.value === 'nouvelle') document.getElementById('localite_nouvelle').focus();
+  };
+  filtrerLocalites();
+
+  // ── Position ──
+  var lat = document.getElementById('latitude'), lon = document.getElementById('longitude');
+  var prec = document.getElementById('gps_precision_m'), src = document.getElementById('gps_source');
+  var bouton = document.getElementById('btn-gps'), ok = document.getElementById('gps-ok');
+  var message = document.getElementById('gps-message'), manuel = document.getElementById('gps-manuel');
+
+  function ouvrirManuel(texte) {
+    manuel.hidden = false;
+    if (texte) { message.textContent = texte; message.hidden = false; }
+    lat.focus();
+  }
+  document.getElementById('lien-manuel').addEventListener('click', function (e) { e.preventDefault(); ouvrirManuel(); });
+  [lat, lon].forEach(function (c) {
+    c.addEventListener('input', function () { src.value = 'MANUELLE'; prec.value = ''; ok.hidden = true; });
+  });
+
+  bouton.addEventListener('click', function () {
+    message.hidden = true;
+    if (!window.isSecureContext || !navigator.geolocation) {
+      ouvrirManuel('Position automatique indisponible, saisissez-la à la main.');
+      return;
+    }
+    bouton.disabled = true;
+    bouton.innerHTML = '<i class="bi bi-hourglass-split"></i> Recherche de la position…';
+    navigator.geolocation.getCurrentPosition(function (p) {
+      lat.value = p.coords.latitude.toFixed(6);
+      lon.value = p.coords.longitude.toFixed(6);
+      prec.value = Math.round(p.coords.accuracy);
+      src.value = 'GPS';
+      document.getElementById('gps-ok-texte').textContent = 'Position enregistrée ✓ — ' +
+        p.coords.latitude.toFixed(4) + ', ' + p.coords.longitude.toFixed(4) + ' · précision ' + prec.value + ' m';
+      ok.hidden = false;
+      bouton.disabled = false;
+      bouton.innerHTML = '<i class="bi bi-crosshair"></i> Reprendre la position';
+    }, function (e) {
+      bouton.disabled = false;
+      bouton.innerHTML = '<i class="bi bi-crosshair"></i> Prendre la position';
+      ouvrirManuel(e.code === 1
+        ? 'Le téléphone refuse de donner la position à ce site. Autorisez-la, ou saisissez-la à la main.'
+        : 'Position introuvable pour le moment, saisissez-la à la main.');
+    }, {enableHighAccuracy: true, timeout: 20000, maximumAge: 0});
+  });
+})();
+</script>
+{% endblock %}

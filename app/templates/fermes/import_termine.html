@@ -1,0 +1,18 @@
+{% extends '_base.html' %}
+{% block titre %}Import terminé{% endblock %}
+{% block sous_titre %}Fermes{% endblock %}
+{% block icone %}check2-all{% endblock %}
+
+{% block actions %}
+<a href="{{ url_for('fermes.import_rapport', jeton=jeton) }}" class="btn-new"><i class="bi bi-download"></i> Télécharger le rapport (Excel)</a>
+{% endblock %}
+
+{% block contenu %}
+<div class="stat-bar">
+  <span class="stat-chip ok"><span class="num">{{ creees }}</span> fermes importées</span>
+  <span class="stat-chip {{ 'alerte' if refusees }}"><span class="num">{{ refusees }}</span> lignes refusées</span>
+  <span class="stat-chip"><span class="num">{{ localites }}</span> localités créées</span>
+</div>
+<p class="texte-aide">Le rapport reprend vos lignes avec, pour chacune, le numéro attribué ou la raison du refus. Il reste disponible un jour.</p>
+<a href="{{ url_for('fermes.liste') }}" class="btn-ghost"><i class="bi bi-list"></i> Voir les fermes</a>
+{% endblock %}

@@ -53,6 +53,8 @@ def create_app(env='default'):
     from app.routes.listes import listes_bp
     from app.routes.parametres import parametres_bp
     from app.routes.journal import journal_bp
+    from app.routes.fermes import fermes_bp
+    from app.routes.operateurs import operateurs_bp
 
     app.register_blueprint(auth_bp,          url_prefix='/auth')
     app.register_blueprint(accueil_bp)
@@ -61,6 +63,9 @@ def create_app(env='default'):
     app.register_blueprint(referentiel_bp,   url_prefix='/administration/provinces')
     app.register_blueprint(listes_bp,        url_prefix='/administration/listes')
     app.register_blueprint(parametres_bp,    url_prefix='/administration/parametres')
+    # Métier
+    app.register_blueprint(fermes_bp,        url_prefix='/fermes')
+    app.register_blueprint(operateurs_bp,    url_prefix='/operateurs')
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 

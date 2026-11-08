@@ -1,3 +1,4 @@
+{% from '_macros.html' import badge_statut %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -14,15 +15,14 @@
     <div class="logo-texte">YL.2</div>
     <div>
       <div class="topbar-brand-name">PERFORM YL.2</div>
-      <div class="topbar-brand-sub">Suivi des fermes avicoles du Gabon</div>
+      <div class="topbar-brand-sub">Suivi et traçabilité de la filière avicole</div>
     </div>
   </a>
   <div class="topbar-right">
-    <span class="topbar-user d-none d-lg-inline"><i class="bi bi-person-circle me-1"></i>{{ current_user.nom_complet }}</span>
     <a href="{{ url_for('auth.mot_de_passe') }}" class="btn-top"><i class="bi bi-key"></i><span class="d-none d-sm-inline"> Mot de passe</span></a>
     <form method="post" action="{{ url_for('auth.deconnexion') }}" class="d-inline">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="btn-top quitter"><i class="bi bi-box-arrow-right"></i><span class="d-none d-sm-inline"> Quitter</span></button>
+      <button type="submit" class="btn-top quitter"><i class="bi bi-box-arrow-right"></i><span class="d-none d-sm-inline"> Déconnexion</span></button>
     </form>
   </div>
 </div>
@@ -30,19 +30,22 @@
 <!-- ══ SALUTATION ══ -->
 <div class="greeting-bar">
   <div>
-    <div class="greeting-hello">Bonjour, <strong>{{ current_user.nom_complet }}</strong></div>
+    <div class="greeting-hello">Bonjour, <strong>{% if current_user.prenom %}{{ current_user.prenom }} {% endif %}{{ current_user.nom|upper }}</strong></div>
     <div class="greeting-role">{{ current_user.profil.libelle }}</div>
   </div>
   <div class="greeting-date" id="greeting-date"></div>
 </div>
 
+{% if onglets %}
 <!-- ══ ONGLETS ══ -->
 <div class="tab-bar">
-  <button class="tab-btn active" data-tab="espace"><i class="bi bi-house-door"></i> Mon espace</button>
-  {% if a_profil('ADMIN') %}
-  <button class="tab-btn" data-tab="admin"><i class="bi bi-building"></i> Administration</button>
-  {% endif %}
+  {% for m in onglets %}
+  <button class="tab-btn {% if loop.first %}active{% endif %}" data-tab="{{ m.code }}">
+    <i class="bi bi-{{ m.icone }}"></i> {{ m.titre }}{% if m.option %} <span class="tab-option">Option</span>{% endif %}
+  </button>
+  {% endfor %}
 </div>
+{% endif %}
 
 <!-- ══ CONTENU ══ -->
 <div class="content">
@@ -55,84 +58,81 @@
   </div>{% endif %}
   {% endwith %}
 
-  <!-- Mon espace -->
-  <div class="tab-panel active" id="tab-espace">
-    <div class="modules-col">
-      {% if a_profil('AUDITEUR') %}
-      <div class="modules-grid mb-3">
-        <a href="{{ url_for('journal.index') }}" class="module-card mc-amber">
-          <i class="bi bi-journal-text"></i>
-          <div class="mc-title">Journal des opérations</div>
-          <div class="mc-sub">Qui a fait quoi, et quand</div>
-        </a>
+  {% if eleveur %}
+  <!-- ══ ÉLEVEUR : Ma ferme ══ -->
+  <div class="ma-ferme-zone">
+    {% for f in fermes %}
+    <div class="ma-ferme">
+      <div class="ma-ferme-tete">
+        <div>
+          <div class="ma-ferme-titre">Ma ferme</div>
+          <div class="ma-ferme-nom">{{ f.nom }}</div>
+          <div class="ma-ferme-num">{{ f.numero }}</div>
+        </div>
+        {{ badge_statut(f.statut) }}
       </div>
+      <div class="ma-ferme-chiffres">
+        <div><span class="num">{{ f.batiments|selectattr('actif')|list|length }}</span> bâtiment{{ 's' if f.batiments|selectattr('actif')|list|length > 1 }}</div>
+        <div><span class="num">{{ '{:,}'.format(f.capacite).replace(',', ' ') }}</span> places</div>
+      </div>
+      {% if f.agent %}
+      <div class="ma-ferme-agent">
+        <i class="bi bi-person-badge"></i>
+        <div>Mon agent : <strong>{{ f.agent.nom_complet }}</strong>{% if f.agent.telephone %}<br>{{ f.agent.telephone }}{% endif %}</div>
+      </div>
+      {% if f.agent.telephone %}
+      <a class="btn-gros" href="tel:{{ f.agent.telephone|replace(' ', '') }}"><i class="bi bi-telephone-fill"></i> Appeler mon agent</a>
       {% endif %}
-      <div class="empty-note">
-        <i class="bi bi-cone-striped" style="font-size:1.5rem;display:block;margin-bottom:.4rem;"></i>
-        <strong>Votre espace est en construction.</strong><br>
-        Vous y trouverez bientôt : {{ a_venir }}
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="empty-note">Aucune ferme ne vous est encore rattachée. Contactez votre agent technique.</div>
+    {% endfor %}
+  </div>
+
+  {% elif onglets %}
+  {% for m in onglets %}
+  <div class="tab-panel {% if loop.first %}active{% endif %}" id="tab-{{ m.code }}">
+    <div class="modules-col">
+      <div class="modules-grid">
+        {% for t in m.tuiles %}
+        {% if t.lien %}
+        <a href="{{ t.lien }}" class="module-card {{ t.couleur }}">
+          <i class="bi bi-{{ t.icone }}"></i>
+          <div class="mc-title">{{ t.titre }}</div>
+          {% if t.sous_titre %}<div class="mc-sub">{{ t.sous_titre }}</div>{% endif %}
+        </a>
+        {% else %}
+        <button type="button" class="module-card {{ t.couleur }} tuile-bientot" data-phrase="{{ t.phrase }}">
+          <span class="tuile-etiquette">{{ t.etiquette }}</span>
+          <i class="bi bi-{{ t.icone }}"></i>
+          <div class="mc-title">{{ t.titre }}</div>
+          {% if t.sous_titre %}<div class="mc-sub">{{ t.sous_titre }}</div>{% endif %}
+        </button>
+        {% endif %}
+        {% endfor %}
       </div>
+      <div class="tuile-phrase" hidden></div>
     </div>
 
     <div class="alertes-col">
       <div class="alertes-zone">
         <div class="alertes-header">
-          <span class="alertes-title"><i class="bi bi-geo-alt"></i>
-            {% if current_user.est_national %}Toutes les provinces{% else %}Mon périmètre{% endif %}</span>
-          <span class="alertes-badge">{{ provinces|length }}</span>
+          <span class="alertes-title"><i class="bi bi-bell"></i> Alertes</span>
+          <span class="alertes-badge zero">0</span>
         </div>
         <div class="alertes-list">
-          {% for p in provinces %}
-          {% set locs = par_province.get(p.id, []) %}
-          <div class="alerte-item">
-            <span class="alerte-dot {{ 'warning' if locs else 'info' }}"></span>
-            <div class="alerte-body">
-              <div class="alerte-msg">{{ p.nom }}</div>
-              <div class="alerte-meta">{% if locs %}{{ locs|map(attribute='nom')|join(', ') }}{% else %}Aucune localité{% endif %}</div>
-            </div>
-          </div>
-          {% else %}
-          <div class="alertes-vide"><i class="bi bi-geo"></i>Aucune province ne vous est encore attribuée.<br>Contactez l'administrateur.</div>
-          {% endfor %}
+          <div class="alertes-vide"><i class="bi bi-check-circle"></i>Aucune alerte active</div>
         </div>
       </div>
     </div>
   </div>
+  {% endfor %}
 
-  {% if a_profil('ADMIN') %}
-  <!-- Administration -->
-  <div class="tab-panel" id="tab-admin">
-    <div class="modules-col">
-      <div class="modules-grid">
-        <a href="{{ url_for('utilisateurs.index') }}" class="module-card mc-navy">
-          <i class="bi bi-people-fill"></i>
-          <div class="mc-title">Utilisateurs</div>
-          <div class="mc-sub">Comptes, profils, provinces</div>
-        </a>
-        <a href="{{ url_for('referentiel.index') }}" class="module-card mc-cobalt">
-          <i class="bi bi-map"></i>
-          <div class="mc-title">Provinces et localités</div>
-          <div class="mc-sub">Les 9 provinces du Gabon</div>
-        </a>
-        {% if listes_presentes %}
-        <a href="{{ url_for('listes.index') }}" class="module-card mc-royal">
-          <i class="bi bi-list-ul"></i>
-          <div class="mc-title">Listes</div>
-          <div class="mc-sub">Valeurs proposées dans les formulaires</div>
-        </a>
-        {% endif %}
-        <a href="{{ url_for('parametres.index') }}" class="module-card mc-blue">
-          <i class="bi bi-sliders"></i>
-          <div class="mc-title">Paramètres</div>
-          <div class="mc-sub">Réglages de l'application</div>
-        </a>
-        <a href="{{ url_for('journal.index') }}" class="module-card mc-amber">
-          <i class="bi bi-journal-text"></i>
-          <div class="mc-title">Journal des opérations</div>
-          <div class="mc-sub">Qui a fait quoi, et quand</div>
-        </a>
-      </div>
-    </div>
+  {% else %}
+  <div class="empty-note">
+    <i class="bi bi-cone-striped" style="font-size:1.5rem;display:block;margin-bottom:.4rem;"></i>
+    <strong>Votre espace arrive bientôt.</strong>
   </div>
   {% endif %}
 
@@ -154,6 +154,15 @@
     var memo = sessionStorage.getItem('yl2-onglet');
     if (memo && document.getElementById('tab-' + memo)) montrer(memo);
   } catch (e) {}
+
+  // Tuile pas encore disponible : une phrase, rien d'autre
+  document.querySelectorAll('.tuile-bientot').forEach(function (t) {
+    t.addEventListener('click', function () {
+      var zone = t.closest('.modules-col').querySelector('.tuile-phrase');
+      zone.textContent = t.dataset.phrase;
+      zone.hidden = false;
+    });
+  });
 })();
 </script>
 </body>

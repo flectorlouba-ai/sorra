@@ -1,0 +1,169 @@
+{% extends '_base.html' %}
+{% from '_macros.html' import badge_statut, tete_fenetre, pied_fenetre %}
+{% block titre %}{{ ferme.numero }} — {{ ferme.nom }}{% endblock %}
+{% block sous_titre %}Fermes{% endblock %}
+{% block icone %}house-door{% endblock %}
+{% block page_titre %}{{ ferme.nom }} {{ badge_statut(ferme.statut) }}{% endblock %}
+{% block page_sous_titre %}<span class="mono">{{ ferme.numero }}</span>{% if ferme.cohorte %} · Cohorte {{ ferme.cohorte }}{% endif %}{% endblock %}
+
+{% block actions %}
+{% if peut_modifier %}
+<a href="{{ url_for('fermes.modifier', numero=ferme.numero) }}" class="btn-new"><i class="bi bi-pencil"></i> Modifier</a>
+{% endif %}
+{% endblock %}
+
+{% block contenu %}
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card-p h-100">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-person"></i> Exploitant</span></div>
+      <div class="card-p-body">
+        <dl class="fiche-lignes">
+          <dt>Nom</dt><dd>{{ ferme.exploitant_nom }}</dd>
+          <dt>Téléphone</dt><dd><a href="tel:{{ ferme.exploitant_telephone|replace(' ', '') }}">{{ ferme.exploitant_telephone }}</a></dd>
+          <dt>Localité</dt><dd>{{ ferme.localite.nom }} — {{ ferme.province.nom }}</dd>
+          <dt>Réf. AMI</dt><dd>{{ ferme.reference_ami or '—' }}</dd>
+          <dt>Agent technique</dt><dd>{% if ferme.agent %}{{ ferme.agent.nom_complet }}{% if ferme.agent.telephone %} · <a href="tel:{{ ferme.agent.telephone|replace(' ', '') }}">{{ ferme.agent.telephone }}</a>{% endif %}{% else %}—{% endif %}</dd>
+          <dt>Infrastructures</dt><dd>{% if ferme.infrastructures %}{{ ferme.infrastructures|map(attribute='infrastructure')|join(', ') }}{% else %}—{% endif %}</dd>
+          <dt>Observations</dt><dd>{{ ferme.observations or '—' }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card-p h-100">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-geo-alt"></i> Position</span></div>
+      <div class="card-p-body position-zone">
+        {% if dessin %}
+        <svg class="carte-province" viewBox="0 0 {{ dessin.largeur }} {{ dessin.hauteur }}" role="img" aria-label="Province {{ ferme.province.nom }}">
+          {% for c in dessin.chemins %}<path d="{{ c }}"/>{% endfor %}
+          {% if dessin.epingle %}
+          <g class="carte-epingle {% if controle and not controle.ok %}hors{% endif %}" transform="translate({{ dessin.epingle[0] }},{{ dessin.epingle[1] }})">
+            <path d="M0,0 C-6,-9 -8,-12 -8,-16 A8,8 0 1,1 8,-16 C8,-12 6,-9 0,0 Z"/><circle cy="-16" r="3"/>
+          </g>
+          {% endif %}
+        </svg>
+        {% endif %}
+        <div class="position-texte">
+          {% if ferme.a_une_position %}
+          <div class="mono">{{ '%.4f'|format(ferme.latitude) }}, {{ '%.4f'|format(ferme.longitude) }}</div>
+          <div class="td-sous">
+            {% if ferme.gps_source == 'GPS' %}GPS du téléphone{% if ferme.gps_precision_m is not none %} · précision {{ ferme.gps_precision_m }} m{% endif %}{% else %}Saisie à la main{% endif %}
+            {% if ferme.gps_date %} · {{ ferme.gps_date|date_locale('%d/%m/%Y') }}{% endif %}
+          </div>
+          {% if controle and controle.ok %}
+          <div class="position-ok"><i class="bi bi-check-circle-fill"></i> Dans la province {{ ferme.province.nom }}</div>
+          {% elif controle %}
+          <div class="position-alerte"><i class="bi bi-exclamation-triangle-fill"></i>
+            Le point semble hors de la province {{ ferme.province.nom }} (à {{ controle.distance_km }} km{% if controle.nom_trouvee %}, dans la province {{ controle.nom_trouvee }}{% else %}, hors du Gabon{% endif %}). Vérifiez la position.</div>
+          {% endif %}
+          {% else %}
+          <div class="td-sous">Position non renseignée.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card-p mt-3" id="batiments">
+  <div class="card-p-head">
+    <span class="card-p-title"><i class="bi bi-building"></i> Bâtiments</span>
+    {% if peut_modifier %}
+    <button type="button" class="btn-top" onclick="ouvrirBatiment()"><i class="bi bi-plus-lg"></i> Bâtiment</button>
+    {% endif %}
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Bâtiment</th><th>Places</th><th>Bande en cours</th><th></th></tr></thead>
+      <tbody>
+      {% for b in ferme.batiments %}
+        <tr {% if not b.actif %}class="ligne-inactive"{% endif %}>
+          <td><strong>{{ b.code }}</strong>{% if b.nom %} — {{ b.nom }}{% endif %}{% if not b.actif %} <span class="badge badge-off">Inactif</span>{% endif %}</td>
+          <td>{{ '{:,}'.format(b.capacite).replace(',', ' ') }}</td>
+          <td>—</td>
+          <td style="text-align:right;">
+            {% if peut_modifier %}
+            <button type="button" class="btn-edit" title="Modifier"
+                    data-b='{{ {"id": b.id, "code": b.code, "nom": b.nom or "", "capacite": b.capacite, "actif": b.actif}|tojson }}'
+                    onclick="ouvrirBatiment(this)"><i class="bi bi-pencil"></i></button>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4" class="table-vide">Aucun bâtiment pour l'instant.</td></tr>
+      {% endfor %}
+      </tbody>
+      {% if ferme.batiments %}
+      <tfoot><tr class="ligne-total"><td>Total (bâtiments actifs)</td><td>{{ '{:,}'.format(ferme.capacite).replace(',', ' ') }}</td><td></td><td></td></tr></tfoot>
+      {% endif %}
+    </table>
+  </div>
+</div>
+
+<div class="card-p">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-clock-history"></i> Historique du statut</span></div>
+  <div class="card-p-body">
+    <ul class="historique">
+      {% for h in ferme.historique %}
+      <li><span class="historique-date">{{ h.date|date_locale('%d/%m/%Y') }}</span> {{ badge_statut(h.statut) }}
+        {% if h.auteur %}<span class="td-sous">par {{ h.auteur.nom_complet }}</span>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{% if peut_modifier %}
+<div class="modal-overlay" id="fen-batiment" hidden>
+  <div class="modal-box" style="max-width:420px;">
+    <form method="post" id="form-batiment">
+      {{ tete_fenetre('fen-batiment', 'Nouveau bâtiment', 'building') }}
+      <div class="modal-body">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group mb-3">
+          <label class="form-label" for="b-capacite">Capacité (nombre de poulets)<span class="req">*</span></label>
+          <input class="form-control" id="b-capacite" name="capacite" type="number" min="0" step="1" inputmode="numeric" required>
+        </div>
+        <div class="form-group mb-3">
+          <label class="form-label" for="b-nom">Nom</label>
+          <input class="form-control" id="b-nom" name="nom" maxlength="120" placeholder="Facultatif">
+          <div class="form-hint">Le code (B1, B2…) est donné automatiquement.</div>
+        </div>
+        <div class="form-group" id="bloc-b-actif" hidden>
+          <label class="coche"><input type="checkbox" name="actif" id="b-actif"> Bâtiment actif</label>
+          <div class="form-hint">Un bâtiment inactif ne compte plus dans les places de la ferme.</div>
+        </div>
+      </div>
+      {{ pied_fenetre('fen-batiment') }}
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if peut_modifier %}
+<script>
+function ouvrirBatiment(btn) {
+  var f = document.getElementById('form-batiment');
+  f.reset();
+  if (btn) {
+    var b = JSON.parse(btn.dataset.b);
+    f.action = "{{ url_for('fermes.modifier_batiment', numero=ferme.numero, batiment_id=0) }}".replace('/0/', '/' + b.id + '/');
+    document.getElementById('fen-batiment-titre').textContent = 'Bâtiment ' + b.code;
+    document.getElementById('b-capacite').value = b.capacite;
+    document.getElementById('b-nom').value = b.nom;
+    document.getElementById('bloc-b-actif').hidden = false;
+    document.getElementById('b-actif').checked = b.actif;
+  } else {
+    f.action = "{{ url_for('fermes.ajouter_batiment', numero=ferme.numero) }}";
+    document.getElementById('fen-batiment-titre').textContent = 'Nouveau bâtiment';
+    document.getElementById('bloc-b-actif').hidden = true;
+  }
+  ouvrir('fen-batiment');
+  document.getElementById('b-capacite').focus();
+}
+</script>
+{% endif %}
+{% endblock %}

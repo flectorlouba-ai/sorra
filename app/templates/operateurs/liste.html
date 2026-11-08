@@ -1,0 +1,53 @@
+{% extends '_base.html' %}
+{% block titre %}Opérateurs{% endblock %}
+{% block icone %}truck{% endblock %}
+{% block page_sous_titre %}{{ total }} opérateur{{ 's' if total != 1 }} actif{{ 's' if total != 1 }} · abattoirs, acheteurs, distributeurs{% endblock %}
+
+{% block actions %}
+{% if a_profil('ADMIN', 'DGE') %}
+<a href="{{ url_for('operateurs.nouveau') }}" class="btn-new"><i class="bi bi-plus-lg"></i> Nouvel opérateur</a>
+{% endif %}
+{% endblock %}
+
+{% block contenu %}
+<form class="filters-bar" method="get">
+  <select name="type" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Tous les types</option>
+    {% for t in types %}<option value="{{ t }}" {% if filtre.type == t %}selected{% endif %}>{{ t }}</option>{% endfor %}
+  </select>
+  {% if provinces|length > 1 %}
+  <select name="province" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Toutes les provinces</option>
+    {% for p in provinces %}<option value="{{ p.id }}" {% if filtre.province == p.id|string %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+  </select>
+  {% endif %}
+  <select name="etat" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Actifs</option>
+    <option value="inactifs" {% if filtre.etat == 'inactifs' %}selected{% endif %}>Inactifs</option>
+    <option value="tous" {% if filtre.etat == 'tous' %}selected{% endif %}>Tous</option>
+  </select>
+  <input type="search" name="q" class="filter-search" placeholder="Rechercher un opérateur…" value="{{ filtre.q }}">
+  <button type="submit" class="btn-filter"><i class="bi bi-search"></i></button>
+</form>
+
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>N°</th><th>Nom</th><th>Type</th><th>Province</th><th>Téléphone</th><th>Convention</th><th>État</th></tr></thead>
+    <tbody>
+    {% for o in operateurs %}
+      <tr class="tr-click" onclick="location.href='{{ url_for('operateurs.fiche', numero=o.numero) }}'">
+        <td class="td-num"><a href="{{ url_for('operateurs.fiche', numero=o.numero) }}">{{ o.numero }}</a></td>
+        <td><strong>{{ o.nom }}</strong>{% if o.contact %}<br><span class="td-sous">{{ o.contact }}</span>{% endif %}</td>
+        <td>{{ o.type }}</td>
+        <td>{{ o.province.nom }}</td>
+        <td>{{ o.telephone or '—' }}</td>
+        <td>{% if o.convention %}<span class="badge badge-ok">Signée</span>{% else %}<span class="badge badge-neutre">Non</span>{% endif %}</td>
+        <td>{% if o.actif %}<span class="badge badge-ok">Actif</span>{% else %}<span class="badge badge-off">Inactif</span>{% endif %}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="7" class="table-vide"><i class="bi bi-truck"></i>Aucun opérateur ne correspond.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

@@ -5,7 +5,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import current_user
 
 from app import db
-from app.models import Utilisateur, Profil, Province, PROFILS_NATIONAUX
+from app.models import Utilisateur, Profil, Province, PROFILS_NATIONAUX, Ferme, UtilisateurFerme
 from app.services import parametres
 from app.utils.permissions import profil_requis
 
@@ -41,7 +41,20 @@ def _lire_formulaire(user=None):
     donnees['provinces'] = Province.query.filter(Province.id.in_(ids)).all() if ids else []
     if not donnees['nom']:
         return None, 'Le nom est obligatoire.'
-    if donnees['profil'] in PROFILS_NATIONAUX:
+    donnees['fermes'] = []
+    if donnees['profil'] == Profil.ELEVEUR:
+        # L'éleveur est rattaché à ses fermes, pas à des provinces
+        ids = []
+        for i in f.getlist('fermes'):
+            try:
+                ids.append(uuid.UUID(i))
+            except ValueError:
+                pass
+        donnees['fermes'] = Ferme.query.filter(Ferme.id.in_(ids)).all() if ids else []
+        donnees['provinces'] = []
+        if not donnees['fermes']:
+            return None, 'Cochez au moins une ferme pour cet éleveur.'
+    elif donnees['profil'] in PROFILS_NATIONAUX:
         donnees['provinces'] = []   # voit tout : un rattachement n'aurait pas de sens
     elif not donnees['provinces']:
         return None, 'Cochez au moins une province pour ce profil.'
@@ -55,6 +68,17 @@ def _lire_formulaire(user=None):
     if user is not None:
         donnees['actif'] = f.get('actif') == 'on'
     return donnees, None
+
+
+def _rattacher_fermes(user, fermes):
+    voulues = {fe.id: fe for fe in fermes}
+    for lien in list(user.fermes):
+        if lien.ferme_id not in voulues:
+            user.fermes.remove(lien)
+    actuelles = {lien.ferme_id for lien in user.fermes}
+    for fid, fe in voulues.items():
+        if fid not in actuelles:
+            user.fermes.append(UtilisateurFerme(ferme=fe))
 
 
 def _admins_actifs_hors(user):
@@ -79,8 +103,11 @@ def index():
     elif statut == 'inactifs':
         q = q.filter(Utilisateur.actif.is_(False))
     utilisateurs = q.order_by(Utilisateur.nom, Utilisateur.prenom).all()
+    fermes = [{'id': str(fe.id), 'numero': fe.numero_metier, 'nom': fe.nom,
+               'province_id': fe.province_id}
+              for fe in Ferme.query.order_by(Ferme.numero_metier)]
     return render_template('administration/utilisateurs.html',
-                           utilisateurs=utilisateurs, profils=list(Profil),
+                           utilisateurs=utilisateurs, profils=list(Profil), fermes=fermes,
                            provinces=Province.query.order_by(Province.ordre).all(),
                            nationaux=[p.value for p in PROFILS_NATIONAUX],
                            filtre={'profil': profil, 'province': province, 'statut': statut},
@@ -101,7 +128,9 @@ def creer():
         flash(erreur, 'danger')
         return redirect(url_for('utilisateurs.index'))
     mdp = donnees.pop('mot_de_passe')
+    fermes = donnees.pop('fermes')
     user = Utilisateur(identifiant=identifiant, actif=True, doit_changer_mdp=True, **donnees)
+    user.fermes = [UtilisateurFerme(ferme=fe) for fe in fermes]
     user.set_password(mdp)
     db.session.add(user)
     db.session.commit()
@@ -125,6 +154,7 @@ def modifier(user_id):
         flash(erreur, 'danger')
         return redirect(url_for('utilisateurs.index'))
     mdp = donnees.pop('mot_de_passe')
+    _rattacher_fermes(user, donnees.pop('fermes'))
     for cle, valeur in donnees.items():
         setattr(user, cle, valeur)
     if mdp:

@@ -2,8 +2,8 @@
 déclarées ici, l'administrateur gère seulement les valeurs (ajouter, modifier,
 activer / désactiver, ordonner par glisser-déposer). Une valeur ne se
 supprime pas : des fiches pourront la référencer.
-Aucune catégorie au lot 0 : chaque lot métier ajoutera les siennes,
-ex. 'infrastructures': 'Infrastructures'."""
+Chaque lot ajoute ses catégories ici ; leurs valeurs de départ sont posées
+par la migration du lot."""
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, jsonify
 
 from app import db
@@ -12,7 +12,11 @@ from app.utils.permissions import profil_requis
 
 listes_bp = Blueprint('listes', __name__)
 
-CATEGORIES = {}
+CATEGORIES = {
+    'statuts_ferme':         'Statuts de ferme',
+    'types_infrastructures': "Types d'infrastructures",
+    'types_operateurs':      "Types d'opérateurs",
+}
 
 
 @listes_bp.route('/')

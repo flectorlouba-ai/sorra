@@ -41,6 +41,9 @@ class Localite(db.Model):
     province_id = db.Column(db.Integer, db.ForeignKey('province.id'), nullable=False, index=True)
     nom         = db.Column(db.String(120), nullable=False)
     actif       = db.Column(db.Boolean, nullable=False, default=True)
+    # Saisie sur le terrain par un agent : l'administrateur la valide ou la fusionne
+    a_verifier  = db.Column(db.Boolean, nullable=False, default=False,
+                            server_default=db.false())
 
     province = db.relationship('Province', back_populates='localites')
 

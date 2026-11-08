@@ -7,7 +7,7 @@ from datetime import date, datetime, timedelta
 from flask import Blueprint, render_template, request, Response, abort, current_app
 
 from app import db
-from app.models import JournalAudit, Utilisateur, Profil, Province, TypeParametre
+from app.models import JournalAudit, Utilisateur, Profil, Province, TypeParametre, Localite, Ferme
 from app.routes.listes import CATEGORIES
 from app.services.journal import enregistrer, Action, MASQUE
 from app.utils.dates import date_locale, debut_jour_utc
@@ -22,6 +22,9 @@ TABLES = {
     'localite': 'Localité',
     'liste_deroulante': 'Valeur de liste',
     'parametre': 'Paramètre',
+    'ferme': 'Ferme',
+    'batiment': 'Bâtiment',
+    'operateur': 'Opérateur',
 }
 
 CHAMPS = {
@@ -33,15 +36,30 @@ CHAMPS = {
     'description': 'Description', 'modifie_par': 'Modifié par', 'cree_le': 'Créé le',
     'modifie_le': 'Modifié le', 'derniere_connexion': 'Dernière connexion',
     'echecs_connexion': 'Échecs de connexion', 'bloque_jusqu_a': 'Bloqué jusqu\'à',
+    'numero_metier': 'Numéro', 'numero': 'Numéro', 'exploitant_nom': 'Exploitant',
+    'exploitant_telephone': 'Téléphone de l\'exploitant', 'localite_id': 'Localité',
+    'reference_ami': 'Référence AMI', 'cohorte': 'Cohorte', 'statut': 'Statut',
+    'agent_id': 'Agent technique', 'observations': 'Observations',
+    'infrastructures': 'Infrastructures', 'latitude': 'Latitude', 'longitude': 'Longitude',
+    'gps_precision_m': 'Précision (m)', 'gps_date': 'Date de la position',
+    'gps_source': 'Source de la position', 'ferme_id': 'Ferme', 'capacite': 'Capacité',
+    'contact': 'Contact', 'convention': 'Convention signée',
+    'convention_date': 'Date de convention', 'a_verifier': 'À vérifier', 'fermes': 'Fermes',
 }
 
 # Champs internes sans intérêt pour le lecteur
-_CACHES = {'id', 'cree_le', 'modifie_le', 'modifie_par', 'derniere_connexion'}
+_CACHES = {'id', 'cree_le', 'modifie_le', 'modifie_par', 'derniere_connexion', 'cree_par',
+           'telephone_normalise', 'numero_provisoire', 'appareil_id', 'statut_synchro', 'rang'}
 
 
 def libelle_element(ligne):
     """Nom lisible de l'élément concerné (identifiant, nom, valeur…)."""
     donnees = ligne.apres or ligne.avant or {}
+    numero = donnees.get('numero_metier') or donnees.get('numero')
+    if numero and donnees.get('nom'):
+        return f'{numero} · {donnees["nom"]}'
+    if donnees.get('code') and donnees.get('capacite') is not None:   # bâtiment
+        return f'{donnees["code"]}' + (f' · {donnees["nom"]}' if donnees.get('nom') else '')
     for champ in ('identifiant', 'nom', 'valeur', 'description', 'cle'):
         if donnees.get(champ):
             return str(donnees[champ])
@@ -99,6 +117,17 @@ def _lisible(champ, valeur):
             return Profil(valeur).libelle
         except ValueError:
             return valeur
+    if champ == 'localite_id':
+        loc = db.session.get(Localite, valeur)
+        return loc.nom if loc else valeur
+    if champ == 'ferme_id':
+        try:
+            fe = db.session.get(Ferme, uuid.UUID(valeur))
+        except ValueError:
+            fe = None
+        return fe.numero_metier if fe else valeur
+    if champ == 'gps_source':
+        return {'GPS': 'GPS du téléphone', 'MANUELLE': 'Saisie à la main'}.get(valeur, valeur)
     if champ == 'province_id':
         p = db.session.get(Province, valeur)
         return p.nom if p else valeur
@@ -106,7 +135,7 @@ def _lisible(champ, valeur):
         noms = dict(db.session.query(Province.code, Province.nom)
                     .filter(Province.code.in_(valeur)).all())
         return [noms.get(c, c) for c in valeur]
-    if champ in ('modifie_par', 'cree_par', 'utilisateur_id'):
+    if champ in ('modifie_par', 'cree_par', 'utilisateur_id', 'agent_id'):
         try:
             u = db.session.get(Utilisateur, uuid.UUID(valeur))
         except ValueError:
@@ -119,7 +148,7 @@ def _lisible(champ, valeur):
             return valeur
     if champ == 'categorie':
         return CATEGORIES.get(valeur, valeur)
-    if champ in ('cree_le', 'modifie_le', 'derniere_connexion', 'bloque_jusqu_a'):
+    if champ in ('cree_le', 'modifie_le', 'derniere_connexion', 'bloque_jusqu_a', 'gps_date'):
         return _date_lisible(valeur)
     if valeur is True:
         return 'Oui'

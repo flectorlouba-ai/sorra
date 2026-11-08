@@ -402,3 +402,89 @@ select.form-control{cursor:pointer;}
   background:var(--b050);}
 .erreur-box{background:var(--rouge-pale);border-left:3px solid var(--rouge-vif);font-size:.82rem;color:var(--rouge-vif);
   padding:.5rem .75rem;margin-bottom:1rem;border-radius:6px;}
+
+/* ══ Lot 1 — accueil par modules, fermes, formulaires de terrain ═══════ */
+/* Onglets « Option » et tuiles pas encore livrées */
+.tab-option{font-size:.52rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  border:1px solid var(--b200);color:var(--b-attenue);border-radius:8px;padding:.05rem .35rem;}
+button.module-card{border:none;font-family:inherit;width:100%;cursor:pointer;}
+.module-card.tuile-bientot{opacity:.55;}
+.module-card.tuile-bientot:hover{opacity:.7;transform:none;}
+.tuile-etiquette{position:absolute;top:.5rem;right:.55rem;font-size:.52rem;font-weight:800;letter-spacing:.06em;
+  text-transform:uppercase;background:rgba(255,255,255,.22);color:var(--blanc);border-radius:8px;padding:.1rem .45rem;}
+.mc-amber .tuile-etiquette{background:rgba(26,17,0,.15);color:var(--ambre-encre);}
+.tuile-phrase{margin-top:1rem;padding:.65rem .9rem;border-radius:10px;background:var(--blanc);
+  border:1.5px dashed var(--b200);font-size:.78rem;font-weight:600;color:var(--noir);}
+.alertes-vide i{color:var(--vert);}
+
+/* Accueil de l'éleveur : « Ma ferme » */
+.ma-ferme-zone{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:1rem;}
+.ma-ferme{background:var(--blanc);border-radius:14px;border:1.5px solid var(--b100);padding:1.1rem 1.1rem 1.2rem;
+  box-shadow:0 3px 14px rgba(12,36,97,.08);}
+.ma-ferme-tete{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem;}
+.ma-ferme-titre{font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--b-attenue);}
+.ma-ferme-nom{font-size:1.25rem;font-weight:800;color:var(--noir);line-height:1.2;}
+.ma-ferme-num{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;color:var(--noir3);}
+.ma-ferme-chiffres{display:flex;gap:1.4rem;margin:1rem 0;font-size:.85rem;font-weight:600;color:var(--gris5);}
+.ma-ferme-chiffres .num{display:block;font-size:1.6rem;font-weight:800;color:var(--noir);line-height:1.1;}
+.ma-ferme-agent{display:flex;gap:.6rem;align-items:flex-start;font-size:.85rem;color:var(--noir);
+  background:var(--b050);border-radius:10px;padding:.65rem .8rem;margin-bottom:.9rem;}
+.ma-ferme-agent i{font-size:1.3rem;color:var(--noir3);}
+
+/* Gros bouton pleine largeur (téléphone, une main) */
+.btn-gros{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;min-height:52px;
+  background:var(--noir3);color:var(--blanc);border:none;border-radius:12px;font-family:inherit;
+  font-size:1rem;font-weight:800;letter-spacing:.02em;text-decoration:none;cursor:pointer;transition:background .15s;}
+.btn-gros:hover{background:var(--noir3-survol);color:var(--blanc);}
+
+/* Formulaires de terrain : champs empilés pleine largeur */
+.form-terrain{max-width:560px;display:flex;flex-direction:column;gap:.85rem;}
+.form-terrain .form-control{font-size:.95rem;padding:.65rem .8rem;min-height:46px;}
+.form-terrain .form-label{font-size:.66rem;}
+.champ-fixe{padding:.65rem .8rem;border:1.5px dashed var(--bord-champ);border-radius:7px;font-weight:700;color:var(--noir);background:var(--off);}
+.note-numero{text-align:center;font-size:.72rem;color:var(--gris8);font-style:italic;margin-top:-.3rem;}
+.bloc-gps{border:1.5px solid var(--b200);border-radius:12px;padding:.85rem;background:var(--b050);display:flex;flex-direction:column;gap:.55rem;}
+.btn-gps{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;min-height:52px;background:var(--blanc);
+  color:var(--noir3);border:2px solid var(--noir3);border-radius:12px;font-family:inherit;font-size:.95rem;font-weight:800;cursor:pointer;}
+.btn-gps:disabled{opacity:.6;}
+.gps-ok{background:var(--ok-fond);border:1px solid var(--ok-bord);color:var(--ok-encre);border-radius:9px;padding:.55rem .7rem;font-size:.82rem;font-weight:700;}
+.gps-message{background:var(--att-fond);border:1px solid var(--att-bord);color:var(--att-encre);border-radius:9px;padding:.55rem .7rem;font-size:.8rem;font-weight:600;}
+.lien-discret-inline{font-size:.75rem;color:var(--noir3);font-weight:700;align-self:flex-start;}
+.question-localite{background:var(--att-fond);border:1.5px solid var(--att-bord);border-radius:12px;padding:.8rem .9rem;}
+.question-titre{font-size:.9rem;font-weight:800;color:var(--att-encre);margin-bottom:.6rem;}
+.question-choix{display:flex;flex-direction:column;gap:.5rem;}
+.question-choix .btn-ghost{justify-content:center;min-height:46px;background:var(--blanc);}
+
+/* Fiche ferme */
+.fiche-lignes{display:grid;grid-template-columns:max-content 1fr;gap:.45rem .9rem;margin:0;font-size:.8rem;}
+.fiche-lignes dt{font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gris8);padding-top:.15rem;}
+.fiche-lignes dd{margin:0;color:var(--noir);font-weight:600;}
+.fiche-lignes a{color:var(--noir3);}
+.position-zone{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;}
+.carte-province{width:220px;max-width:100%;height:auto;flex-shrink:0;}
+.carte-province path{fill:var(--b050);stroke:var(--noir3);stroke-width:1.2;stroke-linejoin:round;}
+.carte-epingle path{fill:var(--noir3);stroke:var(--blanc);stroke-width:1.2;}
+.carte-epingle circle{fill:var(--blanc);}
+.carte-epingle.hors path{fill:var(--ambre);}
+.position-texte{flex:1;min-width:180px;display:flex;flex-direction:column;gap:.35rem;font-size:.8rem;}
+.position-ok{color:var(--vert);font-weight:700;}
+.position-alerte{background:var(--att-fond);border:1px solid var(--att-bord);color:var(--att-encre);border-radius:8px;padding:.5rem .65rem;font-weight:600;}
+.td-sous{font-size:.66rem;color:var(--gris8);font-weight:600;}
+.ligne-inactive td{opacity:.55;}
+tfoot .ligne-total td{font-weight:800;color:var(--noir);border-top:2px solid var(--noir);padding:.55rem .75rem;}
+.historique{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.45rem;font-size:.8rem;}
+.historique-date{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--noir);margin-right:.4rem;}
+.lien-discret{margin-top:.8rem;text-align:right;font-size:.72rem;}
+.lien-discret a{color:var(--gris8);text-decoration:none;font-weight:600;}
+.lien-discret a:hover{color:var(--noir3);text-decoration:underline;}
+.texte-aide{font-size:.8rem;color:var(--gris5);}
+.import-erreur{font-size:.72rem;color:var(--danger-encre);font-weight:600;margin-top:.2rem;}
+.import-avert{font-size:.72rem;color:var(--gris5);margin-top:.2rem;}
+.import-avert.fort{color:var(--att-encre);font-weight:700;}
+.page-title .badge{vertical-align:middle;margin-left:.3rem;}
+
+@media(max-width:600px){
+  .fiche-lignes{grid-template-columns:1fr;gap:.1rem;}
+  .fiche-lignes dd{margin-bottom:.45rem;}
+  .carte-province{width:100%;}
+}

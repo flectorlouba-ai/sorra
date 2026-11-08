@@ -37,3 +37,10 @@
   <button type="submit" class="btn-enregistrer">Enregistrer</button>
 </div>
 {%- endmacro %}
+
+{# Pastille de statut d'une ferme : Opérationnelle vert, En préparation ambre,
+   Suspendue bleu, tout autre statut (ajouté dans les listes) gris. #}
+{% macro badge_statut(statut) -%}
+{%- set tons = {'Opérationnelle': 'badge-ok', 'En préparation': 'badge-warn', 'Suspendue': 'badge-info'} -%}
+<span class="badge {{ tons.get(statut, 'badge-neutre') }}">{{ statut }}</span>
+{%- endmacro %}

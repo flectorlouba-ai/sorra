@@ -1,0 +1,27 @@
+{% extends '_base.html' %}
+{% block titre %}{{ op.numero }} — {{ op.nom }}{% endblock %}
+{% block sous_titre %}Opérateurs{% endblock %}
+{% block icone %}truck{% endblock %}
+{% block page_titre %}{{ op.nom }} {% if op.actif %}<span class="badge badge-ok">Actif</span>{% else %}<span class="badge badge-off">Inactif</span>{% endif %}{% endblock %}
+{% block page_sous_titre %}<span class="mono">{{ op.numero }}</span> · {{ op.type }}{% endblock %}
+
+{% block actions %}
+{% if a_profil('ADMIN', 'DGE') %}
+<a href="{{ url_for('operateurs.modifier', numero=op.numero) }}" class="btn-new"><i class="bi bi-pencil"></i> Modifier</a>
+{% endif %}
+{% endblock %}
+
+{% block contenu %}
+<div class="card-p" style="max-width:640px;">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-person-lines-fill"></i> Coordonnées</span></div>
+  <div class="card-p-body">
+    <dl class="fiche-lignes">
+      <dt>Province</dt><dd>{{ op.province.nom }}</dd>
+      <dt>Localité</dt><dd>{{ op.localite.nom if op.localite else '—' }}</dd>
+      <dt>Contact</dt><dd>{{ op.contact or '—' }}</dd>
+      <dt>Téléphone</dt><dd>{% if op.telephone %}<a href="tel:{{ op.telephone|replace(' ', '') }}">{{ op.telephone }}</a>{% else %}—{% endif %}</dd>
+      <dt>Convention</dt><dd>{% if op.convention %}Signée{% if op.convention_date %} le {{ op.convention_date.strftime('%d/%m/%Y') }}{% endif %}{% else %}Non signée{% endif %}</dd>
+    </dl>
+  </div>
+</div>
+{% endblock %}

@@ -69,6 +69,19 @@ migrations/           migrations de la base (Flask-Migrate)
 tests/                tests automatiques
 ```
 
+## Données géographiques (contours des provinces)
+
+`app/data/provinces_gabon.json` sert au contrôle « position hors province » et au petit
+dessin de la province sur la fiche d'une ferme. Aucun service extérieur n'est appelé.
+
+- **Source** : geoBoundaries, jeu « gbHumanitarian » GAB ADM1, issu de *Second
+  Administrative Level Boundaries* (SALB) des Nations unies, diffusé sur HDX
+  (<https://www.geoboundaries.org>).
+- **Licence** : Creative Commons Attribution 3.0 IGO (CC BY 3.0 IGO) — réutilisation libre
+  à condition de citer la source.
+- Contours simplifiés à environ 500 m par `outils/construire_contours.py`.
+- Tolérance du contrôle : 5 km (`app/services/geo.py`).
+
 ## Règles pour les lots suivants
 
 **Avant tout lot : relire et appliquer [`docs/ergonomie.md`](docs/ergonomie.md).**
