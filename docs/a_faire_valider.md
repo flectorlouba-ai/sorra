@@ -51,7 +51,6 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | Type d'opérateur « Marché » (le type « Abattoir » seul applique tous les contrôles) | Listes → `types_operateurs` | ajouté au lot 19 | 19 |
 | **Raisons d'un choix entre deux versions** (« À vérifier » de l'agent ; « Autre » demande un texte) | Listes → `motifs_verification` | Recompté ensemble · Erreur de saisie · Autre | 19 ter |
 | **Téléphone de contact de la DGE** affiché aux agents (Moi) ; vide : premier compte DGE actif avec un téléphone ; aucun : rien | Paramètres → `contact.telephone_dge` | vide | 19 ter |
-| **Contraste des boutons pleins** vert (3,2) et bleu (4,1), texte blanc gras de 17 px : communs à l'éleveur, à l'agent et à l'opérateur ; les foncer changerait l'écran de l'éleveur | `terrain.css` (`--e-prairie`, `--e-bleu`) | inchangés | 13, 19 ter |
 | Seuil « à vérifier » de la dernière synchronisation du téléphone | code | 3 jours | 10 |
 
 ## Textes à faire relire (éleveurs, agents, DGE)

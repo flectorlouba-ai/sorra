@@ -51,6 +51,11 @@
   --e-voile:rgba(27,42,94,.45);
   --e-sombre:#1f2937;
   --e-prairie-sombre:#1f7a4f;  /* fin du dégradé vert de l'en-tête de l'opérateur (lot 19 ter) */
+  /* Boutons pleins, texte blanc : mêmes teintes un peu plus foncées, contraste ≥ 4,5 (décision du 09/11/2026) */
+  --e-prairie-bouton:#268356;  /* 4,7 */
+  --e-bleu-bouton:#1e73d8;     /* 4,7 */
+  --e-rouge-bouton:#e1292f;    /* 4,6 */
+  --e-rouge-texte:#d21e24;     /* texte rouge sur blanc, crème ou rose : 4,6 au moins */
   /* En-tête : bleu pour l'éleveur et l'agent, vert pour l'opérateur (.terrain-operateur) */
   --t-entete-debut:var(--e-bleu);
   --t-entete-fin:var(--e-bleu-fonce);
@@ -112,18 +117,18 @@
 
 /* ── Boutons : plats, arrondis ; vert = Envoyer, bleu = actions, rouge = vétérinaire ── */
 .theme-terrain .btn-gros,.theme-terrain .btn-login{border:0;border-radius:16px;min-height:54px;font-family:inherit;font-weight:900;
-  font-size:1.08rem;letter-spacing:0;text-transform:none;background:var(--e-bleu);color:var(--e-blanc);
+  font-size:1.08rem;letter-spacing:0;text-transform:none;background:var(--e-bleu-bouton);color:var(--e-blanc);
   box-shadow:0 6px 14px var(--e-ombre-bleue);transition:transform .08s ease;}
-.theme-terrain .btn-gros:hover{background:var(--e-bleu);color:var(--e-blanc);}
-.theme-terrain .btn-gros.btn-vert,.theme-terrain .btn-envoyer,.theme-terrain .btn-login{background:var(--e-prairie);
+.theme-terrain .btn-gros:hover{background:var(--e-bleu-bouton);color:var(--e-blanc);}
+.theme-terrain .btn-gros.btn-vert,.theme-terrain .btn-envoyer,.theme-terrain .btn-login{background:var(--e-prairie-bouton);
   box-shadow:0 6px 14px var(--e-ombre-verte);}
-.theme-terrain .btn-gros.btn-vert:hover,.theme-terrain .btn-envoyer:hover,.theme-terrain .btn-login:hover{background:var(--e-prairie);}
+.theme-terrain .btn-gros.btn-vert:hover,.theme-terrain .btn-envoyer:hover,.theme-terrain .btn-login:hover{background:var(--e-prairie-bouton);}
 .theme-terrain .btn-gros-rouge{border:0;border-radius:16px;min-height:54px;font-weight:900;font-size:1.08rem;
-  background:var(--e-rouge);color:var(--e-blanc);box-shadow:0 6px 14px var(--e-ombre-rouge);}
+  background:var(--e-rouge-bouton);color:var(--e-blanc);box-shadow:0 6px 14px var(--e-ombre-rouge);}
 .theme-terrain .btn-gros-secondaire{border:1px solid var(--e-bleu-bord);border-radius:16px;min-height:52px;background:var(--e-blanc);
   color:var(--e-bleu-fonce);font-weight:800;font-size:1rem;box-shadow:none;text-transform:none;letter-spacing:0;}
 .theme-terrain .btn-gros-secondaire:hover{background:var(--e-bleu-pale);color:var(--e-bleu-fonce);}
-.theme-terrain .btn-gros-secondaire.lien-rouge{color:var(--e-rouge);border-color:var(--e-rose-bord);margin-bottom:12px;}
+.theme-terrain .btn-gros-secondaire.lien-rouge{color:var(--e-rouge-texte);border-color:var(--e-rose-bord);margin-bottom:12px;}
 .theme-terrain .btn-gros:active,.theme-terrain .btn-gros-rouge:active,.theme-terrain .btn-gros-secondaire:active,
 .theme-terrain .btn-login:active{transform:translateY(2px) scale(.99);}
 .theme-terrain .boutons-secondaires{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
@@ -333,7 +338,7 @@
 /* ── Lot 9 : accueil en tuiles ────────────────────────────────────────── */
 .retour-accueil{display:inline-block;font-weight:800;color:var(--e-bleu-fonce);text-decoration:none;margin:0 0 6px;padding:4px 0;}
 .accueil-eleveur{max-width:560px;margin:0 auto;}
-.bandeau-rouge{display:block;background:var(--e-rouge);color:var(--e-blanc);border-radius:16px;padding:12px 14px;font-weight:900;
+.bandeau-rouge{display:block;background:var(--e-rouge-bouton);color:var(--e-blanc);border-radius:16px;padding:12px 14px;font-weight:900;
   text-decoration:none;margin-bottom:10px;box-shadow:0 6px 14px var(--e-ombre-rouge);}
 .bandeau-rouge:hover{color:var(--e-blanc);}
 .ligne-etat{display:flex;align-items:center;gap:10px;background:var(--e-blanc);border:1px solid var(--e-trait);border-radius:16px;
@@ -396,13 +401,13 @@
 .theme-terrain .tache-retard{display:inline-block;background:var(--e-orange-pale);color:var(--e-orange-fonce);border-radius:999px;
   padding:1px 8px;font-weight:900;font-size:.75rem;}
 .theme-terrain .tache-bouton{border:0;border-radius:14px;padding:10px 14px;font:inherit;font-weight:900;color:var(--e-blanc);
-  background:var(--e-prairie);box-shadow:0 4px 10px var(--e-ombre-verte);white-space:nowrap;min-height:44px;}
+  background:var(--e-prairie-bouton);box-shadow:0 4px 10px var(--e-ombre-verte);white-space:nowrap;min-height:44px;}
 .theme-terrain .tache-bouton:active{transform:scale(.96);}
 .theme-terrain .tache-entretien.faite{opacity:.6;box-shadow:none;}
 .theme-terrain .tache-fait{font-weight:900;color:var(--e-prairie-fonce);white-space:nowrap;}
-.theme-terrain .btn-panne{display:block;text-align:center;background:var(--e-rose);color:var(--e-rouge);border:1px solid var(--e-rose-bord);
+.theme-terrain .btn-panne{display:block;text-align:center;background:var(--e-rose);color:var(--e-rouge-texte);border:1px solid var(--e-rose-bord);
   border-radius:16px;padding:14px;font-weight:900;text-decoration:none;margin-top:6px;}
-.theme-terrain .btn-panne:hover{color:var(--e-rouge);}
+.theme-terrain .btn-panne:hover{color:var(--e-rouge-texte);}
 .theme-terrain .pictos .case-choix span i.picto-panne{font-style:normal;font-size:2.2rem;line-height:1.2;}
 .theme-terrain .types-panne{grid-template-columns:repeat(3,1fr);}
 .theme-terrain .case-large{grid-column:1 / -1;}
@@ -449,7 +454,7 @@
 .theme-terrain .chiffre-argent .num{font-weight:900;font-size:1.05rem;}
 .theme-terrain .chiffre-argent.gagne .num{color:var(--e-prairie-fonce);}
 .theme-terrain .chiffre-argent.depense .num{color:var(--e-orange-fonce);}
-.theme-terrain .negatif,.theme-terrain .chiffre-argent.negatif .num{color:var(--e-rouge);}
+.theme-terrain .negatif,.theme-terrain .chiffre-argent.negatif .num{color:var(--e-rouge-texte);}
 .theme-terrain .mon-argent .btn-gros{margin-top:10px;}
 .theme-terrain .aide-etat{background:var(--e-jaune-pale);border:1px solid var(--e-jaune-bord);border-radius:14px;padding:10px 12px;
   font-weight:800;font-size:.9rem;margin-top:10px;}
@@ -472,7 +477,7 @@
 .theme-terrain .lien-moi{display:block;width:100%;text-align:left;background:var(--e-blanc);border:1px solid var(--e-trait);border-radius:16px;
   padding:14px;font:inherit;font-weight:900;color:var(--e-nuit);text-decoration:none;}
 .theme-terrain .lien-moi small{color:var(--e-gris);font-weight:700;margin-left:4px;}
-.theme-terrain .lien-quitter{color:var(--e-rouge);}
+.theme-terrain .lien-quitter{color:var(--e-rouge-texte);}
 
 /* ── Lot 12 : case vide ≠ zéro, réponses, visites ─────────────────────── */
 .theme-terrain .compteur-valeur::placeholder{color:var(--e-gris);opacity:1;}
@@ -526,9 +531,9 @@
 .theme-terrain .lien-discret{border:0;background:none;color:var(--e-gris);font:inherit;font-weight:800;min-height:44px;padding:8px 16px;}
 .theme-terrain .mini-bouton{display:inline-block;border-radius:12px;padding:8px 12px;font-weight:900;font-size:.9rem;
   border:1px solid var(--e-trait);background:var(--e-blanc);color:var(--e-nuit);text-decoration:none;}
-.theme-terrain .mini-bouton.vert{background:var(--e-prairie);border-color:var(--e-prairie);color:var(--e-blanc);}
-.theme-terrain .mini-bouton.bleu{background:var(--e-bleu);border-color:var(--e-bleu-fonce);color:var(--e-blanc);}
-.theme-terrain .mini-bouton.rouge{background:var(--e-rouge);border-color:var(--e-rouge);color:var(--e-blanc);}
+.theme-terrain .mini-bouton.vert{background:var(--e-prairie-bouton);border-color:var(--e-prairie-bouton);color:var(--e-blanc);}
+.theme-terrain .mini-bouton.bleu{background:var(--e-bleu-bouton);border-color:var(--e-bleu-fonce);color:var(--e-blanc);}
+.theme-terrain .mini-bouton.rouge{background:var(--e-rouge-bouton);border-color:var(--e-rouge-bouton);color:var(--e-blanc);}
 .theme-terrain .mini-bouton.rose{background:var(--e-rose);border-color:var(--e-rose-bord);}
 .theme-terrain .mini-bouton.jaune{background:var(--e-jaune-pale);border-color:var(--e-jaune-bord);}
 .theme-terrain .mini-bouton.sombre{background:var(--e-sombre);border-color:var(--e-sombre);color:var(--e-blanc);}
@@ -577,7 +582,7 @@
 
 /* Lot 17 — blocage des ventes par le vétérinaire */
 .bandeau-blocage{display:flex;flex-direction:column;gap:8px;}
-.bouton-appel-veto{display:block;background:var(--e-blanc);color:var(--e-rouge);border-radius:12px;padding:10px 12px;
+.bouton-appel-veto{display:block;background:var(--e-blanc);color:var(--e-rouge-bouton);border-radius:12px;padding:10px 12px;
   text-align:center;font-weight:900;min-height:44px;text-decoration:none;}
 
 /* Lot 19 : sorties de la bande et leur réception par l'abattoir (Ventes et sorties) */
@@ -671,7 +676,7 @@ a.desactive{opacity:.45;pointer-events:none;}
 .theme-terrain .op-ecart.ecart .op-ecart-texte{color:var(--e-orange-fonce);}
 .theme-terrain .op-comparaison td{color:var(--e-nuit);font-size:1.4rem;}
 .theme-terrain .op-comparaison th{color:var(--e-gris);}
-.theme-terrain .op-refus{background:var(--e-rouge);border-radius:18px;}
+.theme-terrain .op-refus{background:var(--e-rouge-bouton);border-radius:18px;}
 .theme-terrain .btn-gros-orange{background:var(--e-orange);color:var(--e-nuit);border:0;border-radius:16px;min-height:54px;font-weight:900;}
 .theme-terrain .btn-gros-blanc{background:var(--e-blanc);color:var(--e-nuit);border-radius:16px;font-weight:900;}
 .theme-terrain .op-etat.ok{color:var(--e-prairie-fonce);}
@@ -688,7 +693,7 @@ a.desactive{opacity:.45;pointer-events:none;}
 .btn-appel-eleveur:hover{color:var(--e-blanc);}
 .terrain-agent .bloc-jour{color:var(--e-gris);}
 .terrain-agent .case-choix small{font-size:.8rem;}
-.terrain-agent .sorties-titre{font-size:.8rem;}
+.terrain-agent .sorties-titre{font-size:.8rem;}   /* l'éleveur : 12 px (perform.css) */
 .theme-terrain .op-comparaison thead tr,.theme-terrain .op-comparaison th{background:transparent;border:0;}
 .version-terrain{display:flex;flex-direction:column;gap:2px;cursor:pointer;position:relative;}
 .version-choix{position:absolute;opacity:0;}

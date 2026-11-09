@@ -398,7 +398,13 @@ En-tête vert, avec le nom de l'établissement. Ligne d'état : lots à revoir, 
 Tailles et contrastes sont vérifiés au navigateur sur toutes les pages gardées sans réseau : 81 pour l'agent, 11 pour l'opérateur.
 - Plus aucune case ni pastille de moins de 44 px.
 - Plus aucun texte de moins de 12 px sur les écrans terrain.
-- Les boutons pleins verts (`--e-prairie`, 3,2) et bleus (`--e-bleu`, 4,1), avec un texte blanc gras de 17 px, sont ceux de l'éleveur depuis le lot 13. Ils sont gardés tels quels : les changer changerait l'écran de l'éleveur. **C'est un point à décider** (`docs/a_faire_valider.md`).
+- **Boutons pleins à la norme** (décision du 09/11/2026, pour les trois profils terrain, éleveur compris) : mêmes teintes, un peu plus foncées, réservées aux boutons à texte blanc.
+  - Vert `--e-prairie-bouton` `#268356` : 4,7.
+  - Bleu `--e-bleu-bouton` `#1e73d8` : 4,7.
+  - Rouge `--e-rouge-bouton` `#e1292f` : 4,6.
+  - Rouge des textes (sur blanc, crème ou rose) `--e-rouge-texte` `#d21e24` : 4,6 au moins.
+
+  Les teintes claires restent pour les feux, les pastilles et la mascotte. Le titre « Sorties de cette bande » passe à 12 px. Captures avant / après : `docs/captures/contrastes/`.
 
 ## Liste de contrôle d'un écran (à cocher dans chaque rapport de lot)
 

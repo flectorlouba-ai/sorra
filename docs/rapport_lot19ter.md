@@ -135,3 +135,17 @@ Suite complète (SQLite, 09/11/2026) : **433 réussis, 1 ignoré** (le test rés
 10. **Sans réseau, opérateur.** Mode avion, scanne un lot qui arrive, enregistre. L'accueil doit afficher « ◷ Réception enregistrée, en attente de vérification ». Remets le réseau.
 11. **Éleveur.** Connecte-toi en `eleveur` ou `marie.nze` : rien ne doit avoir changé.
 12. **Installation.** Ajoute l'application à l'écran d'accueil depuis le compte agent, puis depuis le compte opérateur.
+
+## 8. Suite donnée (09/11/2026) : contraste des boutons et titre de l'éleveur
+
+Décision : corriger aussi chez l'éleveur.
+- **Boutons pleins.** Mêmes teintes, un peu plus foncées, à texte blanc : vert 4,7, bleu 4,7, rouge 4,6. Le rouge des textes passe à 4,6 au moins, sur blanc, crème ou rose (« Quelque chose est en panne », montants négatifs, « Me déconnecter », « Appeler le vétérinaire »).
+- **Titre « Sorties de cette bande »** : 12 px.
+- **Captures de référence de l'éleveur** mises à jour (20 écrans). Seuls les boutons et ce titre changent. Exemples avant / après dans `docs/captures/contrastes/`.
+- **Défaut du lot 19 ter corrigé.** La liste des pages gardées sans réseau de l'éleveur contenait aussi les aides de l'agent et de l'opérateur, qui renvoyaient « Cette page n'existe pas ». Le test du lot 13 le vérifie maintenant.
+- **Relevé au passage, non corrigé (hors de la demande).** Ces points datent d'avant le lot 19 ter. Je peux les corriger si tu veux.
+  - Les pastilles des bâtiments de l'éleveur (B1 · J36…) font 41 px de haut au lieu de 44.
+  - Le numéro de ferme sous le nom, dans « J'ai acheté », « J'ai payé » et « Mes produits », fait 11,9 px.
+  - « Retour à l'accueil » dans les aides fait 11,5 px.
+  - « ✓ envoyé » est en vert clair (3,0).
+  - « Jour N · Bâtiment » sur l'écran « jour oublié » est en bleu-gris (3,2).
