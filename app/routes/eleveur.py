@@ -69,6 +69,9 @@ def accueil(user):
     vaccin = ('en retard' if 'retard' in etats_vaccins else
               "aujourd'hui" if etats_vaccins & {'aujourdhui', 'a_faire'} else
               'demain' if 'demain' in etats_vaccins else None)
+    # Ordre FIXE (décision du propriétaire) : il ne dépend jamais des pastilles ; une tuile sans
+    # objet disparaît, les autres gardent leur rang. « Saisie du jour » (en tête) et « Appeler
+    # mon agent » (en dernier) sont en pleine largeur, hors de cette grille.
     tuiles = [
         {'cle': 'livraisons', 'ico': '📦', 'nom': 'Livraisons', 'lien': url_for('livraisons.mes_livraisons'),
          'sous': 'à confirmer' if livraisons else 'tout est confirmé', 'pastille': livraisons or None},
@@ -78,15 +81,17 @@ def accueil(user):
          'sous': (f'{pesee_due[0]["code"]} : pesée prévue aujourd\'hui' if pesee_due else
                   f'prochaine : {pesees[0]["code"]} le {pesees[0]["pesee"].strftime("%d/%m")}' if pesees else ''),
          'pastille': '!' if pesee_due else None, 'visible': bool(sit)},
-        {'cle': 'sortie', 'ico': '🚚', 'nom': 'Sortie', 'lien': url_for('eleveur.aller', quoi='sortie'),
-         'sous': 'vente, abattoir', 'visible': bool(sit)},
         {'cle': 'vaccins', 'ico': '💉', 'nom': 'Vaccins', 'lien': url_for('eleveur.aller', quoi='vaccins'),
          'sous': 'et traitements', 'pastille': vaccin, 'pastille_classe': 'rouge' if vaccin == 'en retard' else 'bleue',
          'visible': bool(sit)},
         {'cle': 'malade', 'ico': '🩺', 'nom': 'Poulet malade', 'lien': url_for('eleveur.aller', quoi='malade'),
          'sous': 'prévenir le vétérinaire', 'classe': 'tuile-malade', 'visible': bool(fermes)},
+        {'cle': 'sortie', 'ico': '🚚', 'nom': 'Sortie', 'lien': url_for('eleveur.aller', quoi='sortie'),
+         'sous': 'vente, abattoir', 'visible': bool(sit)},
         {'cle': 'achat', 'ico': '🛒', 'nom': "J'ai acheté", 'lien': url_for('eleveur.achat'),
          'sous': 'aliment, poussins…', 'visible': bool(fermes)},
+        # Entretien : place réservée ; l'écran n'existe pas encore, la tuile reste cachée
+        {'cle': 'entretien', 'ico': '🧹', 'nom': 'Entretien', 'lien': None, 'sous': '', 'visible': False},
         {'cle': 'bandes', 'ico': '📈', 'nom': 'Mes bandes', 'lien': url_for('bandes.mes_bandes'),
          'sous': 'en cours et passées'},
         {'cle': 'stock', 'ico': '🧺', 'nom': 'Mon stock', 'lien': url_for('eleveur.stock'),

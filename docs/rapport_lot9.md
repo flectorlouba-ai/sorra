@@ -136,5 +136,5 @@ Base de démonstration : `eleveur` / `Demo-yl2-2026`, sur `http://127.0.0.1:5020
 ## Points à valider
 
 - **Le test terrain avec 3 à 5 éleveurs**, avec l'accueil en tuiles.
-- **Ordre des tuiles** : aujourd'hui Livraisons, Nouvelle bande, Peser, Sortie, Vaccins, Poulet malade, J'ai acheté, Mes bandes, Mon stock. Faut-il en remonter certaines ?
+- ~~Ordre des tuiles~~ **Fixé le 09/11** : Saisie du jour · Livraisons · Nouvelle bande · Peser · Vaccins · Poulet malade · Sortie · J'ai acheté · Entretien · Mes bandes · Mon stock · Appeler mon agent. Il est vérifié par `test_ordre_des_tuiles_fixe`. **Entretien** : place réservée, mais la tuile reste cachée car l'écran n'existe pas encore.
 - **Prix des achats** : ils sont gardés pour le futur module Économie, mais pas encore exploités.

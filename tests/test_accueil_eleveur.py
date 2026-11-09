@@ -70,7 +70,7 @@ def test_accueil_avec_bandes_saisie_pastilles_et_ligne_d_etat(client, monde):
     page = client.get('/').get_data(as_text=True)
     assert '2 bâtiments · tout va bien' in page and 'B1 jour 3 · B2 jour 2' in page and 'poulet-content' in page
     assert 'B1, B2 à faire · morts et aliment' in page and 'aria-label="2 bâtiment(s) à saisir"' in page
-    assert tuiles(page) == ['livraisons', 'peser', 'sortie', 'vaccins', 'malade', 'achat', 'bandes', 'stock']
+    assert tuiles(page) == ['livraisons', 'peser', 'vaccins', 'malade', 'sortie', 'achat', 'bandes', 'stock']
     assert 'tuiles impair' not in page
     jours(b1, 0)
     jours(b2, 0)
@@ -300,3 +300,51 @@ def test_tableau_des_clics(client, monde):
     assert b.numero in ouvrir('/bandes/mes-bandes').get_data(as_text=True)
     assert 'Aliment démarrage' in ouvrir('/mon-stock').get_data(as_text=True)
     assert 'href="tel:+24177123456"' in accueil
+
+
+# ── Ordre fixe des tuiles ───────────────────────────────────────────────
+
+ORDRE_TUILES = ['saisie', 'livraisons', 'bande', 'peser', 'vaccins', 'malade', 'sortie', 'achat',
+                'entretien', 'bandes', 'stock', 'agent']
+
+
+def ordre_accueil(page):
+    """Ordre des tuiles dans la page, de haut en bas (saisie et agent en pleine largeur compris)."""
+    reperes = {'saisie': 'href="/saisie-du-jour"', 'agent': 'href="tel:'}
+    positions = {cle: page.find(reperes.get(cle, f'data-tuile="{cle}"')) for cle in ORDRE_TUILES}
+    return [cle for cle, pos in sorted(positions.items(), key=lambda x: x[1]) if pos >= 0]
+
+
+def test_ordre_des_tuiles_fixe(client, monde):
+    """Saisie · Livraisons · Nouvelle bande · Peser · Vaccins · Poulet malade · Sortie · J'ai acheté ·
+    (Entretien) · Mes bandes · Mon stock · Appeler mon agent — quelles que soient les pastilles."""
+    vaccin = Produit(nom='Vaccin Gumboro', type='Vaccin', unite='doses')
+    db.session.add(vaccin)
+    db.session.add(CalendrierVaccinal(age_jours=1, produit=vaccin, mode='Eau de boisson'))
+    monde['agent'].telephone = '+241 77 12 34 56'
+    db.session.commit()
+    b = bande_ouverte(monde)
+    recevoir(monde['f'], [(monde['poussins'], 300, 0)])          # poussins en attente : Nouvelle bande
+    liv = intrants.nouvelle_livraison(monde['f'], AUJ, None)       # livraison à confirmer : pastille
+    db.session.add(liv)
+    intrants.remplacer_lignes(liv, [{'produit': monde['aliment'], 'quantite_livree': 40, 'subventionne': True,
+                                     'part_subventionnee': 100, 'valeur_unitaire': None}])
+    db.session.commit()
+    connecter(client, 'eleveur1')
+    attendu = [c for c in ORDRE_TUILES if c != 'entretien']       # Entretien : écran pas encore construit
+    page = client.get('/').get_data(as_text=True)
+    assert ordre_accueil(page) == attendu
+    # Les pastilles changent (tout est saisi, vaccin en retard, plus de livraison) : l'ordre ne bouge pas
+    jours(b, 0)
+    b.date_mise_en_place = AUJ - timedelta(days=5)
+    liv.statut = S.ANNULEE
+    db.session.commit()
+    page = client.get('/').get_data(as_text=True)
+    assert 'tuile-calme' in page and 'en retard' in page
+    assert ordre_accueil(page) == attendu
+    # Une tuile sans objet disparaît, les autres gardent leur rang
+    monde['agent'].telephone = None
+    regles.cloturer(b, monde['el'], 'essai')
+    db.session.commit()
+    page = client.get('/').get_data(as_text=True)
+    assert ordre_accueil(page) == ['livraisons', 'bande', 'malade', 'achat', 'bandes', 'stock']

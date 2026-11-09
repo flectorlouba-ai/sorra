@@ -127,8 +127,8 @@ De haut en bas :
 - **bandeau rouge**, seulement si une bande est au feu rouge (« ⚠️ B2 : beaucoup de morts aujourd'hui → Signaler ») ;
 - **ligne d'état** : poulet du pire feu, « 2 bâtiments · tout va bien » ou « B2 demande votre attention », « B1 jour 23 · B2 jour 5 » ; pas de chiffres ;
 - **grande tuile verte « Saisie du jour »**, avec en pastille le nombre de bâtiments restant ; « ✓ Tout est envoyé aujourd'hui » quand tout est fait ;
-- **grille de 2 colonnes** : Livraisons, Nouvelle bande, Peser, Sortie, Vaccins, Poulet malade, J'ai acheté, Mes bandes, Mon stock ;
-- **« 📞 Appeler … , mon agent »**, si l'agent a un téléphone.
+- **grille de 2 colonnes, dans un ordre FIXE** (décision du 09/11) : Livraisons · Nouvelle bande · Peser · Vaccins · Poulet malade · Sortie · J'ai acheté · Entretien · Mes bandes · Mon stock. L'ordre ne dépend jamais des pastilles. Entretien a sa place réservée, mais sa tuile reste cachée tant que l'écran n'existe pas ;
+- **« 📞 Appeler {Prénom}, mon agent »**, pleine largeur, toujours en dernier, si l'agent a un téléphone. Un test vérifie l'ordre complet.
 
 **Règles :**
 - Une tuile sans objet disparaît : Nouvelle bande sans poussins en attente ; Saisie, Peser, Sortie et Vaccins sans bande en cours.
