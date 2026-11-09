@@ -15,12 +15,13 @@ UNITES = ['têtes', UNITE_SACS, 'kg', 'doses', 'flacons', 'litres', 'unités']
 
 
 class StatutLivraison:
+    PREVUE = 'PREVUE'               # lot 18 : planning de la DGE, pas encore livrée (invisible de l'éleveur)
     A_CONFIRMER = 'A_CONFIRMER'
     RECUE = 'RECUE'
     RECUE_ECART = 'RECUE_ECART'
     ANNULEE = 'ANNULEE'
 
-    LIBELLES = {A_CONFIRMER: 'À confirmer', RECUE: 'Reçue', RECUE_ECART: 'Reçue avec écart',
+    LIBELLES = {PREVUE: 'Prévue', A_CONFIRMER: 'À confirmer', RECUE: 'Reçue', RECUE_ECART: 'Reçue avec écart',
                 ANNULEE: 'Annulée'}
     CONFIRMEES = (RECUE, RECUE_ECART)
 

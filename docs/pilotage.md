@@ -14,8 +14,8 @@ L'éleveur garde son accueil à lui (phase 1, lots 9 à 13).
 
 | Profil | Tuiles, dans l'ordre |
 |---|---|
-| ADMIN | Utilisateurs · Configuration · Paramètres à approuver · Sessions · Journal · Intégrité · Arbitrages · Tableau de bord · Fermes · Bandes · Livraisons de l'État · Signalements · Déclarations · Vaccins · Lots · Opérateurs · Carte · Rapports · Commandes d'intrants · Surveillance · Recherche de lots |
-| DGE | Tableau de bord · Carte · Livraisons de l'État · Arbitrages · Rapports · Paramètres à approuver · Commandes d'intrants · Fermes · Bandes · Alertes sanitaires · Lots · Opérateurs · Recherche de lots |
+| ADMIN | Utilisateurs · Configuration · Paramètres à approuver · Sessions · Journal · Intégrité · Arbitrages · Tableau de bord · Fermes · Bandes · Livraisons de l'État · Signalements · Déclarations · Vaccins · Lots · Opérateurs · Carte · Rapports · Commandes d'intrants · Surveillance · Recherche de lots · Classement · Agents |
+| DGE | Tableau de bord · Carte · Livraisons de l'État · Arbitrages · Rapports · Paramètres à approuver · Commandes d'intrants · Fermes · Bandes · Alertes sanitaires · Lots · Opérateurs · Recherche de lots · Classement · Agents |
 | AGENT | Mes fermes · Tournée du jour · Saisies à vérifier · Livraisons et stock · Commandes d'intrants · Bandes · Indicateurs · Vaccins · Lots · Opérateurs |
 | VETO | Signalements · Surveillance · Recherche de lots · Paramètres sanitaires · Vaccins et calendrier · Paramètres à approuver · Fermes · Bandes · Déclarations · Indicateurs · Lots |
 | AUDITEUR | Journal · Intégrité |
@@ -30,13 +30,16 @@ L'éleveur garde son accueil à lui (phase 1, lots 9 à 13).
 | Surveillance | `veto.surveillance` (sorties bloquées ; ADMIN en lecture) | sorties à vérifier | 17 |
 | Paramètres sanitaires | `veto.parametres` (quatre yeux) | — | 17 |
 | Recherche de lots | `veto.recherche` (amont, aval, export CSV) | — | 17 |
-| Commandes d'intrants | `agent.commandes` | refus non lus (agent) · à décider (DGE, ADMIN) | 16 |
-| Saisies à vérifier / Arbitrages | `hors_ligne.conflits` | saisies à trancher | 12 |
-| Livraisons et stock / Livraisons de l'État | `livraisons.liste` | — | 2 |
+| Commandes d'intrants | `agent.commandes` (DGE : « Créer la livraison ») | refus non lus (agent) · à décider (DGE, ADMIN) | 16 (18 : livraison) |
+| Saisies à vérifier / Arbitrages | `hors_ligne.conflits` (DGE, ADMIN : par province) | saisies à trancher | 12 (18 : par province) |
+| Livraisons et stock | `livraisons.liste` | — | 2 |
+| Livraisons de l'État | `dge.planning` (Prévue → Livrée → Confirmée ; lien « Toutes les livraisons ») | prévues en retard | 2 (18 : planning) |
+| Classement | `dge.classement` (pondérations sous quatre yeux, export CSV) | — | 18 |
+| Agents | `dge.agents` (charge, « Confier une ferme ») | — | 18 |
 | Bandes | `bandes.liste` | — | 3 |
 | Indicateurs / Tableau de bord | `pilotage.tableau` | — | 5 |
 | Carte | `pilotage.carte` | — | 5 |
-| Rapports | `pilotage.rapports` | — | 5 |
+| Rapports | `pilotage.rapports` (+ rapports mensuels gardés) | — | 5 (18 : gardés) |
 | Signalements / Alertes sanitaires | `sante.alertes` (vétérinaire : triés par gravité ; fiche : diagnostic, blocage) | à qualifier / confirmées | 4 (17 : gravité, diagnostic) |
 | Déclarations | `sante.declarations` | — | 4 |
 | Vaccins et calendrier | `sante.vaccins` | — | 4 |

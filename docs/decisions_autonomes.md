@@ -44,3 +44,16 @@ Chaque décision : la question, le choix fait, l'autre option, et comment reveni
 | 17-6 | Recherche de lots : périmètre | Vétérinaire : sa province ; DGE et ADMIN : national. Les bandes hors périmètre sont comptées, pas montrées. Chaque recherche et chaque export sont au journal (action `RECHERCHE`). | Recherche nationale pour tous les vétérinaires. | `veto.rechercher`. |
 | 17-7 | Recherche : « aliments » en amont | Les livraisons d'intrants confirmées de la ferme à partir de 7 jours avant la mise en place (l'aliment n'est pas rattaché à une bande précise). | Rien sur l'aliment. | `veto._amont`. |
 | 17-8 | Surveillance pour l'ADMIN | En **lecture** (tuile ajoutée), sans pouvoir bloquer ni lever. | Pas de tuile. | `TUILES_PROFIL[ADMIN]`. |
+
+## Lot 18
+
+| # | Question | Choix fait | Autre option | Revenir en arrière |
+|---|---|---|---|---|
+| 18-1 ★ | Statut « Prévue » des livraisons | Nouveau statut `PREVUE` (aucun changement de schéma). « Livrée » = le statut existant « À confirmer », « Confirmée » = « Reçue » ou « Reçue avec écart ». Une prévue est **exclue** de `livraisons_de_l_etat` : invisible de l'éleveur et de l'agent, hors stock, sans alerte. On la voit seulement sur le planning de la DGE. | Une table « planning » à part. | Retirer le filtre dans `intrants.livraisons_de_l_etat` ; aucune donnée à migrer. |
+| 18-2 | La tuile « Livraisons de l'État » ouvre… | le **planning**, qui garde un lien « Toutes les livraisons » (liste existante). | Deux tuiles. | `TUILES['livraisons_etat']`. |
+| 18-3 | « Créer la livraison » d'une commande | Crée une livraison **prévue dans 7 jours** (date modifiable en l'annulant et en la prévoyant de nouveau), subventionnée à 100 % ; la commande passe « Livrée ». | Ouvrir le formulaire complet. | `dge.creer_livraison_commande`. |
+| 18-4 ★ | Barème du classement | Notes sur 100 par critère, sur un barème fixe (voir `a_faire_valider.md`), moyenne des bandes clôturées complètes des 12 derniers mois, pondérée par `classement.poids_*`. Bande **incomplète** (indicateur `incomplet`, moins de 80 % de jours saisis, ou sans croissance mesurée) : **ignorée et signalée** ; ferme sans bande complète : « non classée ». | Classement relatif (rang par critère). | `dge.notes`, `dge.classement`. |
+| 18-5 ★ | Rapports « automatiques » sans planificateur | Produits **à la première ouverture** de l'écran Rapports après la fin du mois, et par la commande `rapports-mensuels` (cron documenté, **non installé** : pas d'accès au VPS). | Un planificateur dans l'application. | — |
+| 18-6 ★ | E-mail des rapports | **Préparé mais coupé** : message construit et journalisé « préparé, non envoyé » ; aucun envoi (pas de serveur de messagerie, interrupteur à 0). | Brancher SMTP. | `dge.preparer_email`. |
+| 18-7 | Réaffecter une ferme | Seulement vers un agent **actif de la même province**, avec motif ; ADMIN et DGE. | Tout agent. | `dge.reaffecter`. |
+| 18-8 | Arbitrages « national » | L'écran existant gagne un **compteur et un filtre par province** pour la DGE et l'ADMIN ; les provinces avec des saisies de plus de 48 h viennent d'abord. | Un écran à part. | `routes/hors_ligne.conflits`. |

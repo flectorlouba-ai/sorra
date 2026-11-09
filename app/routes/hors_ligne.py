@@ -113,12 +113,19 @@ def conflits():
     from app.models.hors_ligne import GenreVerification as G
     from app.services import verifications
     tous = filtre_perimetre(ConflitHorsLigne.query)
+    par_province, province = None, request.args.get('province', type=int)
+    if current_user.profil in (Profil.DGE, Profil.ADMIN):     # lot 18 : arbitrages au niveau national
+        from app.services import dge
+        par_province = dge.arbitrages_par_province(current_user)
+        if province:
+            tous = tous.filter(ConflitHorsLigne.ferme.has(province_id=province))
     a_trancher = (verifications.a_trancher(tous).order_by(ConflitHorsLigne.cree_le).all())
     from sqlalchemy import or_
     from app.models.hors_ligne import StatutVerification as SV
     autres = (tous.filter(or_(ConflitHorsLigne.statut.is_(None), ConflitHorsLigne.statut != SV.A_VERIFIER))
               .order_by(ConflitHorsLigne.cree_le.desc()).limit(100).all())
     return render_template('hors_ligne/conflits.html', a_trancher=a_trancher, conflits=autres, G=G,
+                           par_province=par_province, province=province,
                            en_retard=verifications.en_retard, choix_sortie=verifications.CHOIX_SORTIE)
 
 

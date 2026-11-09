@@ -66,6 +66,17 @@ PARAMETRES_DEFAUT = [
     ('intrants.seuil_mortalite_arrivee_pct', '2', TypeParametre.DECIMAL,
      'Alerte DGE : poussins morts à l\'arrivée au-delà de ce % d\'une livraison, à valider par les vétérinaires.'),
 ] + [
+    # Lot 18 — classement des fermes (quatre yeux), e-mail des rapports mensuels (coupé)
+    ('classement.poids_mortalite', '35', TypeParametre.ENTIER, 'Classement des fermes : poids de la mortalité. Quatre yeux.'),
+    ('classement.poids_ic', '25', TypeParametre.ENTIER, "Classement des fermes : poids de l'indice de consommation. Quatre yeux."),
+    ('classement.poids_gmq', '20', TypeParametre.ENTIER, 'Classement des fermes : poids de la croissance (GMQ). Quatre yeux.'),
+    ('classement.poids_regularite', '20', TypeParametre.ENTIER, 'Classement des fermes : poids de la régularité des saisies. Quatre yeux.'),
+    ('rapports.email_destinataires', '', TypeParametre.TEXTE,
+     'Adresses qui recevront le rapport mensuel national (séparées par des virgules). Envoi coupé tant que '
+     'rapports.email_actif vaut 0.'),
+    ('rapports.email_actif', '0', TypeParametre.BOOLEEN,
+     "Envoi du rapport mensuel par e-mail (0 = coupé). Il faut aussi un serveur de messagerie configuré."),
+] + [
     # Lot 16 — écart de stock (quatre yeux)
     ('intrants.seuil_ecart_stock_pct', '10', TypeParametre.ENTIER,
      "Écart de stock (livré − utilisé − compté) au-delà duquel la ferme passe en orange chez l'agent, en % du livré. "

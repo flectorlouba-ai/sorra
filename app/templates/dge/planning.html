@@ -1,0 +1,51 @@
+{% extends '_base.html' %}
+{% block titre %}Planning des livraisons{% endblock %}
+{% block sous_titre %}Livraisons de l'État{% endblock %}
+{% block icone %}calendar3{% endblock %}
+{% block page_sous_titre %}Prévue → Livrée → Confirmée par l'éleveur · du {{ debut.strftime('%d/%m') }} au {{ fin.strftime('%d/%m/%Y') }}{% endblock %}
+
+{% block actions %}<a class="btn-ghost" href="{{ url_for('livraisons.liste') }}"><i class="bi bi-list"></i> Toutes les livraisons</a>{% endblock %}
+
+{% block contenu %}
+<form method="post" action="{{ url_for('dge.prevoir') }}" class="card-p mb-3" novalidate id="prevoir">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-plus-lg"></i> Prévoir une livraison</span></div>
+  <div class="card-p-body form-commande">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <select class="form-control" name="ferme" aria-label="Ferme">{% for f in fermes %}<option value="{{ f.numero }}">{{ f.numero }} · {{ f.nom }}</option>{% endfor %}</select>
+    <input class="form-control" type="date" name="date" min="{{ today.isoformat() }}" aria-label="Date prévue">
+    <select class="form-control" name="produit_id" aria-label="Produit">{% for p in produits %}<option value="{{ p.id }}">{{ p.nom }} ({{ p.unite }})</option>{% endfor %}</select>
+    <input class="form-control" name="quantite" inputmode="decimal" placeholder="Quantité" aria-label="Quantité">
+    <input class="form-control" name="fournisseur" maxlength="150" placeholder="Fournisseur (facultatif)" aria-label="Fournisseur">
+    <button type="submit" class="btn-new">Prévoir</button>
+  </div>
+</form>
+
+<div class="row g-3">
+  {% for code, titre in titres %}
+  <div class="col-lg-4">
+    <div class="card-p h-100" data-colonne="{{ code }}">
+      <div class="card-p-head"><span class="card-p-title">{{ titre }}</span><span class="badge badge-neutre">{{ colonnes[code]|length }}</span></div>
+      <div class="card-p-body">
+        {% for liv in colonnes[code] %}
+        <div class="ligne-verif" data-livraison="{{ liv.numero }}">
+          <div><a href="{{ url_for('livraisons.fiche', numero=liv.numero) }}" class="mono">{{ liv.numero }}</a> · {{ liv.date_livraison.strftime('%d/%m') }}
+            {% if code == 'PREVUE' and liv.date_livraison < today %}<span class="badge badge-danger">en retard</span>{% endif %}
+            {% if code == 'CONFIRMEE' and liv.statut == 'RECUE_ECART' %}<span class="badge badge-warn">écart</span>{% endif %}</div>
+          <div class="td-sous">{{ liv.ferme.numero }} · {{ liv.ferme.nom }}{% if liv.fournisseur %} · {{ liv.fournisseur }}{% endif %}</div>
+          <div class="td-sous">{% for l in liv.lignes %}{{ l.quantite_livree|qte }} {{ l.produit.nom }}{{ ' · ' if not loop.last }}{% endfor %}</div>
+          {% if code == 'PREVUE' %}
+          <div class="d-flex gap-2 flex-wrap mt-1">
+            <form method="post" action="{{ url_for('dge.livree', numero=liv.numero) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn-edit" type="submit">Marquer livrée</button></form>
+            <form method="post" action="{{ url_for('dge.annuler', numero=liv.numero) }}" class="d-flex gap-1"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input class="form-control" name="motif" placeholder="Motif" aria-label="Motif de l'annulation" style="max-width:120px">
+              <button class="btn-annuler" type="submit">Annuler</button></form>
+          </div>{% endif %}
+        </div>
+        {% else %}<div class="empty-note">Aucune.</div>{% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

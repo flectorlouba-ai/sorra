@@ -1,0 +1,38 @@
+{% extends '_base.html' %}
+{% block titre %}Agents{% endblock %}
+{% block icone %}person-badge{% endblock %}
+{% block page_sous_titre %}Affectation et charge · orange au-delà de {{ orange }} fermes, rouge au-delà de {{ rouge }}{% endblock %}
+
+{% block contenu %}
+<div class="table-wrap mb-3"><div class="table-scroll">
+  <table>
+    <thead><tr><th>Agent</th><th>Provinces</th><th>Fermes</th><th>Bandes en cours</th><th>Fermes en rouge</th><th>Visites en retard</th><th>Saisies à vérifier</th></tr></thead>
+    <tbody>
+    {% for x in lignes %}
+      <tr data-agent="{{ x.agent.identifiant }}">
+        <td><strong>{{ x.agent.nom_complet }}</strong>{% if x.agent.telephone %}<br><a class="td-sous" href="tel:{{ x.agent.telephone|replace(' ', '') }}">{{ x.agent.telephone }}</a>{% endif %}</td>
+        <td>{{ x.agent.provinces|map(attribute='nom')|join(', ') or '—' }}</td>
+        <td><span class="badge {{ {'rouge': 'badge-danger', 'orange': 'badge-warn'}.get(x.charge, 'badge-ok') }}" data-charge="{{ x.charge }}">{{ x.fermes }}</span></td>
+        <td>{{ x.bandes }}</td>
+        <td>{% if x.rouges %}<span class="badge badge-danger">{{ x.rouges }}</span>{% else %}0{% endif %}</td>
+        <td>{% if x.visites_retard %}<span class="badge badge-warn">{{ x.visites_retard }}</span>{% else %}0{% endif %}</td>
+        <td>{{ x.a_verifier }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="7" class="table-vide"><i class="bi bi-person-badge"></i>Aucun agent actif.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+<form method="post" action="{{ url_for('dge.reaffecter') }}" class="card-p" novalidate id="reaffecter">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-arrow-left-right"></i> Confier une ferme à un autre agent</span></div>
+  <div class="card-p-body form-commande">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <select class="form-control" name="ferme" aria-label="Ferme">{% for f in fermes %}<option value="{{ f.numero }}">{{ f.numero }} · {{ f.nom }} ({{ f.agent.nom_complet if f.agent else 'sans agent' }})</option>{% endfor %}</select>
+    <select class="form-control" name="agent" aria-label="Nouvel agent">{% for a in agents %}<option value="{{ a.id }}">{{ a.nom_complet }} · {{ a.provinces|map(attribute='nom')|join(', ') }}</option>{% endfor %}</select>
+    <input class="form-control" name="motif" maxlength="300" placeholder="Motif (obligatoire)" aria-label="Motif">
+    <button type="submit" class="btn-new">Confier</button>
+  </div>
+</form>
+{% endblock %}

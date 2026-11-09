@@ -76,6 +76,14 @@ def _n_surveillance(user):
     return len(veto.sorties_a_verifier(veto.blocages_visibles(user).all()))
 
 
+def _n_prevues_en_retard(user):
+    """Livraisons prévues dont la date est passée (planning de la DGE)."""
+    from datetime import date as _date
+    from app.models.intrant import StatutLivraison
+    return filtre_perimetre(Livraison.query, utilisateur=user).filter(
+        Livraison.statut == StatutLivraison.PREVUE, Livraison.date_livraison < _date.today()).count()
+
+
 TUILES = {
     'mes_fermes':      ('Mes fermes', "Triées par urgence", 'house-door', 'fermes.liste', _n_fermes_rouges),
     'tournee':         ('Tournée du jour', 'Visites et fermes en rouge', 'signpost-split', 'agent.tournee', _n_tournee),
@@ -84,7 +92,9 @@ TUILES = {
     'a_verifier':      ('Saisies à vérifier', 'Deux versions à trancher', 'check2-square', 'hors_ligne.conflits', _n_a_verifier),
     'arbitrages':      ('Arbitrages', 'Saisies et livraisons à trancher', 'check2-square', 'hors_ligne.conflits', _n_arbitrages),
     'livraisons':      ('Livraisons et stock', 'Réceptions, écarts', 'box-seam', 'livraisons.liste', None),
-    'livraisons_etat': ("Livraisons de l'État", 'Poussins, aliment, vaccins', 'box-seam', 'livraisons.liste', None),
+    'livraisons_etat': ("Livraisons de l'État", 'Planning : prévue, livrée, confirmée', 'box-seam', 'dge.planning', _n_prevues_en_retard),
+    'classement':      ('Classement', 'Fermes, score pondéré', 'trophy', 'dge.classement', None),
+    'agents':          ('Agents', 'Affectation et charge', 'person-badge', 'dge.agents', None),
     'bandes':          ('Bandes', 'Du poussin à la sortie', 'collection', 'bandes.liste', None),
     'indicateurs':     ("Indicateurs d'élevage", 'Mortalité, croissance, aliment', 'graph-up', 'pilotage.tableau', None),
     'tableau':         ('Tableau de bord', 'Provinces et programme', 'bar-chart-line', 'pilotage.tableau', None),
@@ -112,10 +122,10 @@ TUILES_PROFIL = {
     Profil.AGENT:    ['mes_fermes', 'tournee', 'a_verifier', 'livraisons', 'commandes', 'bandes', 'indicateurs', 'vaccins', 'lots', 'operateurs'],
     Profil.VETO:     ['signalements', 'surveillance', 'recherche_lots', 'parametres_sanitaires', 'vaccins', 'a_approuver', 'fermes', 'bandes', 'declarations', 'indicateurs', 'lots'],
     Profil.DGE:      ['tableau', 'carte', 'livraisons_etat', 'arbitrages', 'rapports', 'a_approuver', 'commandes', 'fermes', 'bandes',
-                      'alertes_sanitaires', 'lots', 'operateurs', 'recherche_lots'],
+                      'alertes_sanitaires', 'lots', 'operateurs', 'recherche_lots', 'classement', 'agents'],
     Profil.ADMIN:    ['utilisateurs', 'configuration', 'a_approuver', 'sessions', 'journal', 'integrite', 'arbitrages',
                       'tableau', 'fermes', 'bandes', 'livraisons_etat', 'signalements', 'declarations', 'vaccins', 'lots',
-                      'operateurs', 'carte', 'rapports', 'commandes', 'surveillance', 'recherche_lots'],
+                      'operateurs', 'carte', 'rapports', 'commandes', 'surveillance', 'recherche_lots', 'classement', 'agents'],
     Profil.AUDITEUR: ['journal', 'integrite'],
 }
 

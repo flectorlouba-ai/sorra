@@ -36,6 +36,10 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | **Profils à double authentification obligatoire** | Paramètres → `securite.profils_2fa` | ADMIN, DGE, MAEDR, BCEG, AUDITEUR | 15 |
 | **Seuil d'écart de stock** (livré − utilisé − compté) | Paramètres → `intrants.seuil_ecart_stock_pct` (quatre yeux) | 10 % du livré | 16 |
 | **Poids de l'urgence** des fermes de l'agent | code (`agent.ROUGE`, `agent.ORANGE`) | rouge 10, orange 3 | 16 |
+| **Pondérations du classement** (mortalité, IC, GMQ, régularité) | Paramètres → `classement.poids_*` (quatre yeux) | 35 / 25 / 20 / 20 | 18 |
+| **Barème des notes du classement** (mortalité 0 % → 100, 10 % → 0 ; IC 1,4 → 100, 2,6 → 0 ; GMQ 30 → 0, 70 g/j → 100) et seuil « bande incomplète » (80 % des jours saisis) | code (`dge.notes`, `dge.SEUIL_COMPLET`) | — | 18 |
+| **Charge d'un agent** (orange au-delà de 15 fermes, rouge au-delà de 25) | code (`dge.CHARGE_ORANGE`, `CHARGE_ROUGE`) | 15 / 25 | 18 |
+| **Destinataires du rapport mensuel** et interrupteur d'envoi | Paramètres → `rapports.email_destinataires`, `rapports.email_actif` | aucun · coupé | 18 |
 | **Liste des réglages sensibles** soumis aux quatre yeux | code (`approbations.SENSIBLES`) | seuils sanitaires, délais, formules, calendrier vaccinal, profils | 15 |
 | Seuil « à vérifier » de la dernière synchronisation du téléphone | code | 3 jours | 10 |
 

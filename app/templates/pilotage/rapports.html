@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% block titre %}Rapports{% endblock %}
 {% block icone %}file-earmark-text{% endblock %}
-{% block page_sous_titre %}Rapports PDF générés à la demande{% endblock %}
+{% block page_sous_titre %}Rapports PDF à la demande · rapports mensuels produits et gardés automatiquement{% endblock %}
 
 {% block contenu %}
 <div class="row g-3">
@@ -27,5 +27,18 @@
       </form>
     </div></div></div>
 </div>
-<div class="empty-note mt-3">Le rapport de fin de bande se télécharge depuis le bilan de chaque bande clôturée. L'envoi automatique programmé des rapports viendra dans un lot ultérieur.</div>
+{% if gardes is defined %}
+<div class="card-p mt-3" id="gardes">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-archive"></i> Rapports mensuels gardés</span></div>
+  <div class="card-p-body">
+    <div class="td-sous mb-2">Produits automatiquement après la fin de chaque mois, puis gardés tels quels.
+      Envoi par e-mail : {% if email_actif %}<strong>actif</strong>{% else %}<strong>coupé</strong>{% endif %}{% if destinataires %} · {{ destinataires|join(', ') }}{% else %} · aucun destinataire{% endif %} (Paramètres → <code>rapports.*</code>).</div>
+    {% for r in gardes %}<div class="ligne-verif d-flex justify-content-between align-items-center gap-2 flex-wrap" data-rapport-garde="{{ r.mois }}">
+      <span><strong>{{ r.mois[5:] }}/{{ r.mois[:4] }}</strong> <span class="td-sous">· produit le {{ r.genere_le|date_locale('%d/%m/%Y %H:%M') }}{% if r.email_prepare_le and not r.email_envoye_le %} · e-mail préparé, non envoyé{% endif %}</span></span>
+      <a class="btn-edit" href="{{ url_for('dge.rapport_garde', mois=r.mois) }}"><i class="bi bi-file-earmark-pdf"></i> Télécharger</a></div>
+    {% else %}<div class="empty-note">Aucun rapport gardé pour l'instant.</div>{% endfor %}
+  </div>
+</div>
+{% endif %}
+<div class="empty-note mt-3">Le rapport de fin de bande se télécharge depuis le bilan de chaque bande clôturée.</div>
 {% endblock %}

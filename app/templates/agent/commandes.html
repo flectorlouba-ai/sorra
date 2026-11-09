@@ -42,6 +42,10 @@
             <button class="btn-new" name="decision" value="valider">Valider</button>
             <input class="form-control" name="motif" placeholder="Motif du refus" aria-label="Motif du refus">
             <button class="btn-annuler" name="decision" value="refuser">Refuser</button>
+          </form>{% elif peut_decider and c.statut == 'VALIDEE' %}
+          <form method="post" action="{{ url_for('dge.creer_livraison', ident=c.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn-new" type="submit">Créer la livraison</button>
           </form>{% endif %}</td>
       </tr>
     {% else %}

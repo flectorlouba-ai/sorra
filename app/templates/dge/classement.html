@@ -1,0 +1,47 @@
+{% extends '_base.html' %}
+{% block titre %}Classement des fermes{% endblock %}
+{% block icone %}trophy{% endblock %}
+{% block page_sous_titre %}Score sur 100 · bandes clôturées des 12 derniers mois · bandes incomplètes ignorées{% endblock %}
+
+{% block actions %}<a class="btn-ghost" href="{{ url_for('dge.classement_csv', province=province or '', cohorte=cohorte or '') }}"><i class="bi bi-download"></i> Export CSV</a>{% endblock %}
+
+{% block contenu %}
+<form class="filters-bar" method="get">
+  <select name="province" class="filter-sel" onchange="this.form.submit()" aria-label="Province">
+    <option value="">Toutes les provinces</option>
+    {% for p in provinces %}<option value="{{ p.id }}" {% if province == p.id %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
+  </select>
+  <select name="cohorte" class="filter-sel" onchange="this.form.submit()" aria-label="Cohorte">
+    <option value="">Toutes les cohortes</option>
+    <option value="1" {% if cohorte == 1 %}selected{% endif %}>Cohorte 1</option>
+    <option value="2" {% if cohorte == 2 %}selected{% endif %}>Cohorte 2</option>
+  </select>
+</form>
+<div class="td-sous mb-2" data-poids>Pondérations : {% for c, t in criteres %}{{ t }} {{ r.poids[c] }}{{ ' · ' if not loop.last }}{% endfor %}
+  — modifiables dans Paramètres (<code>classement.poids_*</code>), avec l'accord d'une autre personne.</div>
+{% if r.ignorees %}<div class="flash-item warning" data-ignorees><i class="bi bi-exclamation-triangle"></i>{{ r.ignorees }} bande{{ 's' if r.ignorees > 1 }} incomplète{{ 's' if r.ignorees > 1 }} ignorée{{ 's' if r.ignorees > 1 }} (moins de {{ seuil }} % des jours saisis, ou sans pesée).</div>{% endif %}
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>Rang</th><th>Ferme</th><th>Score</th>{% for c, t in criteres %}<th>{{ t }}</th>{% endfor %}<th>Bandes</th></tr></thead>
+    <tbody>
+    {% for x in r.classees %}
+      <tr data-rang="{{ x.rang }}" data-ferme="{{ x.ferme.numero }}">
+        <td class="td-num">{{ x.rang }}</td>
+        <td><a href="{{ url_for('fermes.fiche', numero=x.ferme.numero) }}">{{ x.ferme.nom }}</a><br><span class="td-sous">{{ x.ferme.numero }} · {{ x.ferme.province.nom }}</span></td>
+        <td><strong>{{ x.score }}</strong></td>
+        {% for c, t in criteres %}<td>{{ x.notes[c] }}</td>{% endfor %}
+        <td>{{ x.bandes }}{% if x.incompletes %}<br><span class="badge badge-warn">+ {{ x.incompletes }} incomplète{{ 's' if x.incompletes > 1 }}</span>{% endif %}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="{{ 4 + criteres|length }}" class="table-vide"><i class="bi bi-trophy"></i>Aucune ferme classée : pas encore de bande clôturée complète.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% if r.non_classees %}
+<div class="card-p mt-3" id="non-classees">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-question-circle"></i> Non classées</span></div>
+  <div class="card-p-body">{% for x in r.non_classees %}<div data-non-classee="{{ x.ferme.numero }}">{{ x.ferme.numero }} · {{ x.ferme.nom }} <span class="td-sous">— {{ x.incompletes }} bande{{ 's' if x.incompletes > 1 }} incomplète{{ 's' if x.incompletes > 1 }}, aucune complète</span></div>{% endfor %}</div>
+</div>
+{% endif %}
+{% endblock %}

@@ -4,6 +4,16 @@
 {% block page_sous_titre %}Deux personnes, deux versions : rien n'est perdu · la version de l'éleveur compte jusqu'à votre décision{% endblock %}
 
 {% block contenu %}
+{% if par_province is not none %}
+<div class="card-p mb-3" id="par-province">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-map"></i> À trancher par province</span>
+    {% if province %}<a class="btn-top" href="{{ url_for('hors_ligne.conflits') }}">Toutes</a>{% endif %}</div>
+  <div class="card-p-body d-flex flex-wrap gap-2">
+    {% for d in par_province %}<a class="btn-edit{{ ' actif' if province == d.province.id }}" data-province-arbitrage="{{ d.province.code }}" href="{{ url_for('hors_ligne.conflits', province=d.province.id) }}">{{ d.province.nom }} · {{ d.n }}{% if d.retard %} <span class="badge badge-danger">{{ d.retard }} &gt; 48 h</span>{% endif %}</a>
+    {% else %}<div class="empty-note">Rien à trancher dans le pays.</div>{% endfor %}
+  </div>
+</div>
+{% endif %}
 {% for c in a_trancher %}
 <div class="card-p mb-3 verif{{ ' verif-rouge' if en_retard(c) }}" id="verif-{{ c.id }}">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-{{ {'SAISIE_JOUR': 'pencil', 'LIVRAISON': 'box-seam', 'SORTIE': 'truck'}[c.genre] }}"></i>

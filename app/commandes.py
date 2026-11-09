@@ -47,3 +47,18 @@ def init_performyl2(identifiant):
     click.echo(f'  Mot de passe      : {mdp}')
     click.echo('Notez-le maintenant : il ne sera plus affiché. '
                'Il devra être changé à la première connexion.')
+
+
+@click.command('rapports-mensuels')
+@with_appcontext
+def rapports_mensuels():
+    """Lot 18 : produit et garde le rapport mensuel national du dernier mois terminé (à lancer chaque mois,
+    par exemple le 1er à 6 h, dans le cron du VPS). Sans effet s'il existe déjà."""
+    from app import db
+    from app.models import Utilisateur, Profil
+    from app.services import dge
+    auteur = (Utilisateur.query.filter_by(profil=Profil.DGE, actif=True).first()
+              or Utilisateur.query.filter_by(profil=Profil.ADMIN, actif=True).first())
+    nouveaux = dge.generer_manquants(auteur)
+    db.session.commit()
+    click.echo(', '.join(r.mois for r in nouveaux) + ' produit(s).' if nouveaux else 'Rien à produire.')
