@@ -83,4 +83,5 @@ def qr(code):
     db.session.commit()
     if lot is None:
         return render_template('tracabilite/public.html', lot=None), 404
-    return render_template('tracabilite/public.html', lot=lot)
+    from app.services import receptions
+    return render_template('tracabilite/public.html', lot=lot, etape=receptions.etape_publique(lot))

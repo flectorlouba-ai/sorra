@@ -433,3 +433,38 @@ def synthese(bandes, du=None, au=None):
     s['mortalite'] = s['morts'] / s['mis_en_place'] * 100 if s['mis_en_place'] else None
     s['regularite'] = sum(s['regularites']) / len(s['regularites']) if s['regularites'] else None
     return s
+
+
+# ── Traçabilité aval (lot 19, fonction 66) ──────────────────────────────
+
+def tracabilite(sorties, receptions, refus_scan, seuil_morts):
+    """Indicateurs de traçabilité d'un ensemble de sorties (période et périmètre choisis par l'appelant) :
+    - lots_qr_pct      = sorties Abattoir ou Vente avec un lot (QR) / sorties Abattoir ou Vente × 100 ;
+    - ventes_lot_pct   = ventes (motif Vente) rattachées à un lot / ventes × 100 ;
+    - recus_pct        = lots destinés à un opérateur du registre, reçus et scannés par lui / ces lots × 100
+                         (les ventes à un acheteur tapé à la main ne peuvent pas être scannées : hors dénominateur) ;
+    - ecart_moyen_pct  = moyenne, sur les réceptions comptées, de |annoncé − vivants − morts| / annoncé × 100 ;
+    - ecarts_hors_seuil = réceptions avec un écart de nombre, ou des morts à l'arrivée au-delà du seuil (%) ;
+    - refus            = scans refusés.
+    Les sorties mises de côté (doublon, blocage) ne comptent pas. Une réception « comptée » a ses chiffres."""
+    from app.models.bande import MotifSortie
+    from app.models.tracabilite import EtatReception
+    sorties = [s for s in sorties if s.motif in (MotifSortie.ABATTOIR, MotifSortie.VENTE) and not s.mise_de_cote]
+    ventes = [s for s in sorties if s.motif == MotifSortie.VENTE]
+    avec_lot = [s for s in sorties if s.lot is not None and not s.lot.annule]
+    destines = [s for s in avec_lot if s.operateur_id is not None]
+    recus_ids = {r.lot_id for r in receptions
+                 if r.lot_id and (r.etat in EtatReception.ACTIVES or r.decision_par is not None)}
+    recus = [s for s in destines if s.lot.id in recus_ids]
+    comptees = [r for r in receptions if r.annonce and r.vivants is not None and r.morts is not None]
+    ecarts = [abs(r.annonce - r.vivants - r.morts) / r.annonce * 100 for r in comptees]
+    hors_seuil = [r for r in comptees if r.annonce - r.vivants - r.morts != 0 or r.morts / r.annonce * 100 > seuil_morts]
+
+    def pct(n, d):
+        return n / d * 100 if d else None
+    return {'lots_sortis': len(sorties), 'lots_qr': len(avec_lot), 'lots_qr_pct': pct(len(avec_lot), len(sorties)),
+            'ventes': len(ventes), 'ventes_lot': sum(1 for s in ventes if s in avec_lot),
+            'ventes_lot_pct': pct(sum(1 for s in ventes if s in avec_lot), len(ventes)),
+            'destines': len(destines), 'recus': len(recus), 'recus_pct': pct(len(recus), len(destines)),
+            'ecart_moyen_pct': sum(ecarts) / len(ecarts) if ecarts else None,
+            'ecarts_hors_seuil': len(hors_seuil), 'refus': refus_scan}

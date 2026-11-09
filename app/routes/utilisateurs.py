@@ -5,7 +5,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import current_user
 
 from app import db
-from app.models import Utilisateur, Profil, Province, PROFILS_NATIONAUX, Ferme, UtilisateurFerme
+from app.models import Utilisateur, Profil, Province, PROFILS_NATIONAUX, Ferme, UtilisateurFerme, Operateur
 from app.services import parametres
 from app.utils.permissions import profil_requis
 
@@ -42,6 +42,7 @@ def _lire_formulaire(user=None):
     if not donnees['nom']:
         return None, 'Le nom est obligatoire.'
     donnees['fermes'] = []
+    donnees['operateur_id'] = None
     if donnees['profil'] == Profil.ELEVEUR:
         # L'éleveur est rattaché à ses fermes, pas à des provinces
         ids = []
@@ -56,6 +57,14 @@ def _lire_formulaire(user=None):
             return None, 'Cochez au moins une ferme pour cet éleveur.'
     elif donnees['profil'] in PROFILS_NATIONAUX:
         donnees['provinces'] = []   # voit tout : un rattachement n'aurait pas de sens
+    elif donnees['profil'] == Profil.OPERATEUR:
+        # Lot 19 : rattaché à UNE fiche du registre des opérateurs ; sa province est celle de l'établissement
+        op_id = f.get('operateur_id', '')
+        op = db.session.get(Operateur, int(op_id)) if op_id.isdigit() else None
+        if op is None or not op.actif:
+            return None, "Choisissez l'établissement (registre des opérateurs) de ce compte."
+        donnees['operateur_id'] = op.id
+        donnees['provinces'] = [op.province]
     elif not donnees['provinces']:
         return None, 'Cochez au moins une province pour ce profil.'
     mdp = f.get('mot_de_passe', '')
@@ -108,6 +117,7 @@ def index():
               for fe in Ferme.query.order_by(Ferme.numero_metier)]
     return render_template('administration/utilisateurs.html',
                            utilisateurs=utilisateurs, profils=list(Profil), fermes=fermes,
+                           operateurs=Operateur.query.filter_by(actif=True).order_by(Operateur.nom).all(),
                            provinces=Province.query.order_by(Province.ordre).all(),
                            nationaux=[p.value for p in PROFILS_NATIONAUX],
                            filtre={'profil': profil, 'province': province, 'statut': statut},

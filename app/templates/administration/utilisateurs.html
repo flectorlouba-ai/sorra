@@ -58,7 +58,7 @@
           <button type="button" class="btn-edit" title="Modifier"
                   data-u='{{ {"id": u.id|string, "identifiant": u.identifiant, "nom": u.nom, "prenom": u.prenom or "",
                               "email": u.email or "", "telephone": u.telephone or "", "profil": u.profil.value,
-                              "provinces": u.province_ids, "fermes": u.ferme_ids|map('string')|list, "actif": u.actif}|tojson }}'
+                              "provinces": u.province_ids, "operateur_id": u.operateur_id or "", "fermes": u.ferme_ids|map('string')|list, "actif": u.actif}|tojson }}'
                   onclick="ouvrirModification(this)"><i class="bi bi-pencil"></i></button>
         </td>
       </tr>
@@ -133,6 +133,14 @@
           </div>
           <div class="form-hint" id="fermes-choisies"></div>
         </div>
+        <div class="section-block" id="bloc-operateur" hidden>
+          <div class="section-title">Établissement<span class="req" style="color:var(--requis);">*</span></div>
+          <select class="form-control" id="operateur_id" name="operateur_id">
+            <option value="">— Choisir dans le registre des opérateurs —</option>
+            {% for o in operateurs %}<option value="{{ o.id }}">{{ o.nom }} ({{ o.type }}, {{ o.province.nom }})</option>{% endfor %}
+          </select>
+          <div class="form-hint">Le compte ne verra que les lots destinés à cet établissement.</div>
+        </div>
         <div class="section-block" id="bloc-national" hidden>
           <div class="form-hint">Ce profil voit toutes les provinces.</div>
         </div>
@@ -166,8 +174,9 @@ var form = document.getElementById('form-user');
 
 function majProvinces() {
   var profil = document.getElementById('profil').value;
-  var national = NATIONAUX.indexOf(profil) !== -1, eleveur = profil === 'ELEVEUR';
-  document.getElementById('bloc-provinces').hidden = national || eleveur;
+  var national = NATIONAUX.indexOf(profil) !== -1, eleveur = profil === 'ELEVEUR', operateur = profil === 'OPERATEUR';
+  document.getElementById('bloc-provinces').hidden = national || eleveur || operateur;
+  document.getElementById('bloc-operateur').hidden = !operateur;
   document.getElementById('bloc-national').hidden = !national;
   document.getElementById('bloc-fermes').hidden = !eleveur;
 }
@@ -218,7 +227,7 @@ function ouvrirModification(btn) {
   document.getElementById('fen-user-titre').textContent = 'Modifier — ' + u.identifiant;
   document.getElementById('bloc-identifiant').hidden = true;
   document.getElementById('identifiant').required = false;
-  ['nom', 'prenom', 'email', 'telephone', 'profil'].forEach(function (k) { document.getElementById(k).value = u[k]; });
+  ['nom', 'prenom', 'email', 'telephone', 'profil', 'operateur_id'].forEach(function (k) { document.getElementById(k).value = u[k]; });
   cocherProvinces(u.provinces);
   cocherFermes(u.fermes);
   document.getElementById('bloc-actif').hidden = false;

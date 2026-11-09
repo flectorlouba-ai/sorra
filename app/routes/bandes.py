@@ -508,8 +508,9 @@ def sortie(numero):
         except regles.RegleBande as e:
             db.session.rollback()
             erreur = str(e)
-    from app.services import veto
-    return render_template('bandes/sortie.html', bande=bande, erreur=erreur, saisie=request.form,
+    from app.services import veto, receptions
+    sorties = [(s, receptions.etat_pour_eleveur(s)) for s in reversed(bande.sorties) if not s.mise_de_cote]
+    return render_template('bandes/sortie.html', bande=bande, erreur=erreur, saisie=request.form, sorties=sorties,
                            blocage=veto.blocage_actif(bande),
                            operateurs=operateurs, motifs=MotifSortie.TOUS,
                            delai=sante.fin_delai_attente(bande),

@@ -1,0 +1,68 @@
+{# Lot 19 — accueil de l'opérateur (abattoir, marché), téléphone d'abord, charte YL.1. #}
+{% if not o.operateur %}
+<div class="empty-note">
+  <i class="bi bi-building-exclamation" style="font-size:1.5rem;display:block;margin-bottom:.4rem;"></i>
+  <strong>Votre compte n'est rattaché à aucun établissement.</strong><br>Demandez à l'administrateur de le rattacher.
+</div>
+{% else %}
+<div class="op-accueil" data-operateur="{{ o.operateur.numero }}">
+  <div class="op-etablissement"><i class="bi bi-building"></i> {{ o.operateur.nom }} <span class="td-sous">· {{ o.operateur.type }}</span></div>
+
+  <div class="op-garde" id="op-garde" hidden>◷ Réception enregistrée, en attente de vérification.
+    <span class="op-garde-sous">Elle sera vérifiée dès que le réseau revient. Le résultat s'affichera dans « À traiter ».</span></div>
+
+  <a class="op-tuile-scanner" href="{{ url_for('operateur.scanner') }}" data-tuile-operateur="scanner">
+    <i class="bi bi-qr-code-scan"></i><span>Scanner un lot</span>
+  </a>
+  <div class="op-tuiles">
+    <a class="op-tuile" href="{{ url_for('operateur.attendus') }}" data-tuile-operateur="attendus">
+      <i class="bi bi-truck"></i><span>Lots attendus</span>
+      {% if o.attendus %}<span class="tuile-compteur" aria-label="{{ o.attendus|length }} lots attendus">{{ o.attendus|length }}</span>{% endif %}
+    </a>
+    <a class="op-tuile" href="{{ url_for('operateur.receptions') }}" data-tuile-operateur="receptions">
+      <i class="bi bi-clipboard-check"></i><span>Mes réceptions</span>
+    </a>
+  </div>
+
+  {% if o.a_traiter %}
+  <section class="op-encadre op-a-traiter" data-a-traiter>
+    <h2>À traiter ({{ o.a_traiter|length }})</h2>
+    <ul class="op-liste">
+      {% for r in o.a_traiter %}
+      <li><a href="{{ url_for('operateur.reception', ident=r.id) }}">
+        <span class="mono">{{ r.lot_saisi }}</span>
+        {% if r.etat == 'SOUS_RESERVE' %}<span class="op-etat attente">◷ En attente du vétérinaire — ne pas abattre, ne pas vendre</span>
+        {% elif r.etat == 'REFUSEE' and r.decision_par %}<span class="op-etat refuse">✗ Refusé par le vétérinaire</span>
+        {% elif r.etat == 'REFUSEE' %}<span class="op-etat refuse">✗ Refusée à la vérification</span>
+        {% elif r.decision_par %}<span class="op-etat ok">✓ Libéré par le vétérinaire</span>
+        {% else %}<span class="op-etat attente">Expliquez l'écart</span>{% endif %}
+      </a></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <section class="op-encadre" data-attendus-semaine>
+    <h2>Attendus cette semaine</h2>
+    {% if o.semaine %}
+    <ul class="op-liste">
+      {% for lot in o.semaine %}
+      <li><span class="mono">{{ lot.numero }}</span>
+        <span>{{ lot.sortie.nombre|qte }} poulets · {{ lot.ferme.nom }}</span>
+        <span class="td-sous">parti le {{ lot.sortie.date.strftime('%d/%m') }} · en route</span></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="texte-aide">Aucun lot annoncé cette semaine.</p>{% endif %}
+  </section>
+</div>
+<script>
+(function () {
+  try {
+    if (sessionStorage.getItem('performyl2-reception-gardee')) {
+      sessionStorage.removeItem('performyl2-reception-gardee');
+      document.getElementById('op-garde').hidden = false;
+    }
+  } catch (e) {}
+})();
+</script>
+{% endif %}

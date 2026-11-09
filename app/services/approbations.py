@@ -9,8 +9,8 @@ from app.services.journal import enregistrer, Action
 
 # Paramètres sensibles (préfixes de clé). Les autres paramètres restent modifiables directement.
 SENSIBLES = ('bandes.seuil_', 'bandes.ecart_courbe', 'bandes.courbe_poids', 'intrants.seuil_', 'sante.',
-             'verifications.', 'classement.', 'securite.profils_2fa', 'stock.seuil_')
-SANITAIRES = ('sante.', 'bandes.seuil_', 'bandes.ecart_courbe', 'bandes.courbe_poids')
+             'verifications.', 'classement.', 'securite.profils_2fa', 'stock.seuil_', 'reception.')
+SANITAIRES = ('sante.', 'bandes.seuil_', 'bandes.ecart_courbe', 'bandes.courbe_poids', 'reception.')
 
 
 class RegleApprobation(Exception):

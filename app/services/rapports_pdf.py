@@ -92,6 +92,22 @@ def rapport_periode(titre, sous_titre, donnees, alertes_sanitaires):
                      _table([['Fournisseur', 'Livraisons', 'Reçus', 'Morts', 'Taux']] +
                             [[fo['fournisseur'], str(fo['livraisons']), quantite(fo['recus']), quantite(fo['morts']),
                               _q(fo['taux'], 2, ' %')] for fo in arr['fournisseurs']])]
+    tr = donnees.get('tracabilite')
+    if tr:                                         # lot 19 (fonction 66) : traçabilité aval
+        elements += [Paragraph('Traçabilité aval', SECTION), _table([
+            ['Lots sortis avec QR', 'Ventes rattachées à un lot', 'Lots reçus et scannés', 'Écart moyen à la réception'],
+            [_q(tr['lots_qr_pct'], 0, ' %'), _q(tr['ventes_lot_pct'], 0, ' %'), _q(tr['recus_pct'], 0, ' %'),
+             _q(tr['ecart_moyen_pct'], 1, ' %')],
+            [f'{tr["lots_qr"]} / {tr["lots_sortis"]}', f'{tr["ventes_lot"]} / {tr["ventes"]}',
+             f'{tr["recus"]} / {tr["destines"]}', f'{tr["ecarts_hors_seuil"]} au-delà du seuil · {tr["refus"]} refus de scan'],
+        ], [4.4 * cm] * 4)]
+        provinces = [p for p in donnees['par_province'] if p.get('tracabilite')]
+        if len(provinces) > 1:
+            elements.append(_table(
+                [['Province', 'Lots sortis', 'Avec QR', 'Reçus et scannés', 'Écarts > seuil', 'Refus de scan']] +
+                [[p['province'].nom, str(p['tracabilite']['lots_sortis']), str(p['tracabilite']['lots_qr']),
+                  f"{p['tracabilite']['recus']} / {p['tracabilite']['destines']}",
+                  str(p['tracabilite']['ecarts_hors_seuil']), str(p['tracabilite']['refus'])] for p in provinces]))
     elements += [Paragraph('Alertes', SECTION),
                  Paragraph(f'Bandes au feu rouge : {t["feux"]["rouge"]} · au feu orange : {t["feux"]["orange"]} · '
                            f'alertes sanitaires confirmées : {alertes_sanitaires}', TEXTE)]

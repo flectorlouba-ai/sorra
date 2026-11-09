@@ -26,7 +26,9 @@ class StatutAlerte:
 class OrigineAlerte:
     DECLARATION = 'DECLARATION'
     FEU_ROUGE = 'FEU_ROUGE'
-    LIBELLES = {DECLARATION: 'Déclaration de l\'éleveur', FEU_ROUGE: 'Mortalité anormale (feu rouge)'}
+    RECEPTION = 'RECEPTION'    # lot 19 : morts à la réception (abattoir, marché) au-delà du seuil
+    LIBELLES = {DECLARATION: 'Déclaration de l\'éleveur', FEU_ROUGE: 'Mortalité anormale (feu rouge)',
+                RECEPTION: 'Morts à la réception du lot'}
 
 
 class Declaration(SaisieTerrainMixin, db.Model):

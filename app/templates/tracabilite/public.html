@@ -20,6 +20,7 @@
       <dt>Localité</dt><dd>{{ lot.ferme.localite.nom }}</dd>
       <dt>Province</dt><dd>{{ lot.ferme.province.nom }}</dd>
       <dt>Sorti de la ferme</dt><dd>le {{ lot.sortie.date.strftime('%d/%m/%Y') }}</dd>
+      {% if etape %}<dt>{{ etape.titre }}</dt><dd data-etape-reception>le {{ etape.date|date_locale('%d/%m/%Y') }} · {{ etape.nom }} · contrôle validé ✓</dd>{% endif %}
       <dt>Lot</dt><dd class="mono">{{ lot.numero }}</dd>
     </dl>
   </div>

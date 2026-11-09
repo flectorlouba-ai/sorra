@@ -572,3 +572,11 @@
 .bandeau-blocage{display:flex;flex-direction:column;gap:8px;}
 .bouton-appel-veto{display:block;background:var(--e-blanc);color:var(--e-rouge);border-radius:12px;padding:10px 12px;
   text-align:center;font-weight:900;min-height:44px;text-decoration:none;}
+
+/* Lot 19 : sorties de la bande et leur réception par l'abattoir (Ventes et sorties) */
+.theme-eleveur .sorties-titre{color:var(--e-nuit);}
+.theme-eleveur .sorties-liste li{border:1px solid var(--e-trait);border-radius:16px;box-shadow:0 2px 8px var(--e-ombre);color:var(--e-nuit);}
+.theme-eleveur .etape-faite{color:var(--e-prairie-fonce);}
+.theme-eleveur .etape-attente{color:var(--e-orange-fonce);}
+.theme-eleveur .etape-refus{color:var(--e-nuit);}   /* rouge vif : contraste insuffisant pour du texte */
+.theme-eleveur .etape-fleche,.theme-eleveur .sortie-compte{color:var(--e-gris);}

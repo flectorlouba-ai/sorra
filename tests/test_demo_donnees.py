@@ -29,6 +29,10 @@ def test_fichier_livre_charge_dans_une_base_neuve_dates_decalees(app, tmp_path):
     with moteur.connect() as c:
         identifiants = {r[0] for r in c.execute(sa.text('SELECT identifiant FROM utilisateur'))}
         assert {'admin', 'dge', 'agent.est', 'veto', 'eleveur', 'auditeur'} <= identifiants
+        assert {'abattoir.owendo', 'marche.montbouet'} <= identifiants                 # lot 19
+        etats = {r[0] for r in c.execute(sa.text('SELECT etat FROM reception'))}
+        assert etats == {'VALIDEE', 'SOUS_RESERVE'} and c.execute(sa.text('SELECT count(*) FROM scan')).scalar() >= 3
+        assert c.execute(sa.text("SELECT count(*) FROM reception WHERE motif_ecart IS NOT NULL")).scalar() == 1
         prevue = min(date.fromisoformat(v['date_prevue']) for v in donnees['tables']['visite'] if v['date_prevue'])
         assert c.execute(sa.text('SELECT min(date_prevue) FROM visite')).scalar()[:10] == \
             (prevue + timedelta(days=10)).isoformat()                      # dates décalées
@@ -36,7 +40,7 @@ def test_fichier_livre_charge_dans_une_base_neuve_dates_decalees(app, tmp_path):
             == 'https://sorra.performyl.com'
         assert c.execute(sa.text('SELECT count(*) FROM journal_audit')).scalar() == 0
         assert c.execute(sa.text('SELECT count(*) FROM session_utilisateur')).scalar() == 0
-        h = c.execute(sa.text("SELECT mot_de_passe_hash FROM utilisateur WHERE identifiant = 'dge'")).scalar()
+        h = c.execute(sa.text("SELECT mot_de_passe_hash FROM utilisateur WHERE identifiant = 'abattoir.owendo'")).scalar()
     from werkzeug.security import check_password_hash
     assert check_password_hash(h, 'Demo-yl2-2026')
     # Aucun nom réel ni ancien nom dans le fichier publié

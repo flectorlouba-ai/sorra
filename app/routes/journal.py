@@ -41,6 +41,9 @@ TABLES = {
     'calendrier_vaccinal': 'Calendrier vaccinal',
     'vaccination': 'Vaccination',
     'traitement': 'Traitement',
+    'lot_trace': 'Lot et QR code',
+    'reception': "Réception d'un lot",
+    'scan': 'Scan à la réception',
 }
 
 CHAMPS = {
@@ -232,3 +235,57 @@ def export():
     return Response(tampon.getvalue(), mimetype='text/csv; charset=utf-8',
                     headers={'Content-Disposition':
                              f'attachment; filename=journal_sorra_{date.today():%Y%m%d}.csv'})
+
+
+# ── Lot 19 : journal des scans à la réception (ADMIN, AUDITEUR, DGE) ────
+
+def _scans(args):
+    from app.models.tracabilite import Scan
+    q = Scan.query
+    if args.get('operateur', '').isdigit():
+        q = q.filter(Scan.operateur_id == int(args['operateur']))
+    if args.get('resultat') in ('VERT', 'ORANGE', 'ROUGE'):
+        q = q.filter(Scan.resultat == args['resultat'])
+    for cle, signe in (('du', 1), ('au', -1)):
+        try:
+            jour = date.fromisoformat(args.get(cle, ''))
+        except ValueError:
+            continue
+        q = q.filter(Scan.horodatage >= debut_jour_utc(jour)) if signe == 1 else \
+            q.filter(Scan.horodatage < debut_jour_utc(jour + timedelta(days=1)))
+    return q.order_by(Scan.horodatage.desc(), Scan.id.desc())
+
+
+@journal_bp.route('/scans')
+@profil_requis(Profil.ADMIN, Profil.AUDITEUR, Profil.DGE)
+def scans():
+    from app.models import Operateur
+    from app.models.tracabilite import ResultatScan
+    page = request.args.get('page', 1, type=int)
+    pagination = _scans(request.args).paginate(page=page, per_page=current_app.config['JOURNAL_PAR_PAGE'],
+                                               error_out=False)
+    filtres = {k: v for k, v in request.args.items() if k != 'page' and v}
+    return render_template('journal/scans.html', pagination=pagination, filtres=filtres,
+                           operateurs=Operateur.query.order_by(Operateur.nom).all(), resultats=ResultatScan.LIBELLES)
+
+
+@journal_bp.route('/scans.csv')
+@profil_requis(Profil.ADMIN, Profil.AUDITEUR, Profil.DGE)
+def scans_export():
+    from app.models.tracabilite import ResultatScan
+    lignes = _scans(request.args).all()
+    tampon = io.StringIO()
+    tampon.write('﻿')
+    ecrivain = csv.writer(tampon, delimiter=';')
+    ecrivain.writerow(['Date', 'Personne', 'Opérateur', 'Lot', 'Lu par', 'Résultat', 'Motif'])
+    for s in lignes:
+        ecrivain.writerow([date_locale(s.horodatage, '%d/%m/%Y %H:%M:%S'),
+                           s.utilisateur.identifiant if s.utilisateur else '', s.operateur.nom if s.operateur else '',
+                           s.lot.numero if s.lot else (s.saisie or 'QR inconnu'),
+                           {'CAMERA': 'Caméra', 'NUMERO': 'Numéro tapé', 'HORS_LIGNE': 'Sans réseau'}.get(s.source, s.source),
+                           ResultatScan.LIBELLES.get(s.resultat, s.resultat), s.motif or ''])
+    filtres = ', '.join(f'{k}={v}' for k, v in request.args.items() if v) or 'aucun filtre'
+    enregistrer(Action.EXPORT, table='scan', detail=f'Export CSV du journal des scans : {len(lignes)} ligne(s) ; {filtres}')
+    db.session.commit()
+    return Response(tampon.getvalue(), mimetype='text/csv; charset=utf-8',
+                    headers={'Content-Disposition': f'attachment; filename=scans_sorra_{date.today():%Y%m%d}.csv'})

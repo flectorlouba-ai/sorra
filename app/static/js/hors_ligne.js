@@ -140,6 +140,10 @@
         id: crypto.randomUUID(), utilisateur: utilisateur, url: form.action,
         libelle: form.getAttribute('data-hors-ligne'), horodatage: new Date().toISOString(), entrees: entrees
       }).then(function () {
+        // Lot 19 : l'accueil de l'opérateur montre « ◷ Réception enregistrée, en attente de vérification »
+        if (form.hasAttribute('data-memo-garde')) {
+          try { sessionStorage.setItem(form.getAttribute('data-memo-garde'), '1'); } catch (e) {}
+        }
         // Saisie du jour : l'accueil de l'éleveur montre « ◷ Sera envoyé dès que le réseau revient »
         if (form.hasAttribute('data-feu')) {
           try { sessionStorage.setItem('performyl2-garde', JSON.stringify({feu: form.getAttribute('data-feu')})); } catch (e) {}

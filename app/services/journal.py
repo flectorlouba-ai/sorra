@@ -57,11 +57,14 @@ class Action:
     APPROBATION     = 'APPROBATION'
     REFUS           = 'REFUS'
     RECHERCHE       = 'RECHERCHE'
+    SCAN            = 'SCAN'
+    DECISION_RECEPTION = 'DECISION_RECEPT'
 
     TOUTES = [CREATION, MODIFICATION, SUPPRESSION, ANNULATION, CONNEXION,
               ECHEC_CONNEXION, DECONNEXION, CHANGEMENT_MDP, EXPORT, BLOCAGE, DEBLOCAGE, IMPORT, FUSION,
               CONFIRMATION, CONFIRMATION_ANNULEE, CORRECTION, POUR_ELEVEUR, DELAI_ATTENTE, LECTURE_QR, SANS_DESINFECTION,
-              VERIFICATION, REPONSE_VETO, CONSENTEMENT, PROPOSITION, APPROBATION, REFUS, RECHERCHE]
+              VERIFICATION, REPONSE_VETO, CONSENTEMENT, PROPOSITION, APPROBATION, REFUS, RECHERCHE,
+              SCAN, DECISION_RECEPTION]
 
     LIBELLES = {
         CREATION: 'Création', MODIFICATION: 'Modification', SUPPRESSION: 'Suppression',
@@ -76,6 +79,7 @@ class Action:
         VERIFICATION: 'Saisie à vérifier tranchée', REPONSE_VETO: "Réponse du vétérinaire à l'éleveur",
         CONSENTEMENT: 'Consentement BCEG', PROPOSITION: 'Modification proposée (quatre yeux)',
         APPROBATION: 'Modification approuvée', REFUS: 'Modification refusée',
+        SCAN: "Scan d'un lot à la réception", DECISION_RECEPTION: 'Décision du vétérinaire sur une réception',
     }
 
 

@@ -126,3 +126,27 @@ PARAMETRES_DEFAUT += [
      'Heures après lesquelles un doublon de sortie non tranché passe en rouge et remonte à la DGE. Quatre yeux.'),
 ]
 
+# Lot 19 — réception par l'opérateur (abattoir, marché) : contrôles et alertes, quatre yeux.
+# Un contrôle vaut TOUS (bloquant pour tous les opérateurs), ABATTOIR (bloquant pour l'abattoir, affiché
+# pour les autres), INFO (affiché seulement) ou NON (pas affiché).
+PARAMETRES_RECEPTION = [
+    ('reception.controle_delai_attente', 'TOUS', TypeParametre.TEXTE,
+     "Réception : aucun traitement en délai d'attente. TOUS, ABATTOIR, INFO ou NON. Quatre yeux."),
+    ('reception.controle_vaccins', 'ABATTOIR', TypeParametre.TEXTE,
+     'Réception : vaccins obligatoires faits. TOUS, ABATTOIR, INFO ou NON. Quatre yeux.'),
+    ('reception.controle_pesee', 'ABATTOIR', TypeParametre.TEXTE,
+     'Réception : pesée récente. TOUS, ABATTOIR, INFO ou NON. Quatre yeux.'),
+    ('reception.pesee_max_jours', '7', TypeParametre.JOURS,
+     'Réception : la dernière pesée doit dater de moins de ce nombre de jours avant la sortie. Quatre yeux.'),
+    ('reception.vaccin_tolerance_jours', '2', TypeParametre.JOURS,
+     'Réception : un vaccin en retard de moins de ce nombre de jours ne met pas le lot en réserve. Quatre yeux.'),
+    ('reception.seuil_morts_pct', '2', TypeParametre.DECIMAL,
+     "Réception : morts à l'arrivée (% de l'annoncé) au-delà desquels le vétérinaire de la zone est alerté. "
+     'Quatre yeux.'),
+    ('reception.refus_alerte_nombre', '3', TypeParametre.ENTIER,
+     'Réception : nombre de refus du même QR (tous opérateurs) qui alerte la DGE. Quatre yeux.'),
+    ('reception.refus_alerte_heures', '24', TypeParametre.ENTIER,
+     'Réception : période (heures) sur laquelle les refus du même QR sont comptés. Quatre yeux.'),
+]
+PARAMETRES_DEFAUT += PARAMETRES_RECEPTION
+

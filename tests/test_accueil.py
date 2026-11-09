@@ -50,7 +50,7 @@ def test_tuiles_visees_dans_l_ordre(client, app):
         assert titre in page
 
 
-@pytest.mark.parametrize('profil', [Profil.BCEG, Profil.MAEDR, Profil.OPERATEUR])
+@pytest.mark.parametrize('profil', [Profil.BCEG, Profil.MAEDR])   # OPERATEUR : son accueil au lot 19
 def test_profils_sans_ecran(client, app, profil):
     page = accueil(client, 'x', profil)
     assert tuiles(page) == [] and 'Vos écrans arrivent bientôt' in page

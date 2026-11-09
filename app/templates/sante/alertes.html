@@ -5,6 +5,35 @@
 {% block page_sous_titre %}{% if current_user.profil.value == 'DGE' %}Alertes confirmées par les services vétérinaires{% else %}Déclarations et mortalités anormales à qualifier{% endif %}{% endblock %}
 
 {% block contenu %}
+{% if retenus %}
+<section class="lots-retenus" data-lots-retenus>
+  <h2><i class="bi bi-hourglass-split"></i> Lots retenus à la réception ({{ retenus|length }})</h2>
+  <p class="texte-aide">Reçus sous réserve par un abattoir ou un marché : ni abattus ni vendus avant votre décision.</p>
+  <div class="table-wrap"><div class="table-scroll"><table>
+    <thead><tr><th>Lot</th><th>Ferme</th><th>Reçu par</th><th>Le</th><th>Contrôle manquant</th>{% if current_user.profil.value == 'VETO' %}<th>Décision</th>{% endif %}</tr></thead>
+    <tbody>
+    {% for r in retenus %}
+      <tr data-retenu="{{ r.lot_saisi }}">
+        <td class="td-num"><a href="{{ url_for('operateur.reception', ident=r.id) }}">{{ r.lot_saisi }}</a></td>
+        <td>{{ r.ferme.nom if r.ferme else '—' }}{% if r.ferme %}<br><span class="td-sous">{{ r.ferme.province.nom }}</span>{% endif %}</td>
+        <td>{{ r.operateur.nom }}<br><span class="td-sous">{{ r.operateur.type }}</span></td>
+        <td>{{ r.recu_le|date_locale('%d/%m/%Y %H:%M') }}</td>
+        <td>{% for c in (r.controles or []) if c.bloquant and not c.ok %}{{ c.libelle }}{% if c.detail %}<br><span class="td-sous">{{ c.detail }}</span>{% endif %}{% if not loop.last %}<br>{% endif %}{% endfor %}</td>
+        {% if current_user.profil.value == 'VETO' %}<td>
+          <form method="post" action="{{ url_for('operateur.decider', ident=r.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="retour" value="{{ request.path }}">
+            <input class="form-control" name="motif" placeholder="Motif (obligatoire)" required maxlength="500">
+            <button class="btn-edit" name="choix" value="liberer">Libérer</button>
+            <button class="btn-del" name="choix" value="refuser">Refuser</button>
+          </form>
+        </td>{% endif %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div></div>
+</section>
+{% endif %}
 <form class="filters-bar" method="get">
   <select name="statut" class="filter-sel" onchange="this.form.submit()">
     <option value="">{{ 'Confirmées' if current_user.profil.value == 'DGE' else 'À suivre (nouvelles, en analyse, confirmées)' }}</option>

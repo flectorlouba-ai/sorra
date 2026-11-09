@@ -19,7 +19,8 @@ L'éleveur garde son accueil à lui (phase 1, lots 9 à 13).
 | AGENT | Mes fermes · Tournée du jour · Saisies à vérifier · Livraisons et stock · Commandes d'intrants · Bandes · Indicateurs · Vaccins · Lots · Opérateurs |
 | VETO | Signalements · Surveillance · Recherche de lots · Paramètres sanitaires · Vaccins et calendrier · Paramètres à approuver · Fermes · Bandes · Déclarations · Indicateurs · Lots |
 | AUDITEUR | Journal · Intégrité |
-| BCEG, MAEDR, OPERATEUR | aucune tuile pour l'instant : « Vos écrans arrivent bientôt » |
+| OPERATEUR | son propre accueil, téléphone d'abord (lot 19) : grande tuile **Scanner un lot**, puis **Lots attendus** (compteur) et **Mes réceptions** ; encadrés « À traiter » et « Attendus cette semaine » |
+| BCEG, MAEDR | aucune tuile pour l'instant : « Vos écrans arrivent bientôt » |
 
 ## Tuile → écran → lot
 
@@ -37,10 +38,10 @@ L'éleveur garde son accueil à lui (phase 1, lots 9 à 13).
 | Classement | `dge.classement` (pondérations sous quatre yeux, export CSV) | — | 18 |
 | Agents | `dge.agents` (charge, « Confier une ferme ») | — | 18 |
 | Bandes | `bandes.liste` | — | 3 |
-| Indicateurs / Tableau de bord | `pilotage.tableau` | — | 5 |
+| Indicateurs / Tableau de bord | `pilotage.tableau` (DGE, ADMIN : bloc « Traçabilité aval » et lien « Journal des scans ») | — | 5 (19 : traçabilité aval) |
 | Carte | `pilotage.carte` | — | 5 |
 | Rapports | `pilotage.rapports` (+ rapports mensuels gardés) | — | 5 (18 : gardés) |
-| Signalements / Alertes sanitaires | `sante.alertes` (vétérinaire : triés par gravité ; fiche : diagnostic, blocage) | à qualifier / confirmées | 4 (17 : gravité, diagnostic) |
+| Signalements / Alertes sanitaires | `sante.alertes` (vétérinaire : triés par gravité ; fiche : diagnostic, blocage ; en tête, « Lots retenus à la réception » avec Libérer / Refuser) | à qualifier / confirmées (+ lots retenus, vétérinaire) | 4 (17 : gravité, diagnostic ; 19 : lots retenus) |
 | Déclarations | `sante.declarations` | — | 4 |
 | Vaccins et calendrier | `sante.vaccins` | — | 4 |
 | Lots et QR codes | `tracabilite.lots` | — | 6 |
@@ -49,7 +50,7 @@ L'éleveur garde son accueil à lui (phase 1, lots 9 à 13).
 | Configuration | `controle.configuration` (regroupe les réglages) | — | 15 |
 | Paramètres à approuver | `controle.approbations_ecran` | propositions à décider | 15 |
 | Sessions | `controle.sessions` | — | 15 |
-| Journal | `journal.index` | — | 0 |
+| Journal | `journal.index` (lien « Journal des scans » : `journal.scans`, aussi pour la DGE depuis le Tableau de bord) | — | 0 (19 : scans) |
 | Intégrité | `controle.integrite` | — | 15 |
 
 ### Écran Configuration (ADMIN), 2ᵉ clic
@@ -63,3 +64,19 @@ Provinces et localités · Listes · Paramètres · Catalogue des intrants · Fo
 ### Depuis la fiche ferme (2ᵉ clic, lot 16)
 
 À faire (raisons d'urgence) · Stock avec « Compter » et écart · Biosécurité → « Évaluer » · Commandes · Comptes des éleveurs → « Nouvel éleveur ».
+
+## Opérateur : abattoir, marché (lot 19)
+
+Un compte OPÉRATEUR est rattaché à **une** fiche du registre des opérateurs (écran Utilisateurs : « Établissement »). Il ne voit que les lots dont la sortie désigne cette fiche (`filtre_perimetre`, branche OPÉRATEUR), ses réceptions et ses scans.
+
+| Écran | Route | Clics depuis l'accueil |
+|---|---|---|
+| Accueil de l'opérateur | `accueil.index` (gabarit `operateur/_accueil.html`) | 0 |
+| Scanner un lot (caméra, ou numéro tapé) | `operateur.scanner` | 1 |
+| Résultat du scan : vert, orange, rouge (`Valider la réception`, `Recevoir sous réserve`, `Refuser le lot`) | `operateur.lot` → `operateur.recevoir` | 2 (Scanner → lecture → Valider) |
+| Lots attendus | `operateur.attendus` | 1 |
+| Mes réceptions, détail d'une réception (raison d'un écart à compléter) | `operateur.receptions`, `operateur.reception` | 1, 2 |
+| Décision du vétérinaire (Libérer / Refuser, motif obligatoire) | `operateur.decider`, depuis Signalements | 2 |
+| Journal des scans (ADMIN, AUDITEUR, DGE), export CSV inscrit au journal | `journal.scans`, `journal.scans_export` | 2 |
+
+Règles, contrôles et seuils : `app/services/receptions.py` ; indicateurs : `app/indicateurs.py` (`tracabilite`).
