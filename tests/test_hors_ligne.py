@@ -140,11 +140,13 @@ def test_connexion_perdue_la_saisie_reste_sur_le_telephone(client, monde):
     assert client.get('/hors-ligne/jeton').status_code == 401
     connecter(client, 'eleveur1')
     assert client.get('/hors-ligne/jeton').get_json()['etat'] == 'ok'
-    # Session expirée pendant l'envoi (inactivité) : réponse « connexion », rien n'est perdu
-    Parametre.query.filter_by(cle='securite.duree_session_minutes').one().valeur = '0'
-    db.session.commit()
+    # Session fermée pendant l'envoi (par l'administrateur) : réponse « connexion », rien n'est perdu.
+    # L'éleveur n'est jamais déconnecté par inactivité (lot 15).
+    from app.services import securite
     with client.session_transaction() as s:
-        s['derniere_activite'] = 1
+        sid = s['sid']
+    securite.fermer(sid, None, 'essai')
+    db.session.commit()
     _, rep = rejouer(client, f'/bandes/{b.numero}/pesee', {'nombre': '10', 'poids_total': '4'})
     assert rep['etat'] == 'connexion' and Pesee.query.count() == 0
 

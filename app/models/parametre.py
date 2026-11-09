@@ -21,8 +21,9 @@ class TypeParametre(enum.Enum):
 PARAMETRES_DEFAUT = [
     ('securite.mdp_longueur_min', '10', TypeParametre.ENTIER,
      'Nombre minimal de caractères d\'un mot de passe.'),
-    ('securite.duree_session_minutes', '60', TypeParametre.ENTIER,
-     'Durée d\'inactivité, en minutes, au bout de laquelle la session se ferme.'),
+    ('securite.duree_session_minutes', '30', TypeParametre.ENTIER,
+     'Pilotage : durée d\'inactivité, en minutes, au bout de laquelle la session se ferme '
+     '(jamais pour l\'éleveur ni l\'agent).'),
     ('securite.echecs_avant_blocage', '5', TypeParametre.ENTIER,
      'Nombre d\'échecs de connexion consécutifs avant le blocage du compte.'),
     ('securite.blocage_minutes', '15', TypeParametre.ENTIER,
@@ -65,6 +66,28 @@ PARAMETRES_DEFAUT = [
     ('intrants.seuil_mortalite_arrivee_pct', '2', TypeParametre.DECIMAL,
      'Alerte DGE : poussins morts à l\'arrivée au-delà de ce % d\'une livraison, à valider par les vétérinaires.'),
 ] + [
+    # Lot 18 — classement des fermes (quatre yeux), e-mail des rapports mensuels (coupé)
+    ('classement.poids_mortalite', '35', TypeParametre.ENTIER, 'Classement des fermes : poids de la mortalité. Quatre yeux.'),
+    ('classement.poids_ic', '25', TypeParametre.ENTIER, "Classement des fermes : poids de l'indice de consommation. Quatre yeux."),
+    ('classement.poids_gmq', '20', TypeParametre.ENTIER, 'Classement des fermes : poids de la croissance (GMQ). Quatre yeux.'),
+    ('classement.poids_regularite', '20', TypeParametre.ENTIER, 'Classement des fermes : poids de la régularité des saisies. Quatre yeux.'),
+    ('classement.seuil_complet_pct', '80', TypeParametre.ENTIER, 'Classement : % de jours saisis en dessous duquel une bande est incomplète (ignorée). Quatre yeux.'),
+    ('classement.mortalite_note_zero_pct', '10', TypeParametre.DECIMAL, 'Classement : mortalité (%) qui donne la note 0 (0 % donne 100). Quatre yeux.'),
+    ('classement.ic_note_100', '1.4', TypeParametre.DECIMAL, 'Classement : indice de consommation qui donne la note 100. Quatre yeux.'),
+    ('classement.ic_note_zero', '2.6', TypeParametre.DECIMAL, 'Classement : indice de consommation qui donne la note 0. Quatre yeux.'),
+    ('classement.gmq_note_zero', '30', TypeParametre.DECIMAL, 'Classement : GMQ (g/j) qui donne la note 0. Quatre yeux.'),
+    ('classement.gmq_note_100', '70', TypeParametre.DECIMAL, 'Classement : GMQ (g/j) qui donne la note 100. Quatre yeux.'),
+    ('rapports.email_destinataires', '', TypeParametre.TEXTE,
+     'Adresses qui recevront le rapport mensuel national (séparées par des virgules). Envoi coupé tant que '
+     'rapports.email_actif vaut 0.'),
+    ('rapports.email_actif', '0', TypeParametre.BOOLEEN,
+     "Envoi du rapport mensuel par e-mail (0 = coupé). Il faut aussi un serveur de messagerie configuré."),
+] + [
+    # Lot 16 — écart de stock (quatre yeux)
+    ('intrants.seuil_ecart_stock_pct', '10', TypeParametre.ENTIER,
+     "Écart de stock (livré − utilisé − compté) au-delà duquel la ferme passe en orange chez l'agent, en % du livré. "
+     'Quatre yeux.'),
+] + [
     # Lot 6 — traçabilité
     ('tracabilite.adresse_publique', 'http://187.124.217.218:5021', TypeParametre.TEXTE,
      'Adresse du site imprimée dans les QR codes (à remplacer par le nom de domaine en HTTPS).'),
@@ -94,3 +117,12 @@ class Parametre(db.Model):
     modifie_par = db.Column(db.Uuid, db.ForeignKey('utilisateur.id'), nullable=True)
 
     auteur = db.relationship('Utilisateur')
+
+# Lot 15 — socle de sécurité
+PARAMETRES_DEFAUT += [
+    ('securite.profils_2fa', 'ADMIN,DGE,MAEDR,BCEG,AUDITEUR', TypeParametre.TEXTE,
+     'Profils pour lesquels la double authentification est obligatoire (jamais l\'éleveur). Quatre yeux.'),
+    ('verifications.delai_rouge_heures', '48', TypeParametre.ENTIER,
+     'Heures après lesquelles un doublon de sortie non tranché passe en rouge et remonte à la DGE. Quatre yeux.'),
+]
+

@@ -567,3 +567,8 @@
 @media (prefers-reduced-motion: reduce){
   .theme-eleveur *,.bien-recu,.bien-recu *{animation:none!important;transition:none!important;}
 }
+
+/* Lot 17 — blocage des ventes par le vétérinaire */
+.bandeau-blocage{display:flex;flex-direction:column;gap:8px;}
+.bouton-appel-veto{display:block;background:var(--e-blanc);color:var(--e-rouge);border-radius:12px;padding:10px 12px;
+  text-align:center;font-weight:900;min-height:44px;text-decoration:none;}

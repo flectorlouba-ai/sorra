@@ -159,15 +159,25 @@ def test_formules_tester_enregistrer_revenir(client, client_admin, monde):
     page = client.post('/pilotage/formules', data={'nom': 'mortalite', 'action': 'enregistrer', 'formule': 'open(1)'},
                        follow_redirects=True).get_data(as_text=True)
     assert Parametre.query.filter_by(cle='formule.mortalite').first() is None
-    client.post('/pilotage/formules', data={'nom': 'mortalite', 'action': 'enregistrer',
+    client.post('/pilotage/formules', data={'nom': 'mortalite', 'action': 'enregistrer', 'motif': 'pour mille',
                                             'formule': 'morts_cumules / mis_en_place * 1000'})
+    assert indicateurs.formule('mortalite') == 'morts_cumules / mis_en_place * 100'   # lot 15 : quatre yeux
+    from app.models import Profil
+    from app.models.securite import Proposition
+    from app.services import approbations
+    from tests.conftest import creer_utilisateur
+    dge = creer_utilisateur('dge', Profil.DGE)
+    approbations.decider(Proposition.query.filter_by(statut='EN_ATTENTE').one(), dge, True)
+    db.session.commit()
     assert indicateurs.formule('mortalite') == 'morts_cumules / mis_en_place * 1000'
     b = bande_ouverte(monde)
     assert indicateurs.calculer(b)['mortalite'] == 0
     page = client.get('/pilotage/formules').get_data(as_text=True)
     assert "Revenir à la formule d" in page
     client.post('/pilotage/formules', data={'nom': 'mortalite', 'action': 'origine', 'formule': ''})
-    assert Parametre.query.filter_by(cle='formule.mortalite').one().valeur == 'morts_cumules / mis_en_place * 100'
+    approbations.decider(Proposition.query.filter_by(statut='EN_ATTENTE').one(), dge, True)
+    db.session.commit()
+    assert indicateurs.formule('mortalite') == 'morts_cumules / mis_en_place * 100'
     assert JournalAudit.query.filter_by(table_nom='parametre').count() >= 2
     changer(client, 'agent1')
     assert client.get('/pilotage/formules').status_code == 403

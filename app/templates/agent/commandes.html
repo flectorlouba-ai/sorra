@@ -1,0 +1,57 @@
+{% extends '_base.html' %}
+{% block titre %}Commandes d'intrants{% endblock %}
+{% block icone %}cart-check{% endblock %}
+{% block page_sous_titre %}Envoyée → Validée ou Refusée (DGE) → Livrée{% endblock %}
+
+{% block contenu %}
+{% if fermes %}
+<form method="post" action="{{ url_for('agent.commander') }}" class="card-p mb-3" novalidate>
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-plus-lg"></i> Nouvelle commande</span></div>
+  <div class="card-p-body form-commande">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <select class="form-control" name="ferme" aria-label="Ferme">{% for f in fermes %}<option value="{{ f.numero }}">{{ f.numero }} · {{ f.nom }}</option>{% endfor %}</select>
+    <select class="form-control" name="produit_id" aria-label="Produit">{% for p in produits %}<option value="{{ p.id }}">{{ p.nom }} ({{ p.unite }})</option>{% endfor %}</select>
+    <input class="form-control" name="quantite" inputmode="decimal" placeholder="Quantité" aria-label="Quantité">
+    <input class="form-control" name="motif" maxlength="300" placeholder="Pourquoi ? (facultatif)" aria-label="Motif">
+    <button type="submit" class="btn-new">Envoyer</button>
+  </div>
+</form>
+{% endif %}
+<form class="filters-bar" method="get">
+  <select name="statut" class="filter-sel" onchange="this.form.submit()" aria-label="Statut">
+    <option value="">Tous les statuts</option>
+    {% for k, v in libelles.items() %}<option value="{{ k }}" {% if statut == k %}selected{% endif %}>{{ v }}</option>{% endfor %}
+  </select>
+</form>
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>Date</th><th>Ferme</th><th>Produit</th><th>Quantité</th><th>Statut</th><th></th></tr></thead>
+    <tbody>
+    {% for c in commandes %}
+      <tr data-commande="{{ c.id }}">
+        <td>{{ c.cree_le|date_locale('%d/%m/%Y') }}<br><span class="td-sous">{{ c.demandeur.nom_complet }}</span></td>
+        <td><a href="{{ url_for('fermes.fiche', numero=c.ferme.numero) }}">{{ c.ferme.numero }}</a><br><span class="td-sous">{{ c.ferme.nom }}</span></td>
+        <td>{{ c.produit.nom }}{% if c.motif %}<br><span class="td-sous">{{ c.motif }}</span>{% endif %}</td>
+        <td>{{ c.quantite|qte }} {{ c.produit.unite }}</td>
+        <td><span class="badge {{ {'ENVOYEE': 'badge-neutre', 'VALIDEE': 'badge-ok', 'REFUSEE': 'badge-danger', 'LIVREE': 'badge-ok'}[c.statut] }}">{{ c.libelle_statut }}</span>
+          {% if c.motif_refus %}<br><span class="td-sous">{{ c.motif_refus }}</span>{% endif %}
+          {% if c.livraison %}<br><a class="td-sous" href="{{ url_for('livraisons.fiche', numero=c.livraison.numero) }}">{{ c.livraison.numero }}</a>{% endif %}</td>
+        <td>{% if peut_decider and c.statut == 'ENVOYEE' %}
+          <form method="post" action="{{ url_for('agent.decider', ident=c.id) }}" class="d-flex gap-1 flex-wrap">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn-new" name="decision" value="valider">Valider</button>
+            <input class="form-control" name="motif" placeholder="Motif du refus" aria-label="Motif du refus">
+            <button class="btn-annuler" name="decision" value="refuser">Refuser</button>
+          </form>{% elif peut_decider and c.statut == 'VALIDEE' %}
+          <form method="post" action="{{ url_for('dge.creer_livraison', ident=c.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn-new" type="submit">Créer la livraison</button>
+          </form>{% endif %}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="table-vide"><i class="bi bi-cart"></i>Aucune commande.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

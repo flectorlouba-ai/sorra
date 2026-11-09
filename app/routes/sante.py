@@ -132,8 +132,13 @@ def alertes():
             q = q.filter(AlerteSanitaire.statut == SA.CONFIRMEE)
         else:
             q = q.filter(AlerteSanitaire.statut.in_(SA.OUVERTES + (SA.CONFIRMEE,)))
-    return render_template('sante/alertes.html', alertes=q.order_by(AlerteSanitaire.cree_le.desc()).all(),
-                           statut=statut, statuts=SA.LIBELLES)
+    from app.services import veto
+    alertes = q.order_by(AlerteSanitaire.cree_le.desc()).all()
+    if current_user.profil == Profil.VETO:            # lot 17 : la plus grave d'abord
+        alertes = veto.trier_par_gravite(alertes)
+    return render_template('sante/alertes.html', alertes=alertes, statut=statut, statuts=SA.LIBELLES,
+                           gravite=veto.gravite if current_user.profil == Profil.VETO else None,
+                           libelle_gravite=veto.libelle_gravite)
 
 
 @sante_bp.route('/alertes/<numero>', methods=['GET', 'POST'])
@@ -154,7 +159,10 @@ def alerte(numero):
             db.session.rollback()
             erreur = str(e)
     from app.models.liste_deroulante import ld_choices as _ld
+    from app.services import veto
     return render_template('sante/alerte.html', a=a, erreur=erreur, icone=regles.icone_signe,
+                           diagnostic=veto.peut_lire_diagnostic(current_user), maladies=veto.maladies(),
+                           blocage=veto.blocage_actif(a.bande) if a.bande else None,
                            conseils=[v for v, _ in _ld('conseils_veterinaire')],
                            suivants=[(s, SA.LIBELLES[s]) for s in SA.SUIVANTS.get(a.statut, [])]
                            if current_user.profil == Profil.VETO else [])
@@ -202,11 +210,21 @@ def calendrier_enregistrer():
     if age is None or age < 0 or produit is None or produit.type != 'Vaccin' or not f.get('mode'):
         flash('Indiquez l\'âge, le vaccin et le mode d\'administration.', 'danger')
         return redirect(url_for('sante.vaccins'))
-    entree.age_jours, entree.produit, entree.mode = age, produit, f.get('mode')
-    entree.actif = f.get('actif', 'on') == 'on'
-    db.session.add(entree)
-    db.session.commit()
-    flash('Calendrier vaccinal enregistré.', 'success')
+    # Lot 15 : quatre yeux — le calendrier actuel s'applique jusqu'à l'approbation
+    from app.services import approbations
+    actif = f.get('actif', 'on') == 'on'
+    avant = f'J{entree.age_jours} {entree.produit.nom} ({entree.mode})' if entree.id else 'nouvelle ligne'
+    apres = f'J{age} {produit.nom} ({f.get("mode")})' + ('' if actif else ' · désactivée')
+    try:
+        approbations.proposer('CALENDRIER', f'calendrier.{entree.id or "nouveau"}.{age}.{produit.id}',
+                              'Calendrier vaccinal', avant, apres,
+                              {'id': entree.id, 'age_jours': age, 'produit_id': produit.id, 'mode': f.get('mode'),
+                               'actif': actif}, f.get('motif', '') or 'Mise à jour du calendrier', current_user)
+        db.session.commit()
+        flash('Modification du calendrier proposée : elle s\'appliquera après approbation par une autre personne.', 'info')
+    except approbations.RegleApprobation as e:
+        db.session.rollback()
+        flash(str(e), 'danger')
     return redirect(url_for('sante.vaccins'))
 
 

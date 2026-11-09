@@ -1,0 +1,22 @@
+{% extends '_base.html' %}
+{% block titre %}Paramètres sanitaires{% endblock %}
+{% block icone %}sliders{% endblock %}
+{% block page_sous_titre %}Quatre yeux : votre proposition s'applique après l'accord d'un autre vétérinaire, de la DGE ou de l'administration{% endblock %}
+
+{% block contenu %}
+{% for p in parametres %}
+<form method="post" action="{{ url_for('veto.proposer', param_id=p.id) }}" class="card-p mb-2" data-parametre="{{ p.cle }}">
+  <div class="card-p-body">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div><strong>{{ p.description or p.cle }}</strong> <span class="mono td-sous">{{ p.cle }}</span>
+      {% if p.cle in en_attente %}<span class="badge badge-warn">proposition en attente</span>{% endif %}</div>
+    <div class="form-commande mt-2">
+      <input class="form-control" name="valeur" value="{{ p.valeur }}" aria-label="Nouvelle valeur : {{ p.description or p.cle }}">
+      <input class="form-control" name="motif" maxlength="300" placeholder="Motif (obligatoire)" aria-label="Motif">
+      <button type="submit" class="btn-edit" {% if p.cle in en_attente %}disabled{% endif %}>Proposer</button>
+    </div>
+  </div>
+</form>
+{% endfor %}
+<div class="td-sous">Le calendrier vaccinal se propose depuis la tuile « Vaccins et calendrier ».</div>
+{% endblock %}

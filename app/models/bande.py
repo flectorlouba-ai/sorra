@@ -167,6 +167,8 @@ class Sortie(SaisieTerrainMixin, db.Model):
     # Lot 12 : doublon possible (même jour, même nombre, même destinataire, deux personnes)
     a_verifier       = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
     mise_de_cote     = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
+    # Lot 17 : sortie faite sans réseau, reçue après un blocage du vétérinaire (à vérifier, sans lot)
+    blocage_id       = db.Column(db.Integer, db.ForeignKey('blocage_sorties.id'), nullable=True)
 
     bande = db.relationship('Bande', back_populates='sorties')
     operateur = db.relationship('Operateur')

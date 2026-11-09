@@ -6,6 +6,13 @@
 {% block page_sous_titre %}<span class="mono">{{ bande.numero }}</span> · {{ present|qte }} poulets présents{% endblock %}
 {% block contenu %}
 {% with vers='bandes.sortie' %}{% include 'eleveur/_autres_batiments.html' %}{% endwith %}
+{% if blocage %}
+<div class="encadre-rouge blocage-sorties" data-blocage-sorties>
+  <strong>⛔ Le vétérinaire a bloqué les ventes de cette bande</strong>
+  <div>Aucun poulet ne doit sortir. {{ blocage.motif }}</div>
+  {% if blocage.poseur.telephone %}<a class="btn-gros btn-gros-rouge mt-2" href="tel:{{ blocage.poseur.telephone|replace(' ', '') }}">📞 Appeler le vétérinaire</a>{% endif %}
+</div>
+{% else %}
 <form method="post" class="form-terrain" novalidate data-hors-ligne="Sortie · bâtiment {{ bande.batiment.code }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
@@ -49,12 +56,14 @@
   <button type="submit" class="btn-gros"><i class="bi bi-check-lg"></i> Enregistrer la sortie</button>
   <div class="note-numero" id="reste">Il restera {{ present|qte }} poulets dans la bande</div>
 </form>
+{% endif %}
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/compteurs.js') }}"></script>
 <script>
 (function () {
   var present = {{ present }}, nombre = document.getElementById('nombre');
+  if (!nombre) return;                       // lot 17 : sorties bloquées, pas de formulaire
   var op = document.getElementById('operateur');
   function majReste() {
     var n = parseInt(nombre.value, 10) || 0;

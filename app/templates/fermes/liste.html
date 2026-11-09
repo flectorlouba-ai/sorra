@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% from '_macros.html' import badge_statut %}
+{% from 'agent/_urgence.html' import pastille, raisons %}
 {% block titre %}Fermes{% endblock %}
 {% block icone %}house-door{% endblock %}
 {% block page_sous_titre %}{{ total }} ferme{{ 's' if total != 1 }} · {{ operationnelles }} opérationnelle{{ 's' if operationnelles != 1 }}{% endblock %}
@@ -34,10 +35,11 @@
 
 <div class="table-wrap"><div class="table-scroll">
   <table>
-    <thead><tr><th>N°</th><th>Ferme</th><th>Province</th><th>Cohorte</th><th>Places</th><th>Statut</th></tr></thead>
+    <thead><tr>{% if urgences %}<th>Urgence</th>{% endif %}<th>N°</th><th>Ferme</th><th>Province</th><th>Cohorte</th><th>Places</th><th>Statut</th></tr></thead>
     <tbody>
     {% for f in fermes %}
       <tr class="tr-click" onclick="location.href='{{ url_for('fermes.fiche', numero=f.numero) }}'">
+        {% if urgences %}<td data-ferme-urgence="{{ f.numero }}">{{ pastille(urgences[f.id]) }}{{ raisons(urgences[f.id]) }}</td>{% endif %}
         <td class="td-num"><a href="{{ url_for('fermes.fiche', numero=f.numero) }}">{{ f.numero }}</a></td>
         <td><strong>{{ f.nom }}</strong><br><span class="td-sous">{{ f.localite.nom }}</span></td>
         <td>{{ f.province.nom }}</td>
@@ -46,7 +48,7 @@
         <td>{{ badge_statut(f.statut) }}</td>
       </tr>
     {% else %}
-      <tr><td colspan="6" class="table-vide"><i class="bi bi-house"></i>Aucune ferme ne correspond.</td></tr>
+      <tr><td colspan="7" class="table-vide"><i class="bi bi-house"></i>Aucune ferme ne correspond.</td></tr>
     {% endfor %}
     </tbody>
   </table>

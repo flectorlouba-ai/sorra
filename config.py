@@ -34,6 +34,9 @@ class Config:
     DERRIERE_PROXY = _oui('DERRIERE_PROXY')
 
     JOURNAL_PAR_PAGE = 50
+    # Lot 15 : double authentification (TOTP). Coupée par défaut en développement et en test ;
+    # active par défaut en production ; YL2_2FA=0 pour la démo locale SEULEMENT.
+    DEUX_FACTEURS = _oui('YL2_2FA', '0')
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024   # fichier d'import POUFA
 
     @classmethod
@@ -47,6 +50,7 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
+    DEUX_FACTEURS = _oui('YL2_2FA', '1')
 
     @classmethod
     def verifier(cls):

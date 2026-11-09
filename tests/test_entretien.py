@@ -431,7 +431,7 @@ def test_liste_des_taches_admin(client_admin, client):
                                                          'frequence': 'MOIS', 'portee': 'FERME'})
     db.session.refresh(t)
     assert not t.actif                                               # désactivée, jamais supprimée
-    assert 'Tâches d&#39;entretien' in client_admin.get('/').get_data(as_text=True)
+    assert 'Tâches d&#39;entretien' in client_admin.get('/configuration').get_data(as_text=True)   # lot 15
 
 
 def test_liste_des_taches_reservee_a_l_admin(client, monde):

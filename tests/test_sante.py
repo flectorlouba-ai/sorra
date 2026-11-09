@@ -181,7 +181,14 @@ def test_calendrier_modifiable_par_le_veto_seulement(client, monde):
     connecter(client, 'veto')
     page = client.get('/sante/vaccins').get_data(as_text=True)
     assert 'à valider par les vétérinaires' in page and 'Valider le calendrier' in page
-    client.post('/sante/calendrier', data={'age_jours': '14', 'produit_id': monde['vaccin'].id, 'mode': 'Spray'})
+    client.post('/sante/calendrier', data={'age_jours': '14', 'produit_id': monde['vaccin'].id, 'mode': 'Spray',
+                                           'motif': 'Gumboro à J14'})
+    assert CalendrierVaccinal.query.count() == 0                     # lot 15 : quatre yeux, rien avant approbation
+    from app.models.securite import Proposition
+    from app.services import approbations
+    p = Proposition.query.one()
+    approbations.decider(p, monde['veto_hog'], True)                  # un autre vétérinaire approuve
+    db.session.commit()
     assert CalendrierVaccinal.query.one().age_jours == 14
     client.post('/sante/calendrier/valider')
     assert Parametre.query.filter_by(cle='sante.calendrier_valide').one().valeur == 'oui'

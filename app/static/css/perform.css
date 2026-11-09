@@ -643,9 +643,9 @@ a.btn-gros-rouge:hover{color:var(--blanc);filter:brightness(1.08);}
 .bandeau-envoi.attente{background:var(--att-fond);border:1px solid var(--att-bord);color:var(--noir);}
 .bandeau-envoi.fait{background:var(--ok-fond);border:1px solid var(--ok-bord);color:var(--ok-encre);font-weight:700;}
 .bandeau-envoi ul{list-style:none;margin:.35rem 0 0;padding:0;}
-.bandeau-envoi li{padding:.1rem 0;}
+.bandeau-envoi li{padding:.1rem 0;display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;}
 .bandeau-sous{display:block;font-size:.74rem;color:var(--gris5);margin-top:.15rem;}
-.coche-attente{display:inline-block;width:1.1rem;text-align:center;font-weight:800;}
+.coche-attente{display:inline-block;min-width:1.1rem;white-space:nowrap;text-align:center;font-weight:800;}
 .ligne-vue td{opacity:.55;}
 
 /* ══ Logo SORRA : le poulet (app/utils/logo.py) ══════════════════════ */
@@ -699,3 +699,30 @@ i.picto-panne{font-style:normal;font-size:2rem;display:block;}
 .choix-conseils,.choix-recommandations{display:flex;flex-direction:column;gap:.3rem;}
 .reponse-veto{background:var(--ok-fond);border-radius:8px;padding:.5rem .7rem;}
 
+/* ── Accueil du pilotage (lot 15) : compteurs sur les tuiles, périmètre, 2FA ─ */
+.module-card{position:relative;}
+.tuile-compteur{position:absolute;top:.5rem;right:.5rem;min-width:1.6rem;padding:.1rem .45rem;border-radius:999px;
+  background:var(--rouge-vif);color:var(--blanc);font-weight:800;font-size:.8rem;text-align:center;}
+.greeting-perimetre{font-size:.8rem;font-weight:700;color:var(--b-attenue);margin-left:.3rem;}
+.qr-2fa img{width:200px;height:200px;display:block;margin:.5rem 0;background:var(--blanc);}
+.codes-secours{display:grid;grid-template-columns:repeat(2,1fr);gap:.4rem;margin-top:.8rem;}
+.codes-secours code{font-size:1.05rem;padding:.4rem;border:1px solid var(--bord);border-radius:6px;text-align:center;}
+.etapes-2fa li{margin-bottom:.6rem;}
+
+
+/* Lot 16 — agent : mot de passe provisoire, nouvelle commande, score de biosécurité chez l'éleveur */
+.mdp-provisoire{font-size:1.4rem;letter-spacing:.08em;}
+.form-commande{display:flex;flex-wrap:wrap;gap:.5rem;align-items:flex-end;}
+.form-commande .form-control{flex:1 1 200px;min-width:0;}
+.score-bio{font-weight:800;font-size:1.1rem;margin:.35rem 0;}
+.score-bio.score-rouge{color:var(--danger-encre);}
+.score-bio.score-orange{color:var(--att-encre);}
+.score-bio.score-vert{color:var(--ok-encre);}
+
+/* Lot 17 — vétérinaire : sorties bloquées */
+.ligne-verif{padding:.5rem 0;border-bottom:1px solid var(--bord);}
+.ligne-verif:last-child{border-bottom:0;}
+.blocage-sorties{display:flex;flex-direction:column;gap:.4rem;}
+
+/* Nouvel éleveur sans réseau : identifiant et mot de passe préparés sur le téléphone */
+.carte-provisoire{border:1.5px dashed var(--att-bord);background:var(--att-fond);border-radius:10px;padding:.75rem;margin-bottom:1rem;}

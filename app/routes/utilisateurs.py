@@ -155,6 +155,19 @@ def modifier(user_id):
         return redirect(url_for('utilisateurs.index'))
     mdp = donnees.pop('mot_de_passe')
     _rattacher_fermes(user, donnees.pop('fermes'))
+    nouveau_profil = donnees.pop('profil')
+    profil_propose = False
+    if nouveau_profil != user.profil:
+        # Lot 15 : quatre yeux — le profil actuel s'applique jusqu'à l'approbation
+        from app.services import approbations
+        try:
+            approbations.proposer('PROFIL', f'profil.{user.id}', f'Profil de « {user.identifiant} »',
+                                  user.profil.libelle, nouveau_profil.libelle,
+                                  {'utilisateur_id': str(user.id), 'profil': nouveau_profil.value},
+                                  request.form.get('motif') or 'Changement de profil (écran Utilisateurs)', current_user)
+            profil_propose = True
+        except approbations.RegleApprobation as e:
+            flash(str(e), 'danger')
     for cle, valeur in donnees.items():
         setattr(user, cle, valeur)
     if mdp:
@@ -162,6 +175,8 @@ def modifier(user_id):
         user.doit_changer_mdp = True
     db.session.commit()
     message = f'Compte « {user.identifiant} » mis à jour.'
+    if profil_propose:
+        message += ' Le changement de profil attend l\'approbation d\'une autre personne.'
     if mdp:
         message += ' Le nouveau mot de passe devra être changé à la prochaine connexion.'
     flash(message, 'success')
@@ -178,3 +193,24 @@ def debloquer(user_id):
         db.session.commit()
         flash(f'Compte « {user.identifiant} » débloqué.', 'success')
     return redirect(url_for('utilisateurs.index'))
+
+
+@utilisateurs_bp.route('/<user_id>/reinitialiser-2fa', methods=['POST'])
+@profil_requis(Profil.ADMIN)
+def reinitialiser_2fa(user_id):
+    """Lot 15 : téléphone perdu — la mise en place recommencera à la connexion suivante."""
+    from app.services import securite
+    from app.services.journal import enregistrer, Action
+    user = _charger(user_id)
+    motif = (request.form.get('motif') or '').strip()
+    if not motif:
+        flash('Indiquez le motif de la réinitialisation.', 'danger')
+        return redirect(url_for('utilisateurs.index'))
+    securite.reinitialiser(user)
+    enregistrer(Action.MODIFICATION, table='utilisateur', enregistrement_id=user.id,
+                detail=f'Double authentification de « {user.identifiant} » réinitialisée par '
+                       f'{current_user.identifiant} : {motif}')
+    db.session.commit()
+    flash(f'Double authentification de « {user.identifiant} » réinitialisée.', 'success')
+    return redirect(url_for('utilisateurs.index'))
+

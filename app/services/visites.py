@@ -50,7 +50,17 @@ def compte_rendu(ferme, visite, user, objet, constats, recommandations, libre, l
         visite = Visite(ferme_id=ferme.id, agent_id=user.id, objet=objet[:60])
         db.session.add(visite)
     elif visite.statut != SV.PREVUE:
-        raise RegleVisite('Cette visite a déjà son compte rendu.')
+        from app.services import hors_ligne
+        if not hors_ligne.actif():
+            raise RegleVisite('Cette visite a déjà son compte rendu.')
+        # Saisi sans réseau, reçu après un autre compte rendu (ou une annulation) : rien n'est perdu (lot 12),
+        # les deux sont gardés ; l'agent de la ferme est prévenu
+        prevue = visite
+        visite = Visite(ferme_id=ferme.id, agent_id=user.id, objet=(objet or prevue.objet)[:60])
+        db.session.add(visite)
+        hors_ligne.signaler(ferme, 'Deux comptes rendus pour la même visite',
+                            f'Visite prévue le {prevue.date_prevue:%d/%m} : un compte rendu saisi sans réseau est '
+                            f'arrivé après un autre. Les deux sont gardés.', user)
     visite.statut, visite.faite_le = SV.FAITE, jour or date.today()
     visite.constats, visite.recommandations, visite.recommandation_libre = constats, recommandations, libre
     visite.latitude, visite.longitude, visite.photo = latitude, longitude, photo

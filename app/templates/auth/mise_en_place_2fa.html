@@ -1,0 +1,24 @@
+{% extends '_base.html' %}
+{% block titre %}Mise en place de la double authentification{% endblock %}
+{% block icone %}shield-lock{% endblock %}
+{% block page_sous_titre %}{{ 'Obligatoire pour votre profil' if obligatoire else 'Protection supplémentaire de votre compte' }}{% endblock %}
+
+{% block contenu %}
+<div class="card-p" style="max-width:560px;">
+  <div class="card-p-body">
+    {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+    <ol class="etapes-2fa">
+      <li>Installez une application d'authentification sur votre téléphone (Google Authenticator, Microsoft Authenticator, FreeOTP…).</li>
+      <li>Scannez ce code avec l'application :
+        <div class="qr-2fa"><img src="{{ qr }}" alt="Code QR à scanner" width="200" height="200"></div>
+        ou recopiez la clé : <code class="mono">{{ secret }}</code></li>
+      <li>Saisissez le code à 6 chiffres affiché par l'application.</li>
+    </ol>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input class="form-control mb-3" name="code" inputmode="numeric" autocomplete="one-time-code" required aria-label="Code à 6 chiffres">
+      <button type="submit" class="btn-enregistrer">Activer</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

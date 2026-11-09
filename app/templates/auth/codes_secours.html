@@ -1,0 +1,14 @@
+{% extends '_base.html' %}
+{% block titre %}Codes de secours{% endblock %}
+{% block icone %}key{% endblock %}
+{% block page_sous_titre %}Affichés une seule fois · chaque code ne sert qu'une fois{% endblock %}
+
+{% block contenu %}
+<div class="card-p" style="max-width:480px;">
+  <div class="card-p-body">
+    <div class="flash-item warning"><i class="bi bi-exclamation-triangle"></i>Notez ou imprimez ces codes maintenant et gardez-les en lieu sûr. Ils remplacent le code de l'application si vous perdez votre téléphone.</div>
+    <div class="codes-secours">{% for c in codes %}<code class="mono">{{ c }}</code>{% endfor %}</div>
+    <a class="btn-enregistrer mt-3 d-inline-block" href="{{ url_for('accueil.index') }}">J'ai noté mes codes</a>
+  </div>
+</div>
+{% endblock %}

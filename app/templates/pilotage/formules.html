@@ -18,7 +18,8 @@
           {% if resultat and resultat.nom == l.nom and not resultat.invalide %}<div class="flash-item info mt-2"><i class="bi bi-calculator"></i>Avec l'exemple : {{ resultat.valeur|round(3)|qte if resultat.valeur is not none else 'pas de résultat (division par zéro ou donnée manquante)' }}</div>{% endif %}
           <div class="d-flex gap-2 mt-2 flex-wrap">
             <button type="submit" name="action" value="tester" class="btn-ghost">Tester la formule</button>
-            <button type="submit" name="action" value="enregistrer" class="btn-edit">Enregistrer</button>
+            <input class="form-control form-control-sm d-inline-block" style="max-width:220px" name="motif" placeholder="Motif (quatre yeux)">
+            <button type="submit" name="action" value="enregistrer" class="btn-edit">Proposer</button>
             {% if l.actuelle != l.origine %}<button type="submit" name="action" value="origine" class="btn-edit">Revenir à la formule d'origine</button>{% endif %}
           </div>
           <div class="form-hint mt-1">Variables : {{ l.autorisees|join(', ') }}</div>

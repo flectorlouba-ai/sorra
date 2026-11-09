@@ -22,7 +22,8 @@ def livraisons_de_l_etat(requete):
     À utiliser pour tout contrôle des intrants subventionnés : listes, alertes,
     mortalité à l'arrivée par fournisseur, exports, et le futur recoupement
     livraisons / consommations."""
-    return requete.filter(Livraison.origine == OrigineLivraison.ETAT)
+    # Lot 18 : une livraison seulement « prévue » (planning de la DGE) n'est pas encore une livraison
+    return requete.filter(Livraison.origine == OrigineLivraison.ETAT, Livraison.statut != S.PREVUE)
 
 
 # ── Droits ──────────────────────────────────────────────────────────────

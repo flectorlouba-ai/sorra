@@ -6,6 +6,10 @@
        bandeau_texte='Fait ✓ — ' ~ bandeau_vaccin.vaccination.produit.nom ~ ' · ' ~ bandeau_vaccin.vaccination.bande.batiment.code,
        bandeau_action=url_for('eleveur.annuler_vaccin', ident=bandeau_vaccin.vaccination.id) %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
 
+  {% for bl in blocages or [] %}
+  <div class="bandeau-rouge bandeau-blocage" data-blocage-eleveur>⛔ Le vétérinaire a bloqué les ventes de cette bande ({{ bl.bande.batiment.code }})
+    {% if bl.poseur.telephone %}<a class="bouton-appel-veto" href="tel:{{ bl.poseur.telephone|replace(' ', '') }}">📞 Appeler le vétérinaire</a>{% endif %}</div>
+  {% endfor %}
   {% for s in e.rouges %}
   <a class="bandeau-rouge" href="{{ url_for('sante.declarer', bande=s.bande.numero) }}">⚠️ {{ s.code }} : beaucoup de morts aujourd'hui → Signaler</a>
   {% endfor %}

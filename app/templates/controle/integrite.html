@@ -1,0 +1,19 @@
+{% extends '_base.html' %}
+{% block titre %}Intégrité du journal{% endblock %}
+{% block icone %}shield-check{% endblock %}
+{% block page_sous_titre %}Chaque entrée porte l'empreinte SHA-256 de la précédente : une modification se voit{% endblock %}
+
+{% block contenu %}
+<div class="card-p" style="max-width:640px;">
+  <div class="card-p-body">
+    {% if intact %}
+    <div class="flash-item success" id="integrite"><i class="bi bi-check-circle"></i><strong>✓ Journal intact</strong> — {{ nombre }} entrées vérifiées.</div>
+    {% else %}
+    <div class="flash-item danger" id="integrite"><i class="bi bi-x-octagon"></i><strong>✗ Rupture à l'entrée n° {{ rompue.id }}</strong>
+      ({{ rompue.horodatage|date_locale('%d/%m/%Y %H:%M') }} · {{ rompue.action }}{% if rompue.table_nom %} · {{ rompue.table_nom }}{% endif %}) :
+      cette entrée, ou une précédente, a été modifiée ou supprimée en dehors de l'application.</div>
+    {% endif %}
+    <div class="td-sous mt-2">Le journal ne peut pas être modifié par l'application ni par la base (déclencheurs). Cette vérification détecte une modification faite malgré tout.</div>
+  </div>
+</div>
+{% endblock %}

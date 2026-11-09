@@ -53,11 +53,15 @@ class Action:
     VERIFICATION    = 'VERIFICATION'
     REPONSE_VETO    = 'REPONSE_VETO'
     CONSENTEMENT    = 'CONSENTEMENT'
+    PROPOSITION     = 'PROPOSITION'
+    APPROBATION     = 'APPROBATION'
+    REFUS           = 'REFUS'
+    RECHERCHE       = 'RECHERCHE'
 
     TOUTES = [CREATION, MODIFICATION, SUPPRESSION, ANNULATION, CONNEXION,
               ECHEC_CONNEXION, DECONNEXION, CHANGEMENT_MDP, EXPORT, BLOCAGE, DEBLOCAGE, IMPORT, FUSION,
               CONFIRMATION, CONFIRMATION_ANNULEE, CORRECTION, POUR_ELEVEUR, DELAI_ATTENTE, LECTURE_QR, SANS_DESINFECTION,
-              VERIFICATION, REPONSE_VETO, CONSENTEMENT]
+              VERIFICATION, REPONSE_VETO, CONSENTEMENT, PROPOSITION, APPROBATION, REFUS, RECHERCHE]
 
     LIBELLES = {
         CREATION: 'Création', MODIFICATION: 'Modification', SUPPRESSION: 'Suppression',
@@ -70,7 +74,8 @@ class Action:
         LECTURE_QR: "Lecture d'un QR code",
         SANS_DESINFECTION: 'Bande ouverte sans désinfection',
         VERIFICATION: 'Saisie à vérifier tranchée', REPONSE_VETO: "Réponse du vétérinaire à l'éleveur",
-        CONSENTEMENT: 'Consentement BCEG',
+        CONSENTEMENT: 'Consentement BCEG', PROPOSITION: 'Modification proposée (quatre yeux)',
+        APPROBATION: 'Modification approuvée', REFUS: 'Modification refusée',
     }
 
 
@@ -218,6 +223,45 @@ def _apres_ecriture(session, flush_context):
         session.connection().execute(JournalAudit.__table__.insert(), lignes)
 
 
+def chainer(session, flush_context=None):
+    """Lot 15 : chaque nouvelle entrée du journal reçoit son empreinte SHA-256 (qui inclut celle de la
+    précédente), dans la table à part `journal_chaine`. Le journal n'est jamais modifié."""
+    from sqlalchemy import select
+    from app.models.securite import JournalChaine
+    from app.utils.empreinte import empreinte, GENESE
+    conn = session.connection()
+    dernier = conn.execute(select(JournalChaine.journal_id, JournalChaine.empreinte)
+                           .order_by(JournalChaine.journal_id.desc()).limit(1)).first()
+    depuis, precedente = (dernier.journal_id, dernier.empreinte) if dernier else (0, GENESE)
+    nouvelles = conn.execute(select(JournalAudit.__table__).where(JournalAudit.id > depuis)
+                             .order_by(JournalAudit.id)).mappings().all()
+    if not nouvelles:
+        return
+    lignes = []
+    for r in nouvelles:
+        e = empreinte(precedente, r)
+        lignes.append({'journal_id': r['id'], 'precedente': precedente, 'empreinte': e})
+        precedente = e
+    conn.execute(JournalChaine.__table__.insert(), lignes)
+
+
+def verifier_chaine():
+    """(intact, nombre d'entrées, première entrée rompue ou None)."""
+    from sqlalchemy import select
+    from app import db
+    from app.models.securite import JournalChaine
+    from app.utils.empreinte import empreinte, GENESE
+    chaine = {c.journal_id: c for c in JournalChaine.query}
+    precedente, n = GENESE, 0
+    for r in db.session.execute(select(JournalAudit.__table__).order_by(JournalAudit.id)).mappings():
+        n += 1
+        c = chaine.get(r['id'])
+        if c is None or c.precedente != precedente or empreinte(precedente, r) != c.empreinte:
+            return False, n, db.session.get(JournalAudit, r['id'])
+        precedente = c.empreinte
+    return True, n, None
+
+
 _installe = False
 
 
@@ -227,6 +271,7 @@ def installer():
         return
     event.listen(Session, 'before_flush', _avant_ecriture)
     event.listen(Session, 'after_flush', _apres_ecriture)
+    event.listen(Session, 'after_flush_postexec', chainer)
     _installe = True
 
 

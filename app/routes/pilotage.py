@@ -79,8 +79,15 @@ def _pdf(contenu, nom, detail):
 @pilotage_bp.route('/rapports')
 @profil_requis(*NATIONAL)
 def rapports():
+    from app.models.dge import RapportMensuel
+    from app.services import dge
+    if current_user.profil in (Profil.DGE, Profil.ADMIN):     # lot 18 : le mois terminé est produit et gardé
+        if dge.generer_manquants(current_user):
+            db.session.commit()
     return render_template('pilotage/rapports.html', provinces=Province.query.order_by(Province.ordre).all(),
-                           mois=date.today().strftime('%Y-%m'))
+                           mois=date.today().strftime('%Y-%m'),
+                           gardes=RapportMensuel.query.order_by(RapportMensuel.mois.desc()).limit(24).all(),
+                           destinataires=dge.destinataires(), email_actif=dge.email_actif())
 
 
 @pilotage_bp.route('/rapports/hebdomadaire.pdf')
@@ -107,11 +114,18 @@ def rapport_mensuel():
         du = date(annee, mois, 1)
     except ValueError:
         abort(400)
-    au = (du.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
-    contenu = rapports_pdf.rapport_periode(
-        f'Rapport mensuel national — {du.strftime("%m/%Y")}', f'Du {du:%d/%m/%Y} au {au:%d/%m/%Y}',
-        pilotage.tableau(current_user, {'du_date': du, 'au_date': au}), _alertes_confirmees(None))
+    contenu = contenu_mensuel(du.strftime('%Y-%m'), current_user)
     return _pdf(contenu, f'rapport_mensuel_{du:%Y%m}.pdf', f'Rapport mensuel national {du:%m/%Y}')
+
+
+def contenu_mensuel(mois, user):
+    """PDF du rapport mensuel national (« 2026-10 ») ; sert aussi aux rapports gardés (lot 18)."""
+    annee, m = (int(x) for x in mois.split('-'))
+    du = date(annee, m, 1)
+    au = (du.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+    return rapports_pdf.rapport_periode(
+        f'Rapport mensuel national — {du.strftime("%m/%Y")}', f'Du {du:%d/%m/%Y} au {au:%d/%m/%Y}',
+        pilotage.tableau(user, {'du_date': du, 'au_date': au}), _alertes_confirmees(None))
 
 
 def _alertes_confirmees(province_id):
@@ -228,12 +242,16 @@ def formules():
         texte = request.form.get('formule', '').strip()
         p = Parametre.query.filter_by(cle=f'formule.{nom}').first()
         try:
+            from app.services import approbations
+            libelle = f'Formule : {indicateurs.FORMULES[nom][0]}'
             if action == 'origine':
-                if p is not None:
-                    p.valeur = indicateurs.FORMULES[nom][1]
-                    p.modifie_par = current_user.id
-                    db.session.commit()
-                flash(f'« {indicateurs.FORMULES[nom][0]} » : formule d\'origine rétablie.', 'success')
+                # Lot 15 : quatre yeux — la formule actuelle s'applique jusqu'à l'approbation
+                approbations.proposer('FORMULE', f'formule.{nom}', libelle, indicateurs.formule(nom),
+                                      indicateurs.FORMULES[nom][1], {'valeur': indicateurs.FORMULES[nom][1],
+                                                                     'type': 'TEXTE', 'description': libelle},
+                                      request.form.get('motif') or "Retour à la formule d'origine", current_user)
+                db.session.commit()
+                flash(f'« {indicateurs.FORMULES[nom][0]} » : retour à la formule d\'origine proposé (à approuver).', 'info')
                 return redirect(url_for('pilotage.formules'))
             indicateurs.analyser(texte, _autorisees(nom))
             if action == 'tester':
@@ -241,15 +259,16 @@ def formules():
                 essai = indicateurs.evaluer(texte, {k: v for k, v in valeurs.items() if k in _autorisees(nom)})
                 resultat = {'nom': nom, 'texte': texte, 'valeur': essai}
             else:
-                if p is None:
-                    p = Parametre(cle=f'formule.{nom}', type=TypeParametre.TEXTE,
-                                  description=f'Formule : {indicateurs.FORMULES[nom][0]}')
-                    db.session.add(p)
-                p.valeur = texte
-                p.modifie_par = current_user.id
+                approbations.proposer('FORMULE', f'formule.{nom}', libelle, indicateurs.formule(nom), texte,
+                                      {'valeur': texte, 'type': 'TEXTE', 'description': libelle},
+                                      request.form.get('motif', ''), current_user)
                 db.session.commit()
-                flash(f'« {indicateurs.FORMULES[nom][0]} » : formule enregistrée.', 'success')
+                flash(f'« {indicateurs.FORMULES[nom][0]} » : formule proposée ; elle s\'appliquera après '
+                      f'approbation par une autre personne.', 'info')
                 return redirect(url_for('pilotage.formules'))
+        except approbations.RegleApprobation as e:
+            db.session.rollback()
+            flash(str(e), 'danger')
         except indicateurs.FormuleInvalide as e:
             flash(f'« {indicateurs.FORMULES[nom][0]} » : {e}', 'danger')
             resultat = {'nom': nom, 'texte': texte, 'invalide': True}

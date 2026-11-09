@@ -14,10 +14,11 @@
 </form>
 <div class="table-wrap"><div class="table-scroll">
   <table>
-    <thead><tr><th>N°</th><th>Date</th><th>Ferme</th><th>Province</th><th>Origine</th><th>Statut</th></tr></thead>
+    <thead><tr>{% if gravite %}<th>Gravité</th>{% endif %}<th>N°</th><th>Date</th><th>Ferme</th><th>Province</th><th>Origine</th><th>Statut</th></tr></thead>
     <tbody>
     {% for a in alertes %}
       <tr class="tr-click" onclick="location.href='{{ url_for('sante.alerte', numero=a.numero) }}'">
+        {% if gravite %}{% set g = gravite(a) %}<td data-gravite="{{ g }}"><span class="badge {{ 'badge-danger' if g >= 4 else 'badge-warn' if g == 3 else 'badge-neutre' }}">{{ libelle_gravite(g) }}</span></td>{% endif %}
         <td class="td-num"><a href="{{ url_for('sante.alerte', numero=a.numero) }}">{{ a.numero }}</a></td>
         <td>{{ a.cree_le|date_locale('%d/%m/%Y') }}</td>
         <td>{{ a.ferme.nom }}{% if a.bande %}<br><span class="td-sous">{{ a.bande.numero }}</span>{% endif %}</td>
@@ -26,7 +27,7 @@
         <td><span class="badge {{ {'NOUVELLE': 'badge-warn', 'EN_ANALYSE': 'badge-info', 'CONFIRMEE': 'badge-danger', 'INFIRMEE': 'badge-ok', 'CLOSE': 'badge-off'}[a.statut] }}">{{ a.libelle_statut }}</span></td>
       </tr>
     {% else %}
-      <tr><td colspan="6" class="table-vide"><i class="bi bi-check-circle"></i>Aucune alerte.</td></tr>
+      <tr><td colspan="7" class="table-vide"><i class="bi bi-check-circle"></i>Aucune alerte.</td></tr>
     {% endfor %}
     </tbody>
   </table>

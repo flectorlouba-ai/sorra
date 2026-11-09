@@ -1,0 +1,12 @@
+{% extends '_base.html' %}
+{% block titre %}Configuration{% endblock %}
+{% block icone %}gear{% endblock %}
+{% block page_sous_titre %}Référentiels, listes, paramètres, catalogue, formules, aides{% endblock %}
+
+{% block contenu %}
+<div class="modules-grid">
+  {% for t in tuiles %}
+  <a href="{{ t.lien }}" class="module-card mc-blue"><i class="bi bi-{{ t.icone }}"></i><div class="mc-title">{{ t.titre }}</div><div class="mc-sub">{{ t.sous_titre }}</div></a>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -255,6 +255,10 @@ def peser(bande, jour, nombre, total_kg, user):
 
 
 def sortir(bande, jour, motif, operateur, libre, nombre, poids_kg, user, montant=None):
+    from app.services import veto, hors_ligne
+    blocage = veto.blocage_actif(bande)
+    if blocage is not None and not hors_ligne.actif():
+        raise RegleBande(veto.MESSAGE_BLOCAGE + ' : appelez le vétérinaire.')
     _controle_jour(bande, jour, user)
     if motif not in MotifSortie.TOUS:
         raise RegleBande('Choisissez pour qui sont les poulets.')
@@ -276,6 +280,10 @@ def sortir(bande, jour, motif, operateur, libre, nombre, poids_kg, user, montant
     db.session.add(s)
     s.saisi_par_agent = _signer(user, bande, f'sortie de {nombre} poulets ({motif})')
     db.session.flush()
+    if blocage is not None:                       # lot 17 : gardée, mise de côté, à vérifier par le vétérinaire
+        veto.sortie_bloquee(s, blocage)
+        db.session.flush()
+        return s
     from app.services import tracabilite, verifications
     if not verifications.doublon_sortie(s, user):   # doublon possible (lot 12) : mise de côté, pas de lot
         tracabilite.creer_lot(s, user)   # abattoir ou vente : lot tracé avec son QR code

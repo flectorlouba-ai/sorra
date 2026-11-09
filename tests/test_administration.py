@@ -142,7 +142,7 @@ def test_parametres_securite_au_moins_1(client_admin):
 
 
 def test_listes_du_lot_1_avec_valeurs_de_depart(client_admin):
-    assert 'Valeurs des listes' in client_admin.get('/').get_data(as_text=True)
+    assert 'Valeurs des listes' in client_admin.get('/configuration').get_data(as_text=True)
     page = client_admin.get('/administration/listes/').get_data(as_text=True)
     for titre in ('Statuts de ferme', 'Types d&#39;infrastructures', 'Types d&#39;opérateurs'):
         assert titre in page

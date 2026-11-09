@@ -124,6 +124,32 @@ Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple pl
 - Pour la même personne, les saisies s'additionnent sans question. En ligne, l'écran « Déjà envoyé » propose d'ajouter ; une erreur se corrige ensuite par l'agent depuis la fiche de la bande.
 - Les pages gardées montrent l'état au dernier passage avec réseau (chiffres, « À faire aujourd'hui »).
 
+### L'agent sans réseau (relecture des lots 15-18, remplace la règle du lot 16)
+
+**Avant la relecture**, les saisies de l'agent demandaient le réseau de deux façons :
+- **pas de formulaire « hors ligne » du tout** : vaccin et traitement pour l'éleveur, biosécurité, nouvel éleveur, et aussi nouvelle bande, clôture, rattrapage, corrections, planifier ou annuler une visite, comptage du stock, commande, livraison, ferme (création, modification, bâtiments, GPS), BCEG ;
+- **formulaire « hors ligne », mais page jamais gardée sur le téléphone de l'agent**, donc inutilisable sans réseau sauf si elle avait été ouverte juste avant : saisie du jour, pesée, sortie, poulet malade, J'ai payé, entretien, réception de livraison, compte rendu de visite. Seules la tournée et les fiches des fermes étaient gardées (lot 16).
+
+**Maintenant** :
+- À chaque ouverture de l'accueil avec du réseau, le téléphone de l'agent garde, **une page à la fois**, toutes ses pages de saisie : tournée, fiches, compte rendu (non planifié et chaque visite prévue), biosécurité, nouvel éleveur, J'ai payé, entretien et panne, et pour chaque bande en cours : saisie du jour, jour oublié, pesée, sortie, poulet malade, vaccin, traitement ; plus la réception des livraisons à confirmer. La liste est unique (`routes/hors_ligne.pages_agent`), testée page par page.
+- Ces saisies se font **sans réseau** et partent au retour du réseau (bandeau ◷ / ✓ comme chez l'éleveur), avec leur identifiant unique : jamais deux fois.
+- **Règles** :
+  - saisie pour l'éleveur : règle du lot 12. Même personne, les saisies s'additionnent ; deux personnes, deux versions gardées, celle de l'éleveur compte, à trancher ;
+  - **compte rendu** : la date est celle du téléphone. Si la visite a reçu entre-temps un autre compte rendu, ou a été annulée, le compte rendu est **gardé comme une deuxième visite** et l'agent est prévenu ;
+  - **biosécurité** : date du téléphone ; une grille incomplète est refusée à l'envoi et signalée ;
+  - **nouvel éleveur** : identifiant et mot de passe provisoire sont **préparés et affichés sur le téléphone** avant l'envoi, à noter tout de suite. Identifiant déjà pris : un chiffre est ajouté, l'agent est prévenu, le mot de passe noté reste valable. Même téléphone déjà inscrit sur la ferme : refusé et signalé. **Le mot de passe provisoire est effacé du téléphone dès que l'inscription est envoyée** (le serveur a répondu : reçue, déjà reçue ou refusée) ; il n'y reste que si elle n'est pas arrivée (réseau coupé, reconnexion demandée). Test : `tests/test_effacement_mot_de_passe.py`, qui exécute le vrai script du téléphone dans Node (ignoré si Node manque).
+- **Restent en ligne** (des décisions, ou des écrans de bureau) : trancher une saisie, valider ou refuser, commander, compter le stock, planifier ou annuler une visite, créer ou modifier une ferme, les livraisons de l'État, la BCEG.
+- Vérifié au navigateur, réseau coupé : un nouvel éleveur et une biosécurité saisis sans réseau sont gardés (◷), puis envoyés au retour du réseau. Le compte se connecte avec le mot de passe noté. Captures : `docs/captures/agent_hors_ligne/`.
+
+### Blocage des ventes par le vétérinaire (lot 17)
+- Dès que la page de l'éleveur est relue avec du réseau, l'écran Sortie gardé sur le téléphone montre « ⛔ Le vétérinaire a bloqué les ventes de cette bande » **sans formulaire** : aucune sortie ne peut être saisie, même sans réseau. Vérifié au navigateur (`docs/captures/lot17/360_eleveur_sortie_bloquee_sans_reseau.png`).
+- En ligne, le serveur **refuse** la sortie (pas de lot, pas de QR).
+- Une sortie saisie sans réseau **avant** que le téléphone ne connaisse le blocage, et reçue **après**, n'est pas perdue : elle est enregistrée **mise de côté, à vérifier**, sans lot ni QR. Elle apparaît dans « Surveillance » chez le vétérinaire, qui dit si les poulets sont bien sortis (comptée, toujours sans QR) ou non.
+
+### Session (lot 15)
+- L'éleveur et l'agent ne sont **jamais déconnectés par inactivité** : des jours sans réseau ne doivent pas faire perdre la session.
+- Si l'ADMIN ferme la session (téléphone perdu), l'envoi suivant reçoit la réponse « connexion ». Les saisies restent sur le téléphone et partent après la reconnexion, au nom de leur auteur (lot 13).
+
 ## 6. Tests
 
 - `tests/test_hors_ligne.py` (12 tests) couvre :

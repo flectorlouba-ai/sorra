@@ -28,6 +28,10 @@ class Visite(SaisieTerrainMixin, db.Model):
     photo                = db.Column(db.String(80), nullable=True)
     motif_annulation     = db.Column(db.String(300), nullable=True)
     vue_par_eleveur_le   = db.Column(db.DateTime(timezone=True), nullable=True)
+    # Lot 16 : biosécurité (grille {point: oui/non/so}, score %, mesures correctives [{point, mesure}])
+    biosecurite          = db.Column(db.JSON, nullable=True)
+    score_biosecurite    = db.Column(db.Integer, nullable=True)
+    mesures_correctives  = db.Column(db.JSON, nullable=True)
 
     ferme = db.relationship('Ferme')
     agent = db.relationship('Utilisateur', foreign_keys=[agent_id])

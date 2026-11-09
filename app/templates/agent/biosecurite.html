@@ -1,0 +1,33 @@
+{% extends '_base.html' %}
+{% block titre %}Biosécurité{% endblock %}
+{% block icone %}shield-check{% endblock %}
+{% block page_sous_titre %}{{ ferme.nom }} ({{ ferme.numero }}) · score = Oui ÷ (Oui + Non) · l'éleveur voit le score et les mesures{% endblock %}
+
+{% block contenu %}
+<form method="post" class="form-terrain" novalidate data-hors-ligne="Biosécurité · {{ ferme.nom }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  {% for p in points %}{% set i = loop.index0 %}{% set r = saisie.get('r' ~ i) %}
+  <fieldset class="form-group bio-point" data-point="{{ i }}">
+    <legend class="form-label">{{ loop.index }}. {{ p }}</legend>
+    <div class="choix-cases">
+      <label class="case-choix"><input type="radio" name="r{{ i }}" value="oui" {% if r == 'oui' %}checked{% endif %}><span>Oui</span></label>
+      <label class="case-choix"><input type="radio" name="r{{ i }}" value="non" {% if r == 'non' %}checked{% endif %}><span>Non</span></label>
+      <label class="case-choix"><input type="radio" name="r{{ i }}" value="so" {% if r == 'so' %}checked{% endif %}><span>Sans objet</span></label>
+    </div>
+    <input class="form-control mt-1 bio-mesure" name="m{{ i }}" maxlength="200" placeholder="Mesure corrective (si Non)" value="{{ saisie.get('m' ~ i, '') }}" aria-label="Mesure corrective : {{ p }}">
+  </fieldset>
+  {% else %}
+  <div class="empty-note">La grille est vide : l'administrateur la remplit dans Listes → grille_biosecurite.</div>
+  {% endfor %}
+  {% if points %}<button type="submit" class="btn-gros">Enregistrer</button>{% endif %}
+</form>
+<script>
+// La mesure corrective n'apparaît que pour un « Non »
+document.querySelectorAll('.bio-point').forEach(function (f) {
+  var m = f.querySelector('.bio-mesure');
+  function maj() { var c = f.querySelector('input[type=radio]:checked'); m.hidden = !(c && c.value === 'non'); }
+  f.addEventListener('change', maj); maj();
+});
+</script>
+{% endblock %}

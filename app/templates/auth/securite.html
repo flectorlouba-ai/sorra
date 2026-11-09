@@ -1,0 +1,41 @@
+{% extends '_base.html' %}
+{% block titre %}Ma sécurité{% endblock %}
+{% block icone %}shield-lock{% endblock %}
+{% block page_sous_titre %}Mot de passe, double authentification, mes sessions{% endblock %}
+
+{% block contenu %}
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card-p">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-key"></i> Mot de passe</span></div>
+      <div class="card-p-body"><a class="btn-new" href="{{ url_for('auth.mot_de_passe') }}">Changer mon mot de passe</a></div>
+    </div>
+    {% if possible %}
+    <div class="card-p mt-3" id="deux-facteurs">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-shield-lock"></i> Double authentification</span></div>
+      <div class="card-p-body">
+        {% if current_user.totp_active %}
+        <div class="mb-2"><span class="badge badge-ok">Active</span> · {{ (current_user.codes_secours or [])|length }} code(s) de secours restant(s)</div>
+        <div class="td-sous">Téléphone perdu : demandez à l'administrateur de la réinitialiser.</div>
+        {% else %}
+        <div class="mb-2">{% if obligatoire %}<span class="badge badge-warn">Obligatoire pour votre profil</span>{% else %}Facultative pour votre profil.{% endif %}</div>
+        <a class="btn-new" href="{{ url_for('auth.mise_en_place') }}">Activer la double authentification</a>
+        {% endif %}
+        {% if not active %}<div class="td-sous mt-2">Sur ce serveur (démonstration), la double authentification n'est pas demandée à la connexion.</div>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  <div class="col-lg-7">
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr><th>Appareil</th><th>Ouverte le</th><th>Dernière activité</th><th></th></tr></thead>
+      <tbody>{% for s in mes_sessions %}
+        <tr><td>{{ s.appareil }}{% if s.id == sid %} <span class="badge badge-info">cette session</span>{% endif %}</td>
+          <td>{{ s.ouverte_le|date_locale('%d/%m/%Y %H:%M') }}</td><td>{{ s.derniere_activite|date_locale('%d/%m %H:%M') }}</td>
+          <td>{% if s.id != sid %}<form method="post" action="{{ url_for('auth.fermer_session', sid=s.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="btn-edit">Fermer</button></form>{% endif %}</td></tr>
+      {% else %}<tr><td colspan="4" class="table-vide">Aucune autre session.</td></tr>{% endfor %}</tbody>
+    </table></div></div>
+  </div>
+</div>
+{% endblock %}

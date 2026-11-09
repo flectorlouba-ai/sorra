@@ -1,0 +1,18 @@
+{% extends '_base.html' %}
+{% block titre %}Compte créé{% endblock %}
+{% block icone %}person-check{% endblock %}
+{% block page_sous_titre %}{{ ferme.nom }} ({{ ferme.numero }}){% endblock %}
+
+{% block contenu %}
+<div class="card-p" style="max-width:560px;">
+  <div class="card-p-body">
+    <div class="flash-item success"><i class="bi bi-check-circle"></i>Compte de {{ eleveur.nom_complet }} créé et rattaché à la ferme.</div>
+    <dl class="mb-3">
+      <dt>Identifiant</dt><dd class="mono" data-identifiant>{{ eleveur.identifiant }}</dd>
+      <dt>Mot de passe provisoire</dt><dd class="mono mdp-provisoire" data-provisoire>{{ provisoire }}</dd>
+    </dl>
+    <div class="flash-item warning"><i class="bi bi-eye-slash"></i>Notez-le maintenant et donnez-le à l'éleveur : il ne sera plus jamais affiché. À sa première connexion, l'éleveur choisira son propre mot de passe.</div>
+    <a class="btn-gros" href="{{ url_for('fermes.fiche', numero=ferme.numero) }}#eleveurs">C'est noté — retour à la fiche</a>
+  </div>
+</div>
+{% endblock %}

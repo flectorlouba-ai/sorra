@@ -179,6 +179,9 @@
                 if (rep.etat === 'connexion') { arret = 'Reconnectez-vous pour envoyer les saisies gardées.'; return; }
                 if (rep.etat === 'refuse') refus.push(e.libelle + ' : ' + rep.message);
                 else { envoyees += 1; libelles.push(e.libelle); }
+                // Le serveur a répondu (reçu, déjà reçu ou refusé) : la saisie est effacée du téléphone tout de
+                // suite, avec tout ce qu'elle contient (mot de passe provisoire d'un nouvel éleveur compris).
+                // Elle n'est gardée que si elle n'est pas arrivée (réseau coupé, reconnexion demandée).
                 return retirer(e.id);
               }, function () { arret = 'Réseau coupé : nouvel essai bientôt.'; });
             });
@@ -201,14 +204,17 @@
     if (anciens) anciens.remove();
   }
 
-  // Pages utiles sans réseau (lot 13) : à chaque ouverture de l'accueil avec du réseau, le
-  // téléphone garde TOUTES les pages de l'éleveur (liste unique du serveur : /hors-ligne/pages)
-  if (navigator.onLine && /^\/$/.test(location.pathname) && corps.classList.contains('theme-eleveur')) {
+  // Pages utiles sans réseau (lot 13 ; agent : après relecture des lots 15-18) : à chaque ouverture de
+  // l'accueil avec du réseau, le téléphone garde TOUTES les pages de saisie de l'éleveur ou de l'agent
+  // (liste unique du serveur : /hors-ligne/pages), une à une pour ne pas saturer un réseau faible.
+  if (navigator.onLine && /^\/$/.test(location.pathname) && corps.hasAttribute('data-pages-hors-ligne')) {
     setTimeout(function () {
       fetch('/hors-ligne/pages', {credentials: 'same-origin', cache: 'no-store'})
         .then(function (r) { return r.ok ? r.json() : {pages: []}; })
         .then(function (j) {
-          (j.pages || []).forEach(function (u) { fetch(u, {credentials: 'same-origin'}).catch(function () {}); });
+          return (j.pages || []).reduce(function (suite, u) {
+            return suite.then(function () { return fetch(u, {credentials: 'same-origin'}).catch(function () {}); });
+          }, Promise.resolve());
         }).catch(function () {});
     }, 1500);
   }
