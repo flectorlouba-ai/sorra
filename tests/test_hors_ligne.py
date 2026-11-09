@@ -220,7 +220,7 @@ def test_sans_en_tete_rien_ne_change(client, monde):
 
 def test_application_installable(client, monde):
     r = client.get('/sw.js')
-    assert r.status_code == 200 and r.headers['Service-Worker-Allowed'] == '/' and b'performyl2-pages' in r.data
+    assert r.status_code == 200 and r.headers['Service-Worker-Allowed'] == '/' and b"PREFIXE + 'pages-' + VERSION" in r.data
     assert client.get('/static/manifest.webmanifest').status_code == 200
     assert client.get('/hors-ligne/ping').status_code == 204
     connecter(client, 'eleveur1')

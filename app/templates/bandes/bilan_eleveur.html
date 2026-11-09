@@ -7,7 +7,7 @@
 
 {% block contenu %}
 <div class="carte carte-bilan">
-  {{ poulet('content', 'bilan-poulet') }}
+  {{ poulet('content', 'bilan-poulet', taille=110) }}
   {{ etoiles_m(etoiles, true) }}
   <div class="carte-phrase">{{ phrase }}</div>
   <div class="carte-sous">du {{ bande.date_mise_en_place.strftime('%d/%m/%Y') }} au {{ bande.date_cloture.strftime('%d/%m/%Y') }}</div>

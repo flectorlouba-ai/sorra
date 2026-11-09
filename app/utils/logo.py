@@ -39,8 +39,10 @@ def _chemin_svg(points):
     return d + ' Z'
 
 
-def svg(classe='logo-poulet', titre='SORRA'):
-    """Logo en SVG pour les gabarits (couleurs données par perform.css)."""
+def svg(classe='logo-poulet', titre='SORRA', taille=32):
+    """Logo en SVG pour les gabarits (couleurs données par perform.css). `taille` en pixels :
+    width et height sont écrits dans le HTML, le logo ne s'affiche jamais en géant si la
+    feuille de style manque."""
     parties = []
     for partie, forme, v in FORMES:
         c = f'class="logo-{partie}"'
@@ -52,7 +54,7 @@ def svg(classe='logo-poulet', titre='SORRA'):
             parties.append(f'<line {c} x1="{v[0]}" y1="{v[1]}" x2="{v[2]}" y2="{v[3]}"/>')
         else:
             parties.append(f'<path {c} d="{_chemin_svg(v)}"/>')
-    return Markup(f'<svg class="{classe}" viewBox="0 0 64 64" role="img" aria-label="{titre}">'
+    return Markup(f'<svg class="{classe}" width="{taille}" height="{taille}" viewBox="0 0 64 64" role="img" aria-label="{titre}">'
                   f'<title>{titre}</title>{"".join(parties)}</svg>')
 
 
@@ -114,9 +116,10 @@ LIBELLES = {'content': 'Poulet content', 'inquiet': 'Poulet inquiet', 'malade': 
             'dort': 'Poulet qui dort'}
 
 
-def poulet(expression='content', classe=''):
+def poulet(expression='content', classe='', taille=64):
     """Mascotte en SVG (couleurs par eleveur.css). `expression` : content, inquiet, malade, dort,
-    ou une couleur de feu (vert, orange, rouge, gris)."""
+    ou une couleur de feu (vert, orange, rouge, gris). `taille` en pixels : width et height
+    sont écrits dans le HTML (jamais de poulet géant si la feuille de style manque)."""
     expression = EXPRESSION_DU_FEU.get(expression, expression)
     if expression not in VISAGES:
         expression = 'content'
@@ -131,5 +134,6 @@ def poulet(expression='content', classe=''):
             parties.append(f'<line {c} x1="{v[0]}" y1="{v[1]}" x2="{v[2]}" y2="{v[3]}"/>')
         else:
             parties.append(f'<path {c} d="{_chemin_svg(v)}"/>')
-    return Markup(f'<svg class="poulet poulet-{expression} {classe}" viewBox="-2 0 66 64" role="img" '
+    return Markup(f'<svg class="poulet poulet-{expression} {classe}" width="{taille}" height="{taille}" '
+                  f'viewBox="-2 0 66 64" role="img" '
                   f'aria-label="{LIBELLES[expression]}">{"".join(parties)}{VISAGES[expression]}</svg>')

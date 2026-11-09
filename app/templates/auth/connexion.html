@@ -10,7 +10,7 @@
 
 <div class="login-card">
   <div class="login-head">
-    <div class="login-head-logo">{{ poulet('content') }}</div>
+    <div class="login-head-logo">{{ poulet('content', taille=104) }}</div>
     <h1>SORRA</h1>
     <p>Suivi et traçabilité de la filière avicole</p>
   </div>
@@ -68,6 +68,6 @@ function togglePwd() {
   i.className = f.type === 'text' ? 'bi bi-eye-slash' : 'bi bi-eye';
 }
 </script>
-<script>if ('caches' in window) { caches.delete('performyl2-pages'); }</script>
+<script>if ('caches' in window) { caches.keys().then(function (noms) { noms.forEach(function (n) { if (n.indexOf('performyl2-pages') === 0) caches.delete(n); }); }); }</script>
 </body>
 </html>

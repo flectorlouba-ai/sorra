@@ -95,9 +95,9 @@ def test_nom_affiche_sorra():
         assert 'YL.1' not in affiche and 'YL.2' not in affiche, f
     for f in ('_base.html', 'accueil.html', 'auth/connexion.html', 'tracabilite/public.html'):
         texte = (GABARITS / f).read_text(encoding='utf-8')
-        assert 'SORRA' in texte and ('logo_poulet()' in texte or "poulet('content')" in texte), f
+        assert 'SORRA' in texte and ('logo_poulet()' in texte or "poulet('content'" in texte), f
     statiques = GABARITS.parent / 'static'
-    for f in (statiques / 'manifest.webmanifest', statiques / 'js' / 'sw.js', statiques / 'js' / 'hors_ligne.js'):
+    for f in (statiques / 'manifest.webmanifest', GABARITS / 'sw.js', statiques / 'js' / 'hors_ligne.js'):
         assert 'YL.2' not in f.read_text(encoding='utf-8'), f
 
 

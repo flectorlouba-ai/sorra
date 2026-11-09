@@ -127,6 +127,8 @@ def create_app(env='default'):
     _installer_erreurs(app)
     from app.services import hors_ligne
     hors_ligne.installer(app)
+    from app.utils import statiques
+    statiques.installer(app)
     return app
 
 

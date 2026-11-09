@@ -14,7 +14,17 @@
   var utilisateur = corps && corps.getAttribute('data-utilisateur');
   if (!utilisateur || !window.isSecureContext || !('serviceWorker' in navigator) || !window.indexedDB) return;
 
-  navigator.serviceWorker.register('/sw.js', {scope: '/'}).catch(function () {});
+  // Mise à jour automatique : sw.js jamais pris dans le cache du navigateur, vérifié à chaque page ;
+  // quand une nouvelle version prend la main, la page se recharge une fois, proprement.
+  var dejaControlee = !!navigator.serviceWorker.controller, recharge = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function () {
+    if (!dejaControlee || recharge) return;
+    recharge = true;
+    location.reload();
+  });
+  navigator.serviceWorker.register('/sw.js', {scope: '/', updateViaCache: 'none'})
+    .then(function (inscription) { inscription.update().catch(function () {}); })
+    .catch(function () {});
 
   // ── Rangement sur le téléphone (IndexedDB) ──────────────────────────
   var BASE = 'performyl2', MAGASIN = 'attente';

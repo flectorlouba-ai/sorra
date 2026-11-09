@@ -12,7 +12,7 @@
 
   {% if e.fermes %}
   <div class="ligne-etat">
-    {{ poulet(e.pire) }}
+    {{ poulet(e.pire, taille=44) }}
     <div><strong>{{ e.etat }}</strong>
       {% if e.situation %}<small>{% for s in e.situation %}{{ s.code }} jour {{ s.age }}{{ ' · ' if not loop.last }}{% endfor %}</small>{% endif %}</div>
   </div>

@@ -8,7 +8,7 @@
 <body class="page-publique theme-eleveur">
 {% if lot %}
 <header class="public-tete">
-  {{ poulet('content') }}
+  {{ poulet('content', taille=100) }}
   <h1>Produit au Gabon</h1>
   <p>Consommons gabonais</p>
 </header>
@@ -27,7 +27,7 @@
 </main>
 {% else %}
 <header class="public-tete public-inconnu">
-  {{ poulet('dort') }}
+  {{ poulet('dort', taille=100) }}
   <h1>Code inconnu</h1>
   <p>Suivi de la filière avicole</p>
 </header>

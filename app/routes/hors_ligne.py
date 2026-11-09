@@ -1,7 +1,7 @@
 """Hors connexion : service worker, jeton d'envoi, saisies à vérifier par l'agent."""
 import os
 
-from flask import Blueprint, render_template, jsonify, redirect, url_for, flash, send_from_directory, current_app
+from flask import Blueprint, render_template, jsonify, redirect, url_for, flash, make_response, current_app
 from flask_login import current_user
 from flask_wtf.csrf import generate_csrf
 
@@ -9,17 +9,40 @@ from app import db
 from app.models import Profil
 from app.models.base import maintenant
 from app.models.hors_ligne import ConflitHorsLigne
+from app.utils import statiques
 from app.utils.permissions import profil_requis, filtre_perimetre
 
 hors_ligne_bp = Blueprint('hors_ligne', __name__)
 
 
+# Fichiers gardés dès l'installation (adresses versionnées par url_for : ?v=<empreinte>)
+A_GARDER = ['css/perform.css', 'css/eleveur.css', 'polices/polices.css',
+            'vendor/bootstrap-5.3.3/css/bootstrap.min.css', 'vendor/bootstrap-icons-1.11.3/bootstrap-icons.min.css',
+            'vendor/bootstrap-5.3.3/js/bootstrap.bundle.min.js', 'js/compteurs.js', 'js/hors_ligne.js',
+            'js/eleveur.js', 'manifest.webmanifest', 'icones/icone-192.png',
+            'polices/nunito-latin-400-normal.woff2', 'polices/nunito-latin-600-normal.woff2',
+            'polices/nunito-latin-700-normal.woff2', 'polices/nunito-latin-800-normal.woff2',
+            'polices/space-grotesk-latin-400-normal.woff2', 'polices/space-grotesk-latin-500-normal.woff2',
+            'polices/space-grotesk-latin-600-normal.woff2', 'polices/space-grotesk-latin-700-normal.woff2',
+            'polices/jetbrains-mono-latin-700-normal.woff2']
+# Police d'icônes appelée par bootstrap-icons.min.css avec sa propre empreinte
+POLICE_ICONES = '/static/vendor/bootstrap-icons-1.11.3/fonts/bootstrap-icons.woff2?dd67030699838ea613ee6dbda90effa6'
+
+
+def version():
+    """Empreinte de l'application (fichiers statiques et gabarits) : nomme les caches."""
+    return statiques.version_application(current_app.static_folder,
+                                         os.path.join(current_app.root_path, current_app.template_folder))
+
+
 @hors_ligne_bp.route('/sw.js')
 def service_worker():
-    """Servi à la racine pour couvrir tout le site."""
-    r = send_from_directory(os.path.join(current_app.static_folder, 'js'), 'sw.js', max_age=0)
+    """Servi à la racine pour couvrir tout le site ; jamais gardé en cache par le navigateur."""
+    a_garder = [url_for('static', filename=f) for f in A_GARDER] + [POLICE_ICONES]
+    r = make_response(render_template('sw.js', version=version(), a_garder=a_garder))
+    r.mimetype = 'application/javascript'
     r.headers['Service-Worker-Allowed'] = '/'
-    r.headers['Cache-Control'] = 'no-cache'
+    r.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     return r
 
 

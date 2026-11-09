@@ -10,7 +10,7 @@
   {% for l in en_cours %}
   {% set b, v = l.bande, l.v %}
   <div class="carte">
-    <div class="carte-haut">{{ poulet(l.couleur) }}
+    <div class="carte-haut">{{ poulet(l.couleur, taille=78) }}
       <div><div class="carte-jour">{{ b.numero }} · en cours</div>
         <div class="carte-phrase">Jour {{ v.age }} · {{ b.batiment.code }}</div>
         <div class="carte-sous">depuis le {{ b.date_mise_en_place.strftime('%d/%m/%Y') }}</div></div>

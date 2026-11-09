@@ -4,7 +4,7 @@
    Les bâtiments à saisir viennent d'abord : l'écran s'ouvre sur le premier pas encore saisi. #}
 <div class="ma-ferme-zone">
   {# Poulets pour l'écran « ◷ Sera envoyé… » affiché sans réseau (eleveur.js) #}
-  {% for feu in ('vert', 'orange', 'rouge', 'gris') %}<template id="modele-poulet-{{ feu }}">{{ poulet(feu, 'bien-recu-poulet') }}</template>{% endfor %}
+  {% for feu in ('vert', 'orange', 'rouge', 'gris') %}<template id="modele-poulet-{{ feu }}">{{ poulet(feu, 'bien-recu-poulet', taille=130) }}</template>{% endfor %}
   {% if bien_recu %}{% with r=bien_recu %}{% include 'eleveur/_bien_recu.html' %}{% endwith %}{% endif %}
   {% for e in espace %}
   {% set f = e.ferme %}

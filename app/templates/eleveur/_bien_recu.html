@@ -5,7 +5,7 @@
      data-fermer-auto="{{ '0' if r.reste else '1' }}">
   <div class="bien-recu-carte">
     {% if joie %}<span class="etincelles" aria-hidden="true">{% for i in range(6) %}<i></i>{% endfor %}</span>{% endif %}
-    {{ poulet(r.couleur, 'bien-recu-poulet') }}
+    {{ poulet(r.couleur, 'bien-recu-poulet', taille=130) }}
     {% if joie %}
     <div class="bien-recu-titre">Bien reçu !</div>
     {% if r.serie %}<div class="serie">🔥 {{ r.serie }} jour{{ 's' if r.serie > 1 }} d'affilée</div>{% endif %}

@@ -33,8 +33,15 @@ Les photos sont gardées sur le téléphone, déjà réduites (1 600 px), puis e
 
 ## 4. Comment c'est fait
 
-**Sur le téléphone** (`static/js/hors_ligne.js`, `static/js/sw.js`) :
-- Un *service worker* garde les fichiers de style et les pages déjà vues. Pour les pages, il essaie d'abord le réseau (8 s au plus).
+**Sur le téléphone** (`static/js/hors_ligne.js` ; service worker : gabarit `templates/sw.js`, servi par `/sw.js`) :
+- Un *service worker* garde les fichiers de style et les pages déjà vues.
+  - Pages, CSS et JS : **réseau d'abord** (8 s au plus), la copie gardée seulement sans réseau.
+  - Polices et images : cache d'abord.
+- **Mises à jour automatiques** (correctif du 09/11, `docs/rapport_correctif_cache.md`) :
+  - les caches portent la version de l'application (empreinte des fichiers statiques et gabarits, `app/utils/statiques.py`) ;
+  - chaque fichier statique est appelé avec son empreinte (`?v=…`) ;
+  - le nouveau service worker prend la main tout de suite et supprime les anciens caches ;
+  - la page se recharge une fois, proprement.
 - Un formulaire marqué `data-hors-ligne="libellé"` est intercepté à l'envoi :
   - le téléphone vérifie d'abord que le serveur répond (`/hors-ligne/ping`, 5 s au plus) ;
   - s'il répond, le formulaire part normalement ;

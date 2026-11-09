@@ -5,7 +5,7 @@
 {% set bande, v = x.bande, x.v %}
 {% if x.couleur == 'rouge' %}
 <div class="carte carte-alerte">
-  <div class="carte-haut">{{ poulet('malade') }}
+  <div class="carte-haut">{{ poulet('malade', taille=78) }}
     <div><div class="carte-jour">Jour {{ v.age }} · {{ x.code }}</div>
       <div class="carte-phrase">Beaucoup de morts aujourd'hui</div>
       <div class="carte-sous">Votre agent et le vétérinaire sont prévenus</div></div>
@@ -15,7 +15,7 @@
   {% if e.conseil %}<div class="conseil">📋 <strong>Conseil</strong><br>{{ e.conseil }}</div>{% endif %}
 </div>
 {% else %}
-<div class="carte carte-haut feu-{{ x.couleur }}">{{ poulet(x.couleur) }}
+<div class="carte carte-haut feu-{{ x.couleur }}">{{ poulet(x.couleur, taille=78) }}
   <div><div class="carte-jour">Jour {{ v.age }} · {{ x.code }}</div>
     <div class="carte-phrase">{{ x.phrase }}</div>
     <div class="carte-sous"><span class="num">{{ v.effectif_present|qte }}</span> poulets présents</div></div>
