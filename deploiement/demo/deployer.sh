@@ -29,7 +29,7 @@ rm -f "$ARCHIVE"
 # La partie serveur tourne détachée (setsid nohup) avec son journal : une coupure du réseau entre le poste et le
 # serveur ne l'interrompt pas (incident du 09/11/2026). Le poste lit ensuite le journal jusqu'à la fin.
 JOURNAL="/root/sorra-deploiement/journaux/$VERSION.log"
-"${SSH[@]}" "mkdir -p /root/sorra-deploiement/journaux && setsid nohup bash '$ATTENTE/deploiement/demo/deployer_serveur.sh' '$ATTENTE' '$VERSION' > '$JOURNAL' 2>&1 < /dev/null & echo \$! > '$JOURNAL.pid'"
+"${SSH[@]}" "mkdir -p /root/sorra-deploiement/journaux; setsid nohup bash '$ATTENTE/deploiement/demo/deployer_serveur.sh' '$ATTENTE' '$VERSION' > '$JOURNAL' 2>&1 < /dev/null & echo \$! > '$JOURNAL.pid'"
 set +e
 LUS=0
 while true; do
