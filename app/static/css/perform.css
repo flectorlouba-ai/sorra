@@ -801,7 +801,7 @@ i.picto-panne{font-style:normal;font-size:2rem;display:block;}
 .lots-retenus input[name=motif]{flex:1;min-width:180px;}
 /* Lot 19 : sorties de la bande et leur réception (écran Ventes et sorties) */
 .sorties-faites{margin-top:1.2rem;max-width:560px;}
-.sorties-titre{font-size:.72rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--noir);margin-bottom:.5rem;}
+.sorties-titre{font-size:.75rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--noir);margin-bottom:.5rem;}
 .sorties-liste{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.5rem;}
 .sorties-liste li{background:var(--blanc);border:1.5px solid var(--bord);border-radius:12px;padding:.6rem .75rem;font-size:.88rem;}
 .sortie-etapes{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin-top:.25rem;font-weight:800;}

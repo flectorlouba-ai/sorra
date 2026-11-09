@@ -146,7 +146,8 @@ def pages_a_garder(user):
                   url_for('bandes.oublie', numero=b.numero)]
     for liv in filtre_perimetre(Livraison.query).filter(Livraison.statut == StatutLivraison.A_CONFIRMER):
         pages.append(url_for('livraisons.recu_moins', numero=liv.numero))
-    pages += [url_for('aides.aide', cle=a.cle) for a in Aide.query.filter_by(actif=True)]
+    pages += [url_for('aides.aide', cle=a.cle) for a in Aide.query.filter_by(actif=True)
+              if not a.cle.startswith(('ag_', 'op_'))]          # lot 19 ter : les aides de l'agent et de l'opérateur
     return list(dict.fromkeys(pages))
 
 

@@ -136,6 +136,7 @@ def test_toutes_les_pages_eleveur_sont_gardees_sans_reseau(client, monde, app):
     for chemin in (f'/bandes/{b.numero}/pesee', f'/bandes/{b.numero}/sortie', f'/sante/declarer?bande={b.numero}',
                    f'/sante/traiter/{b.numero}', '/aide/saisie', '/aide/argent'):
         assert chemin in gardees, chemin
+    assert not any(p.startswith(('/aide/ag_', '/aide/op_')) for p in gardees)   # lot 19 ter : pas les aides des autres
     js = client.get('/static/js/hors_ligne.js').get_data(as_text=True)
     assert "fetch('/hors-ligne/pages'" in js
 
