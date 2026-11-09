@@ -29,6 +29,7 @@ MODULES = [
         ('Paramètres', 'Seuils et durées', 'sliders', 'parametres.index', {A}),
         ('Catalogue des intrants', 'Produits, unités, sacs', 'box-seam', 'catalogue.index', {A}),
         ('Formules des indicateurs', 'Mortalité, GMQ, IC…', 'calculator', 'pilotage.formules', {A}),
+        ("Tâches d'entretien", 'Abreuvoirs, litière, désinfection…', 'tools', 'entretien.taches', {A}),
     ]},
     {'code': 'fermes', 'titre': 'Fermes et élevage', 'icone': 'egg', 'option': False, 'tuiles': [
         ('Fermes', 'Fiches, bâtiments, GPS', 'house-door', 'fermes.liste',
@@ -170,6 +171,13 @@ def _alertes(user):
             resultat.append({'texte': f'{n} livraison{"s" if n > 1 else ""} de poussins au-delà du seuil de '
                                       f'mortalité à l\'arrivée', 'lien': url_for('pilotage.tableau') + '#arrivee',
                              'nombre': n, 'niveau': 'warning', 'meta': 'Poussins · 30 derniers jours'})
+    if user.profil in (Profil.AGENT, Profil.ADMIN):
+        from app.models.entretien import Panne, StatutPanne
+        for p in (filtre_perimetre(Panne.query.filter_by(statut=StatutPanne.SIGNALEE))
+                  .order_by(Panne.signalee_le.desc())):
+            resultat.append({'texte': f'Panne signalée : {p.icone} {p.libelle} · {p.ou}',
+                             'lien': url_for('fermes.fiche', numero=p.ferme.numero) + '#entretien', 'nombre': 1,
+                             'niveau': 'urgence', 'meta': f'{p.ferme.nom} · entretien'})
     if user.profil == Profil.AGENT:
         from app.routes.hors_ligne import conflits_a_voir
         n = conflits_a_voir(user).count()

@@ -1,0 +1,49 @@
+{% extends '_base.html' %}
+{% block titre %}Tâches d'entretien{% endblock %}
+{% block sous_titre %}Configuration{% endblock %}
+{% block icone %}tools{% endblock %}
+{% block page_sous_titre %}Les tâches que l'éleveur coche dans « Entretien » · on ne supprime pas, on désactive{% endblock %}
+
+{% block contenu %}
+<div class="flash-item warning"><i class="bi bi-exclamation-triangle"></i>Liste de départ <strong>à valider par les vétérinaires</strong>.</div>
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr><th></th><th>Tâche</th><th>Fréquence</th><th>Pour</th><th>Si la ferme a</th><th>État</th><th></th></tr></thead>
+      <tbody>{% for t in taches %}
+        <tr{% if not t.actif %} class="ligne-vue"{% endif %}>
+          <td style="font-size:1.3rem">{{ t.icone }}</td><td><strong>{{ t.nom }}</strong></td>
+          <td>{{ frequences[t.frequence] }}</td><td>{{ portees[t.portee] }}</td><td>{{ t.infrastructure or '—' }}</td>
+          <td>{% if t.actif %}<span class="badge badge-ok">Active</span>{% else %}<span class="badge badge-off">Désactivée</span>{% endif %}</td>
+          <td><a class="btn-edit" href="{{ url_for('entretien.taches', modifier=t.id) }}#formulaire">Modifier</a></td>
+        </tr>{% endfor %}</tbody>
+    </table></div></div>
+  </div>
+  <div class="col-lg-5">
+    {% set t = modifiee %}
+    <div class="card-p" id="formulaire">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-{{ 'pencil' if t else 'plus-lg' }}"></i> {{ 'Modifier « ' ~ t.nom ~ ' »' if t else 'Ajouter une tâche' }}</span></div>
+      <div class="card-p-body">
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          {% if t %}<input type="hidden" name="id" value="{{ t.id }}">{% endif %}
+          <label class="form-label" for="nom">Nom</label>
+          <input class="form-control mb-2" id="nom" name="nom" maxlength="120" required value="{{ t.nom if t else '' }}">
+          <label class="form-label" for="icone">Icône (émoji)</label>
+          <input class="form-control mb-2" id="icone" name="icone" maxlength="16" value="{{ t.icone if t else '🔧' }}">
+          <label class="form-label" for="frequence">Fréquence</label>
+          <select class="form-control mb-2" id="frequence" name="frequence">{% for c, l in frequences.items() %}<option value="{{ c }}" {% if t and t.frequence == c %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+          <label class="form-label" for="portee">Pour</label>
+          <select class="form-control mb-2" id="portee" name="portee">{% for c, l in portees.items() %}<option value="{{ c }}" {% if t and t.portee == c %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+          <label class="form-label" for="infrastructure">Seulement si la ferme a</label>
+          <select class="form-control mb-2" id="infrastructure" name="infrastructure"><option value="">— toutes les fermes —</option>
+            {% for i in infrastructures %}<option value="{{ i }}" {% if t and t.infrastructure == i %}selected{% endif %}>{{ i }}</option>{% endfor %}</select>
+          <label class="d-flex gap-2 align-items-center mb-3"><input type="checkbox" name="actif" {% if not t or t.actif %}checked{% endif %}> Active</label>
+          <button type="submit" class="btn-new">Enregistrer</button>
+          {% if t %}<a class="btn-ghost ms-2" href="{{ url_for('entretien.taches') }}">Nouvelle tâche</a>{% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

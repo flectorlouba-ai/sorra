@@ -63,6 +63,9 @@ def accueil(user):
                   .filter(Livraison.statut == StatutLivraison.A_CONFIRMER).count())
     poussins = sum(sum(d for _, d in regles_bandes.poussins_en_attente(f)) for f in fermes
                    if regles_bandes.batiments_libres(f))
+    from app.services import entretien
+    a_faire_entretien = sum(entretien.a_faire_aujourdhui(f) for f in fermes)
+    pannes = sum(len(entretien.pannes_en_cours(f)) for f in fermes)
     pesees = sorted(sit, key=lambda s: s['pesee'])
     pesee_due = [s for s in pesees if s['pesee'] <= auj]
     etats_vaccins = {v['etat'] for s in sit for v in s['vaccins']}
@@ -90,8 +93,10 @@ def accueil(user):
          'sous': 'vente, abattoir', 'visible': bool(sit)},
         {'cle': 'achat', 'ico': '🛒', 'nom': "J'ai acheté", 'lien': url_for('eleveur.achat'),
          'sous': 'aliment, poussins…', 'visible': bool(fermes)},
-        # Entretien : place réservée ; l'écran n'existe pas encore, la tuile reste cachée
-        {'cle': 'entretien', 'ico': '🧹', 'nom': 'Entretien', 'lien': None, 'sous': '', 'visible': False},
+        {'cle': 'entretien', 'ico': '🔧', 'nom': 'Entretien', 'lien': url_for('entretien.ecran'),
+         'sous': 'pannes en cours' if pannes else ('tâches à faire' if a_faire_entretien else 'tout est fait'),
+         'pastille': (a_faire_entretien + pannes) or None, 'pastille_classe': 'rouge' if pannes else '',
+         'visible': bool(fermes)},
         {'cle': 'bandes', 'ico': '📈', 'nom': 'Mes bandes', 'lien': url_for('bandes.mes_bandes'),
          'sous': 'en cours et passées'},
         {'cle': 'stock', 'ico': '🧺', 'nom': 'Mon stock', 'lien': url_for('eleveur.stock'),

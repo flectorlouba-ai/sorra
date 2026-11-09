@@ -1,0 +1,51 @@
+{% extends '_base.html' %}
+{% block titre %}Entretien{% endblock %}
+{% block icone %}tools{% endblock %}
+{% block page_titre %}🔧 Entretien{% endblock %}
+{% block page_sous_titre %}{{ ferme.nom if not theme_eleveur else 'Cochez ce qui est fait, signalez ce qui ne marche pas' }}{% if not theme_eleveur %} · saisie de l'agent pour l'éleveur{% endif %}{% endblock %}
+
+{% block contenu %}
+{% set q = {} if theme_eleveur else {'ferme': ferme.numero} %}
+<div class="entretien">
+  {% if bandeau_fait %}{% with liv={'numero': 'fait'}, secondes=bandeau_fait.secondes,
+       bandeau_texte='Fait ✓ — ' ~ bandeau_fait.tache.nom, bandeau_action=url_for('entretien.annuler_fait', **q) %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
+  {% if bandeau_repare %}{% with liv={'numero': 'repare'}, secondes=bandeau_repare.secondes,
+       bandeau_texte='Réparé ✓ — ' ~ bandeau_repare.panne.libelle ~ ' · ' ~ bandeau_repare.panne.ou,
+       bandeau_action=url_for('entretien.annuler_reparation', ident=bandeau_repare.panne.id) %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
+
+  {% for p in pannes %}
+  <div class="carte carte-panne">
+    <div class="panne-titre">{{ p.icone }} {{ p.libelle }} en panne · {{ p.ou }}</div>
+    <div class="carte-sous">signalée le {{ p.signalee_le|date_locale('%d/%m à %H:%M') }}{% if ferme.agent %} · {{ ferme.agent.prenom or ferme.agent.nom }} est prévenu{% endif %}
+      {% if p.photo %} · <a href="{{ url_for('entretien.photo', ident=p.id) }}" target="_blank">photo</a>{% endif %}</div>
+    <form method="post" action="{{ url_for('entretien.reparee', ident=p.id, **q) }}" data-hors-ligne="Panne réparée · {{ p.libelle }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn-gros btn-vert">C'est réparé</button>
+    </form>
+  </div>
+  {% endfor %}
+
+  {% for c in cartes %}
+  <div class="tache-entretien{{ ' faite' if c.faite }}">
+    <span class="tache-ico" aria-hidden="true">{{ c.tache.icone }}</span>
+    <div class="tache-texte">
+      <strong>{{ c.tache.nom }}</strong>{% if c.retard and not c.faite %} <span class="tache-retard">{{ c.retard }}</span>{% endif %}
+      <small>{{ c.sous }}</small>
+    </div>
+    {% if c.faite %}
+    <span class="tache-fait">✓ fait</span>
+    {% else %}
+    <form method="post" action="{{ url_for('entretien.fait', **q) }}" data-hors-ligne="Entretien · {{ c.tache.nom }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="tache" value="{{ c.tache.id }}">
+      <button type="submit" class="tache-bouton">Fait ✓</button>
+    </form>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="empty-note">Aucune tâche d'entretien pour l'instant.</div>
+  {% endfor %}
+
+  <a class="btn-panne" href="{{ url_for('entretien.panne', **q) }}">⚠️ Quelque chose est en panne</a>
+</div>
+{% endblock %}

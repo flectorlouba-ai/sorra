@@ -40,6 +40,8 @@ class Bande(SaisieTerrainMixin, db.Model):
     cloturee_par      = db.Column(db.Uuid, db.ForeignKey('utilisateur.id'), nullable=True)
     motif_cloture     = db.Column(db.Text, nullable=True)
     bilan             = db.Column(db.JSON, nullable=True)   # figé à la clôture
+    # Lot 10 : bande ouverte alors que le bâtiment n'était pas marqué « nettoyé et désinfecté »
+    ouverte_sans_desinfection = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
 
     ferme = db.relationship('Ferme')
     batiment = db.relationship('Batiment')

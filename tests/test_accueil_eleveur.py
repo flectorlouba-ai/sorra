@@ -42,8 +42,8 @@ def test_accueil_sans_bande_ni_poussins(client, monde):
     page = client.get('/').get_data(as_text=True)
     assert 'Aucune bande en cours' in page and 'poulet-dort' in page
     assert 'Saisie du jour' not in page
-    assert tuiles(page) == ['livraisons', 'malade', 'achat', 'bandes', 'stock']
-    assert 'tuiles impair' in page                       # la dernière tuile prend toute la largeur
+    assert tuiles(page) == ['livraisons', 'malade', 'achat', 'entretien', 'bandes', 'stock']
+    assert 'tuiles impair' not in page                   # 6 tuiles : nombre pair
     assert 'class="compteur"' not in page and 'bloc-bat' not in page   # plus de tableau de bord
 
 
@@ -70,8 +70,8 @@ def test_accueil_avec_bandes_saisie_pastilles_et_ligne_d_etat(client, monde):
     page = client.get('/').get_data(as_text=True)
     assert '2 bâtiments · tout va bien' in page and 'B1 jour 3 · B2 jour 2' in page and 'poulet-content' in page
     assert 'B1, B2 à faire · morts et aliment' in page and 'aria-label="2 bâtiment(s) à saisir"' in page
-    assert tuiles(page) == ['livraisons', 'peser', 'vaccins', 'malade', 'sortie', 'achat', 'bandes', 'stock']
-    assert 'tuiles impair' not in page
+    assert tuiles(page) == ['livraisons', 'peser', 'vaccins', 'malade', 'sortie', 'achat', 'entretien', 'bandes', 'stock']
+    assert 'tuiles impair' in page                       # la dernière tuile prend toute la largeur
     jours(b1, 0)
     jours(b2, 0)
     page = client.get('/').get_data(as_text=True)
@@ -331,7 +331,7 @@ def test_ordre_des_tuiles_fixe(client, monde):
                                      'part_subventionnee': 100, 'valeur_unitaire': None}])
     db.session.commit()
     connecter(client, 'eleveur1')
-    attendu = [c for c in ORDRE_TUILES if c != 'entretien']       # Entretien : écran pas encore construit
+    attendu = list(ORDRE_TUILES)
     page = client.get('/').get_data(as_text=True)
     assert ordre_accueil(page) == attendu
     # Les pastilles changent (tout est saisi, vaccin en retard, plus de livraison) : l'ordre ne bouge pas
@@ -347,4 +347,4 @@ def test_ordre_des_tuiles_fixe(client, monde):
     regles.cloturer(b, monde['el'], 'essai')
     db.session.commit()
     page = client.get('/').get_data(as_text=True)
-    assert ordre_accueil(page) == ['livraisons', 'bande', 'malade', 'achat', 'bandes', 'stock']
+    assert ordre_accueil(page) == ['livraisons', 'bande', 'malade', 'achat', 'entretien', 'bandes', 'stock']

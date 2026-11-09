@@ -125,6 +125,25 @@
   {% endif %}
 </div>
 
+{% if entretien is not none %}
+{% set en = entretien %}
+<div class="card-p" id="entretien">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-tools"></i> Entretien</span>
+    {% if current_user.profil.value == 'AGENT' %}<a class="btn-top" href="{{ url_for('entretien.ecran', ferme=ferme.numero) }}"><i class="bi bi-check2-square"></i> Cocher ou réparer pour l'éleveur</a>{% endif %}</div>
+  <div class="card-p-body">
+    <div class="mb-2"><strong>Dernière synchronisation du téléphone de l'éleveur :</strong>
+      {% if en.synchro is none %}jamais{% elif en.synchro_jours == 0 %}aujourd'hui{% else %}il y a {{ en.synchro_jours }} jour{{ 's' if en.synchro_jours > 1 }}{% endif %}
+      {% if en.synchro_jours and en.synchro_jours >= 3 %}<span class="badge badge-warn">à vérifier</span>{% endif %}</div>
+    {% for p in en.pannes %}<div class="flash-item danger"><i class="bi bi-exclamation-octagon"></i>{{ p.icone }} {{ p.libelle }} en panne · {{ p.ou }} — signalée le {{ p.signalee_le|date_locale('%d/%m/%Y %H:%M') }}{% if p.saisie_par_agent %} (agent pour l'éleveur){% endif %}{% if p.photo %} · <a href="{{ url_for('entretien.photo', ident=p.id) }}" target="_blank">photo</a>{% endif %}</div>{% endfor %}
+    {% for b in en.sans_desinfection %}<div class="flash-item warning"><i class="bi bi-exclamation-triangle"></i>Bande {{ b.numero }} ouverte sans désinfection du bâtiment {{ b.batiment.code }}.</div>{% endfor %}
+    {% if en.retards %}<div class="mb-2"><strong>Tâches en retard :</strong> {% for c in en.retards %}{{ c.tache.icone }} {{ c.tache.nom }} ({{ c.retard }}){{ ', ' if not loop.last }}{% endfor %}</div>{% endif %}
+    <div><strong>Dernière désinfection :</strong>
+      {% for d in en.desinfections %}{{ d.batiment.code }} : {{ d.derniere.strftime('%d/%m/%Y') if d.derniere else 'jamais' }}{% if d.a_faire %} <span class="badge badge-warn">à faire</span>{% endif %}{{ ' · ' if not loop.last }}{% endfor %}</div>
+    {% if not en.pannes and not en.retards and not en.sans_desinfection %}<div class="td-sous mt-1">Aucune panne en cours, aucune tâche en retard.</div>{% endif %}
+  </div>
+</div>
+{% endif %}
+
 {% if achats is not none %}
 <div class="card-p" id="achats">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-cart"></i> Achats de l'éleveur</span>

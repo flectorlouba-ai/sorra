@@ -85,7 +85,7 @@
 
 /* ── Cartes ───────────────────────────────────────────────────────────── */
 .theme-eleveur .carte,.theme-eleveur .carte-ligne,.theme-eleveur .carte-livraison,.theme-eleveur .ma-ferme,
-.theme-eleveur .carte-choix-livraison span,.theme-eleveur .empty-note{
+.theme-eleveur .carte-choix-livraison > span,.theme-eleveur .empty-note{
   background:var(--e-blanc);border:1px solid var(--e-trait);border-radius:18px;box-shadow:0 2px 10px var(--e-ombre);}
 .theme-eleveur .carte{display:block;padding:14px;margin-bottom:12px;color:var(--e-nuit);text-decoration:none;}
 .theme-eleveur .carte-lien:active{transform:scale(.99);}
@@ -155,7 +155,7 @@
 .theme-eleveur .pictos .case-choix input:checked + span{border-color:var(--e-rouge);background:var(--e-rose);box-shadow:0 0 0 2px var(--e-rouge);}
 .theme-eleveur .pictos .case-choix input:checked + span i{color:var(--e-rouge);}
 .theme-eleveur .case-choix.indisponible span{background:var(--e-gris-clair);box-shadow:none;}
-.theme-eleveur .carte-choix-livraison span{padding:12px 14px;}
+.theme-eleveur .carte-choix-livraison > span{padding:12px 14px;}
 
 /* Saisie du jour déjà envoyée */
 .theme-eleveur .saisie-envoyee{background:var(--e-vert-pale);color:var(--e-prairie-fonce);border-radius:14px;padding:10px 12px;
@@ -376,6 +376,34 @@
 .autres-produits summary::-webkit-details-marker{display:none;}
 .autres-produits[open] summary{margin-bottom:10px;}
 .theme-eleveur .courbe{width:100%;height:auto;margin-top:8px;}
+
+/* ── Lot 10 : entretien ───────────────────────────────────────────────── */
+.theme-eleveur .carte.carte-panne{background:var(--e-rose);border-color:var(--e-rose-bord);display:flex;flex-direction:column;gap:8px;}
+.theme-eleveur .panne-titre{font-weight:900;font-size:1.05rem;}
+.theme-eleveur .tache-entretien{display:flex;align-items:center;gap:10px;background:var(--e-blanc);border:1px solid var(--e-trait);
+  border-radius:18px;padding:12px;box-shadow:0 2px 10px var(--e-ombre);margin-bottom:10px;}
+.theme-eleveur .tache-entretien form{margin:0;}
+.theme-eleveur .tache-ico{font-size:1.8rem;line-height:1;flex-shrink:0;}
+.theme-eleveur .tache-texte{flex:1;min-width:0;}
+.theme-eleveur .tache-texte strong{font-weight:900;}
+.theme-eleveur .tache-texte small{display:block;color:var(--e-gris);font-weight:700;font-size:.85rem;}
+.theme-eleveur .tache-retard{display:inline-block;background:var(--e-orange-pale);color:var(--e-orange);border-radius:999px;
+  padding:1px 8px;font-weight:900;font-size:.75rem;}
+.theme-eleveur .tache-bouton{border:0;border-radius:14px;padding:10px 14px;font:inherit;font-weight:900;color:var(--e-blanc);
+  background:var(--e-prairie);box-shadow:0 4px 10px var(--e-ombre-verte);white-space:nowrap;min-height:44px;}
+.theme-eleveur .tache-bouton:active{transform:scale(.96);}
+.theme-eleveur .tache-entretien.faite{opacity:.6;box-shadow:none;}
+.theme-eleveur .tache-fait{font-weight:900;color:var(--e-prairie-fonce);white-space:nowrap;}
+.theme-eleveur .btn-panne{display:block;text-align:center;background:var(--e-rose);color:var(--e-rouge);border:1px solid var(--e-rose-bord);
+  border-radius:16px;padding:14px;font-weight:900;text-decoration:none;margin-top:6px;}
+.theme-eleveur .btn-panne:hover{color:var(--e-rouge);}
+.theme-eleveur .pictos .case-choix span i.picto-panne{font-style:normal;font-size:2.2rem;line-height:1.2;}
+.theme-eleveur .types-panne{grid-template-columns:repeat(3,1fr);}
+.theme-eleveur .case-large{grid-column:1 / -1;}
+.theme-eleveur .avertissement-desinfection{background:var(--e-jaune-pale);border:1px solid var(--e-jaune-bord);border-radius:16px;padding:12px 14px;}
+.theme-eleveur .avertissement-desinfection span{display:block;color:var(--e-gris);font-weight:700;}
+.theme-eleveur .bandeau-attente-longue{background:var(--e-orange-pale);border:1px solid var(--e-orange-bord);color:var(--e-nuit);
+  border-radius:14px;padding:8px 12px;font-weight:800;font-size:.85rem;margin-bottom:10px;}
 
 /* ── Animations (transform, opacity) ──────────────────────────────────── */
 @keyframes e-rebond{0%{transform:scale(1);}45%{transform:scale(1.25);}100%{transform:scale(1);}}

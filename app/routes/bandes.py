@@ -228,16 +228,27 @@ def ouvrir():
         return render_template('bandes/choisir_ferme.html', fermes=fermes, cible='bandes.ouvrir')
     attente = regles.poussins_en_attente(ferme)
     libres = regles.batiments_libres(ferme)
-    erreur = None
+    erreur = avertissement = None
     if request.method == 'POST':
         try:
             ligne = next((l for l, _ in attente if str(l.id) == request.form.get('ligne')), None)
             if ligne is None:
                 raise regles.RegleBande('Choisissez les poussins à mettre en place.')
             batiment = Batiment.query.filter_by(id=request.form.get('batiment', type=int), ferme_id=ferme.id).first()
+            # Lot 10 : bâtiment pas marqué « nettoyé et désinfecté » → avertissement non bloquant
+            from app.services import entretien
+            sans_desinfection = batiment is not None and entretien.desinfection_a_faire(batiment) is not None
+            if sans_desinfection and request.form.get('continuer') != '1':
+                avertissement = batiment
+                raise regles.RegleBande('')
             bande = regles.ouvrir(ferme, batiment, ligne, _nombre(request.form.get('effectif'), entier=True),
                                   _jour(request.form.get('date')), _nombre(request.form.get('poids_g')),
                                   current_user)
+            if sans_desinfection:
+                bande.ouverte_sans_desinfection = True
+                enregistrer(Action.SANS_DESINFECTION, table='bande', enregistrement_id=bande.id,
+                            detail=f'Bande {bande.numero} ouverte par {current_user.nom_complet} alors que le bâtiment '
+                                   f"{batiment.code} n'était pas marqué « nettoyé et désinfecté ».")
             db.session.commit()
             flash(f'Bande {bande.numero} commencée : {bande.effectif_initial} poussins, '
                   f'fin prévue le {bande.date_fin_prevue.strftime("%d/%m")}.', 'success')
@@ -247,11 +258,11 @@ def ouvrir():
             return _retour(bande)
         except regles.RegleBande as e:
             db.session.rollback()
-            erreur = str(e)
+            erreur = str(e) or None
     duree = int(parametres.obtenir('bandes.duree_reference_jours', 45))
     etats = {b.id: regles.etat_batiment(b) for b in ferme.batiments}
     return render_template('bandes/ouvrir.html', ferme=ferme, attente=attente, libres=libres, etats=etats,
-                           erreur=erreur, saisie=request.values, duree=duree,
+                           erreur=erreur, saisie=request.values, duree=duree, avertissement=avertissement,
                            poids_defaut=parametres.obtenir('bandes.poids_poussin_g', 40),
                            peut_rattrapage=regles.peut_rattrapage(current_user))
 

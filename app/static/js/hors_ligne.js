@@ -219,4 +219,20 @@
   window.addEventListener('offline', function () { toutes().then(function (l) { afficher(l); }); });
   setInterval(function () { if (navigator.onLine) envoyer(); }, 30000);
   envoyer();
+
+  // Protection des saisies en attente (lot 10) : sur l'accueil, si des saisies attendent le
+  // réseau depuis plus de 24 h, prévenir de ne pas vider les données de l'application.
+  if (location.pathname === '/') {
+    toutes().then(function (liste) {
+      var limite = Date.now() - 24 * 3600 * 1000;
+      var vieilles = liste.filter(function (e) { return Date.parse(e.horodatage) < limite; });
+      if (!vieilles.length) return;
+      var avis = document.createElement('div');
+      avis.className = 'bandeau-attente-longue';
+      avis.setAttribute('role', 'status');
+      avis.textContent = '◷ ' + liste.length + ' saisie' + (liste.length > 1 ? 's' : '') +
+        ' attend' + (liste.length > 1 ? 'ent' : '') + ' le réseau. Ne videz pas les données de l\'application.';
+      zone.insertBefore(avis, zone.firstChild);
+    }).catch(function () {});
+  }
 })();

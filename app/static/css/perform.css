@@ -656,3 +656,27 @@ a.btn-gros-rouge:hover{color:var(--blanc);filter:brightness(1.08);}
 .logo-oeil{fill:var(--noir);}
 .logo-aile{fill:var(--b200);}
 .logo-pattes{stroke:var(--ambre-vif);stroke-width:2.6;stroke-linecap:round;}
+
+/* ── Entretien (lot 10) : écran de l'agent pour l'éleveur ; l'éleveur a eleveur.css ─ */
+.entretien{max-width:640px;}
+.carte-panne{background:var(--alerte-fond);border:1px solid var(--alerte-bord);border-radius:10px;padding:.8rem;margin-bottom:.7rem;}
+.panne-titre{font-weight:800;}
+.carte-sous{color:var(--gris5);font-size:.85rem;margin-bottom:.5rem;}
+.tache-entretien{display:flex;align-items:center;gap:.6rem;background:var(--blanc);border:1px solid var(--bord);
+  border-radius:10px;padding:.6rem .8rem;margin-bottom:.5rem;}
+.tache-entretien form{margin:0;}
+.tache-ico{font-size:1.5rem;line-height:1;flex-shrink:0;}
+.tache-texte{flex:1;min-width:0;}
+.tache-texte small{display:block;color:var(--gris5);}
+.tache-retard{display:inline-block;background:var(--att-fond);color:var(--att-encre);border:1px solid var(--att-bord);
+  border-radius:999px;padding:0 .5rem;font-size:.75rem;font-weight:700;}
+.tache-bouton{border:0;border-radius:8px;padding:.5rem .8rem;font-weight:700;color:var(--blanc);background:var(--vert);min-height:40px;white-space:nowrap;}
+.tache-entretien.faite{opacity:.6;}
+.tache-fait{font-weight:700;color:var(--vert);white-space:nowrap;}
+.btn-panne{display:block;text-align:center;background:var(--alerte-fond);color:var(--rouge);border:1px solid var(--alerte-bord);
+  border-radius:10px;padding:.8rem;font-weight:800;text-decoration:none;margin-top:.5rem;}
+i.picto-panne{font-style:normal;font-size:2rem;display:block;}
+.types-panne{grid-template-columns:repeat(3,1fr);}
+.case-large{grid-column:1 / -1;}
+.avertissement-desinfection{background:var(--warn-fond);border:1px solid var(--warn-trait);border-radius:10px;padding:.7rem .9rem;margin-bottom:.8rem;}
+.avertissement-desinfection span{display:block;color:var(--gris5);}

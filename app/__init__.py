@@ -63,6 +63,7 @@ def create_app(env='default'):
     from app.routes.tracabilite import tracabilite_bp, public_bp
     from app.routes.hors_ligne import hors_ligne_bp
     from app.routes.eleveur import eleveur_bp
+    from app.routes.entretien import entretien_bp
 
     app.register_blueprint(auth_bp,          url_prefix='/auth')
     app.register_blueprint(accueil_bp)
@@ -86,6 +87,8 @@ def create_app(env='default'):
     app.register_blueprint(hors_ligne_bp)
     # Espace de l'éleveur : accueil en tuiles, saisie du jour, achats, stock (lot 9)
     app.register_blueprint(eleveur_bp)
+    # Entretien simple des installations (lot 10)
+    app.register_blueprint(entretien_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 

@@ -13,6 +13,14 @@
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <input type="hidden" name="ferme" value="{{ ferme.numero }}">
   {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  {% if avertissement %}
+  <div class="avertissement-desinfection">
+    <strong>⚠️ {{ avertissement.code }} n'a pas été marqué « nettoyé et désinfecté ».</strong>
+    <span>Continuer quand même ?</span>
+  </div>
+  <button type="submit" name="continuer" value="1" class="btn-gros btn-vert">Commencer la bande</button>
+  <a class="btn-gros-secondaire" href="{{ url_for('entretien.ecran', ferme=ferme.numero) if not theme_eleveur else url_for('entretien.ecran') }}">Je nettoie d'abord</a>
+  {% endif %}
 
   {% if not attente %}
   <div class="empty-note">Aucun poussin en attente de bande : la livraison de poussins doit d'abord être confirmée.</div>
@@ -61,7 +69,7 @@
     <label class="form-label" for="poids_g">Poids moyen d'un poussin (g)</label>
     <input class="form-control" id="poids_g" name="poids_g" inputmode="decimal" placeholder="Facultatif ({{ poids_defaut|qte }} g par défaut)" value="{{ saisie.get('poids_g', '') }}">
   </div>
-  <button type="submit" class="btn-gros btn-vert"><i class="bi bi-play-fill"></i> Commencer la bande</button>
+  {% if not avertissement %}<button type="submit" class="btn-gros btn-vert"><i class="bi bi-play-fill"></i> Commencer la bande</button>{% endif %}
   <div class="note-numero" id="note-bande">Fin prévue le {{ (today + timedelta(days=duree)).strftime('%d/%m') if timedelta is defined else '' }}</div>
   {% endif %}
 </form>

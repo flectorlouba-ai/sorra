@@ -17,8 +17,20 @@ from app import create_app, db  # noqa: E402
 from app.models import Utilisateur, Profil, Province, Localite, Parametre, ListeDeroulante  # noqa: E402
 from app.models.referentiel import PROVINCES_GABON  # noqa: E402
 from app.models.parametre import PARAMETRES_DEFAUT  # noqa: E402
+from app.models.entretien import TacheEntretien  # noqa: E402
 
 MDP = 'MotDePasse-2026'
+
+
+def _taches_de_depart():
+    """Liste de départ des tâches d'entretien, lue dans la migration du lot 10."""
+    import importlib.util
+    from pathlib import Path
+    chemin = Path(__file__).resolve().parent.parent / 'migrations' / 'versions' / '0012_entretien.py'
+    spec = importlib.util.spec_from_file_location('migration_0012', chemin)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.TACHES
 
 
 def _listes_de_depart():
@@ -52,6 +64,9 @@ def app(tmp_path):
             db.session.add(Province(code=code, nom=nom, ordre=i))
         for cle, valeur, type_, description in PARAMETRES_DEFAUT:
             db.session.add(Parametre(cle=cle, valeur=valeur, type=type_, description=description))
+        for k, (nom, icone, frequence, portee, infra) in enumerate(_taches_de_depart()):
+            db.session.add(TacheEntretien(nom=nom, icone=icone, frequence=frequence, portee=portee,
+                                          infrastructure=infra, ordre=k))
         for categorie, valeurs in _listes_de_depart().items():
             for i, v in enumerate(valeurs):
                 db.session.add(ListeDeroulante(categorie=categorie, valeur=v, ordre=i))

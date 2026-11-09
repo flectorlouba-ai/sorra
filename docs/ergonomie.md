@@ -127,7 +127,7 @@ De haut en bas :
 - **bandeau rouge**, seulement si une bande est au feu rouge (« ⚠️ B2 : beaucoup de morts aujourd'hui → Signaler ») ;
 - **ligne d'état** : poulet du pire feu, « 2 bâtiments · tout va bien » ou « B2 demande votre attention », « B1 jour 23 · B2 jour 5 » ; pas de chiffres ;
 - **grande tuile verte « Saisie du jour »**, avec en pastille le nombre de bâtiments restant ; « ✓ Tout est envoyé aujourd'hui » quand tout est fait ;
-- **grille de 2 colonnes, dans un ordre FIXE** (décision du 09/11) : Livraisons · Nouvelle bande · Peser · Vaccins · Poulet malade · Sortie · J'ai acheté · Entretien · Mes bandes · Mon stock. L'ordre ne dépend jamais des pastilles. Entretien a sa place réservée, mais sa tuile reste cachée tant que l'écran n'existe pas ;
+- **grille de 2 colonnes, dans un ordre FIXE** (décision du 09/11) : Livraisons · Nouvelle bande · Peser · Vaccins · Poulet malade · Sortie · J'ai acheté · Entretien · Mes bandes · Mon stock. L'ordre ne dépend jamais des pastilles. La tuile Entretien est affichée depuis le lot 10 ;
 - **« 📞 Appeler {Prénom}, mon agent »**, pleine largeur, toujours en dernier, si l'agent a un téléphone. Un test vérifie l'ordre complet.
 
 **Règles :**
@@ -154,6 +154,9 @@ De haut en bas :
 | Vaccins → C'est fait | 2 |
 | Poulet malade → signes → Envoyer | 3 |
 | J'ai acheté → produit → Enregistrer | 3 |
+| Entretien → Fait ✓ | 2 |
+| Entretien → Quelque chose est en panne → Envoyer | 3 |
+| Entretien → C'est réparé | 2 |
 | Mes bandes, Mon stock, Appeler mon agent | 1 |
 
 ### Achats personnels de l'éleveur (« J'ai acheté »)
@@ -163,6 +166,40 @@ De haut en bas :
 - **Poussins achetés** : les morts à l'arrivée sont demandés, et les poussins deviennent « en attente de bande ».
 - **Contrôles** : les achats n'entrent **jamais** dans les contrôles des intrants de l'État. Ces contrôles passent tous par une seule fonction, `intrants.livraisons_de_l_etat()` : listes, alertes, mortalité à l'arrivée, exports, et le futur recoupement livraisons / consommations.
 - **Annulation** : « Enregistré ✓ — Annuler (10) » juste après l'enregistrement. Ensuite, seule une correction par l'agent est possible, avec un motif inscrit au journal.
+
+### Entretien des installations (lot 10)
+
+- **Tuile « 🔧 Entretien »** : la pastille compte les tâches à faire aujourd'hui + les pannes en cours. Elle est rouge s'il y a une panne.
+- **Écran Entretien**, de haut en bas :
+  - les **pannes en cours**, en cartes roses, avec « C'est réparé » ;
+  - les **tâches** à faire, avec un bouton « Fait ✓ » ;
+  - les tâches faites, grisées « ✓ fait » jusqu'à la fin de leur période (jour, semaine, mois) ;
+  - le bouton **« ⚠️ Quelque chose est en panne »**.
+- **Regroupement** : une seule carte par tâche, « B1 et B2 ». Un seul « Fait ✓ » coche tous les bâtiments de la carte.
+- **Retard** : « pas fait la semaine dernière », « pas fait le mois dernier ». **Jamais de retard pour les tâches du jour** (pas de « pas fait hier », décision du 09/11). Les tâches en retard passent en tête.
+- **Tâches selon la ferme** :
+  - celles de la bande, seulement pour les bâtiments avec une bande en cours ;
+  - celles de la ferme, seulement si la ferme a l'installation (pédiluve, groupe électrogène, forage ou puits) ;
+  - « Nettoyer et désinfecter » apparaît à la **clôture** d'une bande, pour le bâtiment vidé.
+- **Nouvelle bande dans un bâtiment pas désinfecté** : un avertissement **non bloquant**, « Je nettoie d'abord » ou « Commencer la bande ». Continuer est inscrit au journal, et la bande est marquée sur la fiche de la ferme.
+- **Panne** :
+  - 6 images (Chauffage, Eau, Électricité, Ventilation, Mangeoires, Bâtiment) ;
+  - le bâtiment, ou « Toute la ferme » ; ce choix est caché s'il n'y a qu'un bâtiment ;
+  - photo facultative ;
+  - gros bouton rouge « Envoyer à mon agent ». Il n'y a **pas d'annulation** après Envoyer.
+- **Annuler** : « Fait ✓ — Annuler (10) » après « Fait ✓ », et « Réparé ✓ — Annuler (10) » après « C'est réparé ». Annuler une réparation remet la panne en « Signalée », fait revenir l'alerte de l'agent, et l'annulation est inscrite au journal.
+- **Agent** :
+  - alerte « Panne signalée » sur son accueil ;
+  - carte « Entretien » sur la fiche de la ferme : dernière synchronisation du téléphone, pannes, bandes ouvertes sans désinfection, retards, dernière désinfection de chaque bâtiment ;
+  - il peut cocher ou réparer pour l'éleveur.
+- **Sans réseau** : « Fait ✓ », « Envoyer » et « C'est réparé » sont gardés sur le téléphone, puis envoyés au retour du réseau.
+- **Liste des tâches** : Configuration → « Tâches d'entretien » (ADMIN). On ne supprime pas une tâche, on la désactive. La liste de départ est **à valider par les vétérinaires**.
+
+### Protection des saisies en attente (lot 10)
+
+- Sur l'accueil, si des saisies attendent le réseau depuis plus de 24 h, un bandeau orange s'affiche : « ◷ N saisies attendent le réseau. Ne videz pas les données de l'application. »
+- Fiche de la ferme : « Dernière synchronisation du téléphone de l'éleveur : il y a X jours ». La mention « à vérifier » s'ajoute à partir de 3 jours.
+- La consigne pour les agents est dans `docs/exploitation.md`.
 
 ## Liste de contrôle d'un écran (à cocher dans chaque rapport de lot)
 
