@@ -124,10 +124,22 @@ Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple pl
 - Pour la même personne, les saisies s'additionnent sans question. En ligne, l'écran « Déjà envoyé » propose d'ajouter ; une erreur se corrige ensuite par l'agent depuis la fiche de la bande.
 - Les pages gardées montrent l'état au dernier passage avec réseau (chiffres, « À faire aujourd'hui »).
 
-### Tournée de l'agent (lot 16)
-- **Tournée du jour** : ouverte avec du réseau, elle est gardée sur le téléphone et fait garder les **fiches des fermes** de la tournée. Sans réseau, l'agent les relit (téléphone de l'éleveur, raisons d'urgence, mesures de biosécurité).
-- Les saisies de l'agent (compte rendu, biosécurité, comptage, commande) **demandent le réseau** : elles ne sont pas gardées sur le téléphone. Une page gardée montre l'état au dernier passage avec réseau (« Préparée le … »).
-- Vérifié au navigateur : la tournée et une fiche s'ouvrent sans réseau (`docs/captures/lot16/360_tournee_sans_reseau.png`).
+### L'agent sans réseau (relecture des lots 15-18, remplace la règle du lot 16)
+
+**Avant la relecture**, les saisies de l'agent demandaient le réseau de deux façons :
+- **pas de formulaire « hors ligne » du tout** : vaccin et traitement pour l'éleveur, biosécurité, nouvel éleveur, et aussi nouvelle bande, clôture, rattrapage, corrections, planifier ou annuler une visite, comptage du stock, commande, livraison, ferme (création, modification, bâtiments, GPS), BCEG ;
+- **formulaire « hors ligne », mais page jamais gardée sur le téléphone de l'agent**, donc inutilisable sans réseau sauf si elle avait été ouverte juste avant : saisie du jour, pesée, sortie, poulet malade, J'ai payé, entretien, réception de livraison, compte rendu de visite. Seules la tournée et les fiches des fermes étaient gardées (lot 16).
+
+**Maintenant** :
+- À chaque ouverture de l'accueil avec du réseau, le téléphone de l'agent garde, **une page à la fois**, toutes ses pages de saisie : tournée, fiches, compte rendu (non planifié et chaque visite prévue), biosécurité, nouvel éleveur, J'ai payé, entretien et panne, et pour chaque bande en cours : saisie du jour, jour oublié, pesée, sortie, poulet malade, vaccin, traitement ; plus la réception des livraisons à confirmer. La liste est unique (`routes/hors_ligne.pages_agent`), testée page par page.
+- Ces saisies se font **sans réseau** et partent au retour du réseau (bandeau ◷ / ✓ comme chez l'éleveur), avec leur identifiant unique : jamais deux fois.
+- **Règles** :
+  - saisie pour l'éleveur : règle du lot 12. Même personne, les saisies s'additionnent ; deux personnes, deux versions gardées, celle de l'éleveur compte, à trancher ;
+  - **compte rendu** : la date est celle du téléphone. Si la visite a reçu entre-temps un autre compte rendu, ou a été annulée, le compte rendu est **gardé comme une deuxième visite** et l'agent est prévenu ;
+  - **biosécurité** : date du téléphone ; une grille incomplète est refusée à l'envoi et signalée ;
+  - **nouvel éleveur** : identifiant et mot de passe provisoire sont **préparés et affichés sur le téléphone** avant l'envoi, à noter tout de suite. Identifiant déjà pris : un chiffre est ajouté, l'agent est prévenu, le mot de passe noté reste valable. Même téléphone déjà inscrit sur la ferme : refusé et signalé.
+- **Restent en ligne** (des décisions, ou des écrans de bureau) : trancher une saisie, valider ou refuser, commander, compter le stock, planifier ou annuler une visite, créer ou modifier une ferme, les livraisons de l'État, la BCEG.
+- Vérifié au navigateur, réseau coupé : un nouvel éleveur et une biosécurité saisis sans réseau sont gardés (◷), puis envoyés au retour du réseau. Le compte se connecte avec le mot de passe noté. Captures : `docs/captures/agent_hors_ligne/`.
 
 ### Blocage des ventes par le vétérinaire (lot 17)
 - Dès que la page de l'éleveur est relue avec du réseau, l'écran Sortie gardé sur le téléphone montre « ⛔ Le vétérinaire a bloqué les ventes de cette bande » **sans formulaire** : aucune sortie ne peut être saisie, même sans réseau. Vérifié au navigateur (`docs/captures/lot17/360_eleveur_sortie_bloquee_sans_reseau.png`).

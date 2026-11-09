@@ -45,8 +45,18 @@ def nouvel_eleveur(numero):
     if request.method == 'POST':
         f = request.form
         try:
-            u, provisoire = regles.creer_eleveur(ferme, f.get('nom'), f.get('prenom'), f.get('telephone'), current_user)
+            u, provisoire = regles.creer_eleveur(ferme, f.get('nom'), f.get('prenom'), f.get('telephone'), current_user,
+                                                 identifiant=f.get('identifiant'), provisoire=f.get('provisoire'))
+            from app.services import hors_ligne
+            if u.identifiant_change:              # l'identifiant noté sur le téléphone était déjà pris
+                hors_ligne.signaler(ferme, f'Identifiant changé : {u.identifiant}',
+                                    f'Le compte de {u.nom_complet} a été créé sous l\'identifiant {u.identifiant} '
+                                    f'(« {f.get("identifiant")} » était déjà pris). Le mot de passe noté reste valable.',
+                                    current_user)
             db.session.commit()
+            if hors_ligne.actif():
+                flash(f'Compte de {u.nom_complet} créé : {u.identifiant}.', 'success')
+                return redirect(url_for('fermes.fiche', numero=ferme.numero) + '#eleveurs')
             # Affiché une seule fois, jamais gardé en clair ni envoyé
             return render_template('agent/eleveur_cree.html', ferme=ferme, eleveur=u, provisoire=provisoire)
         except regles.RegleAgent as e:
@@ -146,7 +156,8 @@ def biosecurite(numero):
         reponses = {p: request.form.get(f'r{i}') for i, p in enumerate(points)}
         mesures = {p: request.form.get(f'm{i}') for i, p in enumerate(points)}
         try:
-            v = regles.evaluer(ferme, current_user, reponses, mesures)
+            from app.services import hors_ligne
+            v = regles.evaluer(ferme, current_user, reponses, mesures, hors_ligne.jour_de_saisie())
             db.session.commit()
             flash(f'Biosécurité enregistrée ✓ : {v.score_biosecurite} %. L’éleveur voit les mesures dans « Mes visites ».',
                   'success')

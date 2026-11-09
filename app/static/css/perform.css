@@ -643,9 +643,9 @@ a.btn-gros-rouge:hover{color:var(--blanc);filter:brightness(1.08);}
 .bandeau-envoi.attente{background:var(--att-fond);border:1px solid var(--att-bord);color:var(--noir);}
 .bandeau-envoi.fait{background:var(--ok-fond);border:1px solid var(--ok-bord);color:var(--ok-encre);font-weight:700;}
 .bandeau-envoi ul{list-style:none;margin:.35rem 0 0;padding:0;}
-.bandeau-envoi li{padding:.1rem 0;}
+.bandeau-envoi li{padding:.1rem 0;display:flex;justify-content:space-between;gap:.5rem;align-items:baseline;}
 .bandeau-sous{display:block;font-size:.74rem;color:var(--gris5);margin-top:.15rem;}
-.coche-attente{display:inline-block;width:1.1rem;text-align:center;font-weight:800;}
+.coche-attente{display:inline-block;min-width:1.1rem;white-space:nowrap;text-align:center;font-weight:800;}
 .ligne-vue td{opacity:.55;}
 
 /* ══ Logo SORRA : le poulet (app/utils/logo.py) ══════════════════════ */
@@ -723,3 +723,6 @@ i.picto-panne{font-style:normal;font-size:2rem;display:block;}
 .ligne-verif{padding:.5rem 0;border-bottom:1px solid var(--bord);}
 .ligne-verif:last-child{border-bottom:0;}
 .blocage-sorties{display:flex;flex-direction:column;gap:.4rem;}
+
+/* Nouvel éleveur sans réseau : identifiant et mot de passe préparés sur le téléphone */
+.carte-provisoire{border:1.5px dashed var(--att-bord);background:var(--att-fond);border-radius:10px;padding:.75rem;margin-bottom:1rem;}

@@ -39,13 +39,13 @@ Chaque lot est **un commit**, fait seulement après une suite complète verte. C
 
   Aux captures : le QR code de la 2FA coupait la page à 360 px (SVG avec prologue XML), corrigé.
 - **Lot 15, défaut trouvé au lot 16** : le réglage `securite.profils_2fa` ne pouvait pas être modifié. Corrigé et testé au lot 16.
-- **Lot 15, rapport** : il citait le chemin de la base de démo, qui contient l'ancien nom interdit. Le test « ancien nom absent » ne lit que les fichiers suivis par git ; il ne l'a donc vu qu'au lot 16, qui l'a corrigé. **Le commit du lot 15 contient encore ce chemin dans `docs/rapport_lot15.md`** ; les commits suivants ne l'ont plus.
+- **Lot 15, rapport** : il citait le chemin de la base de démo, qui contient l'ancien nom interdit. Corrigé au lot 16, puis **historique de la branche réécrit** à la relecture : le commit du lot 15 ne le contient plus (voir « Après relecture »).
 - **Lot 17** : l'écran Sortie bloqué levait une erreur JavaScript (formulaire absent). Corrigé, ainsi qu'un formulaire vide dans Surveillance.
 
 ## Ce que je n'ai pas fait (volontairement)
 
 - **Pas de cron ni de serveur de messagerie** : ils sont sur le VPS, donc interdits. Commande et cron documentés dans `docs/exploitation.md`.
-- **Pas de saisie sans réseau pour l'agent** (compte rendu, biosécurité, comptage) : la tournée et les fiches se **lisent** sans réseau (décision 16-2).
+- ~~Pas de saisie sans réseau pour l'agent~~ : **refusé à la relecture, corrigé** (voir « Après relecture »).
 - **Pas d'écrans pour BCEG, MAEDR, OPERATEUR** : ils ne faisaient pas partie des lots 15 à 18. Leur accueil dit « Vos écrans arrivent bientôt », sans tuile morte.
 - **Pas de tuile Sauvegardes** : il n'y a pas d'écran, et les sauvegardes sont sur le VPS (décision 15-7).
 - **Secret TOTP en clair en base** (codes de secours hachés), décision 15-9 ; à chiffrer si vous le souhaitez.
@@ -74,3 +74,13 @@ Chaque lot est **un commit**, fait seulement après une suite complète verte. C
    - migrations 0016 à 0019 ;
    - cron des rapports ;
    - ajouter `instance/rapports/` aux sauvegardes.
+
+## Après relecture (09/11/2026)
+
+1. **Saisies de l'agent sans réseau** : la liste de ce qui demandait le réseau et les nouvelles règles sont dans `docs/hors_ligne.md` (« L'agent sans réseau ») et les décisions R-1, R-1b, R-1c.
+   - Rendus hors ligne : saisie pour l'éleveur (dont vaccin et traitement), compte rendu, biosécurité, nouvel éleveur.
+   - Tests : `tests/test_agent_hors_ligne.py` (5) ; vérifié au navigateur.
+   - Correction au passage : le bandeau « ◷ en attente » était mal mis en page sur les écrans du pilotage.
+2. **Classement** : pondérations, barème des notes et seuil « incomplète » sont des paramètres `classement.*` sous **quatre yeux** (migration 0020, décision R-2). Les seuils des étoiles sont des paramètres (`bandes.etoiles_*`), listés dans `a_faire_valider.md`.
+3. **Ancien nom dans l'historique** : la branche a été réécrite (contenu final identique, auteurs, dates et messages gardés). Une recherche sur `git log -p` de la branche (diffs et messages, depuis `1a759bb`) ne trouve plus le nom. L'ancienne version est gardée sous l'étiquette `sauvegarde-autonome-lots-15-18-avant-reecriture`. L'historique de la branche principale (avant `1a759bb`) le contient encore, dans les commits d'avant le renommage : non touché.
+4. **Suite complète** relancée après tout cela : voir le rapport de relecture `docs/rapport_relecture_lots15-18.md`.

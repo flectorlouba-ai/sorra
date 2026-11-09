@@ -69,8 +69,42 @@ PAGES_ELEVEUR = ['accueil.index', 'eleveur.saisie', 'eleveur.ma_bande', 'eleveur
 ALLER = ['peser', 'sortie', 'malade', 'traitement', 'vaccins']
 
 
+def pages_agent(user):
+    """Pages de saisie de l'agent pour ses fermes (lot 16, rendues hors ligne après relecture) : tournée,
+    fiche, compte rendu (non planifié et visites prévues), biosécurité, nouvel éleveur, J'ai payé, entretien,
+    puis pour chaque bande en cours : fiche, saisie du jour (et jour oublié), pesée, sortie, poulet malade, vaccin, traitement.
+    Les décisions (trancher, valider, commander, compter) restent en ligne."""
+    from app.models import Ferme, Bande, Livraison
+    from app.models.bande import StatutBande
+    from app.models.intrant import StatutLivraison
+    from app.models.visite import Visite, StatutVisite
+    pages = [url_for('accueil.index'), url_for('agent.tournee'), url_for('fermes.liste'), url_for('auth.mot_de_passe')]
+    fermes = Ferme.query.filter_by(agent_id=user.id).order_by(Ferme.numero_metier).all()
+    for f in fermes:
+        n = f.numero
+        pages += [url_for('fermes.fiche', numero=n), url_for('visites.compte_rendu', numero=n),
+                  url_for('agent.biosecurite', numero=n), url_for('agent.nouvel_eleveur', numero=n),
+                  url_for('argent.payer', ferme=n), url_for('entretien.ecran', ferme=n),
+                  url_for('entretien.panne', ferme=n)]
+    ids = [f.id for f in fermes]
+    if ids:
+        for v in Visite.query.filter(Visite.ferme_id.in_(ids), Visite.statut == StatutVisite.PREVUE):
+            pages.append(url_for('visites.compte_rendu', numero=v.ferme.numero, visite=v.id))
+        for b in Bande.query.filter(Bande.ferme_id.in_(ids), Bande.statut == StatutBande.EN_COURS):
+            n = b.numero
+            pages += [url_for('bandes.fiche', numero=n), url_for('bandes.saisir', numero=n),
+                      url_for('bandes.oublie', numero=n), url_for('bandes.pesee', numero=n),
+                      url_for('bandes.sortie', numero=n), url_for('sante.declarer', bande=n),
+                      url_for('sante.vacciner', numero=n), url_for('sante.traiter', numero=n)]
+        for liv in Livraison.query.filter(Livraison.ferme_id.in_(ids), Livraison.statut == StatutLivraison.A_CONFIRMER):
+            pages.append(url_for('livraisons.recu_moins', numero=liv.numero))
+    return list(dict.fromkeys(pages))
+
+
 def pages_a_garder(user):
     """Adresses des pages de l'éleveur : fixes, puis celles de ses bandes, livraisons et aides."""
+    if user.profil == Profil.AGENT:
+        return pages_agent(user)
     from app.models import Livraison
     from app.models.aide import Aide
     from app.models.intrant import StatutLivraison
@@ -90,7 +124,7 @@ def pages_a_garder(user):
 
 
 @hors_ligne_bp.route('/hors-ligne/pages')
-@profil_requis(Profil.ELEVEUR)
+@profil_requis(Profil.ELEVEUR, Profil.AGENT)
 def pages():
     return jsonify(pages=pages_a_garder(current_user))
 

@@ -111,7 +111,11 @@ def peut_gerer(user, ferme):
     return user.profil == Profil.ADMIN or (user.profil == Profil.AGENT and ferme.agent_id == user.id)
 
 
-def creer_eleveur(ferme, nom, prenom, telephone, user):
+def _chiffres(tel):
+    return ''.join(c for c in (tel or '') if c.isdigit())[-8:]
+
+
+def creer_eleveur(ferme, nom, prenom, telephone, user, identifiant=None, provisoire=None):
     """Compte ÉLEVEUR rattaché à la ferme ; mot de passe provisoire rendu UNE fois, à changer.
     Création inscrite au journal automatiquement (mot de passe masqué)."""
     nom, prenom, telephone = (nom or '').strip(), (prenom or '').strip(), (telephone or '').strip()
@@ -119,13 +123,25 @@ def creer_eleveur(ferme, nom, prenom, telephone, user):
         raise RegleAgent("Indiquez le nom de l'éleveur.")
     if not telephone:
         raise RegleAgent("Indiquez le téléphone de l'éleveur.")
-    provisoire = mot_de_passe_provisoire()
-    u = Utilisateur(identifiant=identifiant_propose(nom, prenom), nom=nom[:100], prenom=prenom[:100] or None,
+    # Même éleveur inscrit deux fois (deux agents sans réseau, ou deux envois) : le second est refusé
+    ids = [uf.utilisateur_id for uf in UtilisateurFerme.query.filter_by(ferme_id=ferme.id)]
+    deja = [x for x in (Utilisateur.query.filter(Utilisateur.id.in_(ids)).all() if ids else [])
+            if x.profil == Profil.ELEVEUR and _chiffres(x.telephone) == _chiffres(telephone)]
+    if deja:
+        raise RegleAgent(f'Cet éleveur a déjà un compte sur cette ferme : {deja[0].identifiant}.')
+    # Préparés sur le téléphone (marche sans réseau) ; sinon ici
+    if not (provisoire and len(provisoire) == 10 and all(c in LETTRES for c in provisoire)):
+        provisoire = mot_de_passe_provisoire()
+    voulu = (identifiant or '').strip().lower()
+    libre = voulu and all(c.isalnum() or c == '.' for c in voulu) \
+        and Utilisateur.query.filter_by(identifiant=voulu).first() is None
+    u = Utilisateur(identifiant=voulu if libre else identifiant_propose(nom, prenom), nom=nom[:100], prenom=prenom[:100] or None,
                     telephone=telephone[:30], profil=Profil.ELEVEUR, actif=True, doit_changer_mdp=True)
     u.set_password(provisoire)
     u.fermes = [UtilisateurFerme(ferme=ferme)]
     db.session.add(u)
     db.session.flush()
+    u.identifiant_change = bool(voulu) and not libre
     return u, provisoire
 
 

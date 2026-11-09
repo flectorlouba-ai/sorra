@@ -201,14 +201,17 @@
     if (anciens) anciens.remove();
   }
 
-  // Pages utiles sans réseau (lot 13) : à chaque ouverture de l'accueil avec du réseau, le
-  // téléphone garde TOUTES les pages de l'éleveur (liste unique du serveur : /hors-ligne/pages)
-  if (navigator.onLine && /^\/$/.test(location.pathname) && corps.classList.contains('theme-eleveur')) {
+  // Pages utiles sans réseau (lot 13 ; agent : après relecture des lots 15-18) : à chaque ouverture de
+  // l'accueil avec du réseau, le téléphone garde TOUTES les pages de saisie de l'éleveur ou de l'agent
+  // (liste unique du serveur : /hors-ligne/pages), une à une pour ne pas saturer un réseau faible.
+  if (navigator.onLine && /^\/$/.test(location.pathname) && corps.hasAttribute('data-pages-hors-ligne')) {
     setTimeout(function () {
       fetch('/hors-ligne/pages', {credentials: 'same-origin', cache: 'no-store'})
         .then(function (r) { return r.ok ? r.json() : {pages: []}; })
         .then(function (j) {
-          (j.pages || []).forEach(function (u) { fetch(u, {credentials: 'same-origin'}).catch(function () {}); });
+          return (j.pages || []).reduce(function (suite, u) {
+            return suite.then(function () { return fetch(u, {credentials: 'same-origin'}).catch(function () {}); });
+          }, Promise.resolve());
         }).catch(function () {});
     }, 1500);
   }
