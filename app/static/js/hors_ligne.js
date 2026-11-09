@@ -1,4 +1,4 @@
-/* PERFORM YL.2 — saisies sans réseau (voir docs/hors_ligne.md).
+/* SORRA — saisies sans réseau (voir docs/hors_ligne.md).
  *
  * Actif seulement en HTTPS ou sur l'ordinateur lui-même (le navigateur l'exige) ;
  * ailleurs le site marche comme avant, sans rien garder sur le téléphone.

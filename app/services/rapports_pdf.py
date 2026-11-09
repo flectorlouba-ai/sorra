@@ -10,6 +10,7 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import cm
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 
+from app.utils.logo import dessiner_pdf
 from app.utils.nombres import quantite
 
 # Couleurs de la charte (perform.css : --noir, --noir3, --off, --grise)
@@ -17,6 +18,9 @@ NOIR = colors.HexColor('#0c2461')
 BLEU = colors.HexColor('#1241a8')
 FOND = colors.HexColor('#f0f5ff')
 TRAIT = colors.HexColor('#eeeeee')
+# Logo : mêmes couleurs que perform.css (--blanc, --rouge-vif, --ambre-vif, --noir, --b200)
+COULEURS_LOGO = {'corps': colors.white, 'crete': colors.HexColor('#dc2626'), 'bec': colors.HexColor('#f59e0b'),
+                 'oeil': NOIR, 'aile': colors.HexColor('#bfdbfe'), 'pattes': colors.HexColor('#f59e0b')}
 
 TITRE = ParagraphStyle('titre', fontName='Helvetica-Bold', fontSize=16, textColor=NOIR, spaceAfter=4)
 SOUS = ParagraphStyle('sous', fontName='Helvetica', fontSize=9, textColor=colors.HexColor('#555555'), spaceAfter=10)
@@ -44,9 +48,10 @@ def _pied(canvas, doc):
     canvas.saveState()
     canvas.setFillColor(NOIR)
     canvas.rect(0, A4[1] - 0.6 * cm, A4[0], 0.6 * cm, fill=1, stroke=0)
+    dessiner_pdf(canvas, 1.5 * cm, A4[1] - 0.57 * cm, 0.54 * cm, COULEURS_LOGO)
     canvas.setFillColor(colors.white)
     canvas.setFont('Helvetica-Bold', 8)
-    canvas.drawString(1.5 * cm, A4[1] - 0.42 * cm, 'PERFORM YL.2 — Suivi et traçabilité de la filière avicole')
+    canvas.drawString(2.2 * cm, A4[1] - 0.42 * cm, 'SORRA — Suivi et traçabilité de la filière avicole')
     canvas.setFillColor(colors.HexColor('#888888'))
     canvas.setFont('Helvetica', 7.5)
     canvas.drawString(1.5 * cm, 1 * cm, f'Généré le {date.today().strftime("%d/%m/%Y")} · page {doc.page}')
@@ -56,7 +61,7 @@ def _pied(canvas, doc):
 def _document(elements):
     tampon = io.BytesIO()
     doc = SimpleDocTemplate(tampon, pagesize=A4, leftMargin=1.5 * cm, rightMargin=1.5 * cm,
-                            topMargin=1.4 * cm, bottomMargin=1.6 * cm, title='PERFORM YL.2')
+                            topMargin=1.4 * cm, bottomMargin=1.6 * cm, title='SORRA')
     doc.build(elements, onFirstPage=_pied, onLaterPages=_pied)
     return tampon.getvalue()
 

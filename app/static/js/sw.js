@@ -1,8 +1,8 @@
-/* PERFORM YL.2 — service worker (voir docs/hors_ligne.md).
+/* SORRA — service worker (voir docs/hors_ligne.md).
  * Fichiers de style et scripts : gardés sur le téléphone.
  * Pages : réseau d'abord ; sans réseau, la dernière version vue sur ce téléphone.
  * Les envois (POST) ne passent jamais par ici : hors_ligne.js s'en occupe. */
-var VERSION = 'v1';
+var VERSION = 'v2';   // v2 : nom SORRA et logo
 var STATIQUES = 'performyl2-statiques-' + VERSION;
 var PAGES = 'performyl2-pages';
 var A_GARDER = [
@@ -24,7 +24,7 @@ var A_GARDER = [
 ];
 var JAMAIS = /^\/(q\/|hors-ligne\/|auth\/|sw\.js)/;
 var SANS_RESEAU = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">' +
-  '<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pas de réseau — PERFORM YL.2</title>' +
+  '<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pas de réseau — SORRA</title>' +
   '<link href="/static/css/perform.css" rel="stylesheet"></head><body><div class="page-body">' +
   '<div class="flash-item warning">Pas de réseau : cette page n\'est pas gardée sur le téléphone.</div>' +
   '<a class="btn-gros" href="/">Retour à l\'accueil</a></div></body></html>';

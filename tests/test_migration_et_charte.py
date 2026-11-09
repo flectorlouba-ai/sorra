@@ -1,5 +1,6 @@
 """La migration crée bien la base (et ses protections) ; la charte reste celle de YL.1."""
 import os
+import io
 import re
 import sqlite3
 from pathlib import Path
@@ -87,12 +88,30 @@ def test_valeurs_couleurs_de_yl1():
     assert couleurs <= yl1, couleurs - yl1
 
 
-def test_nom_affiche_perform_yl2():
+def test_nom_affiche_sorra():
+    """Le nom affiché est SORRA, avec le logo poulet ; ni « PERFORM YL.2 » ni « YL.1 » à l'écran."""
     for f in GABARITS.rglob('*.html'):
         affiche = re.sub(r'\{#.*?#\}', '', f.read_text(encoding='utf-8'), flags=re.S)
-        assert 'YL.1' not in affiche, f
-    for f in ('_base.html', 'accueil.html', 'auth/connexion.html'):
-        assert 'PERFORM YL.2' in (GABARITS / f).read_text(encoding='utf-8'), f
+        assert 'YL.1' not in affiche and 'YL.2' not in affiche, f
+    for f in ('_base.html', 'accueil.html', 'auth/connexion.html', 'tracabilite/public.html'):
+        texte = (GABARITS / f).read_text(encoding='utf-8')
+        assert 'SORRA' in texte and 'logo_poulet()' in texte, f
+    statiques = GABARITS.parent / 'static'
+    for f in (statiques / 'manifest.webmanifest', statiques / 'js' / 'sw.js', statiques / 'js' / 'hors_ligne.js'):
+        assert 'YL.2' not in f.read_text(encoding='utf-8'), f
+
+
+def test_logo_poulet_a_l_ecran_et_dans_les_pdf(client):
+    from reportlab.pdfgen import canvas as rl
+    from app.services import rapports_pdf
+    from app.utils import logo
+    page = client.get('/auth/connexion').get_data(as_text=True)
+    assert '<svg class="logo-poulet"' in page and 'class="logo-crete"' in page and '>SORRA<' in page
+    tampon = io.BytesIO()
+    c = rl.Canvas(tampon)
+    logo.dessiner_pdf(c, 0, 0, 50, rapports_pdf.COULEURS_LOGO)   # toutes les parties ont leur couleur
+    c.save()
+    assert tampon.getvalue()[:4] == b'%PDF'
 
 
 def test_ancien_nom_absent_partout():

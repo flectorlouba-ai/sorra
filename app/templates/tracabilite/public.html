@@ -3,13 +3,13 @@
 <head>
 {% include '_tete.html' %}
   <meta name="robots" content="noindex">
-  <title>{{ 'Produit au Gabon' if lot else 'Code inconnu' }} — PERFORM YL.2</title>
+  <title>{{ 'Produit au Gabon' if lot else 'Code inconnu' }} — SORRA</title>
 </head>
 <body class="page-connexion">
 <div class="kente-top"></div>
 <div class="login-card">
   <div class="login-head">
-    <div class="login-head-logo">YL.2</div>
+    <div class="login-head-logo">{{ logo_poulet() }}</div>
     {% if lot %}
     <h1>Produit au Gabon</h1>
     <p>Consommons gabonais</p>
@@ -31,7 +31,7 @@
     <p class="texte-aide">Ce code ne correspond à aucun lot de poulets suivi par le programme.</p>
     {% endif %}
   </div>
-  <div class="login-foot">PERFORM YL.2 — suivi et traçabilité de la filière avicole</div>
+  <div class="login-foot">SORRA — suivi et traçabilité de la filière avicole</div>
 </div>
 </body>
 </html>

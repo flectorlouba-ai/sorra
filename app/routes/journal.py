@@ -231,4 +231,4 @@ def export():
     db.session.commit()
     return Response(tampon.getvalue(), mimetype='text/csv; charset=utf-8',
                     headers={'Content-Disposition':
-                             f'attachment; filename=journal_performyl2_{date.today():%Y%m%d}.csv'})
+                             f'attachment; filename=journal_sorra_{date.today():%Y%m%d}.csv'})

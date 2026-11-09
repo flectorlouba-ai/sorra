@@ -95,6 +95,8 @@ def create_app(env='default'):
     from app.utils.dates import date_locale
     from app.utils.nombres import quantite
     app.jinja_env.globals['a_profil'] = a_profil
+    from app.utils.logo import svg as logo_poulet
+    app.jinja_env.globals['logo_poulet'] = logo_poulet
     app.jinja_env.filters['date_locale'] = date_locale
     app.jinja_env.filters['qte'] = quantite
 

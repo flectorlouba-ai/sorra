@@ -180,7 +180,7 @@ def exporter(quoi, format):
     lignes = list(source())
     enregistrer(Action.EXPORT, table=quoi, detail=f'Export {format.upper()} « {titre} » : {len(lignes) - 1} ligne(s)')
     db.session.commit()
-    nom = f'{quoi}_performyl2_{date.today():%Y%m%d}.{format}'
+    nom = f'{quoi}_sorra_{date.today():%Y%m%d}.{format}'
     if format == 'csv':
         tampon = io.StringIO()
         tampon.write('﻿')

@@ -1,5 +1,5 @@
 {# ══════════════════════════════════════════════════════════════════════
-   Gabarit commun PERFORM YL.2 — repris de PERFORM YL.1 (page « Suivi DI / OT »).
+   Gabarit commun SORRA — repris de PERFORM YL.1 (page « Suivi DI / OT »).
    Blocs : titre, sous_titre, icone, page_titre, page_sous_titre, actions,
            pastilles, contenu, scripts.
    ══════════════════════════════════════════════════════════════════════ #}
@@ -7,16 +7,16 @@
 <html lang="fr">
 <head>
 {% include '_tete.html' %}
-  <title>{% block titre %}PERFORM YL.2{% endblock %} — PERFORM YL.2</title>
+  <title>{% block titre %}SORRA{% endblock %} — SORRA</title>
 </head>
 <body{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% endif %}>
 <div class="kente-band"></div>
 
 <div class="topbar">
   <a href="{{ url_for('accueil.index') }}" class="topbar-brand">
-    <div class="logo-texte">YL.2</div>
+    <div class="logo-texte">{{ logo_poulet() }}</div>
     <div>
-      <div class="topbar-name">PERFORM YL.2</div>
+      <div class="topbar-name">SORRA</div>
       <div class="topbar-sub">{% block sous_titre %}{{ self.titre() }}{% endblock %}</div>
     </div>
   </a>

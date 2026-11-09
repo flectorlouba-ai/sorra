@@ -1,4 +1,4 @@
-# PERFORM YL.2 — règles d'ergonomie
+# SORRA — règles d'ergonomie
 
 > **À relire et à appliquer au début de CHAQUE lot.** Tout écran nouveau ou modifié est
 > vérifié contre ce document avant d'être livré. Le rapport de chaque lot indique

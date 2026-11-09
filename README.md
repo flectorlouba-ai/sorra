@@ -1,9 +1,9 @@
-# PERFORM YL.2 — démarrage
+# SORRA — démarrage
 
 Application web de suivi technico-économique et de traçabilité des fermes avicoles
 du Gabon (programme POUFA). Ce dépôt contient le **lot 0 : socle technique**.
 
-## Lancer PERFORM YL.2 sur votre poste (Windows)
+## Lancer SORRA sur votre poste (Windows)
 
 Dans PowerShell, depuis le dossier du dépôt :
 
@@ -26,7 +26,7 @@ venv\Scripts\python performyl2.py
 ```
 
 Ouvrir ensuite <http://localhost:5020>, se connecter avec `admin` et le mot de passe
-affiché à l'étape 3. PERFORM YL.2 demande aussitôt d'en choisir un nouveau.
+affiché à l'étape 3. SORRA demande aussitôt d'en choisir un nouveau.
 
 ## Commandes utiles
 

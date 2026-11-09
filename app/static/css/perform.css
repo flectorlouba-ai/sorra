@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════════
-   PERFORM YL.2 — charte graphique de PERFORM YL.1, reprise à l'identique.
+   SORRA — charte graphique de PERFORM YL.1, reprise à l'identique.
    Toutes les couleurs sont déclarées ici, dans :root, avec la valeur
    qu'elles avaient dans YL.1 (perform.css, accueil, connexion, listes).
    Aucune couleur nouvelle. Seuls les voiles et ombres transparents
@@ -63,7 +63,7 @@ body{font-family:'Space Grotesk','Segoe UI',system-ui,sans-serif;background:var(
 .btn-top:hover{background:var(--blanc);color:var(--noir);border-color:var(--blanc);}
 .btn-top.actif{background:var(--noir3);border-color:var(--noir3);color:var(--blanc);}
 
-/* Emplacement du logo : texte « PERFORM YL.2 » en attendant l'image (même taille, même ombre) */
+/* Logo : le poulet SORRA (app/utils/logo.py), mêmes taille et ombre que l'emplacement de YL.1 */
 .logo-texte{width:32px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
      font-size:.46rem;font-weight:800;letter-spacing:.03em;color:var(--blanc);
      filter:drop-shadow(0 1px 4px rgba(0,0,0,.5));}
@@ -647,3 +647,12 @@ a.btn-gros-rouge:hover{color:var(--blanc);filter:brightness(1.08);}
 .bandeau-sous{display:block;font-size:.74rem;color:var(--gris5);margin-top:.15rem;}
 .coche-attente{display:inline-block;width:1.1rem;text-align:center;font-weight:800;}
 .ligne-vue td{opacity:.55;}
+
+/* ══ Logo SORRA : le poulet (app/utils/logo.py) ══════════════════════ */
+.logo-poulet{width:100%;height:100%;display:block;overflow:visible;}
+.logo-corps{fill:var(--blanc);}
+.logo-crete{fill:var(--rouge-vif);}
+.logo-bec{fill:var(--ambre-vif);}
+.logo-oeil{fill:var(--noir);}
+.logo-aile{fill:var(--b200);}
+.logo-pattes{stroke:var(--ambre-vif);stroke-width:2.6;stroke-linecap:round;}
