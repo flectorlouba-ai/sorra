@@ -1,0 +1,28 @@
+{% extends '_base.html' %}
+{% block titre %}Mes produits{% endblock %}
+{% block icone %}box-seam{% endblock %}
+{% block page_titre %}📦 Mes produits{% endblock %}
+
+{% block contenu %}
+{% if bandeau %}{% with liv=bandeau.livraison, secondes=bandeau.secondes %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
+{% if bandeau_achat %}{% with liv=bandeau_achat.achat, secondes=bandeau_achat.secondes,
+     bandeau_texte='Enregistré ✓ — ' ~ bandeau_achat.achat.lignes[0].produit.nom,
+     bandeau_action=url_for('eleveur.annuler_achat', numero=bandeau_achat.achat.numero) %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
+
+<div class="ma-ferme-zone">
+  {% for liv in a_confirmer %}{% include 'livraisons/_carte_confirmer.html' %}{% endfor %}
+</div>
+
+<div class="grosses-cases">
+  <a class="grosse-case" href="{{ url_for('eleveur.achat') }}" data-case="achat">
+    <span class="gc-ico">🛒</span><span class="gc-nom">J'ai acheté</span><small>aliment, poussins…</small></a>
+  <a class="grosse-case" href="{{ url_for('eleveur.stock') }}" data-case="stock">
+    <span class="gc-ico">🧺</span><span class="gc-nom">Mon stock</span><small>aliment, vaccins…</small></a>
+  <a class="grosse-case large" href="{{ url_for('livraisons.mes_livraisons') }}" data-case="livraisons">
+    <span class="gc-ico">📦</span><span class="gc-nom">Mes livraisons</span><small>ce que l'État vous a livré</small></a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if a_confirmer %}<script src="{{ url_for('static', filename='js/compteurs.js') }}"></script>{% endif %}
+{% endblock %}

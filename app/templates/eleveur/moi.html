@@ -1,0 +1,28 @@
+{% extends '_base.html' %}
+{% block titre %}Moi{% endblock %}
+{% block icone %}person{% endblock %}
+{% block page_titre %}👤 Moi{% endblock %}
+{% block page_sous_titre %}{{ current_user.nom_complet }}{% endblock %}
+
+{% block contenu %}
+{% for f in fermes %}
+{% set bats = f.batiments|selectattr('actif')|sort(attribute='code')|list %}
+<div class="ma-ferme">
+  <div class="ma-ferme-tete">
+    <div><div class="ma-ferme-titre">Ma ferme</div><div class="ma-ferme-nom">{{ f.nom }}</div><div class="ma-ferme-num">{{ f.numero }}</div></div>
+  </div>
+  <div class="carte-sous">{% for b in bats %}{{ b.code }} · {{ b.capacite|qte }} places{{ ' · ' if not loop.last }}{% endfor %}</div>
+  <div class="carte-sous"><strong>{{ bats|sum(attribute='capacite')|qte }} places</strong> en tout</div>
+</div>
+{% endfor %}
+
+<div class="liens-moi">
+  <a class="lien-moi" href="{{ url_for('auth.mot_de_passe') }}" data-moi="compte">🔑 Mon compte <small>mot de passe</small></a>
+  <a class="lien-moi" href="{{ url_for('eleveur.bientot', quoi='bceg') }}" data-moi="bceg">🏦 Partage avec la BCEG <small>bientôt</small></a>
+  <a class="lien-moi" href="{{ url_for('eleveur.bientot', quoi='aide') }}" data-moi="aide">❓ Comment faire ? <small>bientôt</small></a>
+  <form method="post" action="{{ url_for('auth.deconnexion') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="lien-moi lien-quitter" data-moi="quitter">🚪 Se déconnecter</button>
+  </form>
+</div>
+{% endblock %}

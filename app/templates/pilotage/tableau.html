@@ -62,6 +62,20 @@
 </table></div></div>
 {% endif %}
 
+{% if argent_eleveurs is not none %}
+<div class="card-p mt-3" id="argent-eleveurs">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-cash-coin"></i> Argent des éleveurs (totaux par province, FCFA)</span>
+    <span class="td-sous" style="color:inherit;opacity:.7;">déclaré par les éleveurs · « — » sous 3 fermes</span></div>
+  <div class="table-scroll"><table>
+    <thead><tr><th>Province</th><th>Fermes qui saisissent</th><th>Chiffre d'affaires</th><th>Dépenses</th></tr></thead>
+    <tbody>{% for p in argent_eleveurs %}
+      <tr><td>{{ p.province.nom }}</td><td>{{ p.fermes }}</td>
+        <td>{{ p.ca|qte if p.ca is not none else '—' }}</td><td>{{ p.depenses|qte if p.depenses is not none else '—' }}</td></tr>
+    {% else %}<tr><td colspan="4" class="table-vide">Aucune vente ni dépense déclarée.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endif %}
+
 <div class="card-p mt-3" id="arrivee">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-egg"></i> Mortalité à l'arrivée des poussins (seuil {{ d.arrivee.seuil|qte }} %)</span></div>
   <div class="row g-0">

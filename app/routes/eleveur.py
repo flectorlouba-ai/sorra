@@ -40,13 +40,33 @@ def _situation(bandes):
         couleur, raison = indicateurs.feu(b, valeurs=v)
         resultat.append({'bande': b, 'code': b.batiment.code, 'age': v['age'], 'couleur': couleur, 'raison': raison,
                          'a_saisir': indicateurs.saisie_du(b, auj) is None and v['effectif_present'] > 0,
-                         'pesee': indicateurs.prochaine_pesee(b),
+                         'pesee': indicateurs.prochaine_pesee(b), 'present': v['effectif_present'],
                          'vaccins': sante.vaccins_de_la_bande(b)})
     return resultat
 
 
+A_FAIRE_VACCIN = ('retard', 'aujourdhui', 'a_faire')
+
+
+def vaccins_a_faire(sit, avec_demain=True):
+    """Vaccins en retard, du jour (et de demain) : de quoi valider « ✓ C'est fait » d'un toucher
+    (vaccin, mode, poulets présents, doses : comme l'écran du vaccin du lot 4)."""
+    etats = A_FAIRE_VACCIN + (('demain',) if avec_demain else ())
+    liste = []
+    for s in sit:
+        for v in s['vaccins']:
+            if v['etat'] not in etats:
+                continue
+            c = v['calendrier']
+            liste.append({'bande': s['bande'], 'code': s['code'], 'calendrier': c, 'prevu': v['prevu'],
+                          'etat': v['etat'], 'nombre': s['present'],
+                          'quantite': s['present'] if c.produit.unite == 'doses' else 1})
+    ordre = {'retard': 0, 'a_faire': 1, 'aujourdhui': 2, 'demain': 3}
+    return sorted(liste, key=lambda x: (ordre[x['etat']], x['prevu'], x['code']))
+
+
 def accueil(user):
-    """Tout ce qu'affiche l'accueil en tuiles. Une tuile sans objet n'est pas rendue."""
+    """Accueil en 8 tuiles (lot 11) : ordre FIXE, les tuiles ne disparaissent plus."""
     fermes = _fermes()
     sit = _situation(bandes_en_cours())
     auj = date.today()
@@ -61,52 +81,50 @@ def accueil(user):
     a_saisir = [s['code'] for s in sit if s['a_saisir']]
     livraisons = (intrants.livraisons_de_l_etat(filtre_perimetre(Livraison.query))
                   .filter(Livraison.statut == StatutLivraison.A_CONFIRMER).count())
-    poussins = sum(sum(d for _, d in regles_bandes.poussins_en_attente(f)) for f in fermes
-                   if regles_bandes.batiments_libres(f))
+    poussins = _poussins_en_attente(fermes)
     from app.services import entretien
     a_faire_entretien = sum(entretien.a_faire_aujourdhui(f) for f in fermes)
     pannes = sum(len(entretien.pannes_en_cours(f)) for f in fermes)
-    pesees = sorted(sit, key=lambda s: s['pesee'])
-    pesee_due = [s for s in pesees if s['pesee'] <= auj]
     etats_vaccins = {v['etat'] for s in sit for v in s['vaccins']}
     vaccin = ('en retard' if 'retard' in etats_vaccins else
               "aujourd'hui" if etats_vaccins & {'aujourdhui', 'a_faire'} else
               'demain' if 'demain' in etats_vaccins else None)
-    # Ordre FIXE (décision du propriétaire) : il ne dépend jamais des pastilles ; une tuile sans
-    # objet disparaît, les autres gardent leur rang. « Saisie du jour » (en tête) et « Appeler
-    # mon agent » (en dernier) sont en pleine largeur, hors de cette grille.
+    # Raccourci sous la saisie : pesée prévue aujourd'hui (ou passée)
+    pesees = [s for s in sorted(sit, key=lambda s: s['pesee']) if s['pesee'] <= auj]
+    # Ordre FIXE (lot 11) : Saisie du jour (pleine largeur, en tête), 6 tuiles, Entretien (pleine largeur)
     tuiles = [
-        {'cle': 'livraisons', 'ico': '📦', 'nom': 'Livraisons', 'lien': url_for('livraisons.mes_livraisons'),
-         'sous': 'à confirmer' if livraisons else 'tout est confirmé', 'pastille': livraisons or None},
-        {'cle': 'bande', 'ico': '🐣', 'nom': 'Nouvelle bande', 'lien': url_for('bandes.ouvrir'),
-         'sous': 'poussins en attente', 'pastille': poussins, 'visible': poussins > 0},
-        {'cle': 'peser', 'ico': '⚖️', 'nom': 'Peser', 'lien': url_for('eleveur.aller', quoi='peser'),
-         'sous': (f'{pesee_due[0]["code"]} : pesée prévue aujourd\'hui' if pesee_due else
-                  f'prochaine : {pesees[0]["code"]} le {pesees[0]["pesee"].strftime("%d/%m")}' if pesees else ''),
-         'pastille': '!' if pesee_due else None, 'visible': bool(sit)},
-        {'cle': 'vaccins', 'ico': '💉', 'nom': 'Vaccins', 'lien': url_for('eleveur.aller', quoi='vaccins'),
-         'sous': 'et traitements', 'pastille': vaccin, 'pastille_classe': 'rouge' if vaccin == 'en retard' else 'bleue',
-         'visible': bool(sit)},
+        {'cle': 'ma_bande', 'ico': '🐔', 'nom': 'Ma bande', 'lien': url_for('eleveur.ma_bande'),
+         'sous': 'poussins en attente' if poussins else 'peser, mes bandes', 'pastille': poussins or None},
+        {'cle': 'ventes', 'ico': '🚚', 'nom': 'Ventes et sorties', 'lien': url_for('eleveur.aller', quoi='sortie'),
+         'sous': 'abattoir, vente'},
+        {'cle': 'soins', 'ico': '💉', 'nom': 'Vaccins et soins', 'lien': url_for('eleveur.soins'),
+         'sous': 'vaccins, traitements', 'pastille': vaccin,
+         'pastille_classe': 'rouge' if vaccin == 'en retard' else 'bleue'},
         {'cle': 'malade', 'ico': '🩺', 'nom': 'Poulet malade', 'lien': url_for('eleveur.aller', quoi='malade'),
-         'sous': 'prévenir le vétérinaire', 'classe': 'tuile-malade', 'visible': bool(fermes)},
-        {'cle': 'sortie', 'ico': '🚚', 'nom': 'Sortie', 'lien': url_for('eleveur.aller', quoi='sortie'),
-         'sous': 'vente, abattoir', 'visible': bool(sit)},
-        {'cle': 'achat', 'ico': '🛒', 'nom': "J'ai acheté", 'lien': url_for('eleveur.achat'),
-         'sous': 'aliment, poussins…', 'visible': bool(fermes)},
-        {'cle': 'entretien', 'ico': '🔧', 'nom': 'Entretien', 'lien': url_for('entretien.ecran'),
-         'sous': 'pannes en cours' if pannes else ('tâches à faire' if a_faire_entretien else 'tout est fait'),
-         'pastille': (a_faire_entretien + pannes) or None, 'pastille_classe': 'rouge' if pannes else '',
-         'visible': bool(fermes)},
-        {'cle': 'bandes', 'ico': '📈', 'nom': 'Mes bandes', 'lien': url_for('bandes.mes_bandes'),
-         'sous': 'en cours et passées'},
-        {'cle': 'stock', 'ico': '🧺', 'nom': 'Mon stock', 'lien': url_for('eleveur.stock'),
-         'sous': 'aliment, vaccins…', 'visible': bool(fermes)},
+         'sous': 'prévenir le vétérinaire', 'classe': 'tuile-malade'},
+        {'cle': 'produits', 'ico': '📦', 'nom': 'Mes produits', 'lien': url_for('eleveur.produits'),
+         'sous': 'à confirmer' if livraisons else 'achats, stock', 'pastille': livraisons or None},
+        {'cle': 'argent', 'ico': '💰', 'nom': 'Mon argent', 'lien': url_for('argent.mon_argent'),
+         'sous': 'gagné, dépensé'},
     ]
-    tuiles = [t for t in tuiles if t.get('visible', True)]
-    agent = next((f.agent for f in fermes if f.agent and f.agent.telephone), None)
+    entretien_tuile = {'cle': 'entretien', 'ico': '🔧', 'nom': 'Entretien', 'lien': url_for('entretien.ecran'),
+                       'sous': 'pannes en cours' if pannes else ('tâches à faire' if a_faire_entretien else 'tout est fait'),
+                       'pastille': (a_faire_entretien + pannes) or None, 'pastille_classe': 'rouge' if pannes else ''}
     rouges = [s for s in sit if s['couleur'] == 'rouge']
     return {'fermes': fermes, 'situation': sit, 'pire': pire, 'etat': etat, 'tuiles': tuiles,
-            'saisie': {'visible': bool(sit), 'a_saisir': a_saisir}, 'agent': agent, 'rouges': rouges}
+            'entretien': entretien_tuile, 'saisie': {'avec_bande': bool(sit), 'a_saisir': a_saisir},
+            'pesee': pesees[0] if pesees else None,
+            'vaccins': vaccins_a_faire(sit, avec_demain=False), 'rouges': rouges}
+
+
+def _poussins_en_attente(fermes):
+    return sum(sum(d for _, d in regles_bandes.poussins_en_attente(f)) for f in fermes
+               if regles_bandes.batiments_libres(f))
+
+
+def _sans_bande(titre):
+    """Tuile ouverte sans bande en cours : une petite page simple (lot 11, écart 1)."""
+    return render_template('eleveur/sans_bande.html', titre=titre, poussins=_poussins_en_attente(_fermes()))
 
 
 # ── « Saisie du jour » (écran « Ma bande aujourd'hui » du lot 8) ─────────
@@ -114,12 +132,17 @@ def accueil(user):
 @eleveur_bp.route('/saisie-du-jour')
 @profil_requis(Profil.ELEVEUR)
 def saisie():
+    if not bandes_en_cours():
+        return _sans_bande('✏️ Saisie du jour')
     from app.routes.accueil import _espace_eleveur
     return render_template('eleveur/saisie.html', espace=_espace_eleveur(_fermes()),
                            bien_recu=session.pop('bien_recu', None))
 
 
 # ── Accès directs : la tuile ouvre la bande la plus utile ───────────────
+
+SANS_BANDE = {'peser': '⚖️ Peser', 'sortie': '🚚 Ventes et sorties', 'traitement': '💊 Traitement'}
+
 
 @eleveur_bp.route('/aller/<quoi>')
 @profil_requis(Profil.ELEVEUR)
@@ -133,21 +156,104 @@ def aller(quoi):
             return redirect(url_for('sante.declarer', ferme=fermes[0].numero))
         s = max(sit, key=lambda s: (ORDRE_FEU[s['couleur']] if s['raison'] == 'mortalite' else 0))
         return redirect(url_for('sante.declarer', bande=s['bande'].numero))
+    if quoi == 'vaccins':
+        return redirect(url_for('eleveur.soins'))
+    if quoi not in SANS_BANDE:
+        abort(404)
     if not sit:
-        return redirect(url_for('accueil.index'))
+        return _sans_bande(SANS_BANDE[quoi])
     if quoi == 'peser':
         s = min(sit, key=lambda s: s['pesee'])          # pesée prévue la plus proche
         return redirect(url_for('bandes.pesee', numero=s['bande'].numero))
     if quoi == 'sortie':
         s = max(sit, key=lambda s: s['age'])            # la bande la plus âgée
         return redirect(url_for('bandes.sortie', numero=s['bande'].numero))
-    if quoi == 'vaccins':
-        a_faire = [(s, v) for s in sit for v in s['vaccins'] if v['etat'] in ('retard', 'aujourdhui', 'a_faire')]
-        if a_faire:
-            s, v = min(a_faire, key=lambda x: (x[1]['etat'] != 'retard', x[1]['prevu']))
-            return redirect(url_for('sante.vacciner', numero=s['bande'].numero, calendrier=v['calendrier'].id))
-        return render_template('eleveur/vaccins.html', situation=sit)
-    abort(404)
+    s = max(sit, key=lambda s: (ORDRE_FEU[s['couleur']], s['age']))   # traitement : la plus inquiétante
+    return redirect(url_for('sante.traiter', numero=s['bande'].numero))
+
+
+# ── Écrans de regroupement (lot 11) ─────────────────────────────────────
+
+@eleveur_bp.route('/ma-bande')
+@profil_requis(Profil.ELEVEUR)
+def ma_bande():
+    sit = _situation(bandes_en_cours())
+    pesees = sorted(sit, key=lambda s: s['pesee'])
+    return render_template('eleveur/ma_bande.html', poussins=_poussins_en_attente(_fermes()),
+                           pesee=pesees[0] if pesees else None)
+
+
+def bandeau_vaccin(user):
+    """Vaccin validé à l'instant d'un toucher : « Fait ✓ — Annuler (10) »."""
+    from app.models.sante import Vaccination
+    import uuid
+    try:
+        ident = uuid.UUID(session.get('vaccin_recent') or '')
+    except ValueError:
+        return None
+    v = db.session.get(Vaccination, ident)
+    if v is None or not sante.vaccination_annulable(v, user):
+        session.pop('vaccin_recent', None)
+        return None
+    ecoule = (maintenant() - en_utc(v.cree_le)).total_seconds()
+    return {'vaccination': v, 'secondes': max(1, round(sante.DELAI_ANNULATION_SECONDES - ecoule))}
+
+
+@eleveur_bp.route('/vaccins-et-soins')
+@profil_requis(Profil.ELEVEUR)
+def soins():
+    sit = _situation(bandes_en_cours())
+    prochains = sorted(((s, v) for s in sit for v in s['vaccins'] if v['etat'] == 'a_venir'),
+                       key=lambda x: x[1]['prevu'])
+    return render_template('eleveur/soins.html', vaccins=vaccins_a_faire(sit), avec_bande=bool(sit),
+                           prochain=prochains[0] if prochains else None, bandeau=bandeau_vaccin(current_user))
+
+
+@eleveur_bp.route('/vaccinations/<uuid:ident>/annuler', methods=['POST'])
+@profil_requis(Profil.ELEVEUR)
+def annuler_vaccin(ident):
+    from app.models.sante import Vaccination
+    v = db.session.get(Vaccination, ident)
+    session.pop('vaccin_recent', None)
+    if v is None or v.bande.ferme_id not in {f.id for f in _fermes()}:
+        abort(404)
+    if sante.vaccination_annulable(v, current_user):
+        v.annule = True                                  # journal : ANNULATION automatique
+        db.session.commit()
+        flash('Annulé : le vaccin est de nouveau à faire.', 'info')
+    else:
+        flash('Le délai pour annuler est passé.', 'warning')
+    return redirect(url_for('accueil.index') if request.form.get('retour') == 'accueil' else url_for('eleveur.soins'))
+
+
+@eleveur_bp.route('/mes-produits')
+@profil_requis(Profil.ELEVEUR)
+def produits():
+    a_confirmer = (intrants.livraisons_de_l_etat(filtre_perimetre(Livraison.query))
+                   .filter(Livraison.statut == StatutLivraison.A_CONFIRMER)
+                   .order_by(Livraison.date_livraison, Livraison.numero_metier).all())
+    from app.routes.accueil import _bandeau_annulation
+    return render_template('eleveur/produits.html', a_confirmer=a_confirmer,
+                           bandeau=_bandeau_annulation(current_user), bandeau_achat=bandeau_achat(current_user))
+
+
+@eleveur_bp.route('/moi')
+@profil_requis(Profil.ELEVEUR)
+def moi():
+    return render_template('eleveur/moi.html', fermes=_fermes())
+
+
+BIENTOT = {'bceg': ('🏦 Partage avec la BCEG', 'Bientôt, vous pourrez choisir de partager vos chiffres avec la BCEG.'),
+           'aide': ('❓ Comment faire ?', 'De petites explications en images arrivent bientôt.')}
+
+
+@eleveur_bp.route('/bientot/<quoi>')
+@profil_requis(Profil.ELEVEUR)
+def bientot(quoi):
+    if quoi not in BIENTOT:
+        abort(404)
+    titre, texte = BIENTOT[quoi]
+    return render_template('eleveur/bientot.html', titre=titre, texte=texte)
 
 
 # ── Mon stock ───────────────────────────────────────────────────────────
@@ -208,13 +314,14 @@ def achat():
                 except sante.RegleSante as e:
                     raise intrants.RegleAchat(str(e))
                 photo = enregistre[0] if enregistre else None
+            batiment = next((b for b in ferme.batiments if str(b.id) == f.get('batiment')), None)
             a = intrants.enregistrer_achat(ferme, produit, _nombre(f.get('quantite')), _entier(f.get('morts')),
                                            _entier(f.get('prix')), f.get('lieu'), _jour(f.get('date')),
-                                           current_user, photo)
+                                           current_user, photo, batiment=batiment)
             db.session.commit()
             if current_user.profil == Profil.ELEVEUR:
                 session['achat_recent'] = a.numero      # « Enregistré ✓ — Annuler (10) »
-                return redirect(url_for('accueil.index'))
+                return redirect(url_for('eleveur.produits'))
             flash(f'Achat {a.numero} enregistré pour l\'éleveur.', 'success')
             return redirect(url_for('fermes.fiche', numero=ferme.numero) + '#achats')
         except intrants.RegleAchat as e:
@@ -258,7 +365,7 @@ def annuler_achat(numero):
         intrants.annuler_achat(a, current_user)
         db.session.commit()
         flash('Achat annulé : il est retiré du stock.', 'info')
-    return redirect(url_for('accueil.index'))
+    return redirect(url_for('eleveur.produits'))
 
 
 @eleveur_bp.route('/achats/<numero>/corriger', methods=['GET', 'POST'])

@@ -39,7 +39,7 @@ Le lot de réalisation est indiqué entre parenthèses.
 ## D. Règles générales (validées)
 
 - **Une seule action principale par écran** : un seul bouton mis en avant.
-- **Trois clics maximum** pour toute action courante.
+- **Trois clics maximum** pour toute action courante. **Comptent** comme clics : ouvrir un écran, et valider (Envoyer, Enregistrer, C'est fait, Tout reçu…). **Ne comptent pas** : les choix faits dans le même écran (bâtiment, produit, signe, catégorie, type de sortie) et les + / − des compteurs (règle précisée au lot 11).
 - **Chacun ne voit que ce qu'il a le droit de faire** : pas de bouton grisé, pas de tuile inutile.
 - **Mots simples, aucun terme technique** à l'écran (pas d'UUID, de synchro, d'enregistrement…).
 - **Les fonctions techniques restent invisibles** (journal, numérotation, hors ligne) : l'utilisateur n'en voit que le résultat.
@@ -118,7 +118,7 @@ Il n'y a pas de badges, pas de classement et pas de son.
 - **Après l'envoi**, s'il reste une bande à saisir : « Il reste B2 à saisir → ».
 - Les saisies restent toujours séparées par bande. La série se compte par bande ; le record, sur toutes les bandes.
 
-### Accueil de l'éleveur en tuiles (lot 9)
+### Accueil de l'éleveur en tuiles (lot 9, remplacé par les 8 tuiles du lot 11 ci-dessous)
 
 L'accueil de l'éleveur est une **porte d'entrée**, pas un tableau de bord. Une grosse tuile par action, et toute action se fait en **3 clics au plus** depuis l'accueil. Les « + » et « − » des compteurs ne comptent pas.
 
@@ -158,6 +158,85 @@ De haut en bas :
 | Entretien → Quelque chose est en panne → Envoyer | 3 |
 | Entretien → C'est réparé | 2 |
 | Mes bandes, Mon stock, Appeler mon agent | 1 |
+
+### Accueil en 8 tuiles (lot 11)
+
+**En-tête de l'éleveur**, sur toutes ses pages, deux boutons à droite :
+- **« 📞 {Prénom de l'agent} »** : lien d'appel, masqué si l'agent n'a pas de téléphone ;
+- **« 👤 Moi »** : carte « Ma ferme » (nom, numéro, bâtiments, places), 🔑 Mon compte (mot de passe), 🏦 Partage avec la BCEG (bientôt, lot 13), ❓ Comment faire ? (bientôt, lot 13), 🚪 Se déconnecter.
+
+Le mot de passe et la déconnexion ne sont plus dans l'en-tête de l'éleveur. La tuile « Appeler mon agent » a disparu.
+
+**Accueil**, de haut en bas :
+- au-dessus, inchangés : bandeau orange des saisies en attente, bandeau rouge, ligne d'état ;
+- **✏️ Saisie du jour**, pleine largeur, verte. Dessous, seulement s'ils sont prévus aujourd'hui (ou en retard) :
+  - « ⚖️ Pesée prévue dans B1 → Peser » ;
+  - « 💉 Vaccin · B2 → ✓ C'est fait », qui enregistre d'un toucher ;
+- **6 tuiles, ordre FIXE** : 🐔 Ma bande · 🚚 Ventes et sorties · 💉 Vaccins et soins · 🩺 Poulet malade (rose) · 📦 Mes produits · 💰 Mon argent ;
+- **🔧 Entretien**, pleine largeur.
+
+**Les 8 tuiles ne disparaissent plus** : l'éleveur les retrouve toujours aux mêmes places. Un test vérifie l'ordre.
+- Sans bande en cours, Saisie du jour, Ventes et sorties, Peser et Traitement ouvrent une petite page « Aucune bande en cours » (avec 🐣 Nouvelle bande si des poussins attendent, et 📈 Mes bandes).
+- À l'intérieur des écrans de regroupement, une entrée sans objet disparaît : « Nouvelle bande » sans poussins en attente, « Peser » sans bande.
+
+**Écrans de regroupement** (grosses cases) :
+
+| Tuile | Contenu | Pastille |
+|---|---|---|
+| 🐔 Ma bande | 🐣 Nouvelle bande · ⚖️ Peser · 📈 Mes bandes | poussins en attente |
+| 💉 Vaccins et soins | en haut, vaccins en retard / du jour (avec « ✓ C'est fait ») / de demain (sans bouton) ; dessous 💊 Traitement · 💬 Mes signalements | aujourd'hui, demain, en retard |
+| 📦 Mes produits | en haut, livraisons à confirmer (« ✓ Tout reçu », « J'ai reçu moins ») ; dessous 🛒 J'ai acheté · 🧺 Mon stock · 📦 Mes livraisons | livraisons à confirmer |
+
+- **Ventes et sorties** et **Poulet malade** ouvrent directement leur écran (bande la plus utile, pastilles B1 / B2).
+- « Mes déclarations » s'appelle **« Mes signalements »** chez l'éleveur.
+- **« ✓ C'est fait »** d'un vaccin enregistre directement (vaccin, mode, poulets présents, doses : comme l'écran du vaccin), puis « Fait ✓ — Annuler (10) ». Le nom du vaccin ouvre l'écran complet.
+
+| Action | Clics |
+|---|---|
+| Saisie du jour → Envoyer | 2 |
+| Ventes et sorties → Enregistrer | 2 |
+| Vaccins et soins → C'est fait | 2 (1 depuis le raccourci de l'accueil) |
+| Poulet malade → Envoyer | 2 |
+| Mes produits → Tout reçu | 2 |
+| Ma bande → Nouvelle bande → Commencer | 3 |
+| Ma bande → Peser → Enregistrer | 3 |
+| Mes produits → J'ai acheté → Enregistrer | 3 |
+| Mon argent → J'ai payé → Enregistrer | 3 |
+| Vaccins et soins → Traitement → Enregistrer | 3 |
+| Entretien → Fait ✓ | 2 |
+| 📞 {Prénom} | 1 |
+| 👤 Moi → Se déconnecter | 2 |
+
+### Argent de l'éleveur (lot 11)
+
+- **Mon argent** :
+  - 3 grosses cartes : **Gagné** (ventes) · **Dépensé** (achats personnels + dépenses) · **Reste** (en rouge s'il est négatif) ;
+  - période en cases : **Ce mois** · **Cette bande** (pastilles B1 / B2 ; sans bande en cours, la dernière terminée) · **Tout** ;
+  - bouton **« 💸 J'ai payé »** ;
+  - derniers mouvements ; une vente sans montant est **« à compléter → »** (un toucher pour l'ajouter).
+- **J'ai payé** :
+  - catégorie en grosses images (liste `categories_depenses`, Configuration → Listes ; l'émoji en tête du nom sert d'image, 📦 sinon) ;
+  - montant en FCFA ;
+  - bâtiment facultatif ;
+  - photo du reçu facultative ;
+  - date jusqu'à 3 jours en arrière ;
+  - « Enregistrer », puis « Enregistré ✓ — Annuler (10) ». Fonctionne sans réseau.
+- **Ventes et sorties** : « Combien avez-vous reçu ? », montant facultatif, pour Abattoir et Vente seulement. L'éleveur le complète **une fois** plus tard ; ensuite, seul l'agent le corrige, avec un motif.
+- **J'ai acheté** : bâtiment facultatif (caché pour les poussins).
+- **Rattachement aux bandes** :
+  1. avec bâtiment : à la bande en cours de ce bâtiment ;
+  2. sans bâtiment : partagé entre les bandes en cours au prorata des poulets présents, sans erreur d'arrondi ;
+  3. poussins : à la bande qui les a reçus ;
+  4. aucune bande ce jour-là : « hors bande ».
+
+  Calculé par `app/services/argent.py`, figé dans le bilan à la clôture et mis à jour à chaque saisie d'argent.
+- **Bilan de fin de bande** : chiffre d'affaires, dépenses, marge.
+- **Aide de l'État** : la phrase « Sans l'aide de l'État, cette bande vous aurait coûté X FCFA de plus » n'apparaît que si **toutes** les livraisons subventionnées rattachées ont une valeur. Sinon rien.
+- **Qui voit quoi** :
+  - l'éleveur : tout ;
+  - l'agent, et l'ADMIN : carte « Argent de l'éleveur » sur la fiche ferme, avec correction et motif inscrit au journal. L'agent peut aussi saisir « J'ai payé » pour l'éleveur, marqué « Agent pour l'éleveur » dans la liste et au journal ;
+  - la DGE : totaux par province dans le tableau de bord seulement, et « — » sous 3 fermes ;
+  - BCEG et VETO : rien.
 
 ### Achats personnels de l'éleveur (« J'ai acheté »)
 

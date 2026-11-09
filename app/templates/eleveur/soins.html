@@ -1,0 +1,36 @@
+{% extends '_base.html' %}
+{% block titre %}Vaccins et soins{% endblock %}
+{% block icone %}capsule{% endblock %}
+{% block page_titre %}💉 Vaccins et soins{% endblock %}
+
+{% block contenu %}
+{% if bandeau %}{% with liv={'numero': 'vaccin'}, secondes=bandeau.secondes,
+     bandeau_texte='Fait ✓ — ' ~ bandeau.vaccination.produit.nom ~ ' · ' ~ bandeau.vaccination.bande.batiment.code,
+     bandeau_action=url_for('eleveur.annuler_vaccin', ident=bandeau.vaccination.id) %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
+
+{% for x in vaccins %}
+<div class="tache-entretien vaccin-a-faire">
+  <span class="tache-ico" aria-hidden="true">💉</span>
+  <div class="tache-texte">
+    <a href="{{ url_for('sante.vacciner', numero=x.bande.numero, calendrier=x.calendrier.id) }}"><strong>{{ x.calendrier.produit.nom }} · {{ x.code }}</strong></a>
+    {% if x.etat == 'retard' %} <span class="tache-retard">en retard</span>{% endif %}
+    <small>{{ {'retard': 'prévu le ' ~ x.prevu.strftime('%d/%m'), 'a_faire': 'prévu le ' ~ x.prevu.strftime('%d/%m'),
+               'aujourdhui': "aujourd'hui", 'demain': 'demain'}[x.etat] }} · {{ x.calendrier.mode|lower }}</small>
+  </div>
+  {% if x.etat != 'demain' %}{% with depuis='soins' %}{% include 'eleveur/_vaccin_fait.html' %}{% endwith %}{% endif %}
+</div>
+{% else %}
+<div class="carte carte-calme">
+  <strong>Aucun vaccin à faire</strong>
+  {% if prochain %}<div class="carte-sous">prochain : {{ prochain[1].calendrier.produit.nom }} ({{ prochain[0].code }}) le {{ prochain[1].prevu.strftime('%d/%m') }}</div>
+  {% elif not avec_bande %}<div class="carte-sous">aucune bande en cours</div>{% endif %}
+</div>
+{% endfor %}
+
+<div class="grosses-cases">
+  <a class="grosse-case" href="{{ url_for('eleveur.aller', quoi='traitement') }}" data-case="traitement">
+    <span class="gc-ico">💊</span><span class="gc-nom">Traitement</span><small>enregistrer un médicament</small></a>
+  <a class="grosse-case" href="{{ url_for('sante.mes_declarations') }}" data-case="signalements">
+    <span class="gc-ico">💬</span><span class="gc-nom">Mes signalements</span><small>poulets malades signalés</small></a>
+</div>
+{% endblock %}

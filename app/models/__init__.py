@@ -19,3 +19,4 @@ from app.models.sante import (Declaration, DeclarationPhoto, AlerteSanitaire,  #
 from app.models.tracabilite import LotTrace  # noqa: F401
 from app.models.hors_ligne import EnvoiHorsLigne, ConflitHorsLigne  # noqa: F401
 from app.models.entretien import TacheEntretien, EntretienFait, Panne  # noqa: F401
+from app.models.argent import Depense  # noqa: F401

@@ -1,0 +1,62 @@
+{% extends '_base.html' %}
+{% block titre %}J'ai payé{% endblock %}
+{% block icone %}cash{% endblock %}
+{% block page_titre %}💸 J'ai payé{% endblock %}
+{% block page_sous_titre %}{{ 'Une dépense pour la ferme' if theme_eleveur else "Dépense saisie pour l'éleveur" }}{% endblock %}
+
+{% block contenu %}
+{% if not fermes %}
+<div class="empty-note">Aucune ferme.</div>
+{% elif not ferme %}
+<form method="get" class="form-terrain">
+  <div class="form-label">Pour quelle ferme ?</div>
+  <div class="choix-cases">{% for f in fermes %}<label class="case-choix"><input type="radio" name="ferme" value="{{ f.numero }}" onchange="this.form.submit()"><span>{{ f.nom }}<br><small>{{ f.numero }}</small></span></label>{% endfor %}</div>
+</form>
+{% else %}
+<form method="post" enctype="multipart/form-data" class="form-terrain" novalidate data-hors-ligne="Dépense · {{ ferme.nom }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="ferme" value="{{ ferme.numero }}">
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  <div class="form-label">Pour quoi ?</div>
+  <div class="choix-cases pictos categories-depense">
+    {% for valeur, icone, nom in categories %}
+    <label class="case-choix"><input type="radio" name="categorie" value="{{ valeur }}" {% if saisie.get('categorie') == valeur %}checked{% endif %} required>
+      <span><i class="picto-panne" aria-hidden="true">{{ icone }}</i>{{ nom }}</span></label>
+    {% endfor %}
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="montant">Combien ? (FCFA)</label>
+    <input class="form-control champ-gros" id="montant" name="montant" inputmode="numeric" placeholder="ex. 50 000" value="{{ saisie.get('montant', '') }}" required>
+  </div>
+  {% set batiments = ferme.batiments|selectattr('actif')|sort(attribute='code')|list %}
+  {% if batiments|length > 1 %}
+  <div class="form-label">Pour quel bâtiment ? <span class="form-hint">facultatif</span></div>
+  <div class="choix-cases">
+    {% for b in batiments %}<label class="case-choix"><input type="radio" name="batiment" value="{{ b.id }}" {% if saisie.get('batiment') == b.id|string %}checked{% endif %}><span>{{ b.code }}</span></label>{% endfor %}
+    <label class="case-choix"><input type="radio" name="batiment" value="" {% if not saisie.get('batiment') %}checked{% endif %}><span>Tous</span></label>
+  </div>
+  {% endif %}
+  <div class="form-group">
+    <label class="btn-gros-secondaire" for="recu">📷 Photo du reçu <span class="form-hint">&nbsp;facultatif</span></label>
+    <input type="file" id="recu" name="recu" accept="image/*" capture="environment" hidden>
+    <div class="form-hint" id="recu-nom"></div>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="date">Date</label>
+    <input class="form-control" type="date" id="date" name="date" max="{{ today.isoformat() }}"{% if limite %} min="{{ limite.isoformat() }}"{% endif %} value="{{ saisie.get('date') or today.isoformat() }}">
+  </div>
+  <button type="submit" class="btn-gros">Enregistrer</button>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var recu = document.getElementById('recu');
+  if (recu) recu.addEventListener('change', function () {
+    document.getElementById('recu-nom').textContent = recu.files[0] ? '✓ Photo prête' : '';
+  });
+})();
+</script>
+{% endblock %}

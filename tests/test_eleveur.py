@@ -227,6 +227,7 @@ def test_batiment_vide_etoiles_et_ouvrir_ici(client, monde):
     jours(b, 1, 0)
     regles.cloturer(b, monde['el'], 'essai')
     db.session.commit()
+    bande_ouverte(monde, effectif=800, bat=1)             # une bande en cours ailleurs (lot 11)
     recevoir(monde['f'], [(monde['poussins'], 500, 0)])   # poussins en attente
     connecter(client, 'eleveur1')
     page = client.get('/saisie-du-jour').get_data(as_text=True)

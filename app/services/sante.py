@@ -169,7 +169,7 @@ def vaccins_de_la_bande(bande, jour=None):
     """État de chaque vaccin du calendrier : fait, aujourd'hui, demain, à venir, en retard."""
     jour = jour or date.today()
     retard = int(parametres.obtenir('sante.retard_vaccin_jours', 2))
-    faits = {v.calendrier_id: v for v in Vaccination.query.filter_by(bande_id=bande.id)}
+    faits = {v.calendrier_id: v for v in Vaccination.query.filter_by(bande_id=bande.id, annule=False)}
     resultat = []
     for c in calendrier():
         prevu = bande.date_mise_en_place + timedelta(days=c.age_jours)
@@ -219,6 +219,19 @@ def vaccins_en_retard(base_bandes):
 def _jour_valide(bande, jour):
     if jour > date.today() or jour < bande.date_mise_en_place:
         raise RegleSante('La date doit être entre la mise en place et aujourd\'hui.')
+
+
+DELAI_ANNULATION_SECONDES = 10
+TOLERANCE_RESEAU_SECONDES = 20
+
+
+def vaccination_annulable(v, user):
+    """« Fait ✓ — Annuler (10) » après « ✓ C'est fait » (lot 11) : même personne, juste après."""
+    from app.models.base import maintenant
+    from app.utils.dates import en_utc
+    if v.annule or v.cree_par != user.id:
+        return False
+    return (maintenant() - en_utc(v.cree_le)).total_seconds() <= DELAI_ANNULATION_SECONDES + TOLERANCE_RESEAU_SECONDES
 
 
 def vacciner(bande, jour, produit, mode, nombre, quantite, entree, user):

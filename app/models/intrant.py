@@ -74,9 +74,11 @@ class Livraison(SaisieTerrainMixin, db.Model):
     origine           = db.Column(db.String(10), nullable=False, default=OrigineLivraison.ETAT,
                                   server_default=OrigineLivraison.ETAT, index=True)
     prix_paye_fcfa    = db.Column(db.Integer, nullable=True)     # futur module Économie (charges)
+    batiment_id       = db.Column(db.Integer, db.ForeignKey('batiment.id'), nullable=True)   # achat : bâtiment facultatif (lot 11)
     photo_recu        = db.Column(db.String(80), nullable=True)
 
     ferme = db.relationship('Ferme')
+    batiment = db.relationship('Batiment')
     lignes = db.relationship('LivraisonLigne', back_populates='livraison',
                              cascade='all, delete-orphan', order_by='LivraisonLigne.id',
                              lazy='selectin')

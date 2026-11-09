@@ -167,6 +167,35 @@
 </div>
 {% endif %}
 
+{% if argent is not none %}
+<div class="card-p" id="argent">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-cash-coin"></i> Argent de l'éleveur</span>
+    {% if current_user.profil.value == 'AGENT' %}<a class="btn-top" href="{{ url_for('argent.payer', ferme=ferme.numero) }}"><i class="bi bi-plus-lg"></i> J'ai payé (pour l'éleveur)</a>{% endif %}</div>
+  <div class="card-p-body">
+    <div class="mb-2"><strong>Gagné</strong> {{ argent.totaux.gagne|qte }} FCFA · <strong>Dépensé</strong> {{ argent.totaux.depense|qte }} FCFA ·
+      <strong>Reste</strong> {{ argent.totaux.reste|qte }} FCFA <span class="td-sous">(depuis le début)</span></div>
+  </div>
+  {% if argent.mouvements %}
+  <div class="table-scroll"><table>
+    <thead><tr><th>Date</th><th>Mouvement</th><th>Montant (FCFA)</th><th>Saisi par</th><th>Reçu</th><th></th></tr></thead>
+    <tbody>{% for m in argent.mouvements %}
+      <tr>
+        <td>{{ m.date.strftime('%d/%m/%Y') }}</td>
+        <td>{{ m.ico }} {{ m.texte }}{% if m.hors_bande %} <span class="td-sous">· hors bande</span>{% endif %}</td>
+        <td>{% if m.montant is none %}{{ 'à compléter' if m.a_completer else '—' }}{% else %}{{ '+' if m.signe > 0 else '−' }} {{ m.montant|qte }}{% endif %}</td>
+        <td>{{ "Agent pour l'éleveur" if m.agent else 'Éleveur' }}</td>
+        <td>{% if m.genre == 'depense' and m.objet.photo_recu %}<a href="{{ url_for('argent.recu', numero=m.objet.numero) }}" target="_blank">photo</a>
+            {% elif m.genre == 'achat' and m.objet.photo_recu %}<a href="{{ url_for('eleveur.recu', numero=m.objet.numero) }}" target="_blank">photo</a>{% else %}—{% endif %}</td>
+        <td>{% if m.genre == 'depense' %}<a class="btn-edit" href="{{ url_for('argent.corriger', numero=m.objet.numero) }}">Corriger</a>
+            {% elif m.genre == 'vente' %}<a class="btn-edit" href="{{ url_for('argent.montant_vente', ident=m.objet.id) }}">{{ 'Indiquer' if m.montant is none else 'Corriger' }}</a>
+            {% else %}<a class="btn-edit" href="{{ url_for('eleveur.corriger_achat', numero=m.objet.numero) }}">Corriger</a>{% endif %}</td>
+      </tr>{% endfor %}</tbody>
+  </table></div>
+  {% if argent.nombre > argent.mouvements|length %}<div class="card-p-body td-sous">{{ argent.mouvements|length }} derniers mouvements sur {{ argent.nombre }}.</div>{% endif %}
+  {% else %}<div class="card-p-body"><div class="empty-note">Aucune vente ni dépense enregistrée.</div></div>{% endif %}
+</div>
+{% endif %}
+
 <div class="card-p" id="stock">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-box-seam"></i> Stock d'intrants</span></div>
   {% if stock %}

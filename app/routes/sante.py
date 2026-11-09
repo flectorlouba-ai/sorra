@@ -1,6 +1,6 @@
 from datetime import date
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, send_file
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, send_file, session
 from flask_login import current_user
 
 from app import db
@@ -225,9 +225,16 @@ def vacciner(numero):
         try:
             jour = date.fromisoformat(f.get('date') or date.today().isoformat())
             produit = db.session.get(Produit, f.get('produit_id', type=int) or 0)
-            regles.vacciner(bande, jour, produit, f.get('mode'), _entier(f.get('nombre')),
-                            _decimal(f.get('quantite')), entree, current_user)
+            v = regles.vacciner(bande, jour, produit, f.get('mode'), _entier(f.get('nombre')),
+                                _decimal(f.get('quantite')), entree, current_user)
             db.session.commit()
+            depuis = f.get('depuis')
+            if current_user.profil == Profil.ELEVEUR and depuis in ('soins', 'accueil'):
+                # Lot 11 : « ✓ C'est fait » d'un toucher, puis « Fait ✓ — Annuler (10) »
+                from app.services import hors_ligne
+                if not hors_ligne.actif():
+                    session['vaccin_recent'] = str(v.id)
+                return redirect(url_for('eleveur.soins') if depuis == 'soins' else url_for('accueil.index'))
             flash('Vaccination enregistrée ✓', 'success')
             return _retour(bande)
         except (regles.RegleSante, ValueError) as e:

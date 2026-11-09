@@ -1,0 +1,14 @@
+{# « ✓ C'est fait » d'un toucher (lot 11) : vaccin, mode, poulets et doses déjà connus, comme
+   l'écran du vaccin du lot 4. Variables : x (eleveur.vaccins_a_faire), depuis ('soins' ou 'accueil'). #}
+<form method="post" action="{{ url_for('sante.vacciner', numero=x.bande.numero) }}" class="form-vaccin-fait"
+      data-hors-ligne="Vaccin {{ x.calendrier.produit.nom }} · {{ x.code }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="calendrier" value="{{ x.calendrier.id }}">
+  <input type="hidden" name="produit_id" value="{{ x.calendrier.produit_id }}">
+  <input type="hidden" name="mode" value="{{ x.calendrier.mode }}">
+  <input type="hidden" name="nombre" value="{{ x.nombre }}">
+  <input type="hidden" name="quantite" value="{{ x.quantite }}">
+  <input type="hidden" name="date" value="{{ today.isoformat() }}">
+  <input type="hidden" name="depuis" value="{{ depuis }}">
+  <button type="submit" class="{{ 'raccourci-bouton' if depuis == 'accueil' else 'tache-bouton' }}">✓ C'est fait</button>
+</form>

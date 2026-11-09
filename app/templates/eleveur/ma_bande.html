@@ -1,0 +1,21 @@
+{% extends '_base.html' %}
+{% block titre %}Ma bande{% endblock %}
+{% block icone %}egg{% endblock %}
+{% block page_titre %}🐔 Ma bande{% endblock %}
+
+{% block contenu %}
+<div class="grosses-cases">
+  {% if poussins %}
+  <a class="grosse-case large" href="{{ url_for('bandes.ouvrir') }}" data-case="nouvelle">
+    <span class="pastille">{{ poussins|qte }}</span>
+    <span class="gc-ico">🐣</span><span class="gc-nom">Nouvelle bande</span><small>{{ poussins|qte }} poussins en attente</small></a>
+  {% endif %}
+  {% if pesee %}
+  <a class="grosse-case" href="{{ url_for('eleveur.aller', quoi='peser') }}" data-case="peser">
+    <span class="gc-ico">⚖️</span><span class="gc-nom">Peser</span>
+    <small>{{ pesee.code }} {{ "aujourd'hui" if pesee.pesee <= today else 'le ' ~ pesee.pesee.strftime('%d/%m') }}</small></a>
+  {% endif %}
+  <a class="grosse-case{{ ' large' if not pesee }}" href="{{ url_for('bandes.mes_bandes') }}" data-case="mes_bandes">
+    <span class="gc-ico">📈</span><span class="gc-nom">Mes bandes</span><small>en cours et passées</small></a>
+</div>
+{% endblock %}

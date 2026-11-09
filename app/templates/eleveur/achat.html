@@ -61,6 +61,14 @@
     <label class="form-label" for="lieu">Où ? <span class="form-hint">facultatif</span></label>
     <input class="form-control" id="lieu" name="lieu" maxlength="150" placeholder="ex. marché de Ntoum" value="{{ saisie.get('lieu', '') }}">
   </div>
+  {% set batiments = ferme.batiments|selectattr('actif')|sort(attribute='code')|list %}
+  {% if batiments|length > 1 %}
+  <div class="form-label" id="label-batiment">Pour quel bâtiment ? <span class="form-hint">facultatif</span></div>
+  <div class="choix-cases" id="bloc-batiment">
+    {% for b in batiments %}<label class="case-choix"><input type="radio" name="batiment" value="{{ b.id }}" {% if saisie.get('batiment') == b.id|string %}checked{% endif %}><span>{{ b.code }}</span></label>{% endfor %}
+    <label class="case-choix"><input type="radio" name="batiment" value="" {% if not saisie.get('batiment') %}checked{% endif %}><span>Tous</span></label>
+  </div>
+  {% endif %}
   <div class="form-group">
     <label class="btn-gros-secondaire" for="recu">📷 Photo du reçu <span class="form-hint">&nbsp;facultatif</span></label>
     <input type="file" id="recu" name="recu" accept="image/*" capture="environment" hidden>
@@ -86,6 +94,8 @@
     if (!c || !unite) return;
     unite.textContent = 'en ' + c.dataset.unite + (c.dataset.sac ? ' · sac de ' + c.dataset.sac + ' kg' : '');
     morts.hidden = c.dataset.poussins !== '1';
+    var bat = document.getElementById('bloc-batiment');     // poussins : ils vont à la bande qui les reçoit
+    if (bat) { bat.hidden = c.dataset.poussins === '1'; document.getElementById('label-batiment').hidden = bat.hidden; }
   }
   document.querySelectorAll('input[name=produit]').forEach(function (r) { r.addEventListener('change', maj); });
   var recu = document.getElementById('recu');

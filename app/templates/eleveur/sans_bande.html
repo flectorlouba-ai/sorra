@@ -1,0 +1,18 @@
+{% extends '_base.html' %}
+{% block titre %}Aucune bande en cours{% endblock %}
+{% block icone %}egg{% endblock %}
+{% block page_titre %}{{ titre }}{% endblock %}
+
+{% block contenu %}
+<div class="carte carte-calme centre">
+  {{ poulet('dort', taille=90) }}
+  <div class="carte-phrase">Aucune bande en cours</div>
+  {% if poussins %}
+  <div class="carte-sous">{{ poussins|qte }} poussins attendent d'être mis en bande.</div>
+  <a class="btn-gros" href="{{ url_for('bandes.ouvrir') }}">🐣 Nouvelle bande</a>
+  {% else %}
+  <div class="carte-sous">Quand vos poussins arriveront, confirmez la livraison dans « Mes produits ».</div>
+  {% endif %}
+  <a class="btn-gros-secondaire" href="{{ url_for('bandes.mes_bandes') }}">📈 Mes bandes</a>
+</div>
+{% endblock %}

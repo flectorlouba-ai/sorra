@@ -38,7 +38,7 @@ def _nombre(texte, entier=False):
 
 def _retour_confirmation(liv):
     if current_user.profil == Profil.ELEVEUR:
-        return redirect(url_for('accueil.index'))
+        return redirect(url_for('eleveur.produits'))        # lot 11 : écran « Mes produits »
     return redirect(url_for('livraisons.fiche', numero=liv.numero))
 
 

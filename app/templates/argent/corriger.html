@@ -1,0 +1,30 @@
+{% extends '_base.html' %}
+{% block titre %}Corriger une dépense{% endblock %}
+{% block icone %}pencil{% endblock %}
+{% block page_sous_titre %}Dépense {{ d.numero }} · {{ d.ferme.nom }} · la correction est inscrite au journal{% endblock %}
+
+{% block contenu %}
+<form method="post" class="form-terrain" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  <div class="form-group">
+    <label class="form-label" for="categorie">Catégorie</label>
+    <select class="form-control" id="categorie" name="categorie">
+      {% for valeur, icone, nom in categories %}<option value="{{ valeur }}" {% if (saisie.get('categorie') or d.categorie) == valeur %}selected{% endif %}>{{ icone }} {{ nom }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="montant">Montant (FCFA)</label>
+    <input class="form-control" id="montant" name="montant" inputmode="numeric" value="{{ saisie.get('montant') or d.montant_fcfa }}">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="date">Date</label>
+    <input class="form-control" type="date" id="date" name="date" max="{{ today.isoformat() }}" value="{{ saisie.get('date') or d.date.isoformat() }}">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="motif">Motif de la correction</label>
+    <input class="form-control" id="motif" name="motif" maxlength="300" required value="{{ saisie.get('motif', '') }}">
+  </div>
+  <button type="submit" class="btn-gros">Enregistrer la correction</button>
+</form>
+{% endblock %}

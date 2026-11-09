@@ -1,8 +1,9 @@
 {% extends '_base.html' %}
-{% block titre %}{{ 'Mes déclarations' if mes else 'Déclarations sanitaires' }}{% endblock %}
+{% block titre %}{{ ('Mes signalements' if theme_eleveur else 'Mes déclarations') if mes else 'Déclarations sanitaires' }}{% endblock %}
+{% block page_titre %}{% if mes and theme_eleveur %}💬 Mes signalements{% else %}{{ self.titre() }}{% endif %}{% endblock %}
 {% block sous_titre %}Santé animale{% endblock %}
 {% block icone %}camera{% endblock %}
-{% block page_sous_titre %}{{ declarations|length }} déclaration{{ 's' if declarations|length != 1 }}{% if not mes %} · transmises aux services vétérinaires{% endif %}{% endblock %}
+{% block page_sous_titre %}{{ declarations|length }} {{ 'signalement' if theme_eleveur else 'déclaration' }}{{ 's' if declarations|length != 1 }}{% if not mes %} · transmises aux services vétérinaires{% endif %}{% endblock %}
 
 {% block contenu %}
 <div class="table-wrap"><div class="table-scroll">

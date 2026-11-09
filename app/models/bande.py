@@ -143,6 +143,7 @@ class Sortie(SaisieTerrainMixin, db.Model):
     nombre           = db.Column(db.Integer, nullable=False)
     poids_total_kg   = db.Column(db.Numeric(12, 2, asdecimal=False), nullable=False)
     saisi_par_agent  = db.Column(db.Boolean, nullable=False, default=False)
+    montant_fcfa     = db.Column(db.Integer, nullable=True)   # lot 11 : « Combien avez-vous reçu ? »
 
     bande = db.relationship('Bande', back_populates='sorties')
     operateur = db.relationship('Operateur')

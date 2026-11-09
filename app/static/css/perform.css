@@ -680,3 +680,6 @@ i.picto-panne{font-style:normal;font-size:2rem;display:block;}
 .case-large{grid-column:1 / -1;}
 .avertissement-desinfection{background:var(--warn-fond);border:1px solid var(--warn-trait);border-radius:10px;padding:.7rem .9rem;margin-bottom:.8rem;}
 .avertissement-desinfection span{display:block;color:var(--gris5);}
+
+/* ── Argent (lot 11) : « J'ai payé » saisi par l'agent pour l'éleveur ─ */
+.categories-depense{grid-template-columns:repeat(4,1fr);}

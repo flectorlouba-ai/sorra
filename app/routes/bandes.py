@@ -56,6 +56,16 @@ def _nombre(texte, entier=False):
     return int(v) if entier else v
 
 
+def _montant(texte):
+    """Montant en FCFA (« 600 000 », « 600000 ») ; vide = pas encore indiqué."""
+    texte = (texte or '').replace(' ', '').replace(' ', '').replace(' ', '').replace('.', '').strip()
+    if not texte:
+        return None
+    if not texte.isdigit():
+        raise regles.RegleBande('Écrivez le montant en chiffres.')
+    return int(texte)
+
+
 def _jour(texte):
     try:
         return date.fromisoformat(texte) if texte else hors_ligne.jour_de_saisie()
@@ -180,6 +190,10 @@ def bilan(numero):
         if current_user.profil == Profil.ELEVEUR:
             return redirect(url_for('accueil.index'))
         return redirect(url_for('bandes.fiche', numero=numero))
+    if 'marge' not in bande.bilan:       # bande terminée avant le lot 11 : chiffres d'argent calculés
+        from app.services import argent
+        bande.bilan = {**bande.bilan, **argent.bilan_financier(bande)}
+        db.session.commit()
     if current_user.profil == Profil.ELEVEUR:
         from app.services import ludique
         n = ludique.etoiles_du_bilan(bande.bilan)
@@ -472,7 +486,8 @@ def sortie(numero):
         try:
             op = next((o for o in operateurs if str(o.id) == f.get('operateur')), None)
             s = regles.sortir(bande, _jour(f.get('jour')), f.get('motif'), op, f.get('destinataire_libre', '').strip(),
-                              _nombre(f.get('nombre'), entier=True), _nombre(f.get('poids_total')), current_user)
+                              _nombre(f.get('nombre'), entier=True), _nombre(f.get('poids_total')), current_user,
+                              montant=_montant(f.get('montant')))
             delai = sante.fin_delai_attente(bande, s.date)
             if delai and s.motif == MotifSortie.ABATTOIR:
                 fin = delai.strftime('%d/%m/%Y')

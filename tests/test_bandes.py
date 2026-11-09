@@ -1,4 +1,5 @@
 """Lot 3 — bandes d'élevage."""
+import re
 from datetime import date, timedelta
 
 import pytest
@@ -68,8 +69,9 @@ def bande_ouverte(m, effectif=None, jour=None, bat=0):
 def test_ouverture_par_l_eleveur_depuis_les_poussins(client, monde):
     liv = recevoir(monde['f'], [(monde['poussins'], 1000, 3), (monde['aliment'], 40, 0)])
     connecter(client, 'eleveur1')
-    page = client.get('/').get_data(as_text=True)
-    assert 'Nouvelle bande' in page and '997' in page and '/bandes/ouvrir' in page   # tuile et sa pastille
+    assert re.search(r'data-tuile="ma_bande">\s*<span class="pastille ">997<', client.get('/').get_data(as_text=True))
+    page = client.get('/ma-bande').get_data(as_text=True)                          # lot 11 : dans « Ma bande »
+    assert 'Nouvelle bande' in page and '997' in page and '/bandes/ouvrir' in page
     page = client.get(f'/bandes/ouvrir?ferme={monde["f"].numero}').get_data(as_text=True)
     assert '997' in page and '1 000 reçus − 3 morts' in page and 'Dans quel bâtiment' in page
     ligne = next(l for l in liv.lignes if l.produit.type == 'Poussins')
@@ -349,8 +351,8 @@ def test_cloture_par_l_eleveur_a_zero_et_lecture_seule(client, monde):
     client.post(f'/bandes/{b.numero}/cloturer')
     db.session.refresh(b)
     assert b.statut == StatutBande.CLOTUREE and b.bilan['sortis'] == 10
-    page = client.get('/saisie-du-jour').get_data(as_text=True)
-    assert 'vide depuis 0 jour' in page and 'Dernière bande' in page and 'poulet-dort' in page
+    page = client.get('/saisie-du-jour').get_data(as_text=True)      # lot 11 : plus de bande, page simple
+    assert 'Aucune bande en cours' in page and 'poulet-dort' in page and 'Mes bandes' in page
     assert client.post(f'/bandes/{b.numero}/saisie', data={'morts': 1}).status_code == 403
     assert client.get(f'/bandes/{b.numero}/bilan').status_code == 200
 

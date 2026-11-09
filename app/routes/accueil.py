@@ -247,13 +247,8 @@ def _bandeau_annulation(user):
 @login_required
 def index():
     if current_user.profil == Profil.ELEVEUR:
-        fermes = filtre_perimetre(Ferme.query).order_by(Ferme.numero_metier).all()
-        a_confirmer = (filtre_perimetre(Livraison.query)
-                       .filter(Livraison.statut == StatutLivraison.A_CONFIRMER)
-                       .order_by(Livraison.date_livraison, Livraison.numero_metier).all())
-        from app.routes.eleveur import accueil as accueil_eleveur, bandeau_achat
-        return render_template('accueil.html', eleveur=True, fermes=fermes, onglets=[],
-                               a_confirmer=a_confirmer, bandeau=_bandeau_annulation(current_user),
-                               bandeau_achat=bandeau_achat(current_user), e=accueil_eleveur(current_user))
+        from app.routes.eleveur import accueil as accueil_eleveur, bandeau_vaccin
+        return render_template('accueil.html', eleveur=True, onglets=[], e=accueil_eleveur(current_user),
+                               bandeau_vaccin=bandeau_vaccin(current_user))
     return render_template('accueil.html', eleveur=False, onglets=onglets_pour(current_user),
                            alertes=_alertes(current_user))

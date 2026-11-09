@@ -64,6 +64,7 @@ def create_app(env='default'):
     from app.routes.hors_ligne import hors_ligne_bp
     from app.routes.eleveur import eleveur_bp
     from app.routes.entretien import entretien_bp
+    from app.routes.argent import argent_bp
 
     app.register_blueprint(auth_bp,          url_prefix='/auth')
     app.register_blueprint(accueil_bp)
@@ -89,6 +90,7 @@ def create_app(env='default'):
     app.register_blueprint(eleveur_bp)
     # Entretien simple des installations (lot 10)
     app.register_blueprint(entretien_bp)
+    app.register_blueprint(argent_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
@@ -124,7 +126,11 @@ def create_app(env='default'):
             # Pastilles « autres bâtiments » sur Peser, Sortie, Poulet malade (calculées à la demande)
             from app.routes.eleveur import bandes_en_cours
             return bandes_en_cours() if eleveur else []
-        return {'theme_eleveur': eleveur, 'bandes_eleveur': bandes_eleveur}
+        def agent_eleveur():
+            # En-tête de l'éleveur (lot 11) : son agent, s'il a un téléphone
+            from app.routes.eleveur import _fermes
+            return next((f.agent for f in _fermes() if f.agent and f.agent.telephone), None) if eleveur else None
+        return {'theme_eleveur': eleveur, 'bandes_eleveur': bandes_eleveur, 'agent_eleveur': agent_eleveur}
 
     _installer_controles_session(app)
     _installer_erreurs(app)

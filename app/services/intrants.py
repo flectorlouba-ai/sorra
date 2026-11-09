@@ -170,7 +170,7 @@ def produits_frequents(ferme, nombre=6):
     return actifs[:nombre]
 
 
-def enregistrer_achat(ferme, produit, quantite, morts, prix, lieu, jour, user, photo=None):
+def enregistrer_achat(ferme, produit, quantite, morts, prix, lieu, jour, user, photo=None, batiment=None):
     """Achat personnel : une « livraison » d'origine ACHAT, reçue d'emblée, non subventionnée."""
     if produit is None or not produit.actif:
         raise RegleAchat('Choisissez le produit acheté.')
@@ -187,11 +187,14 @@ def enregistrer_achat(ferme, produit, quantite, morts, prix, lieu, jour, user, p
         raise RegleAchat("Le nombre de poussins morts à l'arrivée est impossible.")
     if prix is not None and prix < 0:
         raise RegleAchat('Le prix payé ne peut pas être négatif.')
+    if batiment is not None and (batiment.ferme_id != ferme.id or poussins):
+        batiment = None          # poussins : ils vont à la bande qui les reçoit (lot 11)
     achat = Livraison(numero_metier=generer_numero('ACHAT', 'ACH', annuel=True), ferme=ferme,
                       date_livraison=jour, fournisseur=(lieu or '').strip()[:150] or None,
                       origine=OrigineLivraison.ACHAT, statut=S.RECUE, prix_paye_fcfa=prix,
                       confirmee_le=maintenant(), confirmee_par=user.id,
-                      confirmee_par_agent=user.profil == Profil.AGENT, photo_recu=photo)
+                      confirmee_par_agent=user.profil == Profil.AGENT, photo_recu=photo,
+                      batiment_id=batiment.id if batiment else None)
     achat.lignes.append(LivraisonLigne(produit=produit, quantite_livree=quantite, quantite_recue=quantite,
                                        morts_arrivee=morts, subventionne=False, part_subventionnee=None,
                                        valeur_unitaire=round(prix / quantite, 2) if prix else None))
@@ -261,9 +264,11 @@ def quantites_utilisees(ferme):
     from app.models.sante import Vaccination, Traitement
     soins = []
     for modele in (Vaccination, Traitement):
-        soins += (db.session.query(modele.produit_id, db.func.sum(modele.quantite))
-                  .join(Bande, modele.bande_id == Bande.id)
-                  .filter(Bande.ferme_id == ferme.id).group_by(modele.produit_id).all())
+        q = (db.session.query(modele.produit_id, db.func.sum(modele.quantite))
+             .join(Bande, modele.bande_id == Bande.id).filter(Bande.ferme_id == ferme.id))
+        if modele is Vaccination:
+            q = q.filter(Vaccination.annule.is_(False))      # « Annuler (10) » (lot 11)
+        soins += q.group_by(modele.produit_id).all()
     for pid, q in poussins + aliment + soins:
         utilises[pid] = utilises.get(pid, 0) + float(q or 0)
     return utilises

@@ -96,9 +96,17 @@ def fiche(numero):
                            achats=(Livraison.query.filter_by(ferme_id=ferme.id, origine=OrigineLivraison.ACHAT)
                                    .order_by(Livraison.date_livraison.desc(), Livraison.numero_metier.desc()).all()
                                    if current_user.profil in (Profil.AGENT, Profil.DGE, Profil.ADMIN) else None),
+                           argent=_argent(ferme) if current_user.profil in (Profil.AGENT, Profil.ADMIN) else None,
                            etats={b.id: regles_bandes.etat_batiment(b) for b in ferme.batiments},
                            bandes=Bande.query.filter_by(ferme_id=ferme.id)
                            .order_by(Bande.date_mise_en_place.desc()).all())
+
+
+def _argent(ferme):
+    """Carte « Argent de l'éleveur » (lot 11) : agent et ADMIN seulement (la DGE n'a que des totaux)."""
+    from app.services import argent
+    mvts = argent.mouvements([ferme.id])
+    return {'totaux': argent.totaux(mvts), 'mouvements': mvts[:20], 'nombre': len(mvts)}
 
 
 # ── Création / modification ─────────────────────────────────────────────

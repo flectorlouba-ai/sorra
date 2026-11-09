@@ -45,12 +45,18 @@ def _barres(lignes, cle, largeur=100, unite=''):
 def tableau():
     f = pilotage.lire_filtres(request.args)
     donnees = pilotage.tableau(current_user, f)
+    argent_eleveurs = None
+    if current_user.profil in (Profil.DGE, Profil.ADMIN):
+        # Lot 11 : totaux agrégés par province seulement (moins de 3 fermes : « — »)
+        from app.services import argent
+        argent_eleveurs = argent.agregats(pilotage.fermes_filtrees(current_user, f).all(),
+                                          f.get('du_date'), f.get('au_date'))
     alertes = sante.alertes_visibles(current_user).filter(AlerteSanitaire.statut.in_(('NOUVELLE', 'EN_ANALYSE', 'CONFIRMEE'))).count()
     return render_template('pilotage/tableau.html', d=donnees, f=f, provinces=_provinces_visibles(),
                            statuts=[v for v, _ in ld_choices('statuts_ferme')], alertes=alertes,
                            barres_mortalite=_barres(donnees['par_province'], 'mortalite', unite=' %'),
                            barres_presents=_barres(donnees['par_province'], 'effectifs_presents'),
-                           national=current_user.est_national)
+                           national=current_user.est_national, argent_eleveurs=argent_eleveurs)
 
 
 @pilotage_bp.route('/carte')

@@ -108,7 +108,7 @@ def upgrade():
         batch_op.create_index(batch_op.f('ix_entretien_fait_ferme_id'), ['ferme_id'], unique=False)
 
     with op.batch_alter_table('bande', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('ouverte_sans_desinfection', sa.Boolean(), server_default=sa.text('0'), nullable=False))
+        batch_op.add_column(sa.Column('ouverte_sans_desinfection', sa.Boolean(), server_default=sa.false(), nullable=False))
 
     # ### end Alembic commands ###
     tache = sa.table('tache_entretien', sa.column('nom', sa.String), sa.column('icone', sa.String),

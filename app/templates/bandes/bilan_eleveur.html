@@ -17,6 +17,13 @@
     <div><span class="num">{{ vendus|qte }}</span><small>poulets vendus</small></div>
     <div><span class="num">🔥 {{ serie_record }}</span><small>série record</small></div>
   </div>
+  <div class="chiffres-bilan argent-bilan">
+    <div><span class="num">{{ b.chiffre_affaires|qte }}</span><small>chiffre d'affaires</small></div>
+    <div><span class="num">{{ b.depenses|qte }}</span><small>dépenses</small></div>
+    <div><span class="num{{ ' negatif' if b.marge < 0 }}">{{ b.marge|qte }}</span><small>marge (FCFA)</small></div>
+  </div>
+  {% if b.ventes_a_completer %}<div class="carte-sous">{{ b.ventes_a_completer }} vente{{ 's' if b.ventes_a_completer > 1 }} sans montant : <a href="{{ url_for('argent.mon_argent', periode='tout') }}">à compléter</a>.</div>{% endif %}
+  {% if b.aide_etat %}<div class="aide-etat">Sans l'aide de l'État, cette bande vous aurait coûté <strong>{{ b.aide_etat|qte }} FCFA</strong> de plus.</div>{% endif %}
   {% if b.partiels %}<div class="carte-sous">Bande commencée avant le suivi : chiffres partiels.</div>{% endif %}
   <a class="btn-gros-secondaire" href="{{ url_for('bandes.mes_bandes') }}">Voir mes bandes passées</a>
 </div>

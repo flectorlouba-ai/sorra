@@ -1,0 +1,23 @@
+{% extends '_base.html' %}
+{% block titre %}Montant de la vente{% endblock %}
+{% block icone %}cash-coin{% endblock %}
+{% block page_titre %}{{ '🏭' if s.motif == 'Abattoir' else '🚚' }} Combien avez-vous reçu ?{% endblock %}
+{% block page_sous_titre %}{{ s.motif }} du {{ s.date.strftime('%d/%m/%Y') }} · {{ s.nombre|qte }} poulets · {{ s.bande.batiment.code }}{% endblock %}
+
+{% block contenu %}
+<form method="post" class="form-terrain" novalidate data-hors-ligne="Montant · {{ s.motif }} du {{ s.date.strftime('%d/%m') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  <div class="form-group">
+    <label class="form-label" for="montant">Montant reçu en tout (FCFA)</label>
+    <input class="form-control champ-gros" id="montant" name="montant" inputmode="numeric" placeholder="ex. 600 000" value="{{ saisie.get('montant') or (s.montant_fcfa if s.montant_fcfa is not none else '') }}" required>
+  </div>
+  {% if not theme_eleveur and s.montant_fcfa is not none %}
+  <div class="form-group">
+    <label class="form-label" for="motif">Motif de la correction</label>
+    <input class="form-control" id="motif" name="motif" maxlength="300" required value="{{ saisie.get('motif', '') }}">
+  </div>
+  {% endif %}
+  <button type="submit" class="btn-gros">Enregistrer</button>
+</form>
+{% endblock %}

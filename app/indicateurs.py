@@ -333,7 +333,14 @@ def bilan(bande):
         'etoiles': ludique.etoiles(arrondi(v['mortalite'], 2), arrondi(v['indice_consommation'], 2)),
         'serie_record': ludique.plus_longue_serie(bande),
         'vendus': sum(s.nombre for s in bande.sorties if s.motif in ('Abattoir', 'Vente')),
+        # Lot 11 : chiffre d'affaires, dépenses, marge, aide de l'État
+        **_argent().bilan_financier(bande),
     }
+
+
+def _argent():
+    from app.services import argent
+    return argent
 
 
 # ── Comparaisons et tableaux de bord (lot 5) ────────────────────────────

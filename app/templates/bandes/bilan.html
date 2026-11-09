@@ -25,6 +25,12 @@
   <div class="carte-chiffre"><div class="cc-libelle">Poids vif produit</div>
     <div class="cc-valeur">{{ b.poids_vif_produit_kg|qte if b.poids_vif_produit_kg is not none else '—' }} kg</div>
     <div class="cc-sous">{{ b.sortis|qte }} poulets sortis · régularité {{ b.regularite|qte }} %</div></div>
+  {% if current_user.profil.value in ('AGENT', 'ADMIN') %}
+  <div class="carte-chiffre"><div class="cc-libelle">Argent de l'éleveur (FCFA)</div>
+    <div class="cc-valeur">{{ b.marge|qte }}</div>
+    <div class="cc-sous">marge · chiffre d'affaires {{ b.chiffre_affaires|qte }} · dépenses {{ b.depenses|qte }}
+      {% if b.aide_etat %}· aide de l'État {{ b.aide_etat|qte }}{% endif %}</div></div>
+  {% endif %}
 </div>
 
 <div class="card-p">

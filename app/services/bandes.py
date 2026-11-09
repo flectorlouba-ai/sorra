@@ -254,7 +254,7 @@ def peser(bande, jour, nombre, total_kg, user):
     return p
 
 
-def sortir(bande, jour, motif, operateur, libre, nombre, poids_kg, user):
+def sortir(bande, jour, motif, operateur, libre, nombre, poids_kg, user, montant=None):
     _controle_jour(bande, jour, user)
     if motif not in MotifSortie.TOUS:
         raise RegleBande('Choisissez pour qui sont les poulets.')
@@ -267,9 +267,12 @@ def sortir(bande, jour, motif, operateur, libre, nombre, poids_kg, user):
         raise RegleBande(f'Le nombre de poulets doit être entre 1 et {present} (poulets présents).')
     if not poids_kg or poids_kg <= 0:
         raise RegleBande('Indiquez le poids total des poulets (kg).')
+    if montant is not None and montant <= 0:
+        raise RegleBande('Le montant reçu doit être positif (ou laissé vide).')
     s = Sortie(bande=bande, date=jour, motif=motif, operateur=operateur,
                destinataire_libre=(libre or None) if operateur is None else None,
-               nombre=nombre, poids_total_kg=poids_kg)
+               nombre=nombre, poids_total_kg=poids_kg,
+               montant_fcfa=montant if motif != MotifSortie.AUTRE else None)   # lot 11, facultatif
     db.session.add(s)
     s.saisi_par_agent = _signer(user, bande, f'sortie de {nombre} poulets ({motif})')
     db.session.flush()

@@ -167,17 +167,17 @@ def test_eleveur_tout_recu_avec_morts_et_annulation(client, monde):
     autre = livrer(monde['f2'], [(monde['vaccin'], 10)])
     connecter(client, 'eleveur1')
     page = client.get('/').get_data(as_text=True)
-    assert 'data-tuile="livraisons"' in page and 'Livraison à confirmer' not in page   # tuile + pastille
+    assert 'data-tuile="produits"' in page and 'Livraison à confirmer' not in page   # tuile + pastille
     page = client.get('/livraisons/mes-livraisons').get_data(as_text=True)
     assert 'Livraison à confirmer' in page and 'Tout reçu' in page and "J'ai reçu moins" in page
     assert "Morts à l'arrivée" in page and autre.numero not in page
     lp = next(l for l in liv.lignes if l.produit.type == 'Poussins')
     r = client.post(f'/livraisons/{liv.numero}/tout-recu', data={f'morts-{lp.id}': '12'})
-    assert r.location.endswith('/')
+    assert r.location.endswith('/mes-produits')
     db.session.refresh(liv)
     assert liv.statut == S.RECUE and lp.morts_arrivee == 12 and liv.confirmee_par == monde['el'].id
     assert not liv.confirmee_par_agent
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/mes-produits').get_data(as_text=True)
     assert 'Reçue ✓' in page and 'Annuler' in page and 'Livraison à confirmer' not in page
     conf = JournalAudit.query.filter_by(action='CONFIRMATION').one()
     assert 'tout reçu' in conf.detail and "par l'éleveur Eleveur1" in conf.detail
@@ -194,7 +194,7 @@ def test_annulation_impossible_apres_le_delai(client, monde):
     client.post(f'/livraisons/{liv.numero}/tout-recu')
     liv.confirmee_le = maintenant() - timedelta(minutes=2)
     db.session.commit()
-    assert 'bandeau-annuler' not in client.get('/').get_data(as_text=True)
+    assert 'bandeau-annuler' not in client.get('/mes-produits').get_data(as_text=True)
     r = client.post(f'/livraisons/{liv.numero}/annuler-confirmation', follow_redirects=True)
     assert 'délai pour annuler est passé' in r.get_data(as_text=True)
     assert db.session.get(Livraison, liv.id).statut == S.RECUE
@@ -355,7 +355,7 @@ def test_pas_d_alerte_pour_l_eleveur(client, monde):
     livrer(monde['f1'], [(monde['vaccin'], 100)], jour=date.today() - timedelta(days=9))
     connecter(client, 'eleveur1')
     page = client.get('/').get_data(as_text=True)
-    assert 'non confirmée depuis' not in page and 'data-tuile="livraisons"' in page
+    assert 'non confirmée depuis' not in page and 'data-tuile="produits"' in page
     assert 'Livraison à confirmer' in client.get('/livraisons/mes-livraisons').get_data(as_text=True)
 
 

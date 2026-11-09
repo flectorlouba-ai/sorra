@@ -20,6 +20,7 @@ CATEGORIES = {
     'motifs_ecart':          "Motifs d'écart à la réception",
     'signes_cliniques':      'Signes cliniques',
     'modes_administration':  "Modes d'administration des vaccins",
+    'categories_depenses':   "Catégories de dépenses (« J'ai payé », l'émoji en tête sert d'image)",
 }
 
 

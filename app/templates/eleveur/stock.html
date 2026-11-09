@@ -20,14 +20,6 @@
   <div class="carte-sous">Rien en stock pour l'instant.</div>
   {% endfor %}
 </div>
-<div class="carte ma-ferme">
-  <div class="ma-ferme-tete">
-    <div><div class="ma-ferme-titre">Ma ferme</div><div class="ma-ferme-nom">{{ f.nom }}</div><div class="ma-ferme-num">{{ f.numero }}</div></div>
-    {{ badge_statut(f.statut) }}
-  </div>
-  <div class="carte-sous">{{ f.batiments|selectattr('actif')|list|length }} bâtiment{{ 's' if f.batiments|selectattr('actif')|list|length > 1 }} · {{ '{:,}'.format(f.capacite).replace(',', ' ') }} places
-    {% if f.agent %} · mon agent : {{ f.agent.nom_complet }}{% endif %}</div>
-</div>
 {% endfor %}
 
 {% if achats %}

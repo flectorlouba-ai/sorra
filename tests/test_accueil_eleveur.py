@@ -37,14 +37,21 @@ def acheter(client, produit, quantite='10', **extra):
 
 # ── Accueil : tuiles affichées ou cachées ───────────────────────────────
 
+HUIT = ['saisie', 'ma_bande', 'ventes', 'soins', 'malade', 'produits', 'argent', 'entretien']
+
+
 def test_accueil_sans_bande_ni_poussins(client, monde):
     connecter(client, 'eleveur1')
     page = client.get('/').get_data(as_text=True)
     assert 'Aucune bande en cours' in page and 'poulet-dort' in page
-    assert 'Saisie du jour' not in page
-    assert tuiles(page) == ['livraisons', 'malade', 'achat', 'entretien', 'bandes', 'stock']
-    assert 'tuiles impair' not in page                   # 6 tuiles : nombre pair
+    assert tuiles(page) == HUIT                          # les 8 tuiles restent, même sans bande
+    assert 'aucune bande en cours' in page               # la tuile Saisie du jour le dit
     assert 'class="compteur"' not in page and 'bloc-bat' not in page   # plus de tableau de bord
+    # Sans bande : Saisie du jour et Ventes et sorties ouvrent une petite page simple
+    for lien in ('/saisie-du-jour', '/aller/sortie', '/aller/peser', '/aller/traitement'):
+        page = client.get(lien).get_data(as_text=True)
+        assert 'Aucune bande en cours' in page and 'Mes bandes' in page, lien
+    assert 'Peser' not in client.get('/ma-bande').get_data(as_text=True)      # pas de bouton inutile
 
 
 def test_accueil_poussins_en_attente_et_livraisons_a_confirmer(client, monde):
@@ -56,9 +63,20 @@ def test_accueil_poussins_en_attente_et_livraisons_a_confirmer(client, monde):
     db.session.commit()
     connecter(client, 'eleveur1')
     page = client.get('/').get_data(as_text=True)
-    assert 'bande' in tuiles(page) and '>997<' in page.replace('\n', '')       # pastille poussins
-    assert re.search(r'data-tuile="livraisons">\s*<span class="pastille ">1</span>', page)
-    assert 'carte-livraison' not in page                 # plus de grandes cartes de livraison sur l'accueil
+    assert tuiles(page) == HUIT
+    assert re.search(r'data-tuile="ma_bande">\s*<span class="pastille ">997</span>', page)   # poussins
+    assert re.search(r'data-tuile="produits">\s*<span class="pastille ">1</span>', page)     # à confirmer
+    assert 'carte-livraison' not in page
+    page = client.get('/ma-bande').get_data(as_text=True)
+    assert 'data-case="nouvelle"' in page and '997 poussins en attente' in page
+    page = client.get('/mes-produits').get_data(as_text=True)
+    assert 'carte-livraison' in page and f'/livraisons/{liv.numero}/tout-recu' in page and 'J&#39;ai reçu moins' not in page
+    for case in ('achat', 'stock', 'livraisons'):
+        assert f'data-case="{case}"' in page
+    # Tout reçu : retour sur « Mes produits » avec « Annuler (10) »
+    r = client.post(f'/livraisons/{liv.numero}/tout-recu')
+    assert r.location.endswith('/mes-produits')
+    assert 'bandeau-annuler' in client.get('/mes-produits').get_data(as_text=True)
 
 
 def test_accueil_avec_bandes_saisie_pastilles_et_ligne_d_etat(client, monde):
@@ -70,12 +88,68 @@ def test_accueil_avec_bandes_saisie_pastilles_et_ligne_d_etat(client, monde):
     page = client.get('/').get_data(as_text=True)
     assert '2 bâtiments · tout va bien' in page and 'B1 jour 3 · B2 jour 2' in page and 'poulet-content' in page
     assert 'B1, B2 à faire · morts et aliment' in page and 'aria-label="2 bâtiment(s) à saisir"' in page
-    assert tuiles(page) == ['livraisons', 'peser', 'vaccins', 'malade', 'sortie', 'achat', 'entretien', 'bandes', 'stock']
-    assert 'tuiles impair' in page                       # la dernière tuile prend toute la largeur
+    assert tuiles(page) == HUIT and 'tuile tuile-large' in page          # Entretien en pleine largeur
     jours(b1, 0)
     jours(b2, 0)
     page = client.get('/').get_data(as_text=True)
     assert "Tout est envoyé aujourd'hui" in page and 'tuile-calme' in page and 'href="/saisie-du-jour"' in page
+
+
+def test_raccourcis_pesee_et_vaccin_du_jour(client, monde):
+    vaccin = Produit(nom='Vaccin Gumboro', type='Vaccin', unite='doses')
+    db.session.add(vaccin)
+    db.session.add(CalendrierVaccinal(age_jours=8, produit=vaccin, mode='Eau de boisson'))
+    db.session.commit()
+    b = bande_ouverte(monde, jour=AUJ - timedelta(days=7))
+    jours(b, *range(1, 7))
+    connecter(client, 'eleveur1')
+    page = client.get('/').get_data(as_text=True)
+    assert '⚖️ Pesée prévue dans B1' in page and f'href="/bandes/{b.numero}/pesee"' in page   # 7 jours sans pesée
+    assert 'data-raccourci="vaccin"' not in page                        # vaccin demain : pas de raccourci
+    assert '>demain</span>' in page                                     # mais la pastille de la tuile
+    page = client.get('/vaccins-et-soins').get_data(as_text=True)
+    assert 'Vaccin Gumboro · B1' in page and 'demain' in page and "✓ C'est fait" not in page   # rien à l'avance
+    db.session.add(Pesee(bande=b, date=AUJ, nombre_pesees=10, poids_total_kg=2, poids_moyen_g=200, poids_attendu_g=180))
+    b.date_mise_en_place = AUJ - timedelta(days=8)
+    db.session.commit()
+    page = client.get('/').get_data(as_text=True)
+    assert 'Pesée prévue' not in page and 'data-raccourci="vaccin"' in page and "✓ C'est fait" in page
+    # « ✓ C'est fait » depuis l'accueil : 1 toucher, puis « Fait ✓ — Annuler (10) »
+    from app.models.sante import Vaccination
+    form = re.search(r'<form method="post" action="([^"]+)" class="form-vaccin-fait".*?</form>', page, re.S)
+    champs = dict(re.findall(r'name="(\w+)" value="([^"]*)"', form.group(0)))
+    r = client.post(form.group(1), data=champs)
+    assert r.location.endswith('/')
+    v = Vaccination.query.one()
+    assert (v.nombre_animaux, v.quantite, v.mode) == (997, 997, 'Eau de boisson') and v.calendrier_id
+    page = client.get('/').get_data(as_text=True)
+    assert 'Fait ✓ — Vaccin Gumboro · B1' in page and 'data-raccourci="vaccin"' not in page
+    client.post(f'/vaccinations/{v.id}/annuler', data={'retour': 'accueil'})
+    db.session.refresh(v)
+    assert v.annule and 'data-raccourci="vaccin"' in client.get('/').get_data(as_text=True)    # de nouveau à faire
+    assert JournalAudit.query.filter_by(action='ANNULATION', table_nom='vaccination').count() == 1
+    assert 'Vaccin Gumboro' not in {s['produit'].nom for s in intrants.stock_ferme(monde['f']) if s['stock'] < 0}
+
+
+def test_vaccins_et_soins_c_est_fait_hors_ligne_et_signalements(client, monde):
+    vaccin = Produit(nom='Vaccin Newcastle', type='Vaccin', unite='flacons')
+    db.session.add(vaccin)
+    db.session.add(CalendrierVaccinal(age_jours=0, produit=vaccin, mode='Eau de boisson'))
+    db.session.commit()
+    b = bande_ouverte(monde)
+    connecter(client, 'eleveur1')
+    page = client.get('/vaccins-et-soins').get_data(as_text=True)
+    assert 'data-case="traitement"' in page and 'Mes signalements' in page
+    form = re.search(r'<form method="post" action="([^"]+)" class="form-vaccin-fait".*?</form>', page, re.S)
+    champs = dict(re.findall(r'name="(\w+)" value="([^"]*)"', form.group(0)))
+    assert champs['quantite'] == '1' and champs['depuis'] == 'soins'       # flacons : 1, comme l'écran du vaccin
+    _, rep = rejouer(client, form.group(1), champs)                        # sans réseau : rejoué plus tard
+    assert rep['etat'] == 'ok'
+    page = client.get('/vaccins-et-soins').get_data(as_text=True)
+    assert 'Fait ✓ —' not in page and 'Aucun vaccin à faire' in page
+    assert client.get('/aller/traitement').location.endswith(f'/sante/traiter/{b.numero}')
+    page = client.get('/sante/mes-declarations').get_data(as_text=True)
+    assert 'Mes signalements' in page and 'Mes déclarations' not in page
 
 
 def test_bandeau_rouge_et_attention(client, monde):
@@ -93,30 +167,26 @@ def test_bandeau_rouge_et_attention(client, monde):
     assert r.status_code == 302 and f'bande={b2.numero}' in r.location
 
 
-def test_tuiles_peser_vaccins_et_agent(client, monde):
-    vaccin = Produit(nom='Vaccin Gumboro', type='Vaccin', unite='doses')
-    db.session.add(vaccin)
-    db.session.add(CalendrierVaccinal(age_jours=8, produit=vaccin, mode='Eau de boisson'))
-    db.session.commit()
-    b = bande_ouverte(monde, jour=AUJ - timedelta(days=7))
-    jours(b, *range(1, 7))
+def test_entete_agent_et_moi(client, monde):
     connecter(client, 'eleveur1')
     page = client.get('/').get_data(as_text=True)
-    assert 'B1 : pesée prévue aujourd&#39;hui' in page                       # 7 jours sans pesée
-    assert '>demain</span>' in page                                     # vaccin à J8
-    assert 'mon agent' not in page                                      # l'agent n'a pas de téléphone
+    assert 'data-entete="agent"' not in page and 'data-entete="moi"' in page     # l'agent n'a pas de téléphone
+    assert '/auth/mot-de-passe' not in page                               # le mot de passe est dans « Moi »
     monde['agent'].telephone = '+241 77 12 34 56'
-    db.session.add(Pesee(bande=b, date=AUJ, nombre_pesees=10, poids_total_kg=2, poids_moyen_g=200, poids_attendu_g=180))
     db.session.commit()
-    page = client.get('/').get_data(as_text=True)
-    assert 'prochaine : B1 le' in page and 'href="tel:+24177123456"' in page and 'Appeler Paul, mon agent' in page
-    r = client.get('/aller/vaccins')
-    assert r.status_code == 200 and 'Enregistrer un traitement' in r.get_data(as_text=True)
-    b.date_mise_en_place = AUJ - timedelta(days=8)
-    db.session.commit()
-    assert 'aujourd&#39;hui</span>' in client.get('/').get_data(as_text=True)
-    r = client.get('/aller/vaccins')
-    assert r.status_code == 302 and f'/sante/vacciner/{b.numero}' in r.location
+    for lien in ('/', '/mes-produits', '/mon-argent'):
+        page = client.get(lien).get_data(as_text=True)
+        assert 'href="tel:+24177123456"' in page and '📞 Paul' in page and '👤 Moi' in page, lien
+    assert 'Appeler Paul' not in client.get('/').get_data(as_text=True)  # plus de tuile « Appeler »
+    page = client.get('/moi').get_data(as_text=True)
+    assert 'Ma ferme' in page and 'Ferme Un' in page and '2 300 places' in page
+    for cle in ('compte', 'bceg', 'aide', 'quitter'):
+        assert f'data-moi="{cle}"' in page
+    assert 'Bientôt disponible' in client.get('/bientot/bceg').get_data(as_text=True)
+    assert 'Bientôt disponible' in client.get('/bientot/aide').get_data(as_text=True)
+    # 👤 Moi → Se déconnecter : 2
+    client.post('/auth/deconnexion')
+    assert client.get('/moi').status_code == 302
 
 
 # ── Saisie du jour : ouverte sur le premier bâtiment à faire ────────────
@@ -159,7 +229,7 @@ def test_achat_stock_source_et_hors_controle_de_l_etat(client, monde):
     assert 'Aliment croissance' in page and 'Autre produit' in page and 'data-hors-ligne="Achat' in page
     r = acheter(client, monde['croissance'], '10', prix='175 000', lieu='Marché de Ntoum',
                 recu=(io.BytesIO(JPEG), 'recu.jpg'))
-    assert r.status_code == 302 and r.location.endswith('/')
+    assert r.status_code == 302 and r.location.endswith('/mes-produits')
     a = Livraison.query.filter_by(origine=OrigineLivraison.ACHAT).one()
     assert a.numero.startswith('ACH-') and a.statut == S.RECUE and a.prix_paye_fcfa == 175000 and a.photo_recu
     assert not a.lignes[0].subventionne and a.lignes[0].valeur_unitaire == 17500
@@ -184,7 +254,7 @@ def test_poussins_achetes_en_attente_de_bande(client, monde):
     assert a.lignes[0].morts_arrivee == 4
     attente = regles.poussins_en_attente(monde['f'])
     assert [(l.livraison.numero, d) for l, d in attente] == [(a.numero, 496)]
-    assert 'data-tuile="bande"' in client.get('/').get_data(as_text=True)
+    assert 'data-case="nouvelle"' in client.get('/ma-bande').get_data(as_text=True)
     client.post('/bandes/ouvrir', data={'ferme': monde['f'].numero, 'ligne': a.lignes[0].id,
                                         'batiment': monde['f'].batiments[0].id, 'effectif': '496'})
     assert regles.poussins_en_attente(monde['f']) == []
@@ -196,7 +266,7 @@ def test_achat_annuler_dans_les_10_secondes(client, monde):
     connecter(client, 'eleveur1')
     acheter(client, monde['aliment'], '5')
     a = Livraison.query.filter_by(origine=OrigineLivraison.ACHAT).one()
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/mes-produits').get_data(as_text=True)
     assert 'Enregistré ✓ — Aliment démarrage' in page and f'/achats/{a.numero}/annuler' in page
     client.post(f'/achats/{a.numero}/annuler')
     db.session.refresh(a)
@@ -209,7 +279,7 @@ def test_achat_annuler_dans_les_10_secondes(client, monde):
     from app.models.base import maintenant
     b.confirmee_le = maintenant() - timedelta(minutes=2)
     db.session.commit()
-    assert 'bandeau-annuler' not in client.get('/').get_data(as_text=True)
+    assert 'bandeau-annuler' not in client.get('/mes-produits').get_data(as_text=True)
     r = client.post(f'/achats/{b.numero}/annuler', follow_redirects=True)
     assert 'délai pour annuler est passé' in r.get_data(as_text=True) and db.session.get(Livraison, b.id).statut == S.RECUE
 
@@ -253,10 +323,11 @@ def test_achat_date_limitee_et_hors_ligne(client, monde):
     assert rep['etat'] == 'deja' and Livraison.query.count() == 1
 
 
-# ── Tableau des clics (depuis l'accueil) ────────────────────────────────
+# ── Tableau des clics (lot 11) ──────────────────────────────────────────
+# Comptent : ouvrir un écran et valider. Ne comptent pas : les choix dans le même écran
+# (bâtiment, produit, signe, catégorie, type de sortie) et les + / − des compteurs.
 
 def test_tableau_des_clics(client, monde):
-    """Chaque action : la tuile de l'accueil mène directement à l'écran où se trouve le geste final."""
     recevoir(monde['f'], [(monde['poussins'], 500, 0)])
     liv = intrants.nouvelle_livraison(monde['f'], AUJ, None)
     db.session.add(liv)
@@ -265,86 +336,80 @@ def test_tableau_des_clics(client, monde):
     vaccin = Produit(nom='Vaccin Gumboro', type='Vaccin', unite='doses')
     db.session.add(vaccin)
     db.session.add(CalendrierVaccinal(age_jours=0, produit=vaccin, mode='Eau de boisson'))
+    db.session.add(Produit(nom='Amoxicilline', type='Médicament', unite='sachets'))
     monde['agent'].telephone = '+241 77 12 34 56'
     db.session.commit()
     b = bande_ouverte(monde, effectif=800, bat=1)
     connecter(client, 'eleveur1')
-    accueil = client.get('/').get_data(as_text=True)
 
-    def ouvrir(lien):   # clic 1 : la tuile
-        assert f'href="{lien}"' in accueil, lien
+    def ouvrir(lien, depuis='/'):     # un clic : le lien est sur l'écran de départ
+        page = client.get(depuis).get_data(as_text=True)
+        assert f'href="{lien}"' in page, (depuis, lien)
         r = client.get(lien)
-        return client.get(r.location) if r.status_code == 302 else r
+        return (client.get(r.location) if r.status_code == 302 else r).get_data(as_text=True)
 
     # Saisie du jour → Envoyer : 2
-    assert 'Envoyer ✓' in ouvrir('/saisie-du-jour').get_data(as_text=True)
-    # Livraisons → Tout reçu : 2
-    assert f'/livraisons/{liv.numero}/tout-recu' in ouvrir('/livraisons/mes-livraisons').get_data(as_text=True)
-    # Nouvelle bande → bâtiment → Commencer : 3 (le seul bâtiment libre est déjà choisi : 2)
-    page = ouvrir('/bandes/ouvrir').get_data(as_text=True)
-    assert 'name="batiment"' in page and 'Commencer la bande' in page
-    # Peser → Enregistrer : 2
-    assert 'Enregistrer la pesée' in ouvrir('/aller/peser').get_data(as_text=True)
-    # Sortie → type → Enregistrer : 3
-    page = ouvrir('/aller/sortie').get_data(as_text=True)
+    assert 'Envoyer ✓' in ouvrir('/saisie-du-jour')
+    # Ventes et sorties → Enregistrer : 2 (le type de sortie est un choix)
+    page = ouvrir('/aller/sortie')
     assert 'name="motif"' in page and 'Enregistrer la sortie' in page
-    # Vaccins → C'est fait : 2
-    assert "✓ C'est fait" in ouvrir('/aller/vaccins').get_data(as_text=True)
-    # Poulet malade → signes → Envoyer : 3 (photo facultative)
-    page = ouvrir('/aller/malade').get_data(as_text=True)
+    # Vaccins et soins → C'est fait : 2
+    assert 'class="tache-bouton">✓ C&#39;est fait' in ouvrir('/vaccins-et-soins').replace("C'est", 'C&#39;est')
+    # Poulet malade → Envoyer : 2 (les signes sont des choix)
+    page = ouvrir('/aller/malade')
     assert 'name="signes"' in page and 'Envoyer au vétérinaire' in page
-    # J'ai acheté → produit → Enregistrer : 3
-    page = ouvrir('/j-ai-achete').get_data(as_text=True)
+    # Mes produits → Tout reçu : 2
+    assert f'/livraisons/{liv.numero}/tout-recu' in ouvrir('/mes-produits')
+    # Ma bande → Nouvelle bande → Commencer : 3
+    ouvrir('/ma-bande')
+    page = ouvrir('/bandes/ouvrir', depuis='/ma-bande')
+    assert 'Commencer la bande' in page
+    # Ma bande → Peser → Enregistrer : 3
+    assert 'Enregistrer la pesée' in ouvrir('/aller/peser', depuis='/ma-bande')
+    # Mes produits → J'ai acheté → Enregistrer : 3
+    page = ouvrir('/j-ai-achete', depuis='/mes-produits')
     assert 'name="produit"' in page and '>Enregistrer</button>' in page
-    # Mes bandes, Mon stock, Appeler mon agent : 1
-    assert b.numero in ouvrir('/bandes/mes-bandes').get_data(as_text=True)
-    assert 'Aliment démarrage' in ouvrir('/mon-stock').get_data(as_text=True)
-    assert 'href="tel:+24177123456"' in accueil
+    # Mon argent → J'ai payé → Enregistrer : 3
+    ouvrir('/mon-argent')
+    page = ouvrir('/j-ai-paye', depuis='/mon-argent')
+    assert 'name="categorie"' in page and '>Enregistrer</button>' in page
+    # Vaccins et soins → Traitement → Enregistrer : 3
+    page = ouvrir('/aller/traitement', depuis='/vaccins-et-soins')
+    assert b.numero in page and 'name="produit_id"' in page
+    # Entretien → Fait ✓ : 2 (inchangé)
+    assert 'class="tache-bouton">Fait ✓' in ouvrir('/entretien')
+    # 📞 : 1
+    assert 'href="tel:+24177123456"' in client.get('/').get_data(as_text=True)
+    # 👤 Moi → Se déconnecter : 2
+    assert 'data-moi="quitter"' in ouvrir('/moi')
 
 
-# ── Ordre fixe des tuiles ───────────────────────────────────────────────
-
-ORDRE_TUILES = ['saisie', 'livraisons', 'bande', 'peser', 'vaccins', 'malade', 'sortie', 'achat',
-                'entretien', 'bandes', 'stock', 'agent']
-
-
-def ordre_accueil(page):
-    """Ordre des tuiles dans la page, de haut en bas (saisie et agent en pleine largeur compris)."""
-    reperes = {'saisie': 'href="/saisie-du-jour"', 'agent': 'href="tel:'}
-    positions = {cle: page.find(reperes.get(cle, f'data-tuile="{cle}"')) for cle in ORDRE_TUILES}
-    return [cle for cle, pos in sorted(positions.items(), key=lambda x: x[1]) if pos >= 0]
-
+# ── Ordre fixe des 8 tuiles ─────────────────────────────────────────────
 
 def test_ordre_des_tuiles_fixe(client, monde):
-    """Saisie · Livraisons · Nouvelle bande · Peser · Vaccins · Poulet malade · Sortie · J'ai acheté ·
-    (Entretien) · Mes bandes · Mon stock · Appeler mon agent — quelles que soient les pastilles."""
+    """Saisie du jour · Ma bande · Ventes et sorties · Vaccins et soins · Poulet malade · Mes produits ·
+    Mon argent · Entretien — quelles que soient les pastilles, avec ou sans bande."""
     vaccin = Produit(nom='Vaccin Gumboro', type='Vaccin', unite='doses')
     db.session.add(vaccin)
     db.session.add(CalendrierVaccinal(age_jours=1, produit=vaccin, mode='Eau de boisson'))
     monde['agent'].telephone = '+241 77 12 34 56'
     db.session.commit()
     b = bande_ouverte(monde)
-    recevoir(monde['f'], [(monde['poussins'], 300, 0)])          # poussins en attente : Nouvelle bande
-    liv = intrants.nouvelle_livraison(monde['f'], AUJ, None)       # livraison à confirmer : pastille
+    recevoir(monde['f'], [(monde['poussins'], 300, 0)])
+    liv = intrants.nouvelle_livraison(monde['f'], AUJ, None)
     db.session.add(liv)
     intrants.remplacer_lignes(liv, [{'produit': monde['aliment'], 'quantite_livree': 40, 'subventionne': True,
                                      'part_subventionnee': 100, 'valeur_unitaire': None}])
     db.session.commit()
     connecter(client, 'eleveur1')
-    attendu = list(ORDRE_TUILES)
-    page = client.get('/').get_data(as_text=True)
-    assert ordre_accueil(page) == attendu
-    # Les pastilles changent (tout est saisi, vaccin en retard, plus de livraison) : l'ordre ne bouge pas
+    assert tuiles(client.get('/').get_data(as_text=True)) == HUIT
     jours(b, 0)
     b.date_mise_en_place = AUJ - timedelta(days=5)
     liv.statut = S.ANNULEE
     db.session.commit()
     page = client.get('/').get_data(as_text=True)
-    assert 'tuile-calme' in page and 'en retard' in page
-    assert ordre_accueil(page) == attendu
-    # Une tuile sans objet disparaît, les autres gardent leur rang
+    assert 'tuile-calme' in page and 'en retard' in page and tuiles(page) == HUIT
     monde['agent'].telephone = None
     regles.cloturer(b, monde['el'], 'essai')
     db.session.commit()
-    page = client.get('/').get_data(as_text=True)
-    assert ordre_accueil(page) == ['livraisons', 'bande', 'malade', 'achat', 'entretien', 'bandes', 'stock']
+    assert tuiles(client.get('/').get_data(as_text=True)) == HUIT       # les tuiles ne disparaissent plus

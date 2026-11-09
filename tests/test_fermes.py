@@ -352,7 +352,7 @@ def test_eleveur_rattache_depuis_utilisateurs_ne_voit_que_sa_ferme(client, deux_
     client.post('/auth/deconnexion')
     connecter(client, 'eleveur1', 'Provisoire-2026')
     page = client.get('/').get_data(as_text=True)
-    assert 'class="tab-btn' not in page and 'mon agent' not in page   # agent sans téléphone : pas de tuile
-    page = client.get('/mon-stock').get_data(as_text=True)
+    assert 'class="tab-btn' not in page and 'data-entete="agent"' not in page   # agent sans téléphone
+    page = client.get('/moi').get_data(as_text=True)
     assert 'Ferme Un' in page and 'Ferme Deux' not in page
     assert client.get(f'/fermes/{f2.numero}').status_code == 403

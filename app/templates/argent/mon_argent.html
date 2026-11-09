@@ -1,0 +1,54 @@
+{% extends '_base.html' %}
+{% block titre %}Mon argent{% endblock %}
+{% block icone %}cash-coin{% endblock %}
+{% block page_titre %}💰 Mon argent{% endblock %}
+{% block page_sous_titre %}Ce que vous avez gagné et dépensé{% endblock %}
+
+{% block contenu %}
+<div class="mon-argent">
+  {% if bandeau %}{% with liv={'numero': bandeau.depense.numero}, secondes=bandeau.secondes,
+       bandeau_texte='Enregistré ✓ — ' ~ bandeau.depense.libelle ~ ' · ' ~ bandeau.depense.montant_fcfa|qte ~ ' FCFA',
+       bandeau_action=url_for('argent.annuler', numero=bandeau.depense.numero) %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
+
+  <nav class="choix-periode" aria-label="Période">
+    {% for cle, nom in periodes.items() %}
+    <a class="periode{{ ' active' if cle == periode }}" href="{{ url_for('argent.mon_argent', periode=cle) }}">{{ nom }}</a>
+    {% endfor %}
+  </nav>
+  {% if choix_bandes|length > 1 %}
+  <nav class="pastilles-bat" aria-label="Choisir la bande">
+    {% for b in choix_bandes %}<a class="pastille-bat{{ ' active' if bande and b.id == bande.id }}" href="{{ url_for('argent.mon_argent', periode='bande', bande=b.numero) }}">{{ b.batiment.code }} · {{ b.date_mise_en_place.strftime('%d/%m') }}</a>{% endfor %}
+  </nav>
+  {% elif periode == 'bande' and bande %}
+  <div class="carte-sous mb-2">Bande {{ bande.batiment.code }} du {{ bande.date_mise_en_place.strftime('%d/%m') }}{% if not bande.en_cours %} (terminée){% endif %}</div>
+  {% elif periode == 'bande' %}
+  <div class="empty-note">Aucune bande pour l'instant.</div>
+  {% endif %}
+
+  <div class="chiffres-argent">
+    <div class="chiffre-argent gagne"><small>Gagné</small><span class="num">{{ totaux.gagne|qte }}</span></div>
+    <div class="chiffre-argent depense"><small>Dépensé</small><span class="num">{{ totaux.depense|qte }}</span></div>
+    <div class="chiffre-argent reste{{ ' negatif' if totaux.reste < 0 }}"><small>Reste</small><span class="num">{{ totaux.reste|qte }}</span></div>
+  </div>
+  <div class="carte-sous centre">en FCFA</div>
+
+  <a class="btn-gros" href="{{ url_for('argent.payer') }}">💸 J'ai payé</a>
+
+  {% if aide %}<div class="aide-etat">Sans l'aide de l'État, cette bande vous aurait coûté <strong>{{ aide|qte }} FCFA</strong> de plus.</div>{% endif %}
+
+  <div class="form-label mt-3">Derniers mouvements</div>
+  <ul class="mouvements">
+    {% for m in mouvements %}
+    <li>
+      <span class="mvt-ico" aria-hidden="true">{{ m.ico }}</span>
+      <span class="mvt-texte">{{ m.texte }}<small>{{ m.date.strftime('%d/%m') }}{% if m.agent %} · Agent pour l'éleveur{% endif %}{% if m.hors_bande %} · hors bande{% endif %}{% if periode == 'bande' and bande and m.genre != 'vente' and m.parts|length > 1 %} · votre part : {{ m.parts[bande.id]|qte }}{% endif %}</small></span>
+      {% if m.a_completer %}<a class="mvt-completer" href="{{ url_for('argent.montant_vente', ident=m.objet.id) }}">à compléter →</a>
+      {% elif m.montant is none %}<span class="mvt-montant">—</span>
+      {% else %}<span class="mvt-montant {{ 'plus' if m.signe > 0 else 'moins' }}">{{ '+' if m.signe > 0 else '−' }} {{ m.montant|qte }}</span>{% endif %}
+    </li>
+    {% else %}
+    <li class="empty-note">Rien pour cette période.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

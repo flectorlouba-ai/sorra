@@ -125,6 +125,7 @@ class Vaccination(SaisieTerrainMixin, db.Model):
     nombre_animaux  = db.Column(db.Integer, nullable=False)
     quantite        = db.Column(db.Numeric(12, 2, asdecimal=False), nullable=False)   # déduite du stock
     saisi_par_agent = db.Column(db.Boolean, nullable=False, default=False)
+    annule          = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())   # lot 11 : « Annuler (10) »
 
     bande = db.relationship('Bande')
     produit = db.relationship('Produit', lazy='joined')

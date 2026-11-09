@@ -19,11 +19,13 @@
     </div>
   </a>
   <div class="topbar-right">
+    {% if theme_eleveur %}{% include 'eleveur/_entete.html' %}{% else %}
     <a href="{{ url_for('auth.mot_de_passe') }}" class="btn-top"><i class="bi bi-key"></i><span class="d-none d-sm-inline"> Mot de passe</span></a>
     <form method="post" action="{{ url_for('auth.deconnexion') }}" class="d-inline">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" class="btn-top quitter"><i class="bi bi-box-arrow-right"></i><span class="d-none d-sm-inline"> Déconnexion</span></button>
     </form>
+    {% endif %}
   </div>
 </div>
 

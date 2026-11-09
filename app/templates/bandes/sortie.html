@@ -40,6 +40,11 @@
     <label class="form-label" for="poids_total">Poids total (kg)</label>
     <input class="form-control champ-gros" id="poids_total" name="poids_total" inputmode="decimal" value="{{ saisie.get('poids_total', '') }}">
   </div>
+  <div class="form-group" id="bloc-montant">
+    <label class="form-label" for="montant">Combien avez-vous reçu ? <span class="form-hint">facultatif · FCFA</span></label>
+    <input class="form-control champ-gros" id="montant" name="montant" inputmode="numeric" value="{{ saisie.get('montant', '') }}">
+    <div class="form-hint">Vous pourrez le compléter plus tard dans « Mon argent ».</div>
+  </div>
   <button type="submit" class="btn-gros"><i class="bi bi-check-lg"></i> Enregistrer la sortie</button>
   <div class="note-numero" id="reste">Il restera {{ present|qte }} poulets dans la bande</div>
 </form>
@@ -59,6 +64,7 @@
     document.getElementById('label-operateur').textContent = m === 'Abattoir' ? 'Abattoir' : 'Acheteur du registre (facultatif)';
     document.getElementById('bloc-operateur').hidden = m === 'Autre';
     document.getElementById('bloc-libre').hidden = m === 'Abattoir';
+    document.getElementById('bloc-montant').hidden = m === 'Autre';
     document.querySelector('label[for=destinataire_libre]').textContent = m === 'Vente' ? 'Ou nom de l\'acheteur' : 'Destinataire (facultatif)';
     Array.prototype.forEach.call(op.options, function (o) {
       if (o.dataset.type) o.hidden = m === 'Abattoir' && o.dataset.type !== 'Abattoir';
