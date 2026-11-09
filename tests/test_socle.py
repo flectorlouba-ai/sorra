@@ -84,3 +84,11 @@ def test_parametres_valeurs_refusees(type_, texte):
 def test_obtenir_parametre(app):
     assert obtenir('securite.mdp_longueur_min') == 10
     assert obtenir('inconnu', 'défaut') == 'défaut'
+
+
+def test_horloge_des_tests_figee():
+    """Les tests tournent à une date fixe (tests/conftest.py) : rien ne dépend du jour réel."""
+    from datetime import date
+    from tests.conftest import JOUR_DES_TESTS
+    from tests.test_bandes import AUJ
+    assert date.today().isoformat() == JOUR_DES_TESTS[:10] == AUJ.isoformat()

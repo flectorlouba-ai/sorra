@@ -41,6 +41,7 @@ def lot(numero):
     lot = charger(numero)
     lectures = tracabilite.lectures(lot)
     return render_template('tracabilite/lot.html', lot=lot, adresse=tracabilite.adresse(lot),
+                           provisoire=tracabilite.adresse_provisoire(),
                            qr=Markup(tracabilite.svg(tracabilite.adresse(lot))),
                            nb_lectures=lectures.count(), lectures=lectures.limit(10).all())
 

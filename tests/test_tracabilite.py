@@ -120,3 +120,20 @@ def test_adresse_publique_reglable(monde):
     lot = sortir(monde, b).lot
     assert tracabilite.adresse(lot) == f'https://yl2.example.ga/q/{lot.code}'
     assert tracabilite.svg(tracabilite.adresse(lot)).startswith('<svg')
+
+
+def test_avertissement_adresse_provisoire(client, client_admin, monde):
+    b = bande_ouverte(monde)
+    lot = sortir(monde, b).lot
+    page = client.get(f'/tracabilite/lots/{lot.numero}').get_data(as_text=True)
+    assert 'Adresse provisoire : ne pas imprimer pour de vrai.' in page and '187.124.217.218' in page
+    # La fiche de la bande mène à cet écran, pas directement au PDF
+    fiche = client.get(f'/bandes/{b.numero}').get_data(as_text=True)
+    assert f'/tracabilite/lots/{lot.numero}"' in fiche and 'etiquettes.pdf' not in fiche
+    p = Parametre.query.filter_by(cle='tracabilite.adresse_publique').one()
+    for adresse, provisoire in (('http://localhost:5021', True), ('https://187.124.217.218', False),
+                                ('https://performyl2.ga', False), ('http://performyl2.ga', False)):
+        p.valeur = adresse
+        db.session.commit()
+        assert tracabilite.adresse_provisoire() is provisoire, adresse
+    assert 'Adresse provisoire' not in client.get(f'/tracabilite/lots/{lot.numero}').get_data(as_text=True)

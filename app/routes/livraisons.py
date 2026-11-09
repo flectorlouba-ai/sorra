@@ -273,7 +273,9 @@ def _conflit_confirmation(liv):
     if not (hors_ligne.actif() and liv.confirmee and current_user.profil in (Profil.ELEVEUR, Profil.AGENT)):
         return None
     gagne = hors_ligne.plus_recente(liv.confirmee_le)
-    detail = ('Deux confirmations de réception. Gardée : la plus récente, faite sans réseau.' if gagne else
+    if liv.confirmee_par == current_user.id:
+        return gagne   # même personne : sa confirmation la plus récente compte, pas de conflit
+    detail =('Deux confirmations de réception. Gardée : la plus récente, faite sans réseau.' if gagne else
               'Deux confirmations de réception. Gardée : la plus récente ; celle faite sans réseau n\'est pas retenue.')
     hors_ligne.signaler(liv.ferme, f'Livraison {liv.numero}', detail)
     hors_ligne.conflit()

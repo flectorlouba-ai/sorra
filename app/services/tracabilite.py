@@ -5,8 +5,10 @@ bibliothèque ni aucun service de plus. Il ne contient que l'adresse publique
 du site suivie d'un code tiré au hasard.
 """
 import io
+import ipaddress
 import re
 import secrets
+from urllib.parse import urlsplit
 
 from reportlab.graphics.barcode import qrencoder
 from reportlab.graphics.barcode.qr import QrCodeWidget
@@ -44,6 +46,19 @@ def creer_lot(sortie, user):
 def adresse(lot):
     base = (parametres.obtenir('tracabilite.adresse_publique') or '').rstrip('/')
     return f'{base}/q/{lot.code}'
+
+
+def adresse_provisoire():
+    """Vrai tant que l'adresse publique est en http avec une adresse IP (ou sans nom de
+    domaine) : les étiquettes ne doivent pas être imprimées pour de vrai."""
+    url = urlsplit((parametres.obtenir('tracabilite.adresse_publique') or '').strip())
+    hote = url.hostname or ''
+    try:
+        ipaddress.ip_address(hote)
+        est_ip = True
+    except ValueError:
+        est_ip = hote in ('', 'localhost')
+    return url.scheme != 'https' and est_ip
 
 
 def lot_du_code(code):

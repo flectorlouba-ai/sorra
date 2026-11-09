@@ -11,6 +11,8 @@
 {% endblock %}
 
 {% block contenu %}
+{% if provisoire and not lot.annule %}<div class="encadre-rouge" id="adresse-provisoire"><strong>Adresse provisoire : ne pas imprimer pour de vrai.</strong>
+  Le QR code contient l'adresse {{ adresse.rsplit('/q/', 1)[0] }}, qui changera avec le nom de domaine en HTTPS. Des étiquettes imprimées maintenant ne marcheraient plus.</div>{% endif %}
 {% if lot.annule %}<div class="flash-item warning"><i class="bi bi-slash-circle"></i>Lot annulé : {{ lot.motif_annulation }}. Son QR code affiche « Code inconnu ».</div>{% endif %}
 {% set s = lot.sortie %}
 <div class="row g-3">

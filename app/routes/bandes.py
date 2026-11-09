@@ -314,7 +314,23 @@ def saisie(numero):
 
 
 def _conflit_saisie(bande, existante, jour, morts, aliments):
-    """Saisie faite sans réseau alors qu'une autre existe déjà ce jour-là : la plus récente gagne."""
+    """Saisie faite sans réseau alors qu'une autre existe déjà ce jour-là.
+    Même personne (même téléphone ou non) : les deux s'additionnent, comme en ligne.
+    Deux personnes différentes (éleveur et agent) : vrai conflit, la plus récente gagne."""
+    if (existante.modifie_par or existante.cree_par) == current_user.id:
+        try:
+            _, avertissements = regles.saisir(bande, jour, morts, aliments, current_user, ajouter=True)
+            db.session.flush()
+            sante.alerte_si_feu_rouge(bande)
+            db.session.commit()
+        except regles.RegleBande as e:
+            db.session.rollback()
+            flash(str(e), 'danger')
+            return _retour(bande)
+        flash(f'Envoyé ✓ : ajouté à la saisie du {jour.strftime("%d/%m")}', 'success')
+        for a in avertissements:
+            flash(a, 'warning')
+        return _retour(bande)
     if existante.morts == morts and {a.produit_id: a.sacs for a in existante.aliments if a.sacs} == \
             {p.id: s for p, s in aliments.items() if s}:
         flash('Envoyé ✓', 'success')   # même saisie des deux côtés : rien à trancher

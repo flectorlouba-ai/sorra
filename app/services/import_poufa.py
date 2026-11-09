@@ -46,6 +46,15 @@ ENTETES = [c[0] for c in COLONNES]
 DUREE_RAPPORT = 24 * 3600
 
 
+def ecrire(chemin, contenu):
+    """Écrit le fichier et le date avec l'horloge de l'application : le ménage de
+    dossier() compare ensuite deux heures de la même horloge."""
+    with open(chemin, 'wb') as f:
+        f.write(contenu)
+    maintenant = time.time()
+    os.utime(chemin, (maintenant, maintenant))
+
+
 def dossier():
     d = os.path.join(current_app.instance_path, 'imports')
     os.makedirs(d, exist_ok=True)

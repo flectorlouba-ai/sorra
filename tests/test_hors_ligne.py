@@ -89,12 +89,52 @@ def test_conflit_saisie_du_jour_la_plus_recente_gagne(client, monde):
     assert client.get('/hors-ligne/a-verifier').status_code == 403
 
 
-def test_meme_saisie_des_deux_cotes_pas_de_conflit(client, monde):
+def test_meme_personne_les_saisies_du_jour_s_additionnent(client, monde):
+    b = bande_ouverte(monde)
+    aliment = monde['aliment'].id
+    connecter(client, 'eleveur1')
+    client.post(f'/bandes/{b.numero}/saisie', data={'morts': '3', 'sacs': '2', 'aliment_choisi': aliment})
+    # Deux saisies faites ensuite sans réseau sur le même téléphone, dont une datée d'avant
+    # la saisie en ligne : tout s'additionne, comme en ligne, sans conflit
+    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie',
+                     {'morts': '2', 'sacs': '1', 'aliment_choisi': aliment, 'jour': AUJ.isoformat()},
+                     il_y_a=timedelta(hours=1))
+    assert rep['etat'] == 'ok' and 'ajouté à la saisie' in rep['message']
+    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '1', 'jour': AUJ.isoformat()},
+                     il_y_a=timedelta(0))
+    s = SaisieJour.query.one()
+    assert rep['etat'] == 'ok' and s.morts == 6 and s.aliments[0].sacs == 3 and s.aliments[0].kg == 75
+    assert ConflitHorsLigne.query.count() == 0
+
+
+def test_meme_personne_deux_saisies_hors_ligne_s_additionnent(client, monde):
     b = bande_ouverte(monde)
     connecter(client, 'eleveur1')
+    rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '2', 'jour': AUJ.isoformat()}, il_y_a=timedelta(hours=3))
+    rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '4', 'jour': AUJ.isoformat()}, il_y_a=timedelta(hours=1))
+    assert SaisieJour.query.one().morts == 6 and ConflitHorsLigne.query.count() == 0
+
+
+def test_deux_personnes_memes_valeurs_pas_de_conflit(client, monde):
+    b = bande_ouverte(monde)
+    connecter(client, 'agent1')
     client.post(f'/bandes/{b.numero}/saisie', data={'morts': '3'})
+    changer(client, 'eleveur1')
     _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '3', 'jour': AUJ.isoformat()})
     assert rep['etat'] == 'ok' and SaisieJour.query.one().morts == 3 and ConflitHorsLigne.query.count() == 0
+
+
+def test_meme_personne_confirmation_de_livraison_sans_conflit(client, monde):
+    liv = intrants.nouvelle_livraison(monde['f'], AUJ - timedelta(days=1), None)
+    db.session.add(liv)
+    intrants.remplacer_lignes(liv, [{'produit': monde['aliment'], 'quantite_livree': 40, 'subventionne': False,
+                                     'part_subventionnee': None, 'valeur_unitaire': None}])
+    db.session.commit()
+    connecter(client, 'eleveur1')
+    client.post(f'/livraisons/{liv.numero}/tout-recu')
+    _, rep = rejouer(client, f'/livraisons/{liv.numero}/tout-recu', {}, il_y_a=timedelta(hours=1))
+    assert rep['etat'] == 'ok' and ConflitHorsLigne.query.count() == 0
+    assert db.session.get(Livraison, liv.id).statut == S.RECUE
 
 
 def test_jour_passe_compte_depuis_le_jour_de_la_saisie(client, monde):

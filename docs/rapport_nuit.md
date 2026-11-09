@@ -21,7 +21,7 @@
    - **l'agent doit-il voir les déclarations sanitaires** de ses fermes ? (aujourd'hui : non)
    - les règles choisies :
      - comparaison avec la province affichée seulement si elle est favorable ;
-     - saisie sans réseau : « la plus récente gagne » plutôt qu'additionner.
+     - saisie sans réseau : « la plus récente gagne » plutôt qu'additionner. **→ Corrigé le 09/11 :** la même personne additionne, comme en ligne ; « la plus récente gagne » seulement entre deux personnes.
    - la page publique du QR code : ajouter le n° du lot ? Format des étiquettes : 21 par planche A4.
    - le dossier des photos (`instance/televersements`) à ajouter à la sauvegarde au déploiement.
 6. **Point d'attention :** un test de vaccins a échoué une fois parce que minuit est passé pendant la suite ; relancé seul, il passe. La date « aujourd'hui » est lue une seule fois au début de ce test.
@@ -484,7 +484,7 @@ Sans réseau, « Envoyer » range la saisie sur le téléphone et revient à l'a
   - les numéros (lot tracé, alerte sanitaire) sont donnés par le serveur à l'arrivée de la saisie ;
   - l'éleveur ne voit que ◷ puis ✓.
 
-**D. Conflits : la plus récente gagne, l'agent est prévenu.**
+**D. Conflits : la plus récente gagne, l'agent est prévenu.** *(Règle corrigée le 09/11 : voir « Corrections du 9 novembre » en fin de rapport.)*
 - **Saisie du jour déjà faite ce jour-là** (par l'agent, ou depuis un autre téléphone) : on compare les heures. La plus récente est gardée, sans addition.
 - **Livraison déjà confirmée** : même règle.
 - **Même saisie des deux côtés** : pas de conflit.
@@ -512,7 +512,7 @@ Sans réseau, « Envoyer » range la saisie sur le téléphone et revient à l'a
 4. **Saisie refusée à l'arrivée** : retirée du téléphone, montrée à l'éleveur et à l'agent. Elle n'est pas gardée indéfiniment.
 5. **Session expirée pendant l'envoi** : la saisie reste sur le téléphone ; le bandeau demande de se reconnecter.
 6. **À la connexion**, les pages gardées sur le téléphone sont effacées (confidentialité si le téléphone change de main). Les saisies en attente restent ; chacune ne part qu'avec la session de son auteur.
-7. **Deux saisies du jour faites sans réseau** sur le même téléphone, même bande, même jour : la seconde remplace la première. Sans réseau, on ne peut pas demander « ajouter ou corriger ? ».
+7. ~~Deux saisies du jour faites sans réseau sur le même téléphone, même bande, même jour : la seconde remplace la première.~~ **Corrigé le 09/11 :** elles s'additionnent, comme en ligne.
 8. **Pages gardées** : l'accueil, et les pages Pesée, Sortie, Poulet malade et Reçu moins qu'il propose, chaque fois qu'il est ouvert avec du réseau.
 9. **Écran « Saisies à vérifier »** : seul écran nouveau, réservé à l'agent (et l'ADMIN). Sans tuile : on y arrive par l'alerte.
 
@@ -533,7 +533,7 @@ Sans réseau, « Envoyer » range la saisie sur le téléphone et revient à l'a
 ### Points à valider (lot 7)
 
 - **HTTPS et nom de domaine** : indispensables pour la saisie sans réseau sur les téléphones, avant le pilote. C'est aussi l'adresse qui sera imprimée sur les QR codes (lot 6).
-- **Règle « la plus récente gagne »** pour la saisie du jour. Une autre règle possible serait « additionner les morts ». À valider avec les agents.
+- ~~Règle « la plus récente gagne » pour la saisie du jour.~~ Tranché le 09/11 : addition pour la même personne, « la plus récente gagne » entre deux personnes.
 - **Test terrain** sur un vrai Android d'entrée de gamme, avec un réseau faible.
 
 ---
@@ -554,3 +554,18 @@ Sans réseau, « Envoyer » range la saisie sur le téléphone et revient à l'a
 2. La fiche interne du lot affiche l'adresse contenue dans le QR, pour vérifier une étiquette. La page publique n'en montre aucune.
 3. « Annuler ce lot » (ADMIN) : nécessaire pour qu'un code puisse devenir « annulé », comme le demande le cahier.
 4. Écran « Saisies à vérifier » de l'agent : nécessaire pour « le conflit est signalé à l'agent ». Pas de tuile : on y arrive par l'alerte.
+
+---
+
+## Corrections du 9 novembre (après vos décisions)
+
+| Décision | Fait |
+|---|---|
+| 1. HTTPS avant toute impression réelle | Sur la fiche du lot (écran d'impression), un encadré rouge **« Adresse provisoire : ne pas imprimer pour de vrai »** s'affiche tant que l'adresse publique est une adresse IP (ou `localhost`) en http. L'icône QR de la fiche de la bande mène maintenant à cette fiche, et non plus directement au PDF : l'avertissement ne peut pas être contourné. |
+| 2. Seuils | Valeurs de départ gardées, marquées « à valider par les vétérinaires ». Rien à changer. |
+| 3. Déclarations sanitaires | L'agent ne les voit pas (cahier des charges). Rien à changer. |
+| 4a. Comparaison favorable seulement | Confirmé. Rien à changer. |
+| 4b. Règle hors ligne | **Même personne** : les saisies du jour s'additionnent, comme en ligne, avec ou sans réseau, quel que soit l'ordre, sans signalement. **Deux personnes différentes** (éleveur et agent) : la plus récente gagne et l'agent est prévenu ; si les valeurs sont identiques, rien n'est signalé. Confirmation de livraison par la même personne : sa plus récente compte, sans signalement. `docs/hors_ligne.md` est mis à jour ; 4 tests ajoutés (14 au total). |
+| 5. Tests indépendants de l'heure | Toute la suite tourne à une **date fixe** (15/06/2026 à 12 h), qui avance normalement pendant la suite : `tests/conftest.py`, avec la bibliothèque libre `freezegun` (tests seulement). Plus aucun test ne dépend du jour ni de l'heure réels, et la suite ne peut plus passer minuit. Un test le vérifie. La suite a aussi été relancée à une autre date (01/03/2027 à 12 h : 238 réussis. Elle a trouvé une vraie dépendance, corrigée : le ménage des fichiers d'import comparait l'heure de l'application à celle de Windows ; le fichier est maintenant daté par l'application) pour le prouver. |
+
+Résultat : **238 tests réussis et 1 réservé à PostgreSQL**, à la date fixe comme au 01/03/2027.

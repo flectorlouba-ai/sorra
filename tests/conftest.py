@@ -1,8 +1,17 @@
 import os
 
 import pytest
+from freezegun import freeze_time
 
 os.environ['YL2_ENV'] = 'testing'
+
+# Horloge des tests : date fixe, à midi, qui avance normalement (tick). Démarrée avant
+# l'import des fichiers de test, pour que leurs « aujourd'hui » (AUJ…) soient cette
+# date-là : aucun test ne dépend du jour ni de l'heure où la suite est lancée, et la
+# suite ne peut pas passer minuit en cours de route.
+JOUR_DES_TESTS = os.environ.get('YL2_JOUR_DES_TESTS', '2026-06-15 12:00:00')
+_horloge = freeze_time(JOUR_DES_TESTS, tick=True)
+_horloge.start()
 
 from app import create_app, db  # noqa: E402
 from app.models import Utilisateur, Profil, Province, Localite, Parametre, ListeDeroulante  # noqa: E402

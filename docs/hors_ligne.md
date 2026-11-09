@@ -72,16 +72,25 @@ Un même identifiant n'est **jamais compté deux fois** : réponse perdue, doubl
 
 L'identifiant est noté dans la même transaction que la saisie, donc il n'existe pas de cas « saisie enregistrée mais identifiant oublié ». Deux envois simultanés du même identifiant : le second bute sur la clé unique et reçoit `deja`.
 
-### Conflits : la plus récente gagne, l'agent est prévenu
-Un conflit se produit quand la même chose a déjà été enregistrée entre-temps par quelqu'un d'autre.
+### Même personne : les saisies s'additionnent
+Plusieurs saisies du jour de la **même personne**, pour la même bande et le même jour, **s'additionnent exactement comme en ligne** (morts et sacs). C'est le cas avec ou sans réseau, depuis le même téléphone ou non, et quel que soit l'ordre d'arrivée. Exemple : 2 morts le matin sans réseau, puis 1 mort le soir sans réseau, donnent 3 morts.
+
+Ce n'est pas un conflit : rien n'est signalé à l'agent.
+
+« La même personne » est celle qui a écrit la saisie existante en dernier. Si l'agent l'a corrigée entre-temps, c'est lui.
+
+Une confirmation de livraison déjà faite par la même personne ne s'additionne pas : sa confirmation la plus récente compte, sans signalement.
+
+### Vrai conflit (deux personnes) : la plus récente gagne, l'agent est prévenu
+Il n'y a conflit que si **deux personnes différentes** (l'éleveur et l'agent) ont saisi la même chose pour la même bande et le même jour.
 
 | Cas | Règle |
 |---|---|
-| **Saisie du jour** déjà faite ce jour-là, par l'agent ou depuis un autre téléphone | On compare l'heure de la saisie sur le téléphone et l'heure de la dernière modification sur le serveur. **La plus récente est gardée**, sans addition des deux. |
-| **Livraison déjà confirmée** | Même règle. Si la confirmation du téléphone est plus récente, elle remplace l'autre (quantités reçues, morts à l'arrivée). |
+| **Saisie du jour** déjà faite ce jour-là par une autre personne | On compare l'heure de la saisie sur le téléphone et l'heure de la dernière modification sur le serveur. **La plus récente est gardée**, sans addition des deux. Si les deux saisies sont identiques, rien n'est changé ni signalé. |
+| **Livraison déjà confirmée** par une autre personne | Même règle. Si la confirmation du téléphone est plus récente, elle remplace l'autre (quantités reçues, morts à l'arrivée). |
 | Pesée, sortie, déclaration | Elles s'ajoutent : pas de conflit possible, seulement les doublons ci-dessus. |
 
-Dans tous les cas, une ligne « **Saisies à vérifier** » est créée pour l'agent de la ferme : alerte sur son accueil, puis écran avec bouton « Vu ». Elle dit ce qui a été gardé et ce qui a été remplacé, valeurs comprises. Pour revenir à l'autre version, l'agent corrige la saisie depuis la fiche de la bande ou de la livraison (correction déjà journalisée).
+Pour chaque vrai conflit, une ligne « **Saisies à vérifier** » est créée pour l'agent de la ferme : alerte sur son accueil, puis écran avec bouton « Vu ». Elle dit ce qui a été gardé et ce qui a été remplacé, valeurs comprises. Pour revenir à l'autre version, l'agent corrige la saisie depuis la fiche de la bande ou de la livraison (correction déjà journalisée).
 
 ### Refus
 Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple plus de poulets sortis que de poulets présents) :
@@ -91,22 +100,25 @@ Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple pl
 - la saisie est retirée du téléphone.
 
 ### Limites connues
-- L'heure du téléphone sert à départager. Un téléphone mal réglé peut fausser l'ordre ; l'agent voit chaque conflit.
-- Deux saisies du jour faites sans réseau sur le même téléphone pour la même bande : la seconde remplace la première. En ligne, l'écran « Déjà envoyé » propose d'ajouter ou de corriger ; sans réseau, on ne peut pas le demander.
+- Entre deux personnes, l'heure du téléphone sert à départager. Un téléphone mal réglé peut fausser l'ordre ; l'agent voit chaque conflit.
+- Pour la même personne, les saisies s'additionnent sans question. En ligne, l'écran « Déjà envoyé » propose d'ajouter ; une erreur se corrige ensuite par l'agent depuis la fiche de la bande.
 - Les pages gardées montrent l'état au dernier passage avec réseau (chiffres, « À faire aujourd'hui »).
 
 ## 6. Tests
 
-`tests/test_hors_ligne.py` (11 tests) couvre :
+`tests/test_hors_ligne.py` (14 tests) couvre :
 - doublon (même identifiant renvoyé) ;
 - reprise après coupure (file renvoyée en entier) ;
-- conflit de saisie du jour, dans les deux sens ;
-- conflit de confirmation de livraison ;
+- même personne : saisie en ligne puis deux saisies sans réseau, additionnées quel que soit l'ordre des heures ;
+- même personne : deux saisies sans réseau, additionnées ;
+- même personne : confirmation de livraison sans conflit ;
+- vrai conflit (agent puis éleveur) sur la saisie du jour, dans les deux sens ;
+- vrai conflit sur la confirmation de livraison ;
+- deux personnes, mêmes valeurs : pas de conflit ;
 - refus ;
 - session perdue ;
 - jour passé compté depuis le jour de la saisie ;
 - déclaration avec photo ;
-- même saisie des deux côtés (pas de conflit) ;
 - absence d'effet sans en-tête ;
 - fichiers de l'application installable.
 

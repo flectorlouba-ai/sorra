@@ -377,8 +377,7 @@ def import_verifier():
         flash(str(e), 'danger')
         return redirect(url_for('fermes.import_page'))
     jeton = import_poufa.nouveau_jeton()
-    with open(import_poufa.chemin(jeton, '.xlsx'), 'wb') as f:
-        f.write(contenu)
+    import_poufa.ecrire(import_poufa.chemin(jeton, '.xlsx'), contenu)
     session['import_poufa'] = jeton
     resultats = import_poufa.verifier(lignes)
     return render_template('fermes/import.html', resultats=resultats, resume=_resume(resultats))
@@ -404,8 +403,7 @@ def import_importer():
                        f'refusée(s), {localites} localité(s) créée(s).')
     db.session.commit()
     os.remove(source)
-    with open(import_poufa.chemin(jeton, '_rapport.xlsx'), 'wb') as f:
-        f.write(import_poufa.rapport(resultats))
+    import_poufa.ecrire(import_poufa.chemin(jeton, '_rapport.xlsx'), import_poufa.rapport(resultats))
     flash(f'{creees} ferme(s) importée(s), {refusees} ligne(s) refusée(s).', 'success')
     return render_template('fermes/import_termine.html', creees=creees, refusees=refusees,
                            localites=localites, jeton=jeton)
