@@ -9,7 +9,7 @@
 {% include '_tete.html' %}
   <title>{% block titre %}SORRA{% endblock %} — SORRA</title>
 </head>
-<body{% if theme_eleveur %} class="theme-eleveur"{% endif %}{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR') %} data-pages-hors-ligne{% endif %}{% endif %}>
+<body{% if theme_terrain %} class="{% if theme_eleveur %}theme-eleveur {% endif %}theme-terrain terrain-{{ profil_terrain }}"{% endif %}{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR') %} data-pages-hors-ligne{% endif %}{% endif %}>
 {% include '_bandeau_demo.html' %}
 <div class="kente-band"></div>
 
@@ -18,12 +18,12 @@
     <div class="logo-texte">{{ logo_poulet() }}</div>
     <div>
       <div class="topbar-name">SORRA</div>
-      <div class="topbar-sub">{% if theme_eleveur %}<span class="bonjour">Bonjour {{ current_user.prenom or current_user.nom }} ! 👋</span>{% else %}{% block sous_titre %}{{ self.titre() }}{% endblock %}{% endif %}</div>
+      <div class="topbar-sub">{% if theme_eleveur %}<span class="bonjour">Bonjour {{ current_user.prenom or current_user.nom }} ! 👋</span>{% elif theme_terrain %}<span class="bonjour">{{ entete_terrain() }}</span>{% else %}{% block sous_titre %}{{ self.titre() }}{% endblock %}{% endif %}</div>
     </div>
   </a>
   <div class="topbar-right">
-    {% if current_user.is_authenticated and theme_eleveur %}
-    {% include 'eleveur/_entete.html' %}
+    {% if current_user.is_authenticated and theme_terrain %}
+    {% include 'terrain/_entete.html' %}
     {% elif current_user.is_authenticated %}
     <span class="topbar-user d-none d-sm-inline"><i class="bi bi-person-circle"></i> {{ current_user.nom_complet }}</span>
     {% if not theme_eleveur %}<a href="{{ url_for('accueil.index') }}" class="btn-top"><i class="bi bi-house-door"></i> Accueil</a>{% endif %}
@@ -46,8 +46,8 @@
   </div>{% endif %}
   {% endwith %}
 
-  {% if theme_eleveur %}<a class="retour-accueil" href="{{ url_for('accueil.index') }}">‹ Accueil</a>{% endif %}
-  <div class="page-head">
+  {% if theme_terrain and not accueil_terrain %}<a class="retour-accueil" href="{{ url_for('accueil.index') }}">‹ Accueil</a>{% endif %}
+  <div class="page-head"{% if accueil_terrain %} hidden{% endif %}>
     <div class="page-head-left">
       <div class="page-icon"><i class="bi bi-{% block icone %}grid{% endblock %}"></i></div>
       <div>
@@ -56,8 +56,8 @@
       </div>
     </div>
     <div class="page-actions">{% block actions %}{% endblock %}
-      {% set cle_aide = self.aide()|trim %}
-      {% if aide_active(cle_aide) %}<a class="btn-aide" href="{{ url_for('aides.aide', cle=cle_aide, retour=request.path) }}" aria-label="Comment faire ?" title="Comment faire ?" data-aide="{{ cle_aide }}">?</a>{% endif %}
+      {% set cle_aide = aide_pour(self.aide()|trim) %}
+      {% if cle_aide %}<a class="btn-aide" href="{{ url_for('aides.aide', cle=cle_aide, retour=request.path) }}" aria-label="Comment faire ?" title="Comment faire ?" data-aide="{{ cle_aide }}">?</a>{% endif %}
     </div>
   </div>
 

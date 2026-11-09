@@ -10,12 +10,12 @@ from tests.test_bandes import monde, bande_ouverte  # noqa: F401
 
 def test_la_version_change_quand_un_fichier_change(tmp_path):
     (tmp_path / 'css').mkdir()
-    feuille = tmp_path / 'css' / 'eleveur.css'
+    feuille = tmp_path / 'css' / 'terrain.css'
     feuille.write_text('.a{color:red}', encoding='utf-8')
-    v1, e1 = statiques.version_application(str(tmp_path)), statiques.empreinte(str(tmp_path), 'css/eleveur.css')
+    v1, e1 = statiques.version_application(str(tmp_path)), statiques.empreinte(str(tmp_path), 'css/terrain.css')
     assert statiques.version_application(str(tmp_path)) == v1          # stable tant que rien ne change
     feuille.write_text('.a{color:blue} /* lot 9 */', encoding='utf-8')
-    v2, e2 = statiques.version_application(str(tmp_path)), statiques.empreinte(str(tmp_path), 'css/eleveur.css')
+    v2, e2 = statiques.version_application(str(tmp_path)), statiques.empreinte(str(tmp_path), 'css/terrain.css')
     assert v1 != v2 and e1 != e2
 
 
@@ -41,7 +41,7 @@ def test_service_worker_jamais_en_cache_et_strategies(client):
     assert 'no-store' in r.headers['Cache-Control']
     js = r.get_data(as_text=True)
     garder = re.search(r'var A_GARDER = (\[.*?\]);', js).group(1)
-    for f in ('/static/css/eleveur.css?v=', '/static/css/perform.css?v=', '/static/js/eleveur.js?v=',
+    for f in ('/static/css/terrain.css?v=', '/static/css/perform.css?v=', '/static/js/eleveur.js?v=',
               '/static/js/hors_ligne.js?v='):
         assert f in garder, f
     assert 'reseauDAbord(req, STATIQUES' in js            # CSS et JS : réseau d'abord
@@ -56,8 +56,8 @@ def test_fichiers_statiques_appeles_avec_leur_version(client, monde, app):
     pages = [client.get('/auth/connexion').get_data(as_text=True)]
     connecter(client, 'eleveur1')
     pages += [client.get(u).get_data(as_text=True) for u in ('/', '/saisie-du-jour', '/mon-stock', '/j-ai-achete')]
-    attendu = statiques.empreinte(app.static_folder, 'css/eleveur.css')
-    assert f'/static/css/eleveur.css?v={attendu}' in pages[1]
+    attendu = statiques.empreinte(app.static_folder, 'css/terrain.css')
+    assert f'/static/css/terrain.css?v={attendu}' in pages[1]
     for page in pages:
         adresses = re.findall(r'(?:href|src)="(/static/[^"]+)"', page)
         assert adresses

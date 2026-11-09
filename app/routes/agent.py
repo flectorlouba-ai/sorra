@@ -86,6 +86,9 @@ def compter(numero):
     except regles.RegleAgent as e:
         db.session.rollback()
         flash(str(e), 'danger')
+    retour = request.form.get('retour', '')                  # lot 19 ter : retour à l'écran terrain du stock
+    if retour.startswith('/') and not retour.startswith('//'):
+        return redirect(retour)
     return redirect(url_for('fermes.fiche', numero=ferme.numero) + '#stock')
 
 
@@ -126,7 +129,8 @@ def commander():
     except regles.RegleAgent as e:
         db.session.rollback()
         flash(str(e), 'danger')
-    return redirect(request.form.get('retour') or url_for('agent.commandes'))
+    retour = request.form.get('retour', '')
+    return redirect(retour if retour.startswith('/') and not retour.startswith('//') else url_for('agent.commandes'))
 
 
 @agent_bp.route('/commandes/<int:ident>/decider', methods=['POST'])

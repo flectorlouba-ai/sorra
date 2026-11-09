@@ -1,20 +1,19 @@
 {% extends '_base.html' %}
-{% block titre %}Lots attendus{% endblock %}
-{% block sous_titre %}{{ operateur.nom }}{% endblock %}
-{% block icone %}truck{% endblock %}
-{% block page_sous_titre %}Sorties déclarées par les fermes pour {{ operateur.nom }}, pas encore reçues{% endblock %}
+{% block aide %}op_arrivent{% endblock %}
+{% block titre %}Lots qui arrivent{% endblock %}
+{% block page_titre %}🚚 Lots qui arrivent{% endblock %}
+{% block page_sous_titre %}Envoyés à {{ operateur.nom }}, pas encore reçus{% endblock %}
 {% block contenu %}
-<a class="btn-gros mb-3" href="{{ url_for('operateur.scanner') }}"><i class="bi bi-qr-code-scan"></i> Scanner un lot</a>
-{% if lots %}
-<ul class="op-liste op-liste-cartes">
-  {% for lot in lots %}
-  <li data-lot="{{ lot.numero }}"><span class="mono">{{ lot.numero }}</span>
-    <span><strong>{{ lot.sortie.nombre|qte }} poulets</strong> · {{ lot.sortie.poids_total_kg|qte }} kg</span>
-    <span>{{ lot.ferme.nom }} · {{ lot.ferme.province.nom }}</span>
-    <span class="td-sous">parti le {{ lot.sortie.date.strftime('%d/%m/%Y') }} · en route</span></li>
-  {% endfor %}
-</ul>
+<div class="liste-cartes">
+{% for lot in lots %}
+  <div class="carte carte-arrivee" data-lot="{{ lot.numero }}">
+    <div class="carte-titre">🐔 {{ lot.sortie.nombre|qte }} poulets · {{ lot.ferme.numero }} · {{ lot.ferme.province.nom }}</div>
+    <div class="carte-sous">{{ lot.ferme.nom }} · {% if lot.sortie.date == today %}partis ce matin à {{ lot.sortie.cree_le|date_locale('%H h %M') }}{% else %}partis le {{ lot.sortie.date.strftime('%d/%m') }}{% endif %} · {{ lot.sortie.poids_total_kg|qte }} kg</div>
+    <div class="carte-sous mono">{{ lot.numero }}</div>
+    <a class="btn-gros-secondaire mt-2" href="{{ url_for('operateur.scanner') }}">📷 Recevoir</a>
+  </div>
 {% else %}
-<div class="empty-note"><i class="bi bi-check-circle"></i> Aucun lot attendu.</div>
-{% endif %}
+  <div class="carte"><div class="carte-phrase">Aucun lot en route ✓</div></div>
+{% endfor %}
+</div>
 {% endblock %}

@@ -10,6 +10,7 @@
 {%- endmacro %}
 
 {% block contenu %}
+{% if theme_terrain %}<div class="reseau-requis" data-reseau-requis>📶 <strong>Avec du réseau seulement</strong> : la création d'une ferme sans réseau arrivera plus tard.</div>{% endif %}
 {% set fe = ferme %}
 <form method="post" class="form-terrain" id="form-ferme" novalidate>
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

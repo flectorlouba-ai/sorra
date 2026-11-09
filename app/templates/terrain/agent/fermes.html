@@ -1,0 +1,18 @@
+{% extends '_base.html' %}
+{% block titre %}Mes fermes{% endblock %}
+{% block page_titre %}🏠 Mes fermes{% endblock %}
+{% block page_sous_titre %}{{ fermes|length }} ferme{{ 's' if fermes|length != 1 }}, la plus urgente d'abord{% endblock %}
+{% block contenu %}
+<div class="liste-cartes">
+{% for x in fermes %}
+  <a class="carte carte-lien carte-ferme ferme-{{ x.couleur }}" href="{{ url_for('terrain.fiche', numero=x.ferme.numero) }}" data-ferme="{{ x.ferme.numero }}">
+    <div class="carte-titre-ligne"><span class="carte-titre"><span class="pastille-feu feu-{{ x.couleur if x.couleur in ('rouge', 'orange') else 'vert' }}"></span> {{ x.ferme.numero }} · {{ x.ferme.nom }}</span></div>
+    <div class="carte-sous">{{ x.ferme.exploitant_nom }} · {{ x.ferme.localite.nom }}</div>
+    {% if x.phrases %}<ul class="phrases-ferme">{% for c, p in x.phrases[:3] %}<li class="phrase-{{ c }}">{{ p }}</li>{% endfor %}</ul>
+    {% else %}<div class="phrases-ferme phrase-vert">🟢 Tout va bien</div>{% endif %}
+  </a>
+{% else %}
+  <div class="empty-note">Aucune ferme ne vous est confiée.</div>
+{% endfor %}
+</div>
+{% endblock %}

@@ -1,8 +1,10 @@
 {% extends '_base.html' %}
-{% block titre %}Scanner un lot{% endblock %}
+{% block aide %}op_recevoir{% endblock %}
+{% block titre %}Recevoir un lot{% endblock %}
+{% block page_titre %}📷 Recevoir un lot{% endblock %}
 {% block sous_titre %}{{ operateur.nom }}{% endblock %}
 {% block icone %}qr-code-scan{% endblock %}
-{% block page_sous_titre %}Placez le QR code du lot dans le cadre{% endblock %}
+{% block page_sous_titre %}Mettez le QR dans le cadre jaune{% endblock %}
 {% block contenu %}
 <div class="op-scanner" id="op-scanner">
   <div class="op-camera" id="op-camera">
@@ -12,10 +14,10 @@
   </div>
 
   <form method="get" action="{{ url_for('operateur.lot') }}" class="form-terrain op-numero" id="op-form-numero">
-    <label class="form-label" for="numero">Pas de caméra ou QR abîmé ? Tapez le numéro du lot</label>
+    <label class="form-label" for="numero">Le QR ne marche pas ? Tapez le numéro :</label>
     <input class="form-control champ-gros mono" id="numero" name="numero" placeholder="EST-001-B1-07-S2"
            autocomplete="off" autocapitalize="characters" required>
-    <button type="submit" class="btn-gros-secondaire"><i class="bi bi-search"></i> Chercher ce numéro</button>
+    <button type="submit" class="btn-gros-secondaire">🔎 Chercher</button>
   </form>
 
   {# Sans réseau : la réception est gardée sur le téléphone, vérifiée par le serveur à l'arrivée #}
@@ -28,7 +30,7 @@
     <div class="op-lot-lu" id="hl-lot">Lot lu</div>
     <p class="texte-aide">La réception sera gardée sur le téléphone et vérifiée dès que le réseau revient.</p>
     {% include 'operateur/_comptage.html' %}
-    <button type="submit" class="btn-gros" name="choix" value="valider"><i class="bi bi-check-lg"></i> Enregistrer la réception</button>
+    <button type="submit" class="btn-gros btn-vert" name="choix" value="valider" data-valider>✓ Valider la réception</button>
   </form>
 </div>
 <script type="application/json" id="op-attendus">{{ attendus|tojson }}</script>

@@ -73,8 +73,9 @@ def test_operateur_ne_voit_que_ses_lots(client, aval):
     m = sortie(aval, aval['marche'], nombre=50).lot
     connecter(client, 'abattoir1')
     accueil = texte(client.get('/'))
-    assert 'Scanner un lot' in accueil and 'Lots attendus' in accueil and 'Mes réceptions' in accueil
-    assert a.numero in accueil and m.numero not in accueil
+    # lot 19 ter : mots de l'espace terrain (Recevoir un lot, Lots qui arrivent, Mes réceptions)
+    assert 'Recevoir un lot' in accueil and 'Lots qui arrivent' in accueil and 'Mes réceptions' in accueil
+    assert '1 lot arrive cette semaine' in accueil
     attendus = texte(client.get('/operateur/attendus'))
     assert a.numero in attendus and m.numero not in attendus
     from app.models.tracabilite import LotTrace
@@ -82,7 +83,7 @@ def test_operateur_ne_voit_que_ses_lots(client, aval):
     abattoir1 = db.session.get(type(aval['el']), aval['el'].id).__class__.query.filter_by(identifiant='abattoir1').one()
     assert [l.numero for l in filtre_perimetre(LotTrace.query, utilisateur=abattoir1)] == [a.numero]
     page = scanner(client, m)                                   # le lot du marché : refusé, rien n'est montré
-    assert 'data-resultat="ROUGE"' in page and 'destiné à Marché Mont-Bouët' in page and 'Ferme Un' not in page
+    assert 'data-resultat="ROUGE"' in page and 'Ce lot est pour Marché Mont-Bouët.' in page and 'Ferme Un' not in page
     changer(client, 'marche1')
     recevoir(client, m, vivants='50', poids='100')
     r = Reception.query.one()
@@ -108,18 +109,19 @@ def test_controles_tous_verts_puis_chaque_cas(client, aval):
     lot = sortie(aval).lot
     connecter(client, 'abattoir1')
     page = scanner(client, lot)
-    assert 'data-resultat="VERT"' in page and 'Valider la réception' in page and 'Recevoir sous réserve' not in page
-    for libelle in ('QR connu et jamais reçu', 'Destiné à votre établissement', "Aucun traitement en délai d'attente",
-                    'Bande non bloquée par le vétérinaire', 'Pesée récente', 'Vaccins obligatoires faits'):
+    assert 'data-resultat="VERT"' in page and 'Valider la réception' in page and 'garde à part' not in page
+    # lot 19 ter : contrôles en phrases (mêmes contrôles, même ordre)
+    for libelle in ('Lot connu, jamais reçu', 'Bien envoyé à votre abattoir', 'Pas de médicament récent',
+                    "Le vétérinaire n'a rien bloqué", 'Pesés aujourd', 'Poulets vaccinés'):
         assert libelle in page, libelle
     assert 'Annoncé par la ferme : <strong>100 poulets' in page
-    assert page.index('Vaccins obligatoires') < page.index("délai d'attente") < page.index('non bloquée') < page.index('Pesée')
+    assert page.index('Poulets vaccinés') < page.index('Pas de médicament') < page.index('rien bloqué') < page.index('Pesés')
     # Pesée de plus de 7 jours avant la sortie : orange
     for p in aval['b'].pesees:
         p.date = AUJ - timedelta(days=8)
     db.session.commit()
     page = scanner(client, lot)
-    assert 'data-resultat="ORANGE"' in page and 'Recevoir sous réserve' in page and 'Refuser le lot' in page
+    assert 'data-resultat="ORANGE"' in page and 'Je les reçois et je les garde à part' in page and 'Je refuse ce lot' in page
     assert 'Valider la réception' not in page and re.search(r'class="manque" data-controle="pesee"', page)
     # Vaccin en retard de 2 jours ou plus : orange ; de moins de 2 jours (tolérance) : non
     for p in aval['b'].pesees:
@@ -147,7 +149,7 @@ def test_controles_tous_verts_puis_chaque_cas(client, aval):
     db.session.commit()
     page = scanner(client, lot)
     assert 'data-resultat="ORANGE"' in page and re.search(r'class="manque" data-controle="delai_attente"', page)
-    assert "Délai d'attente du traitement jusqu'au" in page
+    assert "Médicament donné récemment — attendre jusqu'au" in page
 
 
 def test_abattoir_et_marche(client, aval):
@@ -240,27 +242,27 @@ def test_ecart_sous_le_seuil_sans_alerte_veterinaire(client, aval):
 def test_chaque_motif_de_refus(client, aval):
     connecter(client, 'abattoir1')
     page = scanner(client, code='CodeQuiNExistePas12345')
-    assert 'data-resultat="ROUGE"' in page and 'QR inconnu' in page and 'Scanner un autre lot' in page
+    assert 'data-resultat="ROUGE"' in page and "Ce lot n'existe pas." in page and 'Scanner un autre lot' in page
     assert 'Appeler l' not in page                                       # pas de lot : pas d'agent à appeler
     lot = sortie(aval).lot
     tracabilite.annuler(lot, 'erreur de saisie')
     db.session.commit()
     page = scanner(client, lot)
-    assert 'Lot annulé par la ferme : erreur de saisie' in page
+    assert 'La ferme a annulé ce lot.' in page
     lot = sortie(aval).lot
     recevoir(client, lot)
     page = scanner(client, lot)
-    assert 'Déjà reçu le' in page and 'par Abattoir de Ntoum' in page and "📞 Appeler l'agent de la ferme" not in page
+    assert 'Il a déjà été reçu le' in page and "📞 Appeler l'agent de la ferme" not in page
     aval['agent'].telephone = '+241 77 00 00 01'
     db.session.commit()
     assert 'tel:+24177000001' in scanner(client, lot)
     lot = sortie(aval, aval['marche']).lot
-    assert 'destiné à Marché Mont-Bouët' in scanner(client, lot)
+    assert 'Ce lot est pour Marché Mont-Bouët.' in scanner(client, lot)
     lot = sortie(aval).lot
     veto.bloquer(aval['b'], 'Suspicion de Newcastle', aval['veto'])
     db.session.commit()
     page = scanner(client, lot)
-    assert 'Ventes bloquées par le vétérinaire' in page
+    assert 'Le vétérinaire a bloqué la vente de ces poulets.' in page
     r = recevoir(client, lot)                                             # un lot refusé ne se reçoit pas
     assert r.status_code == 400 and Reception.query.filter_by(lot_id=lot.id).count() == 0
 
@@ -292,8 +294,8 @@ def test_sous_reserve_puis_decision_du_veterinaire_seulement(client, aval, admin
     r = Reception.query.one()
     assert r.etat == E.SOUS_RESERVE
     accueil = texte(client.get('/'))
-    assert 'À traiter (1)' in accueil and 'ne pas abattre, ne pas vendre' in accueil
-    assert 'Déjà reçu' in scanner(client, lot)
+    assert '1 lot attend le vétérinaire' in accueil                     # lot 19 ter : ligne d'état
+    assert 'déjà été reçu' in scanner(client, lot)
     # Personne d'autre que le vétérinaire ne décide
     for ident in ('abattoir1', 'dge', 'admin', 'agent1'):
         changer(client, ident)
@@ -317,9 +319,9 @@ def test_sous_reserve_puis_decision_du_veterinaire_seulement(client, aval, admin
     assert r.etat == E.VALIDEE and r.decision_motif == 'Pesée faite au quai, conforme'
     assert JournalAudit.query.filter_by(action='DECISION_RECEPT').one().detail.endswith('Pesée faite au quai, conforme')
     changer(client, 'abattoir1')
-    assert 'Libéré par le vétérinaire' in texte(client.get('/'))
-    client.get(f'/operateur/receptions/{r.id}')                           # vu : quitte « À traiter »
-    assert 'À traiter (' not in texte(client.get('/'))
+    assert 'Le vétérinaire a donné son accord (1 lot)' in texte(client.get('/'))
+    client.get(f'/operateur/receptions/{r.id}')                           # vu : quitte la ligne d'état
+    assert 'donné son accord' not in texte(client.get('/'))
 
 
 def test_refus_par_le_veterinaire_et_refus_au_quai(client, aval):
@@ -335,7 +337,7 @@ def test_refus_par_le_veterinaire_et_refus_au_quai(client, aval):
     db.session.refresh(r)
     assert r.etat == E.REFUSEE
     changer(client, 'abattoir1')
-    assert 'Lot refusé par le vétérinaire' in scanner(client, lot)        # lot clos
+    assert 'Le vétérinaire a refusé ces poulets.' in scanner(client, lot)  # lot clos
     lot2 = sortie(aval).lot
     recevoir(client, lot2, choix='refuser', vivants='', morts='', poids='')
     r2 = Reception.query.filter_by(lot_id=lot2.id).one()
@@ -360,7 +362,8 @@ def test_reception_sans_reseau_controlee_a_l_arrivee(client, aval):
     r2 = Reception.query.filter_by(lot_id=lot_autre.id).one()
     assert r2.etat == E.REFUSEE and 'destiné à Marché Mont-Bouët' in r2.motif_refus
     accueil = texte(client.get('/'))
-    assert 'Refusée à la vérification' in accueil
+    assert '1 réception à revoir' in accueil                             # lot 19 ter : ligne d'état
+    assert 'Ne pouvait pas être reçu' in texte(client.get('/operateur/receptions'))
     # Contrôle bloquant manquant à l'arrivée : sous réserve d'elle-même ; écart sans raison : à expliquer
     for p in aval['b'].pesees:
         p.date = AUJ - timedelta(days=9)

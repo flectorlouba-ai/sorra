@@ -1,0 +1,53 @@
+{% extends '_base.html' %}
+{% block aide %}ag_tournee{% endblock %}
+{% block titre %}Ma tournée{% endblock %}
+{% block page_titre %}🚗 Ma tournée{% endblock %}
+{% block page_sous_titre %}{{ lignes|length }} ferme{{ 's' if lignes|length != 1 }} aujourd'hui, la plus urgente d'abord{% endblock %}
+{% block contenu %}
+<div class="hors-reseau-garde" data-garde-le hidden>📶 Gardée sur le téléphone à {{ prepare_le|date_locale('%H h %M') }}</div>
+{% if carte and carte.points %}
+<svg class="mini-carte" viewBox="0 0 {{ carte.largeur }} {{ carte.hauteur }}" role="img" aria-label="Carte des fermes de la tournée">
+  {% for f in carte.formes %}{% for c in f.chemins %}<path d="{{ c }}" class="mini-carte-province"/>{% endfor %}{% endfor %}
+  {% for p in carte.points %}<g class="mini-carte-point feu-{{ p.feu }}"><circle cx="{{ p.x }}" cy="{{ p.y }}" r="9"/>
+    <text x="{{ p.x }}" y="{{ p.y + 4 }}" text-anchor="middle">{{ p.rang }}</text></g>{% endfor %}
+</svg>
+{% endif %}
+<div class="liste-cartes">
+{% for l in lignes %}
+  <div class="carte carte-tournee" data-ferme-tournee="{{ l.ferme.numero }}"
+       {% if l.ferme.a_une_position %}data-lat="{{ l.ferme.latitude }}" data-lon="{{ l.ferme.longitude }}"{% endif %}>
+    <a class="carte-titre" href="{{ url_for('terrain.fiche', numero=l.ferme.numero) }}">{{ l.rang }}. {{ l.ferme.numero }} · {{ prenom_eleveur(l.ferme) }}</a>
+    <div class="carte-sous">{{ l.ferme.nom }} · {{ l.ferme.localite.nom }} <span data-distance></span></div>
+    <ul class="phrases-ferme">{% for c, p in l.phrases %}<li class="phrase-{{ c }}">{{ p }}</li>{% endfor %}</ul>
+    {% if l.a_faire %}<div class="a-faire-ligne"><strong>À faire :</strong> {{ l.a_faire|join(', ') }}</div>{% endif %}
+    <div class="boutons-secondaires">
+      {% if l.ferme.a_une_position %}<a class="btn-gros-secondaire" href="geo:{{ l.ferme.latitude }},{{ l.ferme.longitude }}?q={{ l.ferme.latitude }},{{ l.ferme.longitude }}({{ l.ferme.nom|urlencode }})" data-y-aller>🧭 Y aller</a>{% endif %}
+      <a class="btn-gros-secondaire" href="{{ url_for('visites.compte_rendu', numero=l.ferme.numero, visite=l.visite.id if l.visite else None) }}">📋 Visite</a>
+    </div>
+  </div>
+{% else %}
+  <div class="carte"><div class="carte-phrase">Rien de prévu aujourd'hui ✓</div><div class="carte-sous">Aucune visite et aucune ferme en rouge.</div></div>
+{% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  // Sans réseau : la tournée gardée sur le téléphone dit à quelle heure elle a été préparée
+  if (!navigator.onLine) document.querySelector('[data-garde-le]').hidden = false;
+  // Distance calculée par le téléphone (rien n'est enregistré), si la localisation est acceptée
+  var cartes = document.querySelectorAll('.carte-tournee[data-lat]');
+  if (!cartes.length || !navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(function (p) {
+    function rad(d) { return d * Math.PI / 180; }
+    cartes.forEach(function (c) {
+      var la = parseFloat(c.dataset.lat), lo = parseFloat(c.dataset.lon);
+      var dla = rad(la - p.coords.latitude), dlo = rad(lo - p.coords.longitude);
+      var a = Math.sin(dla / 2) * Math.sin(dla / 2) + Math.cos(rad(p.coords.latitude)) * Math.cos(rad(la)) * Math.sin(dlo / 2) * Math.sin(dlo / 2);
+      var km = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      c.querySelector('[data-distance]').textContent = '· 📏 ' + (km < 1 ? Math.round(km * 1000) + ' m' : km.toLocaleString('fr-FR', {maximumFractionDigits: 1}) + ' km');
+    });
+  }, function () {}, {timeout: 8000, maximumAge: 300000});
+})();
+</script>
+{% endblock %}

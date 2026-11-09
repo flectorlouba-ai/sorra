@@ -338,6 +338,7 @@ def test_alertes_retard_et_ecart(client, monde):
     ancienne.confirmee_le = maintenant() - timedelta(days=40)                                  # hors 30 jours
     db.session.commit()
     connecter(client, 'agent1')
+    client.get('/terrain/bureau')                   # lot 19 ter : encadré « Alertes » de l'accueil de pilotage
     page = client.get('/').get_data(as_text=True)
     assert '1 livraison non confirmée depuis plus de 3 jours' in page
     assert '1 livraison reçue avec écart' in page

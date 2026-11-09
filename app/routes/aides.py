@@ -11,18 +11,29 @@ from app.utils.permissions import profil_requis
 aides_bp = Blueprint('aides', __name__)
 
 
+TERRAIN = (Profil.ELEVEUR, Profil.AGENT, Profil.OPERATEUR)
+
+
+def _miennes():
+    """Aides du profil terrain connecté (lot 19 ter : l'agent et l'opérateur ont les leurs)."""
+    from app.utils import terrain
+    profil = terrain.profil_terrain(current_user)
+    return [a for a in Aide.query.filter_by(actif=True).order_by(Aide.ordre) if terrain.profil_de_l_aide(a.cle) == profil]
+
+
 @aides_bp.route('/aide')
-@profil_requis(Profil.ELEVEUR)
+@profil_requis(*TERRAIN)
 def liste():
-    aides = Aide.query.filter_by(actif=True).order_by(Aide.ordre).all()
-    groupes = [(g, [a for a in aides if a.groupe == g]) for g in GROUPES]
+    aides = _miennes()
+    ordre = GROUPES + [g for g in dict.fromkeys(a.groupe for a in aides) if g not in GROUPES]
+    groupes = [(g, [a for a in aides if a.groupe == g]) for g in ordre]
     return render_template('aides/liste.html', groupes=[(g, l) for g, l in groupes if l])
 
 
 @aides_bp.route('/aide/<cle>')
-@profil_requis(Profil.ELEVEUR)
+@profil_requis(*TERRAIN)
 def aide(cle):
-    a = Aide.query.filter_by(cle=cle, actif=True).first()
+    a = next((x for x in _miennes() if x.cle == cle), None)
     if a is None:
         abort(404)
     return render_template('aides/aide.html', a=a, captures=CAPTURES, retour=request.args.get('retour'))

@@ -1,11 +1,14 @@
 {% extends '_base.html' %}
 {% block titre %}Réception du lot {{ r.lot_saisi }}{% endblock %}
+{% block page_titre %}📦 Lot {{ r.lot_saisi }}{% endblock %}
 {% block sous_titre %}{{ r.operateur.nom }}{% endblock %}
 {% block icone %}clipboard-check{% endblock %}
 {% block page_sous_titre %}{{ r.recu_le|date_locale('%d/%m/%Y %H:%M') }}{% if r.hors_ligne %} · enregistrée sans réseau{% endif %}{% endblock %}
 {% block contenu %}
 <div class="op-resultat {{ {'VALIDEE': 'vert', 'SOUS_RESERVE': 'orange', 'REFUSEE': 'rouge'}[r.etat] }}" data-etat="{{ r.etat }}">
-  {% if r.etat == 'VALIDEE' %}✓ Réception validée{% if r.decision_par %} — libéré par le vétérinaire{% endif %}
+  {% if current_user.profil.value == 'OPERATEUR' %}{# lot 19 ter : les mots de l'opérateur #}
+  {{ etat_en_mots(r)[0] }}{% if r.etat == 'SOUS_RESERVE' %}<div class="op-garde-sous">Gardez ces poulets à part : le vétérinaire doit donner son accord avant l'abattage.</div>{% endif %}{% if refus %}<div class="op-garde-sous">{{ refus }}</div>{% endif %}
+  {% elif r.etat == 'VALIDEE' %}✓ Réception validée{% if r.decision_par %} — libéré par le vétérinaire{% endif %}
   {% elif r.etat == 'SOUS_RESERVE' %}◷ En attente du vétérinaire : ne pas abattre, ne pas vendre
   {% else %}✗ {{ r.motif_refus or 'Refusée' }}{% endif %}
 </div>

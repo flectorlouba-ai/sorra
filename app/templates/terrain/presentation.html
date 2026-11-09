@@ -1,0 +1,62 @@
+{% extends '_base.html' %}
+{% block titre %}Bienvenue{% endblock %}
+{% block page_titre %}Bienvenue sur SORRA{% endblock %}
+{% block contenu %}
+{# Présentation au premier lancement de l'agent et de l'opérateur (lot 19 ter), même mécanisme que l'éleveur (lot 13) :
+   vue une fois par compte, gardé sur le serveur. Textes à faire valider (docs/a_faire_valider.md). #}
+{% if current_user.profil.value == 'AGENT' %}
+{% set ecrans = [
+  ('content', 'Chaque matin, ouvrez « Ma tournée » : les fermes à voir, la plus urgente d\'abord.', '🚗 Ma tournée'),
+  ('inquiet', 'Une ferme en rouge ? Allez-y, notez ce que vous voyez et conseillez l\'éleveur.', '📋 Visite'),
+  ('content', 'Vous pouvez saisir pour un éleveur : c\'est marqué « saisi par vous ».', '✍️ Saisir pour un éleveur'),
+  ('dort', 'Pas de réseau ? Continuez : tout part quand le réseau revient.', '◷ en attente → ✓ envoyé'),
+] %}
+{% else %}
+{% set ecrans = [
+  ('content', 'Un camion arrive ? Touchez « Recevoir un lot » et visez le QR code.', '📷 Recevoir un lot'),
+  ('content', 'Comptez les poulets vivants, les morts et pesez. Tapez « 0 » s\'il n\'y a pas de mort.', '🐔 💀 ⚖️'),
+  ('inquiet', 'Un écran orange ? Gardez les poulets à part : le vétérinaire doit donner son accord.', '◷ Gardez à part'),
+  ('dort', 'Pas de réseau ? Recevez quand même : la vérification se fait quand le réseau revient.', '◷ en attente → ✓ envoyé'),
+] %}
+{% endif %}
+<div class="presentation" id="presentation">
+  {% for expr, phrase, illu in ecrans %}
+  <section class="pres-ecran" data-ecran="{{ loop.index }}"{% if not loop.first %} hidden{% endif %}>
+    <div class="pres-points" aria-hidden="true">{% for _ in ecrans %}<span></span>{% endfor %}</div>
+    <div class="pres-mascotte">{{ poulet(expr, taille=130) }}</div>
+    <div class="pres-phrase">{{ phrase }}</div>
+    <div class="pres-illu"><span class="mini-bouton case">{{ illu }}</span></div>
+    {% if not loop.last %}
+    <button type="button" class="btn-gros btn-vert pres-suivant">Suivant</button>
+    {% else %}
+    <form method="post" action="{{ url_for('terrain.presentation_vue') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn-gros btn-vert" data-fin="1">C'est parti !</button>
+    </form>
+    {% endif %}
+    <form method="post" action="{{ url_for('terrain.presentation_vue') }}" class="pres-passer">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="lien-discret" data-passer="1">Passer</button>
+    </form>
+  </section>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var ecrans = document.querySelectorAll('.pres-ecran');
+  function montrer(n) {
+    ecrans.forEach(function (e, i) {
+      e.hidden = i !== n;
+      e.querySelectorAll('.pres-points span').forEach(function (p, j) { p.classList.toggle('on', j === n); });
+    });
+  }
+  ecrans.forEach(function (e, i) {
+    var b = e.querySelector('.pres-suivant');
+    if (b) b.addEventListener('click', function () { montrer(i + 1); });
+  });
+  montrer(0);
+})();
+</script>
+{% endblock %}

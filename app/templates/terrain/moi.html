@@ -1,0 +1,31 @@
+{% extends '_base.html' %}
+{% block titre %}Moi{% endblock %}
+{% block page_titre %}👤 Moi{% endblock %}
+{% block page_sous_titre %}{{ current_user.nom_complet }}{% endblock %}
+{% block contenu %}
+{# Moi de l'agent et de l'opérateur (lot 19 ter). « Version bureau » : agent, sur ordinateur seulement. #}
+<div class="ma-ferme">
+  <div class="ma-ferme-titre">{{ current_user.profil.libelle }}</div>
+  <div class="ma-ferme-nom">{{ current_user.nom_complet }}</div>
+  {% if current_user.profil.value == 'AGENT' %}
+  <div class="carte-sous">{{ current_user.provinces|map(attribute='nom')|join(', ') }} · {{ n_fermes }} ferme{{ 's' if n_fermes != 1 }}</div>
+  {% elif current_user.operateur %}
+  <div class="carte-sous">{{ current_user.operateur.nom }} · {{ current_user.operateur.type }} · {{ current_user.operateur.province.nom }}</div>
+  {% endif %}
+  {% if telephone_dge %}<a class="btn-gros-secondaire mt-2" href="tel:{{ telephone_dge|replace(' ', '') }}" data-appel-dge>📞 Appeler la DGE</a>{% endif %}
+</div>
+{% if visites %}
+<div class="carte" data-mes-visites>
+  <div class="carte-titre">📋 Mes visites ce mois</div>
+  <div class="carte-sous">{{ visites.faites }} faite{{ 's' if visites.faites != 1 }} · {{ visites.prevues }} prévue{{ 's' if visites.prevues != 1 }}</div>
+  <div class="progression-barre mt-2"><span style="width:{{ (visites.faites * 100 / visites.total)|round|int if visites.total else 0 }}%"></span></div>
+</div>
+{% endif %}
+<div class="liens-moi">
+  <a class="lien-moi" href="{{ url_for('aides.liste') }}" data-moi="aide">❓ Comment faire ?</a>
+  <a class="lien-moi" href="{{ url_for('terrain.presentation') }}" data-moi="presentation">🎬 Revoir la présentation</a>
+  <a class="lien-moi" href="{{ url_for('auth.mot_de_passe') }}" data-moi="compte">⚙️ Mon compte <small>mot de passe</small></a>
+  {% if current_user.profil.value == 'AGENT' %}<a class="lien-moi lien-bureau" href="{{ url_for('terrain.bureau') }}" data-moi="bureau">🖥️ Version bureau <small>carte, tableaux, fiches détaillées</small></a>{% endif %}
+  {% with libelle='Me déconnecter' %}{% include 'eleveur/_quitter.html' %}{% endwith %}
+</div>
+{% endblock %}

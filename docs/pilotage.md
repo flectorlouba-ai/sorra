@@ -16,10 +16,10 @@ L'éleveur garde son accueil à lui (phase 1, lots 9 à 13).
 |---|---|
 | ADMIN | Utilisateurs · Configuration · Paramètres à approuver · Sessions · Journal · Intégrité · Arbitrages · Tableau de bord · Fermes · Bandes · Livraisons de l'État · Signalements · Déclarations · Vaccins · Lots · Opérateurs · Carte · Rapports · Commandes d'intrants · Surveillance · Recherche de lots · Classement · Agents |
 | DGE | Tableau de bord · Carte · Livraisons de l'État · Arbitrages · Rapports · Paramètres à approuver · Commandes d'intrants · Fermes · Bandes · Alertes sanitaires · Lots · Opérateurs · Recherche de lots · Classement · Agents |
-| AGENT | Mes fermes · Tournée du jour · Saisies à vérifier · Livraisons et stock · Commandes d'intrants · Bandes · Indicateurs · Vaccins · Lots · Opérateurs |
+| AGENT | **espace terrain** (lot 19 ter) : Ma tournée · Mes fermes · Saisir pour un éleveur · Visite · À vérifier · Stock et commandes · Nouvel éleveur · Moi (`docs/ergonomie.md`, section G). **Version bureau** (Moi → 🖥️, écran large) : Mes fermes · Tournée du jour · Saisies à vérifier · Livraisons et stock · Commandes d'intrants · Bandes · Indicateurs · Vaccins · Lots · Opérateurs |
 | VETO | Signalements · Surveillance · Recherche de lots · Paramètres sanitaires · Vaccins et calendrier · Paramètres à approuver · Fermes · Bandes · Déclarations · Indicateurs · Lots |
 | AUDITEUR | Journal · Intégrité |
-| OPERATEUR | son propre accueil, téléphone d'abord (lot 19) : grande tuile **Scanner un lot**, puis **Lots attendus** (compteur) et **Mes réceptions** ; encadrés « À traiter » et « Attendus cette semaine » |
+| OPERATEUR | **espace terrain** (lot 19 ter, en-tête vert) : **Recevoir un lot** (grande tuile) · **Lots qui arrivent** · **Mes réceptions** · **Moi · aide · mon compte** ; ligne d'état |
 | BCEG, MAEDR | aucune tuile pour l'instant : « Vos écrans arrivent bientôt » |
 
 ## Tuile → écran → lot
@@ -80,3 +80,19 @@ Un compte OPÉRATEUR est rattaché à **une** fiche du registre des opérateurs 
 | Journal des scans (ADMIN, AUDITEUR, DGE), export CSV inscrit au journal | `journal.scans`, `journal.scans_export` | 2 |
 
 Règles, contrôles et seuils : `app/services/receptions.py` ; indicateurs : `app/indicateurs.py` (`tracabilite`).
+
+## Espace terrain de l'agent (lot 19 ter)
+
+| Tuile | Écran (route) | Pastille |
+|---|---|---|
+| 🚗 Ma tournée | `terrain.tournee` (petite carte, une carte par ferme, « 🧭 Y aller ») | fermes de la tournée |
+| 🏠 Mes fermes → fiche | `terrain.fermes` → `terrain.fiche` | fermes en rouge |
+| ✍️ Saisir pour un éleveur | `terrain.saisir` → écrans de l'éleveur (`bandes.saisir`, `bandes.pesee`, `sante.vacciner`, `bandes.sortie`) | — |
+| 📋 Visite | `terrain.visite` → `visites.compte_rendu` (style terrain) | — |
+| ⚖️ À vérifier | `hors_ligne.conflits` (style terrain pour l'agent) | saisies à vérifier |
+| 📦 Stock et commandes | `terrain.stock` | refus de commande non lus |
+| ➕ Nouvel éleveur | `terrain.nouvel_eleveur` → `agent.nouvel_eleveur` (3 étapes) ou `fermes.nouvelle` (avec réseau) | — |
+| 👤 Moi | `terrain.moi` (📞 DGE : paramètre `contact.telephone_dge`, sinon premier compte DGE avec téléphone) | — |
+| Version bureau / terrain | `terrain.bureau`, `terrain.version_terrain` | — |
+
+Écrans de pilotage de l'agent toujours au style bureau : `utils/terrain.ECRANS_BUREAU_AGENT`.

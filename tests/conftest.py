@@ -42,7 +42,11 @@ def _aides_de_depart():
     spec = importlib.util.spec_from_file_location('migration_0015', chemin)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module.AIDES
+    aides = list(module.AIDES)
+    spec = importlib.util.spec_from_file_location('migration_0022', chemin.with_name('0022_espace_terrain.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return aides + list(module.AIDES)       # lot 19 ter : aides de l'agent et de l'opérateur
 
 
 def _listes_de_depart():
@@ -85,6 +89,10 @@ def _listes_de_depart():
     spec.loader.exec_module(module)
     listes.update(module.LISTES)
     listes['types_operateurs'] = list(listes['types_operateurs']) + [module.TYPE_MARCHE]
+    spec = importlib.util.spec_from_file_location('migration_0022', chemin.with_name('0022_espace_terrain.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    listes.update(module.LISTES)
     return listes
 
 
@@ -127,9 +135,9 @@ def creer_utilisateur(identifiant, profil, provinces=(), doit_changer=False, act
                     actif=actif, doit_changer_mdp=doit_changer,
                     provinces=[province(c) for c in provinces])
     u.set_password(MDP)
-    if profil == Profil.ELEVEUR:
+    if profil in (Profil.ELEVEUR, Profil.AGENT, Profil.OPERATEUR):
         from app.models.base import maintenant
-        u.presentation_vue_le = maintenant()     # tutoriel déjà vu (tests du tutoriel : remis à None)
+        u.presentation_vue_le = maintenant()     # tutoriel déjà vu (tests du tutoriel : remis à None ; lot 19 ter : agent, opérateur)
     db.session.add(u)
     db.session.commit()
     return u

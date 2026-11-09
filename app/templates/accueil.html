@@ -5,7 +5,7 @@
 {% include '_tete.html' %}
   <title>Accueil — SORRA</title>
 </head>
-<body class="page-accueil{% if theme_eleveur %} theme-eleveur{% endif %}"{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR') %} data-pages-hors-ligne{% endif %}{% endif %}>
+<body class="page-accueil{% if theme_terrain %}{% if theme_eleveur %} theme-eleveur{% endif %} theme-terrain terrain-{{ profil_terrain }}{% endif %}"{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR') %} data-pages-hors-ligne{% endif %}{% endif %}>
 
 {% include '_bandeau_demo.html' %}
 <div class="kente-band"></div>
@@ -20,7 +20,7 @@
     </div>
   </a>
   <div class="topbar-right">
-    {% if theme_eleveur %}{% include 'eleveur/_entete.html' %}{% else %}
+    {% if theme_terrain %}{% include 'terrain/_entete.html' %}{% else %}
     <a href="{{ url_for('auth.securite') }}" class="btn-top"><i class="bi bi-key"></i><span class="d-none d-sm-inline"> Ma sécurité</span></a>
     <form method="post" action="{{ url_for('auth.deconnexion') }}" class="d-inline">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -64,10 +64,6 @@
   {% if eleveur %}
   <!-- ══ ÉLEVEUR : accueil en tuiles (lot 9) ══ -->
   {% include 'eleveur/_accueil.html' %}
-
-  {% elif o %}
-  <!-- == OPERATEUR : abattoir, marche (lot 19) == -->
-  {% include 'operateur/_accueil.html' %}
 
   {% elif onglets %}
   {% for m in onglets %}

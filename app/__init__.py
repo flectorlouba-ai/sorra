@@ -106,6 +106,9 @@ def create_app(env='default'):
     # Opérateur (abattoir, marché) : scan et réception des lots (lot 19)
     from app.routes.operateur import operateur_bp
     app.register_blueprint(operateur_bp)
+    # Espace terrain de l'agent et de l'opérateur (lot 19 ter)
+    from app.routes.terrain import terrain_bp
+    app.register_blueprint(terrain_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
@@ -135,10 +138,14 @@ def create_app(env='default'):
 
     @app.context_processor
     def _theme():
-        # Charte « illustrée douce » (eleveur.css) : seulement pour l'éleveur connecté
+        # Deux styles (lot 19 ter) : TERRAIN (terrain.css, charte « illustrée douce ») pour l'éleveur, l'agent et
+        # l'opérateur ; BUREAU (perform.css seul) pour les autres, et pour l'agent qui a choisi « Version bureau ».
+        # `theme_eleveur` reste vrai pour l'éleveur seul : ses mots, ses fêtes, eleveur.js.
         from flask_login import current_user
         from app.models import Profil
+        from app.utils import terrain
         eleveur = bool(current_user and current_user.is_authenticated and current_user.profil == Profil.ELEVEUR)
+        profil_terrain = terrain.profil_terrain(current_user)
 
         def bandes_eleveur():
             # Pastilles « autres bâtiments » sur Peser, Sortie, Poulet malade (calculées à la demande)
@@ -158,12 +165,22 @@ def create_app(env='default'):
             from app.services import bceg
             return eleveur and bool(visites_nouvelles() or bceg.a_repondre(current_user))
 
+        def aide_pour(cle):
+            # Bouton « ? » (lot 13, étendu au lot 19 ter) : l'aide de cet écran pour ce profil terrain, si elle
+            # est active ; '' sinon. L'éleveur garde ses clés ; l'agent et l'opérateur ont les leurs (ag_, op_).
+            return terrain.aide_pour(profil_terrain, cle)
+
         def aide_active(cle):
-            # Bouton « ? » (lot 13) : seulement pour l'éleveur, et si l'aide de cet écran est active
-            from app.models.aide import Aide
-            return eleveur and bool(cle) and Aide.query.filter_by(cle=cle, actif=True).first() is not None
-        return {'theme_eleveur': eleveur, 'bandes_eleveur': bandes_eleveur, 'agent_eleveur': agent_eleveur,
-                'visites_nouvelles': visites_nouvelles, 'moi_nouveau': moi_nouveau, 'aide_active': aide_active}
+            return bool(aide_pour(cle))
+
+        def cloche_agent():
+            from app.routes.terrain import cloche
+            return cloche(current_user) if profil_terrain == 'agent' else 0
+        return {'theme_eleveur': eleveur, 'theme_terrain': bool(profil_terrain), 'profil_terrain': profil_terrain,
+                'entete_terrain': lambda: terrain.entete(current_user, profil_terrain),
+                'bandes_eleveur': bandes_eleveur, 'agent_eleveur': agent_eleveur,
+                'visites_nouvelles': visites_nouvelles, 'moi_nouveau': moi_nouveau, 'aide_active': aide_active,
+                'aide_pour': aide_pour, 'cloche_agent': cloche_agent}
 
     _installer_controles_session(app)
     _installer_erreurs(app)
