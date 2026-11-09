@@ -6,7 +6,7 @@
 {% block page_sous_titre %}<span class="mono">{{ liv.numero }}</span> · {{ liv.ferme.nom }} · livrée le {{ liv.date_livraison.strftime('%d/%m/%Y') }}{% endblock %}
 
 {% block contenu %}
-<form method="post" class="form-terrain" novalidate>
+<form method="post" class="form-terrain" novalidate{% if not correction %} data-hors-ligne="Livraison du {{ liv.date_livraison.strftime('%d/%m') }} · reçu moins"{% endif %}>
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   {% for e in erreurs %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ e }}</div>{% endfor %}
   <p class="texte-aide">{{ 'Indiquez les bonnes quantités reçues.' if correction else 'Pour chaque produit, indiquez ce que vous avez vraiment reçu.' }}</p>

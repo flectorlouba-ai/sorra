@@ -4,7 +4,7 @@
 {% block icone %}speedometer{% endblock %}
 {% block page_sous_titre %}<span class="mono">{{ bande.numero }}</span> · Bâtiment {{ bande.batiment.code }}{% endblock %}
 {% block contenu %}
-<form method="post" class="form-terrain" novalidate>
+<form method="post" class="form-terrain" novalidate data-hors-ligne="Pesée · bâtiment {{ bande.batiment.code }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
   <div class="compteur">

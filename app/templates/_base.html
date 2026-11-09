@@ -9,7 +9,7 @@
 {% include '_tete.html' %}
   <title>{% block titre %}PERFORM YL.2{% endblock %} — PERFORM YL.2</title>
 </head>
-<body>
+<body{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% endif %}>
 <div class="kente-band"></div>
 
 <div class="topbar">
@@ -68,5 +68,6 @@ document.addEventListener('keydown', function (e) {
 });
 </script>
 {% block scripts %}{% endblock %}
+{% if current_user.is_authenticated %}<script src="{{ url_for('static', filename='js/hors_ligne.js') }}"></script>{% endif %}
 </body>
 </html>

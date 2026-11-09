@@ -8,7 +8,7 @@ from app import db
 from app.models import Ferme, Province, Profil, Produit, Livraison, LivraisonLigne
 from app.models.intrant import StatutLivraison as S, TYPE_POUSSINS
 from app.models.liste_deroulante import ld_choices
-from app.services import intrants as regles
+from app.services import intrants as regles, hors_ligne
 from app.utils.nombres import quantite
 from app.utils.permissions import profil_requis, filtre_perimetre
 
@@ -246,7 +246,14 @@ def confirmer(numero):
 def tout_recu(numero):
     liv = charger(numero)
     if not regles.peut_confirmer(current_user, liv):
-        flash('Cette livraison n\'est plus à confirmer.', 'warning')
+        gagne = _conflit_confirmation(liv)
+        if gagne:
+            morts, erreurs = _morts(liv, request.form)
+            if not erreurs:
+                regles.confirmer(liv, current_user, morts=morts)
+                db.session.commit()
+        elif gagne is None:
+            flash('Cette livraison n\'est plus à confirmer.', 'warning')
         return _retour_confirmation(liv)
     morts, erreurs = _morts(liv, request.form)
     if erreurs:
@@ -257,6 +264,23 @@ def tout_recu(numero):
     db.session.commit()
     session['confirmation_recente'] = liv.numero
     return _retour_confirmation(liv)
+
+
+def _conflit_confirmation(liv):
+    """Confirmation faite sans réseau d'une livraison déjà confirmée entre-temps :
+    vrai si celle du téléphone est la plus récente (elle remplace l'autre), faux sinon ;
+    None hors de ce cas. L'agent est prévenu."""
+    if not (hors_ligne.actif() and liv.confirmee and current_user.profil in (Profil.ELEVEUR, Profil.AGENT)):
+        return None
+    gagne = hors_ligne.plus_recente(liv.confirmee_le)
+    detail = ('Deux confirmations de réception. Gardée : la plus récente, faite sans réseau.' if gagne else
+              'Deux confirmations de réception. Gardée : la plus récente ; celle faite sans réseau n\'est pas retenue.')
+    hors_ligne.signaler(liv.ferme, f'Livraison {liv.numero}', detail)
+    hors_ligne.conflit()
+    if not gagne:
+        db.session.commit()
+        flash(detail, 'info')
+    return gagne
 
 
 def _lire_receptions(liv, f, exiger_moins):
@@ -283,8 +307,11 @@ def _lire_receptions(liv, f, exiger_moins):
 def recu_moins(numero):
     liv = charger(numero)
     if not regles.peut_confirmer(current_user, liv):
-        flash('Cette livraison n\'est plus à confirmer.', 'warning')
-        return _retour_confirmation(liv)
+        gagne = _conflit_confirmation(liv) if request.method == 'POST' else None
+        if not gagne:
+            if gagne is None:
+                flash('Cette livraison n\'est plus à confirmer.', 'warning')
+            return _retour_confirmation(liv)
     erreurs = []
     if request.method == 'POST':
         receptions, erreurs = _lire_receptions(liv, request.form, exiger_moins=True)

@@ -1,0 +1,31 @@
+{% extends '_base.html' %}
+{% block titre %}Saisies à vérifier{% endblock %}
+{% block icone %}wifi-off{% endblock %}
+{% block page_sous_titre %}Saisies faites sans réseau, envoyées après coup, qui ont rencontré une autre version ou ont été refusées · la plus récente est gardée{% endblock %}
+
+{% block contenu %}
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>Reçue le</th><th>Quoi</th><th>Ferme</th><th>Ce qui s'est passé</th><th>Par</th><th></th></tr></thead>
+    <tbody>
+    {% for c in conflits %}
+      <tr{% if c.vu_le %} class="ligne-vue"{% endif %}>
+        <td>{{ c.cree_le|date_locale('%d/%m/%Y %H:%M') }}</td>
+        <td><strong>{{ c.quoi }}</strong></td>
+        <td>{{ c.ferme.nom if c.ferme else '—' }}</td>
+        <td>{{ c.detail }}</td>
+        <td>{{ c.auteur.nom_complet if c.auteur else '—' }}</td>
+        <td>{% if c.vu_le %}<span class="badge badge-off">Vu</span>{% else %}
+          <form method="post" action="{{ url_for('hors_ligne.vu', ident=c.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-edit">Vu</button>
+          </form>{% endif %}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="table-vide"><i class="bi bi-check-circle"></i>Rien à vérifier.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+<div class="empty-note mt-3">Pour changer une valeur gardée, corrigez la saisie depuis la fiche de la bande ou de la livraison.</div>
+{% endblock %}

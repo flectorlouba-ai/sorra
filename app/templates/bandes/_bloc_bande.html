@@ -37,7 +37,7 @@
   </div>
   {% endif %}
 
-  <form method="post" action="{{ url_for('bandes.saisie', numero=bande.numero) }}" class="form-saisie">
+  <form method="post" action="{{ url_for('bandes.saisie', numero=bande.numero) }}" class="form-saisie" data-hors-ligne="Saisie du jour · bâtiment {{ bande.batiment.code }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     {% if jour_saisie %}
     <div class="form-group">

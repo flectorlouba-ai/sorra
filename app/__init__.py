@@ -61,6 +61,7 @@ def create_app(env='default'):
     from app.routes.sante import sante_bp
     from app.routes.pilotage import pilotage_bp
     from app.routes.tracabilite import tracabilite_bp, public_bp
+    from app.routes.hors_ligne import hors_ligne_bp
 
     app.register_blueprint(auth_bp,          url_prefix='/auth')
     app.register_blueprint(accueil_bp)
@@ -80,6 +81,8 @@ def create_app(env='default'):
     app.register_blueprint(tracabilite_bp,   url_prefix='/tracabilite')
     # Page publique du QR code (sans connexion)
     app.register_blueprint(public_bp)
+    # Hors connexion (service worker à la racine, envois après coup)
+    app.register_blueprint(hors_ligne_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
@@ -103,6 +106,8 @@ def create_app(env='default'):
 
     _installer_controles_session(app)
     _installer_erreurs(app)
+    from app.services import hors_ligne
+    hors_ligne.installer(app)
     return app
 
 
@@ -141,6 +146,9 @@ def _installer_erreurs(app):
 
     @app.errorhandler(CSRFError)
     def csrf_expire(e):
+        if 'X-Hors-Ligne-Id' in request.headers:
+            from flask import jsonify
+            return jsonify(etat='connexion')
         if request.endpoint == 'auth.connexion' or not request.referrer:
             return render_template(
                 'auth/connexion.html',

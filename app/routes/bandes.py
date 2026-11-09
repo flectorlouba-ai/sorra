@@ -5,10 +5,10 @@ from flask_login import current_user
 
 from app import db, indicateurs
 from app.models import Ferme, Province, Profil, Batiment, Operateur, LivraisonLigne
-from app.models.bande import Bande, Pesee, Sortie, StatutBande, MotifSortie
+from app.models.bande import Bande, Pesee, Sortie, StatutBande, MotifSortie, SaisieAliment
 from app.models.sante import Traitement
 from app.models.intrant import Produit, TYPE_ALIMENT
-from app.services import bandes as regles, parametres, sante
+from app.services import bandes as regles, parametres, sante, hors_ligne
 from app.services.journal import enregistrer, Action
 from app.utils.nombres import quantite
 from app.utils.permissions import profil_requis, filtre_perimetre
@@ -56,7 +56,7 @@ def _nombre(texte, entier=False):
 
 def _jour(texte):
     try:
-        return date.fromisoformat(texte) if texte else date.today()
+        return date.fromisoformat(texte) if texte else hors_ligne.jour_de_saisie()
     except ValueError:
         raise regles.RegleBande('Date invalide.')
 
@@ -303,11 +303,45 @@ def saisie(numero):
             flash(a, 'warning')
     except regles.DejaEnvoye as e:
         db.session.rollback()
+        if hors_ligne.actif():
+            return _conflit_saisie(bande, e.saisie, jour, morts, aliments)
         return render_template('bandes/deja_envoye.html', bande=bande, existante=e.saisie, form=f, jour=jour,
                                morts=morts, aliments=aliments)
     except regles.RegleBande as e:
         db.session.rollback()
         flash(str(e), 'danger')
+    return _retour(bande)
+
+
+def _conflit_saisie(bande, existante, jour, morts, aliments):
+    """Saisie faite sans réseau alors qu'une autre existe déjà ce jour-là : la plus récente gagne."""
+    if existante.morts == morts and {a.produit_id: a.sacs for a in existante.aliments if a.sacs} == \
+            {p.id: s for p, s in aliments.items() if s}:
+        flash('Envoyé ✓', 'success')   # même saisie des deux côtés : rien à trancher
+        return _retour(bande)
+    quoi = f'Saisie du {jour.strftime("%d/%m")} · bande {bande.numero}'
+    avant = f'{existante.morts} morts, {sum(a.sacs for a in existante.aliments):g} sacs'
+    apres = f'{morts} morts, {sum(aliments.values()):g} sacs'
+    if hors_ligne.plus_recente(existante.modifie_le):
+        existante.morts = morts
+        for a in list(existante.aliments):
+            if a.produit not in aliments:
+                existante.aliments.remove(a)
+        for produit, sacs in aliments.items():
+            ligne = next((a for a in existante.aliments if a.produit_id == produit.id), None)
+            if ligne is None:
+                ligne = SaisieAliment(produit=produit, sacs=0, kg=0)
+                existante.aliments.append(ligne)
+            ligne.sacs, ligne.kg = sacs, sacs * float(produit.poids_sac_kg or 0)
+        detail = f'Deux saisies pour ce jour. Gardée : la plus récente, faite sans réseau ({apres}). Remplacée : {avant}.'
+        db.session.flush()
+        sante.alerte_si_feu_rouge(bande)
+    else:
+        detail = f'Deux saisies pour ce jour. Gardée : la plus récente ({avant}). Non retenue : celle faite sans réseau ({apres}).'
+    hors_ligne.signaler(bande.ferme, quoi, detail)
+    hors_ligne.conflit()
+    db.session.commit()
+    flash(detail, 'info')
     return _retour(bande)
 
 

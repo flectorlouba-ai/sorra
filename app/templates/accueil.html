@@ -5,7 +5,7 @@
 {% include '_tete.html' %}
   <title>Accueil — PERFORM YL.2</title>
 </head>
-<body class="page-accueil">
+<body class="page-accueil"{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% endif %}>
 
 <div class="kente-band"></div>
 
@@ -202,5 +202,6 @@
   });
 })();
 </script>
+{% if current_user.is_authenticated %}<script src="{{ url_for('static', filename='js/hors_ligne.js') }}"></script>{% endif %}
 </body>
 </html>

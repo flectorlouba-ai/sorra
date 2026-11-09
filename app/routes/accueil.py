@@ -170,6 +170,14 @@ def _alertes(user):
             resultat.append({'texte': f'{n} livraison{"s" if n > 1 else ""} de poussins au-delà du seuil de '
                                       f'mortalité à l\'arrivée', 'lien': url_for('pilotage.tableau') + '#arrivee',
                              'nombre': n, 'niveau': 'warning', 'meta': 'Poussins · 30 derniers jours'})
+    if user.profil == Profil.AGENT:
+        from app.routes.hors_ligne import conflits_a_voir
+        n = conflits_a_voir(user).count()
+        if n:
+            s = 's' if n > 1 else ''
+            resultat.append({'texte': f'{n} saisie{s} faite{s} sans réseau à vérifier',
+                             'lien': url_for('hors_ligne.conflits'), 'nombre': n, 'niveau': 'warning',
+                             'meta': 'Envoyée(s) après coup'})
     if user.profil in (Profil.VETO, Profil.AGENT):
         for b, retards in sante.vaccins_en_retard(filtre_perimetre(Bande.query)):
             resultat.append({'texte': f'{b.numero} · vaccin en retard : {retards[0]["calendrier"].produit.nom}',

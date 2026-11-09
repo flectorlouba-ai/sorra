@@ -48,7 +48,8 @@ def limite_jour_passe(user):
     """Jour le plus ancien que l'utilisateur peut saisir (None = sans limite)."""
     if user.profil in (Profil.AGENT, Profil.ADMIN):
         return None
-    return date.today() - timedelta(days=int(parametres.obtenir('bandes.saisie_passee_jours', 3)))
+    from app.services import hors_ligne
+    return hors_ligne.jour_de_saisie() - timedelta(days=int(parametres.obtenir('bandes.saisie_passee_jours', 3)))
 
 
 def _signer(user, bande, quoi):

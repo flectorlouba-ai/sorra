@@ -1,0 +1,16 @@
+{
+  "name": "PERFORM YL.2",
+  "short_name": "PERFORM YL.2",
+  "description": "Suivi et traçabilité de la filière avicole",
+  "lang": "fr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0c2461",
+  "theme_color": "#0c2461",
+  "icons": [
+    {"src": "/static/icones/icone-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/static/icones/icone-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "/static/icones/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

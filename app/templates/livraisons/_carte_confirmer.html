@@ -6,7 +6,7 @@
     {{ liv.date_livraison.strftime('%d/%m/%Y') }}{% if liv.fournisseur %} · {{ liv.fournisseur }}{% endif %}
     · {{ liv.ferme.nom }}
   </div>
-  <form method="post" action="{{ url_for('livraisons.tout_recu', numero=liv.numero) }}">
+  <form method="post" action="{{ url_for('livraisons.tout_recu', numero=liv.numero) }}" data-hors-ligne="Livraison du {{ liv.date_livraison.strftime('%d/%m') }} · tout reçu">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <ul class="carte-livraison-lignes">
       {% for l in liv.lignes %}

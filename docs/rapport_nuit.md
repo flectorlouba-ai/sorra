@@ -1,6 +1,30 @@
 # PERFORM YL.2 — Rapport de la nuit du 8 au 9 novembre 2026
 
-> Résumé et décisions prioritaires : voir la fin de nuit (complété après le dernier lot).
+## Résumé de la nuit
+
+1. **Les 5 lots sont terminés**, un commit chacun, sans aucune action sur le VPS :
+   - lot 3 : bandes ;
+   - lot 4 : santé animale ;
+   - lot 5 : tableaux de bord, carte, rapports ;
+   - lot 6 : lots et QR codes ;
+   - lot 7 : saisie sans réseau.
+2. **Tests automatiques :** 233 tests réussis et 1 réservé à PostgreSQL. Les nouveaux écrans ont été vérifiés dans Chromium à 360 px et 1 366 px : pas de défilement horizontal, pas d'erreur.
+3. **Bibliothèque ajoutée :** `reportlab` 5.1.0 seulement (libre, BSD), pour les PDF ; elle dessine aussi les QR codes. Rien de payant, aucun service extérieur.
+4. **Migrations ajoutées :** 0005 à 0009. Le VPS est toujours au lot 1 (le lot 2 n'y est pas non plus).
+5. **À valider en premier :**
+   - le **passage en HTTPS avec un nom de domaine avant le pilote**. Sans lui, pas de saisie sans réseau sur les téléphones. C'est aussi l'adresse imprimée à vie sur les QR codes : à régler avant la première impression réelle.
+   - les **seuils « à valider par les vétérinaires »** :
+     - feu de mortalité 0,5 / 1 % ;
+     - courbe de croissance ;
+     - calendrier vaccinal J7 à J28 et retard de 2 jours ;
+     - seuil de 2 % de mortalité à l'arrivée.
+   - **l'agent doit-il voir les déclarations sanitaires** de ses fermes ? (aujourd'hui : non)
+   - les règles choisies :
+     - comparaison avec la province affichée seulement si elle est favorable ;
+     - saisie sans réseau : « la plus récente gagne » plutôt qu'additionner.
+   - la page publique du QR code : ajouter le n° du lot ? Format des étiquettes : 21 par planche A4.
+   - le dossier des photos (`instance/televersements`) à ajouter à la sauvegarde au déploiement.
+6. **Point d'attention :** un test de vaccins a échoué une fois parce que minuit est passé pendant la suite ; relancé seul, il passe. La date « aujourd'hui » est lue une seule fois au début de ce test.
 
 Règles suivies :
 - aucun déploiement, aucune action sur le VPS ;
@@ -427,3 +451,106 @@ Construit exactement ce qui avait été proposé à l'étape 1, avec vos choix :
 - Contenu de la page publique : faut-il ajouter le n° du lot (utile pour une réclamation) ?
 - Taille et nombre d'étiquettes par planche : à adapter au papier autocollant que vous achèterez.
 - La page publique est ouverte à tous. Un très grand nombre de lectures remplirait le journal ; un limiteur pourra être ajouté au déploiement si besoin.
+
+---
+
+## Lot 7 — Hors connexion
+
+**État : terminé.** Commit « Lot 7 : saisie sans réseau ». **233 tests réussis et 1 réservé à PostgreSQL** ; 11 tests nouveaux dans `tests/test_hors_ligne.py`. Migration **0009** (deux tables). Règles détaillées dans **`docs/hors_ligne.md`**.
+
+Aucune bibliothèque ajoutée : JavaScript du navigateur seulement (service worker, IndexedDB).
+
+### Ce qui a été fait
+
+**A. Application installable.**
+- Manifeste, icônes 192 et 512 px aux couleurs de la charte, service worker servi à la racine (`/sw.js`).
+- Le navigateur n'accepte tout cela qu'en **HTTPS ou sur l'ordinateur lui-même** (localhost). **En HTTP simple** (le VPS aujourd'hui, par son adresse IP), **rien ne change** : le site marche comme avant, sans saisie sans réseau.
+
+**B. Saisie sans réseau**, pour :
+- la saisie du jour ;
+- la pesée ;
+- la sortie ;
+- la confirmation de livraison (« Tout reçu » et « J'ai reçu moins ») ;
+- la déclaration sanitaire avec photos (et message vocal).
+
+Sans réseau, « Envoyer » range la saisie sur le téléphone et revient à l'accueil. Un bandeau orange s'affiche, **« ◷ 1 saisie gardée sur le téléphone · Envoi dès le retour du réseau »**, avec la liste ◷ des saisies en attente.
+
+**C. Envoi au retour du réseau.**
+- Il part tout seul : au retour du réseau, à l'ouverture d'une page, puis toutes les 30 s.
+- Le bandeau devient vert : **« ✓ Envoyé : 2 saisies gardées sur le téléphone »**.
+- Chaque saisie porte un **identifiant unique (UUID) tiré sur le téléphone**. Le serveur le note dans la même transaction que la saisie : **un envoi rejoué n'est jamais compté deux fois**.
+- Les lignes créées portent l'identifiant de l'appareil.
+- Il n'y a **pas de numéro provisoire à afficher** :
+  - les numéros (lot tracé, alerte sanitaire) sont donnés par le serveur à l'arrivée de la saisie ;
+  - l'éleveur ne voit que ◷ puis ✓.
+
+**D. Conflits : la plus récente gagne, l'agent est prévenu.**
+- **Saisie du jour déjà faite ce jour-là** (par l'agent, ou depuis un autre téléphone) : on compare les heures. La plus récente est gardée, sans addition.
+- **Livraison déjà confirmée** : même règle.
+- **Même saisie des deux côtés** : pas de conflit.
+- Chaque conflit, et chaque saisie refusée à l'arrivée (par exemple plus de poulets sortis que de présents), crée une ligne dans le **nouvel écran « Saisies à vérifier »** de l'agent :
+  - alerte sur son accueil ;
+  - ce qui a été gardé et ce qui a été remplacé, avec les valeurs ;
+  - bouton « Vu ».
+
+**E. Saisie de lundi envoyée jeudi** : elle reste celle de lundi. La limite « 3 jours passés » de l'éleveur se compte depuis le jour de la saisie, pas depuis l'envoi.
+
+### Écrans et chemins de clics
+
+| Écran | Chemin |
+|---|---|
+| Saisie sans réseau (éleveur) | comme d'habitude : « Envoyer », « Enregistrer la pesée »… Le bandeau ◷ apparaît en haut de l'accueil. |
+| Envoi | automatique au retour du réseau ; le bandeau passe au vert ✓ |
+| Saisies à vérifier (agent) | encadré Alertes de l'accueil → « N saisies faites sans réseau à vérifier » → « Vu » |
+| Installer l'application | menu du navigateur → « Ajouter à l'écran d'accueil » (seulement en HTTPS) |
+
+### Décisions prises cette nuit (lot 7)
+
+1. **Rejouer le formulaire d'origine** sur la même adresse, plutôt que créer une seconde porte de saisie : tous les contrôles, le journal, les alertes, les stocks et les lots tracés restent ceux des écrans existants.
+2. **Avant chaque envoi, le téléphone vérifie que le serveur répond** (5 s au plus). Sur un réseau « présent mais muet », la saisie est gardée au lieu d'être perdue.
+3. **Heure du téléphone dans le futur** : ramenée à l'heure du serveur.
+4. **Saisie refusée à l'arrivée** : retirée du téléphone, montrée à l'éleveur et à l'agent. Elle n'est pas gardée indéfiniment.
+5. **Session expirée pendant l'envoi** : la saisie reste sur le téléphone ; le bandeau demande de se reconnecter.
+6. **À la connexion**, les pages gardées sur le téléphone sont effacées (confidentialité si le téléphone change de main). Les saisies en attente restent ; chacune ne part qu'avec la session de son auteur.
+7. **Deux saisies du jour faites sans réseau** sur le même téléphone, même bande, même jour : la seconde remplace la première. Sans réseau, on ne peut pas demander « ajouter ou corriger ? ».
+8. **Pages gardées** : l'accueil, et les pages Pesée, Sortie, Poulet malade et Reçu moins qu'il propose, chaque fois qu'il est ouvert avec du réseau.
+9. **Écran « Saisies à vérifier »** : seul écran nouveau, réservé à l'agent (et l'ADMIN). Sans tuile : on y arrive par l'alerte.
+
+### Tests que vous ferez demain (lot 7)
+
+**Sur l'ordinateur** : l'adresse doit être `http://127.0.0.1:5020` ou `http://localhost:5020` (lancement local habituel). Avec une autre adresse en HTTP, le mode sans réseau ne s'active pas.
+
+1. Connectez-vous en **eleveur** avec Chrome, et ouvrez l'accueil deux fois (la première installe le service worker).
+2. F12 → Réseau → « Hors connexion ». Ajoutez 2 morts → « Envoyer ». L'accueil revient avec le bandeau orange **◷ 1 saisie gardée**.
+3. Touchez « Peser » (la page s'ouvre sans réseau), puis enregistrez une pesée. Le bandeau affiche **◷ 2 saisies**.
+4. Décochez « Hors connexion ». En quelques secondes, le bandeau vert **✓ Envoyé : 2 saisies** apparaît. Rechargez : la pesée et la saisie sont là, une seule fois chacune.
+5. **Conflit** :
+   - en **agent.est**, faites la saisie du jour d'une bande ;
+   - en **eleveur**, hors connexion, faites une autre saisie du même jour, puis rétablissez le réseau ;
+   - en **agent.est**, l'alerte « 1 saisie faite sans réseau à vérifier » apparaît ; l'écran dit laquelle est gardée → « Vu ».
+6. **Téléphone** : à faire une fois le site en **HTTPS**. Mode avion pendant une saisie, puis réseau rétabli.
+
+### Points à valider (lot 7)
+
+- **HTTPS et nom de domaine** : indispensables pour la saisie sans réseau sur les téléphones, avant le pilote. C'est aussi l'adresse qui sera imprimée sur les QR codes (lot 6).
+- **Règle « la plus récente gagne »** pour la saisie du jour. Une autre règle possible serait « additionner les morts ». À valider avec les agents.
+- **Test terrain** sur un vrai Android d'entrée de gamme, avec un réseau faible.
+
+---
+
+## Liste de contrôle d'ergonomie (`docs/ergonomie.md`, relu au début de chaque lot)
+
+| Règle | Lot 3 | Lot 4 | Lot 5 | Lot 6 | Lot 7 |
+|---|---|---|---|---|---|
+| Un seul bouton mis en avant | ✓ | ✓ | ✓ | ✓ (Imprimer les étiquettes) | ✓ (aucun bouton nouveau pour l'éleveur) |
+| Action courante en 3 clics au plus | ✓ | ✓ | ✓ | ✓ | ✓ (rien de plus à faire) |
+| Aucun bouton ni tuile inutilisable | ✓ | ✓ | ✓ | ✓ (VETO : seule tuile utile) | ✓ |
+| Aucun mot technique visible | ✓ | ✓ | ✓ sauf écran Formules (1) | ✓ sauf adresse du QR (2) | ✓ (« gardée sur le téléphone », ◷, ✓) |
+| 360 px sans défilement horizontal | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Saisie du jour de l'éleveur en moins de 30 s | ✓ | ✓ inchangée | inchangée | inchangée | ✓ mêmes gestes, avec ou sans réseau |
+| Rien d'ajouté sans demande | ✓ | ✓ | ✓ | (3) | (4) |
+
+1. L'écran Formules, réservé à l'ADMIN, montre les noms de variables (`mis_en_place`…) : on ne peut pas écrire une formule sans eux. Chaque nom a son libellé en clair à côté.
+2. La fiche interne du lot affiche l'adresse contenue dans le QR, pour vérifier une étiquette. La page publique n'en montre aucune.
+3. « Annuler ce lot » (ADMIN) : nécessaire pour qu'un code puisse devenir « annulé », comme le demande le cahier.
+4. Écran « Saisies à vérifier » de l'agent : nécessaire pour « le conflit est signalé à l'agent ». Pas de tuile : on y arrive par l'alerte.
