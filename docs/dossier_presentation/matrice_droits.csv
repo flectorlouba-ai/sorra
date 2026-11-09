@@ -1,0 +1,199 @@
+﻿Écran / action;Adresse;Fonction;Méthodes;Accès;ADMIN;DGE;AGENT;VETO;ELEVEUR;AUDITEUR;BCEG;MAEDR;OPÉRATEUR — Abattoir;OPÉRATEUR — Marché;OPÉRATEUR — Acheteur;OPÉRATEUR — Distributeur
+index;/;accueil.index;GET;tout compte connecté;Voir;Voir;Voir (son périmètre);Voir (son périmètre);Voir (son périmètre);Voir (son périmètre);Voir (son périmètre);Voir (son périmètre);Voir (son périmètre);Voir (son périmètre);Voir (son périmètre);Voir (son périmètre)
+annuler achat;/achats/<numero>/annuler;eleveur.annuler_achat;POST;ELEVEUR;—;—;—;—;Valider;—;—;—;—;—;—;—
+corriger achat;/achats/<numero>/corriger;eleveur.corriger_achat;GET+POST;ADMIN, AGENT;Valider;—;Valider;—;—;—;—;—;—;—;—;—
+recu;/achats/<numero>/recu;eleveur.recu;GET;ADMIN, AGENT, DGE, ELEVEUR;Voir;Voir;Voir (son périmètre);—;Voir (son périmètre);—;—;—;—;—;—;—
+administrer;/administration/aides;aides.administrer;GET+POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+index;/administration/catalogue/;catalogue.index;GET;ADMIN;Voir;—;—;—;—;—;—;—;—;—;—;—
+modifier;/administration/catalogue/<int:produit_id>/modifier;catalogue.modifier;POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+creer;/administration/catalogue/creer;catalogue.creer;POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+taches;/administration/entretien;entretien.taches;GET+POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+index;/administration/listes/;listes.index;GET;ADMIN;Voir;—;—;—;—;—;—;—;—;—;—;—
+ajouter;/administration/listes/ajouter;listes.ajouter;POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+modifier;/administration/listes/modifier/<int:id>;listes.modifier;POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+reordonner;/administration/listes/reordonner;listes.reordonner;POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+index;/administration/parametres/;parametres.index;GET;ADMIN;Voir;—;—;—;—;—;—;—;—;—;—;—
+modifier;/administration/parametres/<int:param_id>/modifier;parametres.modifier;POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+index;/administration/provinces/;referentiel.index;GET;ADMIN;Voir;—;—;—;—;—;—;—;—;—;—;—
+creer localite;/administration/provinces/<int:province_id>/localites/creer;referentiel.creer_localite;POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+modifier province;/administration/provinces/<int:province_id>/modifier;referentiel.modifier_province;POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+Rattache les fermes et opérateurs de la localité à une localité existante,;/administration/provinces/localites/<int:localite_id>/fusionner;referentiel.fusionner_localite;POST;ADMIN;Valider;—;—;—;—;—;—;—;—;—;—;—
+modifier localite;/administration/provinces/localites/<int:localite_id>/modifier;referentiel.modifier_localite;POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+valider localite;/administration/provinces/localites/<int:localite_id>/valider;referentiel.valider_localite;POST;ADMIN;Valider;—;—;—;—;—;—;—;—;—;—;—
+index;/administration/utilisateurs/;utilisateurs.index;GET;ADMIN;Voir;—;—;—;—;—;—;—;—;—;—;—
+debloquer;/administration/utilisateurs/<user_id>/debloquer;utilisateurs.debloquer;POST;ADMIN;Valider;—;—;—;—;—;—;—;—;—;—;—
+modifier;/administration/utilisateurs/<user_id>/modifier;utilisateurs.modifier;POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+Lot 15 : téléphone perdu — la mise en place recommencera à la connexion suivante.;/administration/utilisateurs/<user_id>/reinitialiser-2fa;utilisateurs.reinitialiser_2fa;POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+creer;/administration/utilisateurs/creer;utilisateurs.creer;POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+agents;/agents;dge.agents;GET;ADMIN, DGE;Voir;Voir;—;—;—;—;—;—;—;—;—;—
+reaffecter;/agents/reaffecter;dge.reaffecter;POST;ADMIN, DGE;Saisir;Saisir;—;—;—;—;—;—;—;—;—;—
+liste;/aide;aides.liste;GET;AGENT, ELEVEUR, OPERATEUR;—;—;Voir;—;Voir;—;—;—;Voir;Voir;Voir;Voir
+aide;/aide/<cle>;aides.aide;GET;AGENT, ELEVEUR, OPERATEUR;—;—;Voir;—;Voir;—;—;—;Voir;Voir;Voir;Voir
+aller;/aller/<quoi>;eleveur.aller;GET;ELEVEUR;—;—;—;—;Voir (son périmètre);—;—;—;—;—;—;—
+approbations ecran;/approbations;controle.approbations_ecran;GET;ADMIN, DGE, VETO;Voir;Voir;—;Voir;—;—;—;—;—;—;—;—
+decider;/approbations/<int:ident>;controle.decider;POST;ADMIN, DGE, VETO;Valider;Valider;—;Valider;—;—;—;—;—;—;—;—
+Second facteur : code de l'application (6 chiffres) ou code de secours (usage unique).;/auth/2fa;auth.deux_facteurs;GET+POST;public;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir
+Les 8 codes de secours, affichés UNE seule fois.;/auth/2fa/codes-de-secours;auth.codes_secours;GET;tout compte connecté;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir
+Mise en place guidée : à la première connexion d'un profil obligatoire, ou depuis « Ma sécurité ».;/auth/2fa/mise-en-place;auth.mise_en_place;GET+POST;public;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir
+connexion;/auth/connexion;auth.connexion;GET+POST;public;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir
+deconnexion;/auth/deconnexion;auth.deconnexion;POST;tout compte connecté;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir
+mot de passe;/auth/mot-de-passe;auth.mot_de_passe;GET+POST;tout compte connecté;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir
+securite;/auth/securite;auth.securite;GET;tout compte connecté;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir
+fermer session;/auth/sessions/<sid>/fermer;auth.fermer_session;POST;tout compte connecté;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir;Saisir
+liste;/bandes/;bandes.liste;GET;ADMIN, AGENT, DGE, VETO;Voir;Voir;Voir (son périmètre);Voir (son périmètre);—;—;—;—;—;—;—;—
+fiche;/bandes/<numero>;bandes.fiche;GET;ADMIN, AGENT, DGE, VETO;Voir;Voir;Voir (son périmètre);Voir (son périmètre);—;—;—;—;—;—;—;—
+bilan;/bandes/<numero>/bilan;bandes.bilan;GET;ADMIN, AGENT, DGE, ELEVEUR, VETO;Voir;Voir;Voir (son périmètre);Voir (son périmètre);Voir (son périmètre);—;—;—;—;—;—;—
+cloturer;/bandes/<numero>/cloturer;bandes.cloturer;POST;ADMIN, AGENT, ELEVEUR;Saisir;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+corriger;/bandes/<numero>/corriger/<quoi>/<ident>;bandes.corriger;GET+POST;ADMIN, AGENT;Valider;—;Valider;—;—;—;—;—;—;—;—;—
+oublie;/bandes/<numero>/oublie;bandes.oublie;GET;AGENT, ELEVEUR;—;—;Voir (son périmètre);—;Voir (son périmètre);—;—;—;—;—;—;—
+pesee;/bandes/<numero>/pesee;bandes.pesee;GET+POST;AGENT, ELEVEUR;—;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+saisie;/bandes/<numero>/saisie;bandes.saisie;POST;AGENT, ELEVEUR;—;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+L'agent saisit pour l'éleveur, avec le même bloc que l'éleveur.;/bandes/<numero>/saisir;bandes.saisir;GET;AGENT;—;—;Voir (son périmètre);—;—;—;—;—;—;—;—;—
+sortie;/bandes/<numero>/sortie;bandes.sortie;GET+POST;AGENT, ELEVEUR;—;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+Historique de l'éleveur : ses bandes, avec les étoiles des bandes terminées.;/bandes/mes-bandes;bandes.mes_bandes;GET;ELEVEUR;—;—;—;—;Voir (son périmètre);—;—;—;—;—;—;—
+ouvrir;/bandes/ouvrir;bandes.ouvrir;GET+POST;ADMIN, AGENT, ELEVEUR;Saisir;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+rattrapage;/bandes/rattrapage;bandes.rattrapage;GET+POST;ADMIN, AGENT;Saisir;—;Saisir;—;—;—;—;—;—;—;—;—
+classement;/classement;dge.classement;GET;ADMIN, DGE;Voir;Voir;—;—;—;—;—;—;—;—;—;—
+classement csv;/classement.csv;dge.classement_csv;GET;ADMIN, DGE;Voir;Voir;—;—;—;—;—;—;—;—;—;—
+commandes;/commandes;agent.commandes;GET;ADMIN, AGENT, DGE;Voir;Voir;Voir (son périmètre);—;—;—;—;—;—;—;—;—
+creer livraison;/commandes/<int:ident>/creer-livraison;dge.creer_livraison;POST;ADMIN, DGE;Saisir;Saisir;—;—;—;—;—;—;—;—;—;—
+decider;/commandes/<int:ident>/decider;agent.decider;POST;ADMIN, DGE;Valider;Valider;—;—;—;—;—;—;—;—;—;—
+commander;/commandes/nouvelle;agent.commander;POST;AGENT;—;—;Saisir;—;—;—;—;—;—;—;—;—
+configuration;/configuration;controle.configuration;GET;ADMIN;Voir;—;—;—;—;—;—;—;—;—;—;—
+annuler;/depenses/<numero>/annuler;argent.annuler;POST;ELEVEUR;—;—;—;—;Valider;—;—;—;—;—;—;—
+corriger;/depenses/<numero>/corriger;argent.corriger;GET+POST;ADMIN, AGENT;Valider;—;Valider;—;—;—;—;—;—;—;—;—
+recu;/depenses/<numero>/recu;argent.recu;GET;ADMIN, AGENT, ELEVEUR;Voir;—;Voir (son périmètre);—;Voir (son périmètre);—;—;—;—;—;—;—
+ecran;/entretien;entretien.ecran;GET;AGENT, ELEVEUR;—;—;Voir (son périmètre);—;Voir (son périmètre);—;—;—;—;—;—;—
+fait;/entretien/fait;entretien.fait;POST;AGENT, ELEVEUR;—;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+annuler fait;/entretien/fait/annuler;entretien.annuler_fait;POST;AGENT, ELEVEUR;—;—;Valider;—;Valider;—;—;—;—;—;—;—
+panne;/entretien/panne;entretien.panne;GET+POST;AGENT, ELEVEUR;—;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+annuler reparation;/entretien/panne/<uuid:ident>/annuler;entretien.annuler_reparation;POST;AGENT, ELEVEUR;—;—;Valider;—;Valider;—;—;—;—;—;—;—
+photo;/entretien/panne/<uuid:ident>/photo;entretien.photo;GET;ADMIN, AGENT, DGE, ELEVEUR;Voir;Voir;Voir (son périmètre);—;Voir (son périmètre);—;—;—;—;—;—;—
+reparee;/entretien/panne/<uuid:ident>/reparee;entretien.reparee;POST;AGENT, ELEVEUR;—;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+liste;/fermes/;fermes.liste;GET;ADMIN, AGENT, DGE, VETO;Voir;Voir;Voir (son périmètre);Voir (son périmètre);—;—;—;—;—;—;—;—
+fiche;/fermes/<numero>;fermes.fiche;GET;ADMIN, AGENT, DGE, VETO;Voir;Voir;Voir (son périmètre);Voir (son périmètre);—;—;—;—;—;—;—;—
+modifier batiment;/fermes/<numero>/batiments/<int:batiment_id>/modifier;fermes.modifier_batiment;POST;ADMIN, AGENT, DGE;Saisir;Saisir;Saisir;—;—;—;—;—;—;—;—;—
+ajouter batiment;/fermes/<numero>/batiments/ajouter;fermes.ajouter_batiment;POST;ADMIN, AGENT, DGE;Saisir;Saisir;Saisir;—;—;—;—;—;—;—;—;—
+"Ferme financée par la BCEG et responsable (agent de la ferme, ADMIN). Journal automatique ;";/fermes/<numero>/bceg;fermes.regler_bceg;POST;ADMIN, AGENT;Valider;—;Valider;—;—;—;—;—;—;—;—;—
+biosecurite;/fermes/<numero>/biosecurite;agent.biosecurite;GET+POST;AGENT;—;—;Saisir;—;—;—;—;—;—;—;—;—
+nouvel eleveur;/fermes/<numero>/eleveurs/nouveau;agent.nouvel_eleveur;GET+POST;ADMIN, AGENT;Saisir;—;Saisir;—;—;—;—;—;—;—;—;—
+modifier;/fermes/<numero>/modifier;fermes.modifier;GET+POST;ADMIN, AGENT, DGE;Saisir;Saisir;Saisir;—;—;—;—;—;—;—;—;—
+compter;/fermes/<numero>/stock/compter;agent.compter;POST;ADMIN, AGENT;Saisir;—;Saisir;—;—;—;—;—;—;—;—;—
+compte rendu;/fermes/<numero>/visites/compte-rendu;visites.compte_rendu;GET+POST;AGENT;—;—;Saisir;—;—;—;—;—;—;—;—;—
+planifier;/fermes/<numero>/visites/planifier;visites.planifier;GET+POST;AGENT;—;—;Saisir;—;—;—;—;—;—;—;—;—
+import page;/fermes/import;fermes.import_page;GET;ADMIN;Voir;—;—;—;—;—;—;—;—;—;—;—
+import importer;/fermes/import/importer;fermes.import_importer;POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+import modele;/fermes/import/modele.xlsx;fermes.import_modele;GET;ADMIN;Voir;—;—;—;—;—;—;—;—;—;—;—
+import rapport;/fermes/import/rapport/<jeton>.xlsx;fermes.import_rapport;GET;ADMIN;Voir;—;—;—;—;—;—;—;—;—;—;—
+import verifier;/fermes/import/verifier;fermes.import_verifier;POST;ADMIN;Valider;—;—;—;—;—;—;—;—;—;—;—
+nouvelle;/fermes/nouvelle;fermes.nouvelle;GET+POST;ADMIN, AGENT, DGE;Saisir;Saisir;Saisir;—;—;—;—;—;—;—;—;—
+conflits;/hors-ligne/a-verifier;hors_ligne.conflits;GET;ADMIN, AGENT, DGE;Voir;Voir;Voir (son périmètre);—;—;—;—;—;—;—;—;—
+trancher;/hors-ligne/a-verifier/<int:ident>/trancher;hors_ligne.trancher;POST;ADMIN, AGENT, DGE;Valider;Valider;Valider;—;—;—;—;—;—;—;—;—
+vu;/hors-ligne/a-verifier/<int:ident>/vu;hors_ligne.vu;POST;ADMIN, AGENT, DGE;Saisir;Saisir;Saisir;—;—;—;—;—;—;—;—;—
+Jeton de formulaire frais pour envoyer les saisies gardées sur le téléphone.;/hors-ligne/jeton;hors_ligne.jeton;GET;public;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir
+pages;/hors-ligne/pages;hors_ligne.pages;GET;AGENT, ELEVEUR, OPERATEUR;—;—;Voir (son périmètre);—;Voir (son périmètre);—;—;—;Voir (son périmètre);Voir (son périmètre);Voir (son périmètre);Voir (son périmètre)
+ping;/hors-ligne/ping;hors_ligne.ping;GET;public;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir
+integrite;/integrite;controle.integrite;GET;ADMIN, AUDITEUR;Voir;—;—;—;—;Voir;—;—;—;—;—;—
+achat;/j-ai-achete;eleveur.achat;GET+POST;AGENT, ELEVEUR;—;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+payer;/j-ai-paye;argent.payer;GET+POST;AGENT, ELEVEUR;—;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+index;/journal/;journal.index;GET;ADMIN, AUDITEUR;Voir;—;—;—;—;Voir;—;—;—;—;—;—
+detail;/journal/<int:ligne_id>;journal.detail;GET;ADMIN, AUDITEUR;Voir;—;—;—;—;Voir;—;—;—;—;—;—
+export;/journal/export.csv;journal.export;GET;ADMIN, AUDITEUR;Voir;—;—;—;—;Voir;—;—;—;—;—;—
+scans;/journal/scans;journal.scans;GET;ADMIN, AUDITEUR, DGE;Voir;Voir;—;—;—;Voir;—;—;—;—;—;—
+scans export;/journal/scans.csv;journal.scans_export;GET;ADMIN, AUDITEUR, DGE;Voir;Voir;—;—;—;Voir;—;—;—;—;—;—
+annuler;/livraisons-etat/<numero>/annuler;dge.annuler;POST;ADMIN, DGE;Valider;Valider;—;—;—;—;—;—;—;—;—;—
+livree;/livraisons-etat/<numero>/livree;dge.livree;POST;ADMIN, DGE;Saisir;Saisir;—;—;—;—;—;—;—;—;—;—
+planning;/livraisons-etat/planning;dge.planning;GET;ADMIN, DGE;Voir;Voir;—;—;—;—;—;—;—;—;—;—
+prevoir;/livraisons-etat/prevoir;dge.prevoir;POST;ADMIN, DGE;Saisir;Saisir;—;—;—;—;—;—;—;—;—;—
+liste;/livraisons/;livraisons.liste;GET;ADMIN, AGENT, DGE;Voir;Voir;Voir (son périmètre);—;—;—;—;—;—;—;—;—
+fiche;/livraisons/<numero>;livraisons.fiche;GET;ADMIN, AGENT, DGE;Voir;Voir;Voir (son périmètre);—;—;—;—;—;—;—;—;—
+annuler;/livraisons/<numero>/annuler;livraisons.annuler;POST;ADMIN, DGE;Valider;Valider;—;—;—;—;—;—;—;—;—;—
+annuler confirmation;/livraisons/<numero>/annuler-confirmation;livraisons.annuler_confirmation;POST;AGENT, ELEVEUR;—;—;Valider;—;Valider;—;—;—;—;—;—;—
+Écran de confirmation de l'agent pour le compte de l'éleveur (même carte que l'éleveur).;/livraisons/<numero>/confirmer;livraisons.confirmer;GET;AGENT;—;—;Voir (son périmètre);—;—;—;—;—;—;—;—;—
+corriger;/livraisons/<numero>/corriger;livraisons.corriger;GET+POST;ADMIN, AGENT;Valider;—;Valider;—;—;—;—;—;—;—;—;—
+modifier;/livraisons/<numero>/modifier;livraisons.modifier;GET+POST;ADMIN, AGENT, DGE;Saisir;Saisir;Saisir;—;—;—;—;—;—;—;—;—
+recu moins;/livraisons/<numero>/recu-moins;livraisons.recu_moins;GET+POST;AGENT, ELEVEUR;—;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+tout recu;/livraisons/<numero>/tout-recu;livraisons.tout_recu;POST;AGENT, ELEVEUR;—;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+mes livraisons;/livraisons/mes-livraisons;livraisons.mes_livraisons;GET;ELEVEUR;—;—;—;—;Voir (son périmètre);—;—;—;—;—;—;—
+nouvelle;/livraisons/nouvelle;livraisons.nouvelle;GET+POST;ADMIN, AGENT, DGE;Saisir;Saisir;Saisir;—;—;—;—;—;—;—;—;—
+ma bande;/ma-bande;eleveur.ma_bande;GET;ELEVEUR;—;—;—;—;Voir (son périmètre);—;—;—;—;—;—;—
+ma banque;/ma-banque;eleveur.ma_banque;GET;ELEVEUR;—;—;—;—;Voir;—;—;—;—;—;—;—
+repondre banque;/ma-banque/<numero>;eleveur.repondre_banque;POST;ELEVEUR;—;—;—;—;Saisir;—;—;—;—;—;—;—
+Retirer son accord : confirmation obligatoire (action rare et sensible, 4 touchers).;/ma-banque/<numero>/retirer;eleveur.retirer_banque;GET;ELEVEUR;—;—;—;—;Voir;—;—;—;—;—;—;—
+produits;/mes-produits;eleveur.produits;GET;ELEVEUR;—;—;—;—;Voir (son périmètre);—;—;—;—;—;—;—
+mes visites;/mes-visites;visites.mes_visites;GET;ELEVEUR;—;—;—;—;Voir (son périmètre);—;—;—;—;—;—;—
+moi;/moi;eleveur.moi;GET;ELEVEUR;—;—;—;—;Voir (son périmètre);—;—;—;—;—;—;—
+mon argent;/mon-argent;argent.mon_argent;GET;ELEVEUR;—;—;—;—;Voir (son périmètre);—;—;—;—;—;—;—
+mon compte;/mon-compte;eleveur.mon_compte;GET+POST;ELEVEUR;—;—;—;—;Saisir;—;—;—;—;—;—;—
+stock;/mon-stock;eleveur.stock;GET;ELEVEUR;—;—;—;—;Voir (son périmètre);—;—;—;—;—;—;—
+attendus;/operateur/attendus;operateur.attendus;GET;OPERATEUR;—;—;—;—;—;—;—;—;Voir;Voir;Voir;Voir
+Résultat d'un scan (QR lu par la caméra) ou d'un numéro tapé : chaque lecture est inscrite au journal.;/operateur/lot;operateur.lot;GET;OPERATEUR;—;—;—;—;—;—;—;—;Voir;Voir;Voir;Voir
+receptions;/operateur/receptions;operateur.receptions;GET;OPERATEUR;—;—;—;—;—;—;—;—;Voir (son périmètre);Voir (son périmètre);Voir (son périmètre);Voir (son périmètre)
+reception;/operateur/receptions/<ident>;operateur.reception;GET;ADMIN, DGE, OPERATEUR, VETO;Voir;Voir;—;Voir (son périmètre);—;—;—;—;Voir (son périmètre);Voir (son périmètre);Voir (son périmètre);Voir (son périmètre)
+decider;/operateur/receptions/<ident>/decider;operateur.decider;POST;VETO;—;—;—;Valider;—;—;—;—;—;—;—;—
+expliquer;/operateur/receptions/<ident>/expliquer;operateur.expliquer;POST;OPERATEUR;—;—;—;—;—;—;—;—;Saisir;Saisir;Saisir;Saisir
+recevoir;/operateur/recevoir;operateur.recevoir;POST;OPERATEUR;—;—;—;—;—;—;—;—;Saisir;Saisir;Saisir;Saisir
+scanner;/operateur/scanner;operateur.scanner;GET;OPERATEUR;—;—;—;—;—;—;—;—;Voir;Voir;Voir;Voir
+liste;/operateurs/;operateurs.liste;GET;ADMIN, AGENT, DGE;Voir;Voir;Voir (son périmètre);—;—;—;—;—;—;—;—;—
+fiche;/operateurs/<numero>;operateurs.fiche;GET;ADMIN, AGENT, DGE;Voir;Voir;Voir (son périmètre);—;—;—;—;—;—;—;—;—
+modifier;/operateurs/<numero>/modifier;operateurs.modifier;GET+POST;ADMIN, DGE;Saisir;Saisir;—;—;—;—;—;—;—;—;—;—
+nouveau;/operateurs/nouveau;operateurs.nouveau;GET+POST;ADMIN, DGE;Saisir;Saisir;—;—;—;—;—;—;—;—;—;—
+parametres;/parametres-sanitaires;veto.parametres;GET;VETO;—;—;—;Voir;—;—;—;—;—;—;—;—
+proposer;/parametres-sanitaires/<int:param_id>;veto.proposer;POST;VETO;—;—;—;Saisir;—;—;—;—;—;—;—;—
+carte;/pilotage/carte;pilotage.carte;GET;ADMIN, DGE;Voir;Voir;—;—;—;—;—;—;—;—;—;—
+exporter;/pilotage/exports/<quoi>.<format>;pilotage.exporter;GET;ADMIN, AGENT, DGE, VETO;Voir;Voir;Voir;Voir;—;—;—;—;—;—;—;—
+formules;/pilotage/formules;pilotage.formules;GET+POST;ADMIN;Saisir;—;—;—;—;—;—;—;—;—;—;—
+rapports;/pilotage/rapports;pilotage.rapports;GET;ADMIN, DGE;Voir;Voir;—;—;—;—;—;—;—;—;—;—
+rapport bande;/pilotage/rapports/bande/<numero>.pdf;pilotage.rapport_bande;GET;ADMIN, AGENT, DGE, VETO;Voir;Voir;Voir (son périmètre);Voir (son périmètre);—;—;—;—;—;—;—;—
+rapport hebdo;/pilotage/rapports/hebdomadaire.pdf;pilotage.rapport_hebdo;GET;ADMIN, DGE;Voir;Voir;—;—;—;—;—;—;—;—;—;—
+rapport mensuel;/pilotage/rapports/mensuel.pdf;pilotage.rapport_mensuel;GET;ADMIN, DGE;Voir;Voir;—;—;—;—;—;—;—;—;—;—
+tableau;/pilotage/tableau-de-bord;pilotage.tableau;GET;ADMIN, AGENT, DGE, VETO;Voir;Voir;Voir (son périmètre);Voir (son périmètre);—;—;—;—;—;—;—;—
+presentation;/presentation;eleveur.presentation;GET;ELEVEUR;—;—;—;—;Voir (son périmètre);—;—;—;—;—;—;—
+« Passer » ou « C'est parti ! » : vue une fois pour ce compte (gardé sur le serveur).;/presentation/vue;eleveur.presentation_vue;POST;ELEVEUR;—;—;—;—;Saisir;—;—;—;—;—;—;—
+qr;/q/<code>;public.qr;GET;public;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir
+rapport garde;/rapports/mensuels/<mois>.pdf;dge.rapport_garde;GET;ADMIN, DGE;Voir;Voir;—;—;—;—;—;—;—;—;—;—
+recherche;/recherche-lots;veto.recherche;GET;ADMIN, DGE, VETO;Voir;Voir;—;Voir;—;—;—;—;—;—;—;—
+recherche csv;/recherche-lots.csv;veto.recherche_csv;GET;ADMIN, DGE, VETO;Voir;Voir;—;Voir;—;—;—;—;—;—;—;—
+saisie;/saisie-du-jour;eleveur.saisie;GET;ELEVEUR;—;—;—;—;Voir (son périmètre);—;—;—;—;—;—;—
+alertes;/sante/alertes;sante.alertes;GET;ADMIN, DGE, VETO;Voir;Voir;—;Voir;—;—;—;—;—;—;—;—
+alerte;/sante/alertes/<numero>;sante.alerte;GET+POST;ADMIN, DGE, VETO;Saisir;Saisir;—;Saisir;—;—;—;—;—;—;—;—
+diagnostic;/sante/alertes/<numero>/diagnostic;veto.diagnostic;POST;VETO;—;—;—;Saisir;—;—;—;—;—;—;—;—
+Réponse du vétérinaire à l'éleveur (lot 12).;/sante/alertes/<numero>/repondre;sante.repondre;POST;VETO;—;—;—;Saisir;—;—;—;—;—;—;—;—
+calendrier enregistrer;/sante/calendrier;sante.calendrier_enregistrer;POST;ADMIN, VETO;Saisir;—;—;Saisir;—;—;—;—;—;—;—;—
+calendrier valider;/sante/calendrier/valider;sante.calendrier_valider;POST;VETO;—;—;—;Valider;—;—;—;—;—;—;—;—
+Conseil affiché à l'éleveur au feu rouge (paramètre, inscrit au journal).;/sante/conseil;sante.conseil;POST;ADMIN, VETO;Saisir;—;—;Saisir;—;—;—;—;—;—;—;—
+declarations;/sante/declarations;sante.declarations;GET;ADMIN, VETO;Voir;—;—;Voir;—;—;—;—;—;—;—;—
+Photo ou message vocal : servis seulement à ceux qui voient la déclaration.;/sante/declarations/<uuid:ident>/<genre>/<nom>;sante.fichier;GET;ADMIN, ELEVEUR, VETO;Voir;—;—;Voir;Voir;—;—;—;—;—;—;—
+declarer;/sante/declarer;sante.declarer;GET+POST;AGENT, ELEVEUR;—;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+mes declarations;/sante/mes-declarations;sante.mes_declarations;GET;ELEVEUR;—;—;—;—;Voir;—;—;—;—;—;—;—
+traiter;/sante/traiter/<numero>;sante.traiter;GET+POST;AGENT, ELEVEUR;—;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+vacciner;/sante/vacciner/<numero>;sante.vacciner;GET+POST;AGENT, ELEVEUR;—;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+vaccins;/sante/vaccins;sante.vaccins;GET;ADMIN, AGENT, VETO;Voir;—;Voir (son périmètre);Voir (son périmètre);—;—;—;—;—;—;—;—
+sessions;/sessions;controle.sessions;GET;ADMIN;Voir;—;—;—;—;—;—;—;—;—;—;—
+surveillance;/surveillance;veto.surveillance;GET;ADMIN, VETO;Voir;—;—;Voir (son périmètre);—;—;—;—;—;—;—;—
+lever;/surveillance/<int:ident>/lever;veto.lever;POST;VETO;—;—;—;Valider;—;—;—;—;—;—;—;—
+bloquer;/surveillance/bloquer;veto.bloquer;POST;VETO;—;—;—;Valider;—;—;—;—;—;—;—;—
+verifier sortie;/surveillance/sorties/<uuid:ident>;veto.verifier_sortie;POST;VETO;—;—;—;Valider;—;—;—;—;—;—;—;—
+"Servi à la racine pour couvrir tout le site ; jamais gardé en cache par le navigateur.";/sw.js;hors_ligne.service_worker;GET;public;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir;Voir
+bureau;/terrain/bureau;terrain.bureau;GET;AGENT;—;—;Voir;—;—;—;—;—;—;—;—;—
+fermes;/terrain/fermes;terrain.fermes;GET;AGENT;—;—;Voir;—;—;—;—;—;—;—;—;—
+fiche;/terrain/fermes/<numero>;terrain.fiche;GET;AGENT;—;—;Voir (son périmètre);—;—;—;—;—;—;—;—;—
+moi;/terrain/moi;terrain.moi;GET;AGENT, OPERATEUR;—;—;Voir;—;—;—;—;—;Voir;Voir;Voir;Voir
+nouvel eleveur;/terrain/nouvel-eleveur;terrain.nouvel_eleveur;GET;AGENT;—;—;Voir;—;—;—;—;—;—;—;—;—
+presentation;/terrain/presentation;terrain.presentation;GET;AGENT, OPERATEUR;—;—;Voir;—;—;—;—;—;Voir;Voir;Voir;Voir
+presentation vue;/terrain/presentation/vue;terrain.presentation_vue;POST;AGENT, OPERATEUR;—;—;Saisir;—;—;—;—;—;Saisir;Saisir;Saisir;Saisir
+saisir;/terrain/saisir;terrain.saisir;GET;AGENT;—;—;Voir (son périmètre);—;—;—;—;—;—;—;—;—
+stock;/terrain/stock;terrain.stock;GET;AGENT;—;—;Voir (son périmètre);—;—;—;—;—;—;—;—;—
+tournee;/terrain/tournee;terrain.tournee;GET;AGENT;—;—;Voir;—;—;—;—;—;—;—;—;—
+version terrain;/terrain/version-terrain;terrain.version_terrain;GET;AGENT;—;—;Voir;—;—;—;—;—;—;—;—;—
+visite;/terrain/visite;terrain.visite;GET;AGENT;—;—;Voir (son périmètre);—;—;—;—;—;—;—;—;—
+tournee;/tournee;agent.tournee;GET;AGENT;—;—;Voir;—;—;—;—;—;—;—;—;—
+lots;/tracabilite/lots;tracabilite.lots;GET;ADMIN, AGENT, DGE, VETO;Voir;Voir;Voir (son périmètre);Voir (son périmètre);—;—;—;—;—;—;—;—
+lot;/tracabilite/lots/<numero>;tracabilite.lot;GET;ADMIN, AGENT, DGE, VETO;Voir;Voir;Voir (son périmètre);Voir (son périmètre);—;—;—;—;—;—;—;—
+annuler;/tracabilite/lots/<numero>/annuler;tracabilite.annuler;POST;ADMIN;Valider;—;—;—;—;—;—;—;—;—;—;—
+etiquettes;/tracabilite/lots/<numero>/etiquettes.pdf;tracabilite.etiquettes;GET;ADMIN, AGENT, DGE, VETO;Voir;Voir;Voir (son périmètre);Voir (son périmètre);—;—;—;—;—;—;—;—
+annuler vaccin;/vaccinations/<uuid:ident>/annuler;eleveur.annuler_vaccin;POST;ELEVEUR;—;—;—;—;Valider;—;—;—;—;—;—;—
+soins;/vaccins-et-soins;eleveur.soins;GET;ELEVEUR;—;—;—;—;Voir (son périmètre);—;—;—;—;—;—;—
+montant vente;/ventes/<uuid:ident>/montant;argent.montant_vente;GET+POST;ADMIN, AGENT, ELEVEUR;Saisir;—;Saisir;—;Saisir;—;—;—;—;—;—;—
+annuler;/visites/<uuid:ident>/annuler;visites.annuler;POST;AGENT;—;—;Valider;—;—;—;—;—;—;—;—;—
+photo;/visites/<uuid:ident>/photo;visites.photo;GET;ADMIN, AGENT, DGE, ELEVEUR;Voir;Voir;Voir (son périmètre);—;Voir (son périmètre);—;—;—;—;—;—;—

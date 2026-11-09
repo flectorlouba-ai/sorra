@@ -1,0 +1,69 @@
+﻿N°;Volet;Sujet;Fonction;Priorité (cahier des charges);État;Lot;Ce qui est en place / ce qui manque
+1;Suivi technico-économique;Exploitations (fermes);Fiche d'identification de la ferme;Obligatoire MVP;Fait;1;Fiche, identifiant automatique province + n° d'ordre, import POUFA, doublons bloqués
+2;Suivi technico-économique;Exploitations (fermes);Géolocalisation de la ferme;Obligatoire MVP;Fait;1;"Relevé GPS sur place, contrôle « hors province » ; distance à la ferme : lot 19 bis"
+3;Suivi technico-économique;Exploitations (fermes);Capacités et infrastructures;Obligatoire MVP;Fait;1;Bâtiments, places, infrastructures
+4;Suivi technico-économique;Exploitations (fermes);Statut de la ferme;Obligatoire MVP;Fait;1;Statuts paramétrables, historique, cohortes
+5;Suivi technico-économique;Exploitations (fermes);Financement BCEG et consentement;Phase ultérieure;Fait;13;Case BCEG, responsable, consentement daté, retrait, accès BCEG filtré
+6;Suivi technico-économique;Bandes d'élevage;Ouverture d'une bande (mise en place);Obligatoire MVP;Fait;3;"Depuis la livraison de poussins ; rattrapage d'une bande en cours"
+7;Suivi technico-économique;Bandes d'élevage;Fiche d'élevage : effectifs, mortalités, aliment;Obligatoire MVP;Fait;3, 12;Morts et aliment en sacs, « case vide ≠ zéro », « Comme hier »
+8;Suivi technico-économique;Bandes d'élevage;Pesées;Obligatoire MVP;Fait;3;Pesée, poids moyen, écart à la courbe
+9;Suivi technico-économique;Bandes d'élevage;Sorties d'animaux;Obligatoire MVP;Fait;3, 17;Sorties ≤ effectif, motifs, blocage vétérinaire
+10;Suivi technico-économique;Bandes d'élevage;Clôture et bilan de bande;Obligatoire MVP;Fait;3;Clôture, bilan figé, étoiles
+11;Suivi technico-économique;Bandes d'élevage;Historique des bandes;Obligatoire MVP;Fait;3, 8;Bandes clôturées en lecture seule, « Mes bandes »
+12;Suivi technico-économique;Performances zootechniques;Taux de mortalité;Obligatoire MVP;Fait;3;Formule paramétrable (quatre yeux)
+13;Suivi technico-économique;Performances zootechniques;Viabilité;Obligatoire MVP;Fait;3;Formule paramétrable
+14;Suivi technico-économique;Performances zootechniques;Gain moyen quotidien (GMQ);Obligatoire MVP;Fait;3;Formule paramétrable
+15;Suivi technico-économique;Performances zootechniques;Indice de consommation (IC);Obligatoire MVP;Fait;3;"Formule paramétrable ; « incomplet » si jours non saisis"
+16;Suivi technico-économique;Performances zootechniques;Volumes produits;Obligatoire MVP;Fait;5;Poids vif produit, poulets et tonnes sortis
+17;Suivi technico-économique;Intrants;Réception des intrants;Obligatoire MVP;Fait;2;Livraisons, confirmation « Tout reçu » / « J'ai reçu moins », écarts
+18;Suivi technico-économique;Intrants;Utilisation et stock d'intrants;Obligatoire MVP;Fait;2, 3, 9;"Stock = reçu − utilisé ; achats personnels séparés"
+19;Suivi technico-économique;Intrants;Recoupement livraisons / déclarations;Phase ultérieure;Fait;16;Comptage du stock, écart livré − utilisé − compté, seuil (quatre yeux)
+20;Suivi technico-économique;Intrants;Commande d'intrants pour la bande suivante;À arbitrer;Fait;16, 18;Commande par l'agent, décision de la DGE, livraison prévue
+21;Suivi technico-économique;Sanitaire et biosécurité;Déclaration sanitaire;Obligatoire MVP;Fait;4;Signes en pictogrammes, photo, message vocal
+22;Suivi technico-économique;Sanitaire et biosécurité;Registre des vaccinations;Obligatoire MVP;Fait;4;Calendrier vaccinal, « C'est fait », retards
+23;Suivi technico-économique;Sanitaire et biosécurité;Registre des traitements;Obligatoire MVP;Fait;4;Traitements, délai d'attente avant abattage
+24;Suivi technico-économique;Sanitaire et biosécurité;Diagnostics et interventions vétérinaires;Phase ultérieure;Fait;17;Diagnostic, maladies suspectées, blocage des sorties
+25;Suivi technico-économique;Sanitaire et biosécurité;Alerte précoce;Obligatoire MVP;Fait;4;Feu rouge de mortalité, alerte automatique
+26;Suivi technico-économique;Sanitaire et biosécurité;Qualification et validation des alertes;Obligatoire MVP;Fait;4, 17;Qualification par le vétérinaire, gravité, réponse à l'éleveur
+27;Suivi technico-économique;Sanitaire et biosécurité;Contrôles de biosécurité;Phase ultérieure;Fait;16;Grille de biosécurité (10 points), score
+28;Suivi technico-économique;Sanitaire et biosécurité;Échange avec EMA-i Plus (FAO);Phase ultérieure;Feuille de route;—;Aucun échange avec EMA-i Plus
+29;Suivi technico-économique;Commercial et économique;Rendez-vous d'abattage;À arbitrer;Feuille de route;—;Pas de rendez-vous d'abattage
+30;Suivi technico-économique;Commercial et économique;Enregistrement des ventes;Phase ultérieure;Fait;11;Montant de la vente sur la sortie
+31;Suivi technico-économique;Commercial et économique;Charges d'exploitation;Phase ultérieure;Fait;11;Dépenses par catégorie, rattachées aux bandes
+32;Suivi technico-économique;Commercial et économique;Coût de production;Phase ultérieure;Partiel;11;"Dépenses et marge par bande ; pas de coût de production au kilo"
+33;Suivi technico-économique;Commercial et économique;Chiffre d'affaires;Phase ultérieure;Fait;11;Chiffre d'affaires par période et par bande
+34;Suivi technico-économique;Commercial et économique;Marge et rentabilité;Phase ultérieure;Fait;11;Marge au bilan de fin de bande
+35;Suivi technico-économique;Commercial et économique;Domiciliation des revenus;À arbitrer;Feuille de route;—;Pas de domiciliation des revenus
+36;Suivi technico-économique;Tableaux de bord et reporting;Tableau de bord de l'éleveur;Obligatoire MVP;Fait;8, 9, 11;Accueil en tuiles, feu, comparaison qui encourage
+37;Suivi technico-économique;Tableaux de bord et reporting;Tableaux de bord province et national;Obligatoire MVP;Fait;5;Tableau de bord province et national
+38;Suivi technico-économique;Tableaux de bord et reporting;Cartographie des exploitations;Obligatoire MVP;Fait;5;Carte des fermes, couleur selon l'état
+39;Suivi technico-économique;Tableaux de bord et reporting;Classement des fermes;Phase ultérieure;Fait;18;Score pondéré, pondérations sous quatre yeux, export
+40;Suivi technico-économique;Tableaux de bord et reporting;Rapports périodiques automatiques;Obligatoire MVP;Fait;5, 18;"Rapports hebdomadaire, fin de bande, mensuel national gardé ; e-mail préparé mais coupé"
+41;Suivi technico-économique;Tableaux de bord et reporting;Filtres et exports;À arbitrer;Fait;5;Filtres et exports CSV inscrits au journal
+42;Suivi technico-économique;Tableaux de bord et reporting;Diffusion des données agrégées;Phase ultérieure;Prévu;—;Profil MAEDR créé, sans écran (« Vos écrans arrivent bientôt »)
+43;Suivi technico-économique;Fonctions transversales;Utilisateurs, profils et droits;Obligatoire MVP;Fait;0, 15;9 profils, périmètres, quatre yeux, double authentification
+44;Suivi technico-économique;Fonctions transversales;Collecte mobile hors connexion;Obligatoire MVP;Fait;7, 12, 16;File d'attente sur le téléphone, doublons refusés, conflits gardés (deux versions)
+45;Suivi technico-économique;Fonctions transversales;Visites techniques;Phase ultérieure;Fait;12;Visites planifiées, compte rendu, recommandations
+46;Suivi technico-économique;Fonctions transversales;Historique et journal des modifications;Obligatoire MVP;Fait;0, 15;Journal non modifiable, chaîné, contrôle d'intégrité
+47;Suivi technico-économique;Fonctions transversales;Qualité et complétude des données;Obligatoire MVP;Fait;12;Case vide ≠ zéro, régularité, « incomplet »
+48;Suivi technico-économique;Fonctions transversales;Reprise des données existantes;Obligatoire MVP;Partiel;1;"Import POUFA (fermes) ; pas de reprise des fiches papier ni de l'outil transitoire"
+49;Suivi technico-économique;Services proposés par le CGI;Observatoire des prix;Évolutive;Feuille de route;—;Non fait
+50;Suivi technico-économique;Services proposés par le CGI;Assistance vétérinaire à distance;Évolutive;Feuille de route;—;Non fait
+51;Suivi technico-économique;Services proposés par le CGI;Mise en relation commerciale;Évolutive;Feuille de route;—;Non fait
+52;Suivi technico-économique;Services proposés par le CGI;Portail, formation en ligne, espace d'échange, planification, incitations;Évolutive;Feuille de route;—;Non fait
+53;Traçabilité;Phase 1 – Amont (ferme);Identifiant de lot;Obligatoire MVP;Fait;6;"Identifiant ferme + bande + n° de sortie, jamais réutilisé ; créé à la sortie (pas à la livraison)"
+54;Traçabilité;Phase 1 – Amont (ferme);Historique d'élevage du lot;Obligatoire MVP;Fait;6, 17;Fiche du lot, recherche amont du vétérinaire
+55;Traçabilité;Phase 1 – Amont (ferme);Sortie de ferme et cession du lot;Obligatoire MVP;Partiel;3, 6;"Cession à un destinataire identifié ; pas de sous-lot (cession partielle = nouvelle sortie)"
+56;Traçabilité;Phase 1 – Amont (ferme);Registre des opérateurs;Obligatoire MVP;Fait;1;Registre, types paramétrables, conventions
+57;Traçabilité;Phase 1 – Amont (ferme);Génération du QR code du lot;Obligatoire MVP;Fait;6;QR sans donnée personnelle, étiquettes PDF, lectures au journal
+58;Traçabilité;Phase 2 – Aval (abattoir → consommateur);Réception et validation à l'abattoir;Phase ultérieure;Fait;19;Scan, contrôles, écart avec motifs, alertes
+59;Traçabilité;Phase 2 – Aval (abattoir → consommateur);Transformation et conditionnement;Évolutive;Feuille de route;—;Non fait
+60;Traçabilité;Phase 2 – Aval (abattoir → consommateur);Transport et mouvements;Évolutive;Feuille de route;—;Non fait
+61;Traçabilité;Phase 2 – Aval (abattoir → consommateur);Contrôle par le distributeur;Évolutive;Feuille de route;—;Non fait (le distributeur peut recevoir un lot comme opérateur, lot 19)
+62;Traçabilité;Phase 2 – Aval (abattoir → consommateur);Consultation publique par QR code;Évolutive;Fait;6, 19;Page publique, étape « Reçus à l'abattoir »
+63;Traçabilité;Règles et contrôle;Validation sur événements vérifiables;Phase ultérieure;Fait;19;Contrôles automatiques à la réception, réserve jusqu'à décision du vétérinaire
+64;Traçabilité;Règles et contrôle;Recherche amont / aval;Phase ultérieure;Fait;17;Recherche amont / aval, export CSV
+65;Traçabilité;Règles et contrôle;Unicité et non-réutilisation des identifiants;Phase ultérieure;Fait;6, 19;"Numéros jamais réutilisés ; « déjà reçu », QR inconnu ou annulé refusés ; 3 refus → DGE"
+66;Traçabilité;Règles et contrôle;Indicateurs de traçabilité;Phase ultérieure;Fait;19;Tableau de bord et rapport mensuel
+67;Traçabilité;Règles et contrôle;Intégration des abattoirs et distributeurs;Évolutive;Partiel;19, 19 ter;"Comptes opérateur (abattoir, marché, acheteur, distributeur) ; conventions suivies au registre"
+68;Traçabilité;Règles et contrôle;Document d'accompagnement des lots;À arbitrer;Feuille de route;—;"Étiquettes QR seulement ; pas de document d'accompagnement"
