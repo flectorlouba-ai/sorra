@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, session
 from flask_login import current_user
 
 from app import db, indicateurs
@@ -39,7 +39,7 @@ def charger_ferme(numero):
 
 def _retour(bande):
     if current_user.profil == Profil.ELEVEUR:
-        return redirect(url_for('accueil.index') + f'#bande-{bande.numero}')
+        return redirect(url_for('accueil.index') + f'#bat-{bande.ferme.numero}-{bande.batiment.code}')
     return redirect(url_for('bandes.fiche', numero=bande.numero))
 
 
@@ -175,8 +175,30 @@ def fiche(numero):
 def bilan(numero):
     bande = charger(numero)
     if bande.en_cours or not bande.bilan:
+        if current_user.profil == Profil.ELEVEUR:
+            return redirect(url_for('accueil.index'))
         return redirect(url_for('bandes.fiche', numero=numero))
+    if current_user.profil == Profil.ELEVEUR:
+        from app.services import ludique
+        n = ludique.etoiles_du_bilan(bande.bilan)
+        return render_template('bandes/bilan_eleveur.html', bande=bande, b=bande.bilan, etoiles=n,
+                               phrase=ludique.PHRASES_ETOILES[n],
+                               serie_record=bande.bilan.get('serie_record', ludique.plus_longue_serie(bande)),
+                               vendus=bande.bilan.get('vendus', sum(s.nombre for s in bande.sorties
+                                                                    if s.motif in (MotifSortie.ABATTOIR, MotifSortie.VENTE))))
     return render_template('bandes/bilan.html', bande=bande, b=bande.bilan)
+
+
+@bandes_bp.route('/mes-bandes')
+@profil_requis(Profil.ELEVEUR)
+def mes_bandes():
+    """Historique de l'éleveur : ses bandes, avec les étoiles des bandes terminées."""
+    from app.services import ludique
+    lignes = []
+    for b in filtre_perimetre(Bande.query).order_by(Bande.date_mise_en_place.desc()).all():
+        lignes.append({'bande': b, 'etoiles': ludique.etoiles_du_bilan(b.bilan) if not b.en_cours else None,
+                       'age': indicateurs.age(b) if b.en_cours else None})
+    return render_template('bandes/mes_bandes.html', lignes=lignes)
 
 
 # ── Ouverture ───────────────────────────────────────────────────────────
@@ -222,7 +244,7 @@ def ouvrir():
     duree = int(parametres.obtenir('bandes.duree_reference_jours', 45))
     etats = {b.id: regles.etat_batiment(b) for b in ferme.batiments}
     return render_template('bandes/ouvrir.html', ferme=ferme, attente=attente, libres=libres, etats=etats,
-                           erreur=erreur, saisie=request.form, duree=duree,
+                           erreur=erreur, saisie=request.values, duree=duree,
                            poids_defaut=parametres.obtenir('bandes.poids_poussin_g', 40),
                            peut_rattrapage=regles.peut_rattrapage(current_user))
 
@@ -298,7 +320,10 @@ def saisie(numero):
         db.session.flush()
         sante.alerte_si_feu_rouge(bande)
         db.session.commit()
-        flash('Envoyé ✓' if jour == date.today() else f'Envoyé ✓ pour le {jour.strftime("%d/%m")}', 'success')
+        if current_user.profil == Profil.ELEVEUR and jour == date.today():
+            session['bien_recu'] = _bien_recu(bande)   # écran « Bien reçu ! » de l'accueil
+        else:
+            flash('Envoyé ✓' if jour == date.today() else f'Envoyé ✓ pour le {jour.strftime("%d/%m")}', 'success')
         for a in avertissements:
             flash(a, 'warning')
     except regles.DejaEnvoye as e:
@@ -311,6 +336,24 @@ def saisie(numero):
         db.session.rollback()
         flash(str(e), 'danger')
     return _retour(bande)
+
+
+def _bien_recu(bande):
+    """Ce qu'affiche l'écran « Bien reçu ! » : feu après l'envoi, série, record personnel,
+    les 2 dernières saisies, et les autres bandes encore à saisir aujourd'hui."""
+    from app.services import ludique
+    bandes_eleveur = filtre_perimetre(Bande.query).all()
+    couleur, _ = indicateurs.feu(bande)
+    serie = ludique.etat_serie(bande, bandes_eleveur)
+    reste = [{'code': b.batiment.code, 'cible': f'bat-{b.ferme.numero}-{b.batiment.code}'}
+             for b in sorted(bandes_eleveur, key=lambda x: x.batiment.code)
+             if b.en_cours and b.id != bande.id and indicateurs.saisie_du(b, date.today()) is None
+             and indicateurs.calculer(b)['effectif_present'] > 0]
+    return {'bande': bande.numero, 'code': bande.batiment.code, 'couleur': couleur,
+            'cible': f'bat-{bande.ferme.numero}-{bande.batiment.code}',
+            'serie': serie['n'], 'nouveau_record': serie['nouveau_record'], 'reste': reste,
+            'dernieres': [{'date': s.date.strftime('%d/%m'), 'aujourdhui': s.date == date.today(),
+                           'morts': s.morts, 'sacs': float(s.sacs)} for s in reversed(bande.saisies[-2:])]}
 
 
 def _conflit_saisie(bande, existante, jour, morts, aliments):
@@ -379,12 +422,20 @@ def pesee(numero):
             flash(f'Pesée enregistrée : poids moyen {quantite(p.poids_moyen_g, 0)} g — '
                   + ('dans la courbe attendue ✓' if dans else 'en dessous de la courbe attendue'),
                   'success' if dans else 'warning')
+            from app.services import ludique
+            gain = ludique.gain_pesee(bande)
+            # Message vivant : seulement si le feu est vert (jamais de joie en orange ou rouge)
+            if current_user.profil == Profil.ELEVEUR and gain and indicateurs.feu(bande)[0] == 'vert':
+                flash(f'💪 +{gain[0]} g en {gain[1]} jour{"s" if gain[1] > 1 else ""} !', 'success')
             return _retour(bande)
         except regles.RegleBande as e:
             db.session.rollback()
             erreur = str(e)
     age = indicateurs.age(bande)
+    precedente = bande.pesees[-1] if bande.pesees else None
     return render_template('bandes/pesee.html', bande=bande, erreur=erreur, saisie=request.form,
+                           precedente=precedente, couleur=indicateurs.feu(bande)[0],
+                           jours_depuis=(date.today() - precedente.date).days if precedente else None,
                            nombre_defaut=parametres.obtenir('bandes.pesee_nombre_defaut', 10),
                            attendu=round(indicateurs.poids_attendu(age)),
                            tolerance=float(parametres.obtenir('bandes.ecart_courbe_pct', 10)))

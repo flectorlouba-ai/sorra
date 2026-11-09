@@ -2,6 +2,7 @@
 {% block titre %}Nouveaux poussins{% endblock %}
 {% block sous_titre %}Bandes{% endblock %}
 {% block icone %}egg{% endblock %}
+{% block page_titre %}{{ '🐣 ' if theme_eleveur }}Nouveaux poussins{% endblock %}
 {% block page_sous_titre %}{{ ferme.nom }} ({{ ferme.numero }}){% endblock %}
 {% block actions %}
 {% if peut_rattrapage %}<a href="{{ url_for('bandes.rattrapage', ferme=ferme.numero) }}" class="btn-ghost">Bande déjà en cours (rattrapage)</a>{% endif %}
@@ -60,7 +61,7 @@
     <label class="form-label" for="poids_g">Poids moyen d'un poussin (g)</label>
     <input class="form-control" id="poids_g" name="poids_g" inputmode="decimal" placeholder="Facultatif ({{ poids_defaut|qte }} g par défaut)" value="{{ saisie.get('poids_g', '') }}">
   </div>
-  <button type="submit" class="btn-gros"><i class="bi bi-play-fill"></i> Commencer la bande</button>
+  <button type="submit" class="btn-gros btn-vert"><i class="bi bi-play-fill"></i> Commencer la bande</button>
   <div class="note-numero" id="note-bande">Fin prévue le {{ (today + timedelta(days=duree)).strftime('%d/%m') if timedelta is defined else '' }}</div>
   {% endif %}
 </form>

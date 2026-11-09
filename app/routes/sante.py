@@ -26,7 +26,7 @@ def _bande(numero):
 
 def _retour(bande):
     if current_user.profil == Profil.ELEVEUR:
-        return redirect(url_for('accueil.index') + f'#bande-{bande.numero}')
+        return redirect(url_for('accueil.index') + f'#bat-{bande.ferme.numero}-{bande.batiment.code}')
     return redirect(url_for('bandes.fiche', numero=bande.numero))
 
 
@@ -161,6 +161,7 @@ def vaccins():
                            delais=[(b, f) for b, f in delais if f],
                            valide=parametres.obtenir('sante.calendrier_valide', False),
                            peut_modifier=current_user.profil in (Profil.VETO, Profil.ADMIN),
+                           conseil=parametres.obtenir('sante.conseil_feu_rouge'),
                            vaccins_catalogue=Produit.query.filter_by(type='Vaccin', actif=True).order_by(Produit.nom).all(),
                            modes=[v for v, _ in ld_choices('modes_administration')])
 
@@ -179,6 +180,22 @@ def calendrier_enregistrer():
     db.session.add(entree)
     db.session.commit()
     flash('Calendrier vaccinal enregistré.', 'success')
+    return redirect(url_for('sante.vaccins'))
+
+
+@sante_bp.route('/conseil', methods=['POST'])
+@profil_requis(Profil.VETO, Profil.ADMIN)
+def conseil():
+    """Conseil affiché à l'éleveur au feu rouge (paramètre, inscrit au journal)."""
+    from app.models import Parametre
+    texte = request.form.get('conseil', '').strip()
+    p = Parametre.query.filter_by(cle='sante.conseil_feu_rouge').first()
+    if not texte or p is None:
+        flash('Écrivez le conseil.', 'danger')
+    else:
+        p.valeur, p.modifie_par = texte[:500], current_user.id
+        db.session.commit()
+        flash("Conseil enregistré : il s'affiche chez l'éleveur quand le feu est rouge.", 'success')
     return redirect(url_for('sante.vaccins'))
 
 
@@ -217,7 +234,10 @@ def vacciner(numero):
             db.session.rollback()
             erreur = str(e) if isinstance(e, regles.RegleSante) else 'Date invalide.'
     from app import indicateurs
+    from app.services import intrants
+    stocks = {s['produit'].id: s['stock'] for s in intrants.stock_ferme(bande.ferme)}
     return render_template('sante/vacciner.html', bande=bande, entree=entree, erreur=erreur, saisie=request.form,
+                           stocks=stocks,
                            present=indicateurs.calculer(bande)['effectif_present'],
                            vaccins=Produit.query.filter_by(type='Vaccin', actif=True).order_by(Produit.nom).all(),
                            modes=[v for v, _ in ld_choices('modes_administration')])

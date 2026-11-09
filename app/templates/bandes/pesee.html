@@ -22,8 +22,9 @@
   <div class="carte-ligne" id="resultat" hidden>
     <div class="carte-ligne-titre">Poids moyen <span id="moyen"></span> g</div>
     <div id="verdict"></div>
+    <div id="gain" class="gain" hidden></div>
   </div>
-  <button type="submit" class="btn-gros"><i class="bi bi-check-lg"></i> Enregistrer la pesée</button>
+  <button type="submit" class="btn-gros btn-action"><i class="bi bi-check-lg"></i> Enregistrer la pesée</button>
   <div class="note-numero">Poids attendu aujourd'hui : environ {{ attendu|qte }} g</div>
 </form>
 {% endblock %}
@@ -32,6 +33,8 @@
 <script>
 (function () {
   var attendu = {{ attendu }}, tolerance = {{ tolerance }};
+  // Message vivant (éleveur, feu vert seulement) : écart avec la pesée précédente
+  var avant = {{ precedente.poids_moyen_g if (theme_eleveur and precedente and couleur == 'vert') else 'null' }}, jours = {{ jours_depuis or 0 }};
   var nombre = document.getElementById('nombre'), total = document.getElementById('poids_total');
   function maj() {
     var n = parseFloat(nombre.value), t = parseFloat(String(total.value).replace(',', '.'));
@@ -43,6 +46,9 @@
     var v = document.getElementById('verdict');
     v.textContent = ok ? 'Dans la courbe attendue ✓' : 'En dessous de la courbe';
     v.className = ok ? 'position-ok' : 'position-alerte';
+    var g = document.getElementById('gain'), ecart = avant === null ? 0 : Math.round(moyen - avant);
+    g.hidden = !(ok && ecart > 0 && jours > 0);
+    if (!g.hidden) g.textContent = '💪 +' + ecart.toLocaleString('fr-FR') + ' g en ' + jours + ' jour' + (jours > 1 ? 's' : '');
     zone.hidden = false;
   }
   nombre.addEventListener('input', maj); total.addEventListener('input', maj); maj();

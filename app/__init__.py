@@ -95,8 +95,9 @@ def create_app(env='default'):
     from app.utils.dates import date_locale
     from app.utils.nombres import quantite
     app.jinja_env.globals['a_profil'] = a_profil
-    from app.utils.logo import svg as logo_poulet
+    from app.utils.logo import svg as logo_poulet, poulet
     app.jinja_env.globals['logo_poulet'] = logo_poulet
+    app.jinja_env.globals['poulet'] = poulet
     app.jinja_env.filters['date_locale'] = date_locale
     app.jinja_env.filters['qte'] = quantite
 
@@ -105,6 +106,14 @@ def create_app(env='default'):
     @app.context_processor
     def _aujourdhui():
         return {'today': _date.today()}
+
+    @app.context_processor
+    def _theme():
+        # Charte « illustrée douce » (eleveur.css) : seulement pour l'éleveur connecté
+        from flask_login import current_user
+        from app.models import Profil
+        eleveur = bool(current_user and current_user.is_authenticated and current_user.profil == Profil.ELEVEUR)
+        return {'theme_eleveur': eleveur}
 
     _installer_controles_session(app)
     _installer_erreurs(app)

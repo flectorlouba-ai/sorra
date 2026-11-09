@@ -187,8 +187,13 @@ def _alertes(user):
 
 
 def _espace_eleveur(fermes):
-    """Pour chaque ferme : poussins en attente, puis un bloc par bâtiment actif."""
+    """Pour chaque ferme : poussins en attente, puis un bloc par bâtiment actif.
+    Plusieurs bâtiments : une pastille par bâtiment, les bandes à saisir d'abord, et
+    « À faire aujourd'hui » commun à la ferme (chaque ligne dit son bâtiment)."""
     from app.routes.bandes import contexte_bloc
+    from app.services import ludique, parametres
+    bandes_eleveur = filtre_perimetre(Bande.query).all()   # record personnel : toutes ses bandes
+    conseil = parametres.obtenir('sante.conseil_feu_rouge')
     espace = []
     for f in fermes:
         blocs = []
@@ -196,14 +201,25 @@ def _espace_eleveur(fermes):
             if not b.actif:
                 continue
             etat = regles_bandes.etat_batiment(b)
+            cible = f'bat-{f.numero}-{b.code}'
             if etat['etat'] == 'bande':
-                blocs.append({'type': 'bande', **contexte_bloc(etat['bande'])})
+                c = contexte_bloc(etat['bande'])
+                blocs.append({'type': 'bande', 'cible': cible, 'code': b.code,
+                              'a_saisir': c['deja'] is None and not c['cloture_proposee'],
+                              'serie': ludique.etat_serie(etat['bande'], bandes_eleveur),
+                              'progression': ludique.progression(etat['bande'], c['v']['age']), **c})
             else:
                 derniere = etat.get('derniere')
-                blocs.append({'type': 'vide', 'batiment': b, **etat,
-                              'avant': regles_bandes.precedente(derniere) if derniere else None})
+                blocs.append({'type': 'vide', 'cible': cible, 'code': b.code, 'couleur': 'gris', 'a_saisir': False,
+                              'batiment': b, **etat,
+                              'etoiles': ludique.etoiles_du_bilan(derniere.bilan) if derniere else None})
+        # Bandes à saisir d'abord, puis les bandes déjà saisies, puis les bâtiments vides
+        blocs.sort(key=lambda x: (0 if x['a_saisir'] else 1 if x['type'] == 'bande' else 2, x['code']))
+        a_faire = [{**t, 'batiment': x['code'], 'cible': x['cible']}
+                   for x in blocs if x['type'] == 'bande' and not x['cloture_proposee'] for t in x['a_faire']]
         attente = regles_bandes.poussins_en_attente(f)
-        espace.append({'ferme': f, 'blocs': blocs,
+        espace.append({'ferme': f, 'blocs': blocs, 'a_faire': a_faire, 'plusieurs': len(blocs) > 1,
+                       'conseil': conseil,
                        'attente': sum(d for _, d in attente) if regles_bandes.batiments_libres(f) else 0})
     return espace
 
@@ -229,6 +245,6 @@ def index():
                        .order_by(Livraison.date_livraison, Livraison.numero_metier).all())
         return render_template('accueil.html', eleveur=True, fermes=fermes, onglets=[],
                                a_confirmer=a_confirmer, bandeau=_bandeau_annulation(current_user),
-                               espace=_espace_eleveur(fermes))
+                               espace=_espace_eleveur(fermes), bien_recu=session.pop('bien_recu', None))
     return render_template('accueil.html', eleveur=False, onglets=onglets_pour(current_user),
                            alertes=_alertes(current_user))

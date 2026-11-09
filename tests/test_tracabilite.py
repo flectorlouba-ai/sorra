@@ -43,9 +43,9 @@ def test_page_publique_sans_connexion_et_sans_donnee_personnelle(client, monde):
     texte = page.get_data(as_text=True)
     assert page.status_code == 200
     for attendu in ('Ferme Un', 'Ntoum', 'Estuaire', AUJ.strftime('%d/%m/%Y'), 'Produit au Gabon',
-                    'Consommons gabonais', "n'est pas un certificat sanitaire"):
-        assert attendu in texte, attendu
-    for interdit in ('Obiang', '77 12', 'Paul', 'Abattoir de Ntoum', lot.numero, 'Identifiant'):
+                    'Consommons gabonais', "n'est pas un certificat sanitaire", 'Élevé par', lot.numero):
+        assert attendu in texte, attendu   # n° du lot affiché depuis le lot 8
+    for interdit in ('Obiang', '77 12', 'Paul', 'Abattoir de Ntoum', 'Identifiant'):
         assert interdit not in texte, interdit
     journal = JournalAudit.query.filter_by(action='LECTURE_QR').one()
     assert journal.enregistrement_id == str(lot.id) and journal.adresse_ip and journal.utilisateur_id is None

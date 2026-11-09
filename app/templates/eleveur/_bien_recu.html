@@ -1,0 +1,27 @@
+{# Écran « Bien reçu ! » après la saisie du jour (écran 6). Variable : r (session).
+   Feu vert : poulet qui saute deux fois, série, étincelles. Orange ou rouge : rien de joyeux. #}
+{% set joie = r.couleur == 'vert' %}
+<div class="bien-recu {{ 'joie' if joie else 'sobre' }}" id="bien-recu" role="status" aria-live="polite"
+     data-fermer-auto="{{ '0' if r.reste else '1' }}">
+  <div class="bien-recu-carte">
+    {% if joie %}<span class="etincelles" aria-hidden="true">{% for i in range(6) %}<i></i>{% endfor %}</span>{% endif %}
+    {{ poulet(r.couleur, 'bien-recu-poulet') }}
+    {% if joie %}
+    <div class="bien-recu-titre">Bien reçu !</div>
+    {% if r.serie %}<div class="serie">🔥 {{ r.serie }} jour{{ 's' if r.serie > 1 }} d'affilée</div>{% endif %}
+    {% if r.nouveau_record %}<div class="record">⭐ Nouveau record personnel !</div>{% endif %}
+    {% else %}
+    <div class="bien-recu-titre">Envoyé ✓</div>
+    <div class="bien-recu-sous">Votre agent est prévenu</div>
+    {% endif %}
+    {% if r.dernieres %}
+    <ul class="bien-recu-liste">
+      {% for s in r.dernieres %}<li><span>{{ "Aujourd'hui" if s.aujourdhui else s.date }} · {{ s.morts }} mort{{ 's' if s.morts > 1 }} · {{ s.sacs|qte }} sac{{ 's' if s.sacs > 1 }}</span><span class="coche-envoye">✓</span></li>{% endfor %}
+    </ul>
+    {% endif %}
+    {% if r.reste %}
+    <a class="btn-gros" href="#{{ r.reste[0].cible }}" data-cible="{{ r.reste[0].cible }}">Il reste {{ r.reste|map(attribute='code')|join(', ') }} à saisir →</a>
+    <button type="button" class="bien-recu-fermer">Plus tard</button>
+    {% endif %}
+  </div>
+</div>

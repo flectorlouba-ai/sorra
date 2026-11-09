@@ -60,21 +60,25 @@
   var zone = document.querySelector('.page-body') || document.querySelector('.content') || corps;
   zone.insertBefore(bandeau, zone.firstChild);
 
-  function afficher(liste, message) {
+  function afficher(liste, message, envoyes) {
     var lignes = '';
     liste.forEach(function (e) {
-      lignes += '<li><span class="coche-attente" title="En attente de réseau">◷</span> ' + texte(e.libelle) + '</li>';
+      lignes += '<li><span>' + texte(e.libelle) + '</span> <span class="coche-attente" title="En attente de réseau">◷ en attente</span></li>';
+    });
+    (envoyes || []).forEach(function (l) {
+      lignes += '<li><span>' + texte(l) + '</span> <span class="coche-envoye">✓ envoyé</span></li>';
     });
     if (liste.length) {
       bandeau.className = 'bandeau-envoi attente';
-      bandeau.innerHTML = '<strong>◷ ' + liste.length + ' saisie' + (liste.length > 1 ? 's' : '') +
-        ' gardée' + (liste.length > 1 ? 's' : '') + ' sur le téléphone</strong>' +
-        '<span class="bandeau-sous">' + (navigator.onLine ? 'Envoi en cours…' : 'Envoi dès le retour du réseau.') + '</span>' +
+      bandeau.innerHTML = (navigator.onLine
+          ? '<strong>◷ ' + liste.length + ' saisie' + (liste.length > 1 ? 's' : '') + ' gardée' + (liste.length > 1 ? 's' : '') +
+            ' sur le téléphone</strong><span class="bandeau-sous">Envoi en cours…</span>'
+          : '<strong>📵 Pas de réseau — vos saisies sont gardées sur le téléphone</strong>') +
         '<ul>' + lignes + '</ul>' + (message ? '<div class="bandeau-sous">' + texte(message) + '</div>' : '');
       bandeau.hidden = false;
     } else if (message) {
       bandeau.className = 'bandeau-envoi fait';
-      bandeau.innerHTML = texte(message);
+      bandeau.innerHTML = texte(message) + (lignes ? '<ul>' + lignes + '</ul>' : '');
       bandeau.hidden = false;
       setTimeout(function () { bandeau.hidden = true; }, 8000);
     } else {
@@ -125,7 +129,13 @@
       return garder({
         id: crypto.randomUUID(), utilisateur: utilisateur, url: form.action,
         libelle: form.getAttribute('data-hors-ligne'), horodatage: new Date().toISOString(), entrees: entrees
-      }).then(function () { location.href = '/'; });   // l'accueil affiche ◷
+      }).then(function () {
+        // Saisie du jour : l'accueil de l'éleveur montre « ◷ Sera envoyé dès que le réseau revient »
+        if (form.hasAttribute('data-feu')) {
+          try { sessionStorage.setItem('performyl2-garde', JSON.stringify({feu: form.getAttribute('data-feu')})); } catch (e) {}
+        }
+        location.href = '/';
+      });
     });
   }, true);
 
@@ -134,7 +144,7 @@
   function envoyer() {
     if (enCours) return Promise.resolve();
     enCours = true;
-    var envoyees = 0, refus = [], arret = null;
+    var envoyees = 0, refus = [], arret = null, libelles = [];
     return toutes().then(function (liste) {
       if (!liste.length || !navigator.onLine) { enCours = false; afficher(liste); return; }
       afficher(liste);
@@ -156,7 +166,7 @@
               }).then(function (r) { return r.json(); }).then(function (rep) {
                 if (rep.etat === 'connexion') { arret = 'Reconnectez-vous pour envoyer les saisies gardées.'; return; }
                 if (rep.etat === 'refuse') refus.push(e.libelle + ' : ' + rep.message);
-                else envoyees += 1;
+                else { envoyees += 1; libelles.push(e.libelle); }
                 return retirer(e.id);
               }, function () { arret = 'Réseau coupé : nouvel essai bientôt.'; });
             });
@@ -168,7 +178,7 @@
         var message = arret || '';
         if (!arret && envoyees) message = '✓ Envoyé : ' + envoyees + ' saisie' + (envoyees > 1 ? 's' : '') + ' gardée' + (envoyees > 1 ? 's' : '') + ' sur le téléphone.';
         if (refus.length) message += (message ? ' ' : '') + 'Non acceptée' + (refus.length > 1 ? 's' : '') + ' : ' + refus.join(' ; ') + ' (votre agent est prévenu).';
-        afficher(reste, message);
+        afficher(reste, message, libelles);
       });
     }, function () { enCours = false; });
   }

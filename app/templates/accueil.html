@@ -5,7 +5,7 @@
 {% include '_tete.html' %}
   <title>Accueil — SORRA</title>
 </head>
-<body class="page-accueil"{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% endif %}>
+<body class="page-accueil{% if theme_eleveur %} theme-eleveur{% endif %}"{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% endif %}>
 
 <div class="kente-band"></div>
 
@@ -15,7 +15,7 @@
     <div class="logo-texte">{{ logo_poulet() }}</div>
     <div>
       <div class="topbar-brand-name">SORRA</div>
-      <div class="topbar-brand-sub">Suivi et traçabilité de la filière avicole</div>
+      <div class="topbar-brand-sub">{% if theme_eleveur %}<span class="bonjour">Bonjour {{ current_user.prenom or current_user.nom }} ! 👋</span>{% else %}Suivi et traçabilité de la filière avicole{% endif %}</div>
     </div>
   </a>
   <div class="topbar-right">
@@ -59,61 +59,8 @@
   {% endwith %}
 
   {% if eleveur %}
-  <!-- ══ ÉLEVEUR : Ma bande aujourd'hui ══ -->
-  <div class="ma-ferme-zone">
-    {% if bandeau %}{% with liv=bandeau.livraison, secondes=bandeau.secondes %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
-    {% for liv in a_confirmer %}{% include 'livraisons/_carte_confirmer.html' %}{% endfor %}
-    {% for e in espace %}
-    {% set f = e.ferme %}
-    {% if e.attente %}
-    <div class="carte-livraison carte-poussins">
-      <div class="carte-livraison-titre"><i class="bi bi-egg"></i> Nouveaux poussins</div>
-      <div class="carte-livraison-lignes"><div><span class="num">{{ e.attente|qte }}</span> poussins en attente de bande</div></div>
-      <a class="btn-gros" href="{{ url_for('bandes.ouvrir', ferme=f.numero) }}"><i class="bi bi-play-fill"></i> Commencer une bande</a>
-    </div>
-    {% endif %}
-    {% for bloc in e.blocs %}
-      {% if bloc.type == 'bande' %}
-        {% with agent=f.agent, bande=bloc.bande, v=bloc.v, couleur=bloc.couleur, raison=bloc.raison, phrase=bloc.phrase,
-                a_faire=bloc.a_faire, encouragement=bloc.encouragement, aliments=bloc.aliments, stock=bloc.stock,
-                deja=bloc.deja, historique=bloc.historique, cloture_proposee=bloc.cloture_proposee %}
-          {% include 'bandes/_bloc_bande.html' %}
-        {% endwith %}
-      {% else %}
-        {% with batiment=bloc.batiment, etat=bloc.etat, jours=bloc.jours, derniere=bloc.derniere, avant=bloc.avant %}
-          {% include 'bandes/_bloc_vide.html' %}
-        {% endwith %}
-      {% endif %}
-    {% endfor %}
-    <div class="ma-ferme">
-      <div class="ma-ferme-tete">
-        <div>
-          <div class="ma-ferme-titre">Ma ferme</div>
-          <div class="ma-ferme-nom">{{ f.nom }}</div>
-          <div class="ma-ferme-num">{{ f.numero }}</div>
-        </div>
-        {{ badge_statut(f.statut) }}
-      </div>
-      <div class="ma-ferme-chiffres">
-        <div><span class="num">{{ f.batiments|selectattr('actif')|list|length }}</span> bâtiment{{ 's' if f.batiments|selectattr('actif')|list|length > 1 }}</div>
-        <div><span class="num">{{ '{:,}'.format(f.capacite).replace(',', ' ') }}</span> places</div>
-      </div>
-      {% if f.agent %}
-      <div class="ma-ferme-agent">
-        <i class="bi bi-person-badge"></i>
-        <div>Mon agent : <strong>{{ f.agent.nom_complet }}</strong>{% if f.agent.telephone %}<br>{{ f.agent.telephone }}{% endif %}</div>
-      </div>
-      {% if f.agent.telephone %}
-      <a class="btn-gros-secondaire" href="tel:{{ f.agent.telephone|replace(' ', '') }}"><i class="bi bi-telephone-fill"></i> Appeler mon agent</a>
-      {% endif %}
-      {% endif %}
-      {% if loop.last %}<div class="lien-discret"><a href="{{ url_for('livraisons.mes_livraisons') }}"><i class="bi bi-box-seam"></i> Mes livraisons</a>
-        · <a href="{{ url_for('sante.mes_declarations') }}"><i class="bi bi-heart-pulse"></i> Mes déclarations</a></div>{% endif %}
-    </div>
-    {% else %}
-    <div class="empty-note">Aucune ferme ne vous est encore rattachée. Contactez votre agent technique.</div>
-    {% endfor %}
-  </div>
+  <!-- ══ ÉLEVEUR : Ma bande aujourd'hui (lot 8) ══ -->
+  {% include 'eleveur/_espace.html' %}
 
   {% elif onglets %}
   {% for m in onglets %}
@@ -203,5 +150,6 @@
 })();
 </script>
 {% if current_user.is_authenticated %}<script src="{{ url_for('static', filename='js/hors_ligne.js') }}"></script>{% endif %}
+{% if theme_eleveur %}<script src="{{ url_for('static', filename='js/eleveur.js') }}"></script>{% endif %}
 </body>
 </html>

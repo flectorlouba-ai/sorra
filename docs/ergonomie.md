@@ -49,6 +49,75 @@ Le lot de réalisation est indiqué entre parenthèses.
 
 Avant de figer le lot Bandes, l'écran éleveur sera **testé par 3 à 5 vrais éleveurs**. Leurs retours priment sur les choix faits au bureau.
 
+## F. Charte illustrée douce (espace éleveur)
+
+Depuis le lot 8, l'**éleveur** a son propre style, « illustré doux ». La **page publique du QR code** l'utilise aussi, et l'**écran de connexion** aussi, puisqu'il est commun à tous. Tous les autres profils gardent la charte bleu nuit. L'agent qui saisit pour l'éleveur aussi, même sur les mêmes écrans.
+
+- **Feuille dédiée** : `app/static/css/eleveur.css`. Elle n'est chargée que pour l'éleveur connecté, la page publique et la connexion. Ses couleurs sont uniquement dans son `:root`, et un test le vérifie.
+- **Couleurs** :
+
+  | Nom | Code | Usage |
+  |---|---|---|
+  | nuit | `#1b2a5e` | textes |
+  | bleu | `#2a7de1` | actions |
+  | soleil | `#f7c948` | |
+  | prairie | `#2fa36b` | tout va bien, bouton Envoyer |
+  | orange | `#f08a24` | attention |
+  | rouge | `#e5484d` | alerte |
+  | crème | `#fbf8f2` | fond |
+  | gris | `#6b7594` | textes secondaires |
+  | trait | `#edf0f6` | bordure des cartes |
+
+- **Cartes** : blanches, bordure très fine, ombre légère, coins arrondis de 16 à 18 px. Pas de contours épais.
+- **Boutons** : plats et arrondis.
+  - Le bouton principal est plein, avec une ombre douce de sa couleur : vert pour Envoyer, Tout reçu, Commencer la bande et C'est fait ; bleu pour les autres actions ; rouge pour le vétérinaire.
+  - Les boutons secondaires sont blancs, à bordure fine et texte bleu.
+  - Compteurs ronds de 44 px : « − » gris clair, « + » bleu.
+- **Police** : Nunito seule (licence OFL), servie en local depuis `static/polices`. Polices de secours sans empattement.
+- **En-tête** : dégradé bleu, le poulet, « SORRA » et « Bonjour {Prénom} ! 👋 ».
+- **Émojis** : seulement comme pictogrammes simples (📦 ⚖️ 🚚 🩺 💉 📋 🔥 💪 🎤 📞 📵 🐣).
+- **Animations** : en CSS seulement (transform, opacity), sans bibliothèque et sans son. Toutes sont coupées si l'appareil demande de réduire les animations.
+- **Hors connexion** : la feuille, le script et la police sont gardés par le service worker.
+
+### Les 6 idées ludiques retenues
+
+1. **Le poulet qui réagit** : c'est le même dessin que le logo, au trait fin (`app/utils/logo.py`). Il est content au feu vert, inquiet à l'orange, malade au rouge (corps rosé, thermomètre). Il dort quand le bâtiment n'a pas de bande.
+2. **La bande qui grandit** : une barre jaune va de J0 à la durée de référence, avec un petit poussin dessiné qui avance. Messages : « C'est parti ! », « À mi-chemin ! », « Plus que N jours ».
+3. **L'envoi agréable** :
+   - le chiffre des compteurs rebondit, avec une petite vibration si le téléphone le permet ;
+   - après « Envoyer » au feu vert, l'écran « Bien reçu ! » s'affiche environ 2 s : 2 petits sauts, la série, quelques étincelles ;
+   - au feu orange ou rouge, ni saut ni étincelle : seulement « Envoyé ✓ — Votre agent est prévenu » ;
+   - sans réseau : « ◷ Sera envoyé dès que le réseau revient ».
+4. **La série de jours** : la pastille « 🔥 N jours » compte les jours consécutifs avec une saisie, par bande.
+   - Si rien n'est encore envoyé aujourd'hui, on compte jusqu'à hier.
+   - Une saisie faite sans réseau compte à sa date.
+   - Après un jour manqué : « On repart : 1 jour ! ».
+   - Le record personnel se calcule sur toutes les bandes de l'éleveur ; « Nouveau record personnel ! » s'affiche quand il est battu, à partir de 3 jours.
+5. **Le bilan en étoiles**, de 1 à 3, jamais 0. Il est gardé dans le bilan à la clôture.
+   - 3 étoiles si la mortalité est d'au plus 3 % **et** l'indice de consommation d'au plus 1,7 ;
+   - 2 étoiles si la mortalité est d'au plus 5 % ;
+   - sinon 1 étoile.
+
+   Si l'indice de consommation est inconnu, c'est 2 étoiles au plus. Les seuils sont dans les Paramètres, à valider par les vétérinaires. Les étoiles apparaissent dans « Mes bandes » et sur la dernière bande d'un bâtiment vide.
+6. **Les messages vivants** :
+   - « Bonjour {Prénom} ! » ;
+   - après une pesée, « 💪 +210 g en 7 jours » (écart avec la pesée précédente) ;
+   - **jamais de message joyeux quand le feu est orange ou rouge**.
+
+Il n'y a pas de badges, pas de classement et pas de son.
+
+### Plusieurs bandes à la fois
+
+- Une seule bande ouverte par bâtiment (« tout plein, tout vide »). Un compartiment séparé se déclare comme un bâtiment (B1-A, B1-B).
+- **À partir de 2 bâtiments**, une rangée de pastilles s'affiche (« B1 · J23 », « B3 · vide »).
+  - Chaque pastille a la couleur du feu de sa bande, et un point orange tant que la saisie du jour n'est pas envoyée.
+  - Un toucher affiche la bande de ce bâtiment.
+  - Les bandes à saisir passent d'abord, et les pastilles vont à la ligne au lieu de défiler.
+- **« À faire aujourd'hui »** est commun à la ferme. Chaque ligne commence par son bâtiment (« B2 : … »), et un toucher ouvre la bonne bande.
+- **Bande déjà saisie** : « ✓ Saisie du jour envoyée » remplace le bouton Envoyer. On peut encore ajouter, avec la confirmation du lot 3.
+- **Après l'envoi**, s'il reste une bande à saisir : « Il reste B2 à saisir → ».
+- Les saisies restent toujours séparées par bande. La série se compte par bande ; le record, sur toutes les bandes.
+
 ## Liste de contrôle d'un écran (à cocher dans chaque rapport de lot)
 
 - [ ] Un seul bouton mis en avant ?

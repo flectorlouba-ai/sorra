@@ -13,12 +13,12 @@
   <div class="form-label">Photos (1 à 3)</div>
   <div class="photos-zone">
     <div class="photos-vignettes" id="vignettes"></div>
-    <button type="button" class="btn-gros-secondaire" id="btn-photo"><i class="bi bi-camera-fill"></i> Prendre une photo</button>
+    <button type="button" class="btn-gros-secondaire" id="btn-photo"><i class="bi bi-camera-fill"></i> {{ '＋ Ajouter une photo' if theme_eleveur else 'Prendre une photo' }}</button>
     <input type="file" id="capture" accept="image/*" capture="environment" hidden>
     <input type="file" name="photos" id="photos" multiple hidden>
   </div>
 
-  <div class="form-label">Ce que vous voyez</div>
+  <div class="form-label">{{ "Qu'avez-vous vu ?" if theme_eleveur else 'Ce que vous voyez' }}</div>
   <div class="choix-cases pictos">
     {% set coches = saisie.getlist('signes') if saisie else [] %}
     {% for s, icone in signes %}
@@ -28,7 +28,7 @@
   </div>
 
   <div class="compteur">
-    <div class="compteur-libelle">Animaux touchés</div>
+    <div class="compteur-libelle">{{ 'Poulets touchés' if theme_eleveur else 'Animaux touchés' }}</div>
     <div class="compteur-boutons">
       <button type="button" class="compteur-moins" aria-label="Moins">−</button>
       <input type="number" name="nombre" value="{{ saisie.get('nombre') or 1 }}" min="1" inputmode="numeric" class="compteur-valeur">
@@ -37,7 +37,7 @@
   </div>
 
   <div id="bloc-vocal" hidden>
-    <button type="button" class="btn-gros-secondaire" id="btn-vocal"><i class="bi bi-mic-fill"></i> <span>Message vocal</span></button>
+    <button type="button" class="btn-gros-secondaire" id="btn-vocal"><i class="bi bi-mic-fill"></i> <span>{{ 'Ajouter un message vocal' if theme_eleveur else 'Message vocal' }}</span></button>
     <audio id="ecoute" controls hidden></audio>
     <input type="file" name="audio" id="audio" hidden>
   </div>

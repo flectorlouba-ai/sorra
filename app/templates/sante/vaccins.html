@@ -61,6 +61,19 @@
         </tbody>
       </table></div>
     </div>
+    {% if peut_modifier %}
+    <div class="card-p">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-clipboard-heart"></i> Conseil affiché à l'éleveur (feu rouge)</span></div>
+      <div class="card-p-body">
+        <form method="post" action="{{ url_for('sante.conseil') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <textarea class="form-control" name="conseil" rows="3" maxlength="500" required>{{ conseil or '' }}</textarea>
+          <div class="form-hint">À faire valider par les services vétérinaires. Inscrit au journal.</div>
+          <button type="submit" class="btn-edit mt-2">Enregistrer le conseil</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
   </div>
 </div>
 

@@ -24,15 +24,22 @@
         <button type="button" class="compteur-plus" aria-label="Plus">+</button>
       </div>
     </div>
+    {% set mo = saisie.get('motif-' ~ l.id) if saisie else (l.motif_ecart or '') %}
+    {% if correction %}
     <div class="form-group">
       <label class="form-label" for="motif-{{ l.id }}">Motif de l'écart</label>
-      {% set mo = saisie.get('motif-' ~ l.id) if saisie else (l.motif_ecart or '') %}
       <select class="form-control" id="motif-{{ l.id }}" name="motif-{{ l.id }}">
         <option value="">— Aucun écart —</option>
         {% for m in motifs %}<option value="{{ m }}" {% if mo == m %}selected{% endif %}>{{ m }}</option>{% endfor %}
         {% if l.motif_ecart and l.motif_ecart not in motifs %}<option value="{{ l.motif_ecart }}" selected>{{ l.motif_ecart }}</option>{% endif %}
       </select>
     </div>
+    {% else %}
+    <div class="form-label">Raison, si vous avez reçu moins</div>
+    <div class="choix-cases choix-petits">
+      {% for m in motifs %}<label class="case-choix"><input type="radio" name="motif-{{ l.id }}" value="{{ m }}" {% if mo == m %}checked{% endif %}><span>{{ m }}</span></label>{% endfor %}
+    </div>
+    {% endif %}
     {% if l.produit.type == 'Poussins' %}
     {% set mts = saisie.get('morts-' ~ l.id) if saisie else (l.morts_arrivee or 0) %}
     <div class="compteur">
@@ -55,7 +62,7 @@
   </div>
   {% endif %}
 
-  <button type="submit" class="btn-gros">{{ 'Enregistrer la correction' if correction else 'Envoyer' }}</button>
+  <button type="submit" class="btn-gros btn-action">{{ 'Enregistrer la correction' if correction else 'Envoyer' }}</button>
 </form>
 {% endblock %}
 

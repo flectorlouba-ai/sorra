@@ -1,0 +1,27 @@
+{% extends '_base.html' %}
+{% from '_macros.html' import etoiles %}
+{% block titre %}Mes bandes{% endblock %}
+{% block icone %}collection{% endblock %}
+{% block page_sous_titre %}Vos bandes, de la plus récente à la plus ancienne{% endblock %}
+
+{% block contenu %}
+<div class="liste-cartes">
+  {% for l in lignes %}
+  {% set b = l.bande %}
+  {% if b.en_cours %}
+  <a class="carte carte-lien" href="{{ url_for('accueil.index') }}#bat-{{ b.ferme.numero }}-{{ b.batiment.code }}">
+    <div class="carte-titre-ligne"><span class="carte-titre">{{ b.numero }}</span><span class="serie">En cours · jour {{ l.age }}</span></div>
+    <div class="carte-sous">Bâtiment {{ b.batiment.code }} · depuis le {{ b.date_mise_en_place.strftime('%d/%m/%Y') }}</div>
+  </a>
+  {% else %}
+  <a class="carte carte-lien" href="{{ url_for('bandes.bilan', numero=b.numero) }}">
+    <div class="carte-titre-ligne"><span class="carte-titre">{{ b.numero }}</span>{% if l.etoiles %}{{ etoiles(l.etoiles) }}{% endif %}</div>
+    <div class="carte-sous">Bâtiment {{ b.batiment.code }} · du {{ b.date_mise_en_place.strftime('%d/%m/%Y') }}{% if b.date_cloture %} au {{ b.date_cloture.strftime('%d/%m/%Y') }}{% endif %}
+      {% if b.bilan %} · mortalité {{ b.bilan.mortalite|qte }} %{% endif %}</div>
+  </a>
+  {% endif %}
+  {% else %}
+  <div class="empty-note">Pas encore de bande.</div>
+  {% endfor %}
+</div>
+{% endblock %}

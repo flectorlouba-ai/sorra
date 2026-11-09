@@ -1,0 +1,23 @@
+{% extends '_base.html' %}
+{% from '_macros.html' import etoiles as etoiles_m %}
+{% block titre %}Bande terminée{% endblock %}
+{% block icone %}flag{% endblock %}
+{% block page_titre %}Bande terminée{% endblock %}
+{% block page_sous_titre %}Bande {{ bande.numero }} · bâtiment {{ bande.batiment.code }} · {{ b.duree_jours }} jour{{ 's' if b.duree_jours > 1 }}{% endblock %}
+
+{% block contenu %}
+<div class="carte carte-bilan">
+  {{ poulet('content', 'bilan-poulet') }}
+  {{ etoiles_m(etoiles, true) }}
+  <div class="carte-phrase">{{ phrase }}</div>
+  <div class="carte-sous">du {{ bande.date_mise_en_place.strftime('%d/%m/%Y') }} au {{ bande.date_cloture.strftime('%d/%m/%Y') }}</div>
+  <div class="chiffres-bilan">
+    <div><span class="num">{{ b.mortalite|qte if b.mortalite is not none else '—' }} %</span><small>mortalité</small></div>
+    <div><span class="num">{{ b.poids_moyen_sortie_kg|qte if b.poids_moyen_sortie_kg else '—' }}{% if b.poids_moyen_sortie_kg %} kg{% endif %}</span><small>poids moyen</small></div>
+    <div><span class="num">{{ vendus|qte }}</span><small>poulets vendus</small></div>
+    <div><span class="num">🔥 {{ serie_record }}</span><small>série record</small></div>
+  </div>
+  {% if b.partiels %}<div class="carte-sous">Bande commencée avant le suivi : chiffres partiels.</div>{% endif %}
+  <a class="btn-gros-secondaire" href="{{ url_for('bandes.mes_bandes') }}">Voir mes bandes passées</a>
+</div>
+{% endblock %}

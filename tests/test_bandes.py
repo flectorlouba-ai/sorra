@@ -348,7 +348,7 @@ def test_cloture_par_l_eleveur_a_zero_et_lecture_seule(client, monde):
     db.session.refresh(b)
     assert b.statut == StatutBande.CLOTUREE and b.bilan['sortis'] == 10
     page = client.get('/').get_data(as_text=True)
-    assert 'vide sanitaire · depuis 0 jour' in page and 'Dernière bande' in page
+    assert 'vide depuis 0 jour' in page and 'Dernière bande' in page and 'poulet-dort' in page
     assert client.post(f'/bandes/{b.numero}/saisie', data={'morts': 1}).status_code == 403
     assert client.get(f'/bandes/{b.numero}/bilan').status_code == 200
 

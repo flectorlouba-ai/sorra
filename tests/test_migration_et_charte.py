@@ -28,7 +28,7 @@ def test_migration_sur_base_vide(tmp_path, monkeypatch):
     c = sqlite3.connect(base)
     codes = [r[0] for r in c.execute('select code from province order by ordre')]
     assert codes == ['EST', 'HOG', 'MOG', 'NGO', 'NYA', 'OGI', 'OGL', 'OGM', 'WNT']
-    assert c.execute('select count(*) from parametre').fetchone()[0] == 20
+    assert c.execute('select count(*) from parametre').fetchone()[0] == 24
     c.execute("insert into journal_audit (horodatage, action) values ('2026-01-01', 'EXPORT')")
     c.commit()
     for ordre in ("update journal_audit set action='X'", 'delete from journal_audit'):
@@ -95,7 +95,7 @@ def test_nom_affiche_sorra():
         assert 'YL.1' not in affiche and 'YL.2' not in affiche, f
     for f in ('_base.html', 'accueil.html', 'auth/connexion.html', 'tracabilite/public.html'):
         texte = (GABARITS / f).read_text(encoding='utf-8')
-        assert 'SORRA' in texte and 'logo_poulet()' in texte, f
+        assert 'SORRA' in texte and ('logo_poulet()' in texte or "poulet('content')" in texte), f
     statiques = GABARITS.parent / 'static'
     for f in (statiques / 'manifest.webmanifest', statiques / 'js' / 'sw.js', statiques / 'js' / 'hors_ligne.js'):
         assert 'YL.2' not in f.read_text(encoding='utf-8'), f
@@ -106,7 +106,7 @@ def test_logo_poulet_a_l_ecran_et_dans_les_pdf(client):
     from app.services import rapports_pdf
     from app.utils import logo
     page = client.get('/auth/connexion').get_data(as_text=True)
-    assert '<svg class="logo-poulet"' in page and 'class="logo-crete"' in page and '>SORRA<' in page
+    assert '<svg class="poulet poulet-content' in page and 'class="p-crete"' in page and '>SORRA<' in page
     tampon = io.BytesIO()
     c = rl.Canvas(tampon)
     logo.dessiner_pdf(c, 0, 0, 50, rapports_pdf.COULEURS_LOGO)   # toutes les parties ont leur couleur
@@ -123,3 +123,14 @@ def test_ancien_nom_absent_partout():
                or (not f.endswith(('.woff', '.woff2'))
                    and ancien.lower() in (RACINE / f).read_text(encoding='utf-8', errors='ignore').lower())]
     assert trouves == []
+
+
+def test_couleurs_eleveur_uniquement_dans_root():
+    """Charte « illustrée douce » (lot 8) : couleurs seulement dans le :root d'eleveur.css."""
+    texte = (CSS.parent / 'eleveur.css').read_text(encoding='utf-8')
+    debut = texte.index(':root{')
+    fin = texte.index('}', debut)
+    assert re.findall(r'#[0-9a-fA-F]{3,6}\b', texte[:debut] + texte[fin:]) == []
+    for nom in ('--e-nuit:#1b2a5e', '--e-bleu:#2a7de1', '--e-soleil:#f7c948', '--e-prairie:#2fa36b',
+                '--e-orange:#f08a24', '--e-rouge:#e5484d', '--e-creme:#fbf8f2', '--e-gris:#6b7594', '--e-trait:#edf0f6'):
+        assert nom in texte[debut:fin], nom

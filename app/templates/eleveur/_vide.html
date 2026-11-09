@@ -1,0 +1,16 @@
+{# Bâtiment sans bande : poulet qui dort, étoiles de sa dernière bande, « Ouvrir une bande ici ».
+   Variables : x (bloc : batiment, etat, jours, derniere, etoiles, code), f (ferme), e (espace). #}
+{% from '_macros.html' import etoiles %}
+<div class="carte carte-haut feu-gris">{{ poulet('gris') }}
+  <div><div class="carte-jour">{{ x.code }}{% if x.etat == 'vide' %} · vide depuis {{ x.jours }} jour{{ 's' if x.jours > 1 }}{% endif %}</div>
+    <div class="carte-phrase">En attente de nouveaux poussins</div></div>
+</div>
+{% if x.derniere and x.derniere.bilan %}
+<a class="carte carte-lien" href="{{ url_for('bandes.bilan', numero=x.derniere.numero) }}">
+  <div class="carte-titre-ligne"><span class="carte-titre">Dernière bande · {{ x.derniere.numero }}</span>{{ etoiles(x.etoiles) }}</div>
+  <div class="carte-sous">Mortalité {{ x.derniere.bilan.mortalite|qte }} %{% if x.derniere.bilan.poids_moyen_sortie_kg %} · {{ x.derniere.bilan.poids_moyen_sortie_kg|qte }} kg par poulet{% endif %} · voir le bilan</div>
+</a>
+{% endif %}
+{% if e.attente %}
+<a class="btn-gros btn-vert" href="{{ url_for('bandes.ouvrir', ferme=f.numero, batiment=x.batiment.id) }}">🐣 Ouvrir une bande ici</a>
+{% endif %}

@@ -1,0 +1,71 @@
+{# Une bande dans « Ma bande aujourd'hui » de l'éleveur (écrans 5 et 10).
+   Variables : x (bloc : bande, v, couleur, raison, phrase, aliments, deja, serie, progression,
+   historique, encouragement, cloture_proposee, code), f (ferme), e (espace de la ferme). #}
+{% from '_macros.html' import poussin, serie_pastille %}
+{% set bande, v = x.bande, x.v %}
+{% if x.couleur == 'rouge' %}
+<div class="carte carte-alerte">
+  <div class="carte-haut">{{ poulet('malade') }}
+    <div><div class="carte-jour">Jour {{ v.age }} · {{ x.code }}</div>
+      <div class="carte-phrase">Beaucoup de morts aujourd'hui</div>
+      <div class="carte-sous">Votre agent et le vétérinaire sont prévenus</div></div>
+  </div>
+  <a class="btn-gros-rouge" href="{{ url_for('sante.declarer', bande=bande.numero) }}">🩺 Signaler un poulet malade</a>
+  {% if f.agent and f.agent.telephone %}<a class="btn-gros-secondaire" href="tel:{{ f.agent.telephone|replace(' ', '') }}">📞 Appeler mon agent</a>{% endif %}
+  {% if e.conseil %}<div class="conseil">📋 <strong>Conseil</strong><br>{{ e.conseil }}</div>{% endif %}
+</div>
+{% else %}
+<div class="carte carte-haut feu-{{ x.couleur }}">{{ poulet(x.couleur) }}
+  <div><div class="carte-jour">Jour {{ v.age }} · {{ x.code }}</div>
+    <div class="carte-phrase">{{ x.phrase }}</div>
+    <div class="carte-sous"><span class="num">{{ v.effectif_present|qte }}</span> poulets présents</div></div>
+</div>
+{% if x.raison == 'mortalite' %}
+<div class="conseil" style="margin-bottom:10px"><strong>{{ v.morts_jour|qte }} morts {{ "aujourd'hui" if v.jour_considere == today else 'hier' }}</strong>
+  {% if f.agent %}— Votre agent {{ f.agent.prenom or f.agent.nom }} a été prévenu{% endif %}</div>
+<a class="btn-gros-secondaire lien-rouge" href="{{ url_for('sante.declarer', bande=bande.numero) }}">🩺 Signaler un poulet malade</a>{% endif %}
+{% endif %}
+
+{% if x.cloture_proposee %}
+<div class="carte">
+  <div class="carte-titre">Tous les poulets sont sortis : clôturer la bande ?</div>
+  <form method="post" action="{{ url_for('bandes.cloturer', numero=bande.numero) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn-gros"><i class="bi bi-flag"></i> Clôturer la bande</button>
+  </form>
+</div>
+{% else %}
+{% set p = x.progression %}
+<div class="carte carte-grandit">
+  <div class="carte-titre-ligne"><span class="carte-titre">Votre bande grandit</span>{{ serie_pastille(x.serie) }}</div>
+  <div class="progression" role="img" aria-label="Jour {{ v.age }} sur {{ p.duree }}">
+    <div class="progression-barre"><span style="width:{{ p.pct }}%"></span></div>
+    <span class="progression-poussin" style="left:{{ p.pct }}%">{{ poussin() }}</span>
+  </div>
+  <div class="progression-etiquettes"><span>🐣 Jour 0</span><span>{{ p.message }}</span><span>Jour {{ p.duree }}</span></div>
+</div>
+
+<div class="carte">
+  {% with aliments=x.aliments, deja=x.deja, couleur=x.couleur, vue_eleveur=True, jour_saisie=None %}
+    {% include 'bandes/_form_saisie.html' %}
+  {% endwith %}
+</div>
+<div class="liens-discrets">
+  <a href="{{ url_for('bandes.oublie', numero=bande.numero) }}">Oublié un jour ?</a>
+  <a href="{{ url_for('sante.traiter', numero=bande.numero) }}">Traitement</a>
+  {% if x.raison != 'mortalite' %}<a href="{{ url_for('sante.declarer', bande=bande.numero) }}">Poulet malade ?</a>{% endif %}
+</div>
+<div class="boutons-secondaires">
+  <a class="btn-gros-secondaire" href="{{ url_for('bandes.pesee', numero=bande.numero) }}">⚖️ Peser</a>
+  <a class="btn-gros-secondaire" href="{{ url_for('bandes.sortie', numero=bande.numero) }}">🚚 Sortie</a>
+</div>
+{% if x.historique %}
+<ul class="historique-saisies">
+  {% for s in x.historique[:3] %}
+  <li><span class="historique-date">{{ s.date.strftime('%d/%m') }}</span> {{ s.morts|qte }} morts · {{ s.sacs|qte }} sacs
+    <span class="coche-envoye" title="Envoyé">✓ envoyé</span></li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% if x.encouragement and x.couleur == 'vert' %}<div class="encouragement">⭐ {{ x.encouragement }}</div>{% endif %}
+{% endif %}

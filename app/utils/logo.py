@@ -92,3 +92,44 @@ def dessiner_pdf(canvas, x, y, taille, couleurs):
             chemin.close()
             canvas.drawPath(chemin, stroke=0, fill=1)
     canvas.restoreState()
+
+
+# ── Le poulet mascotte de l'espace éleveur (même dessin, au trait fin) ──
+# Seul le visage change selon le feu de la bande ; malade : corps rosé et thermomètre.
+EXPRESSION_DU_FEU = {'vert': 'content', 'orange': 'inquiet', 'rouge': 'malade', 'gris': 'dort'}
+
+VISAGES = {
+    'content': '<path class="p-trait" d="M16.6,15.4 Q19.5,11.4 22.4,15.4"/>'
+               '<ellipse class="p-joue" cx="22.8" cy="19.8" rx="2.8" ry="1.9"/>',
+    'inquiet': '<circle class="p-blanc" cx="19.5" cy="14.8" r="3.2"/><circle class="p-pupille" cx="18.8" cy="15.3" r="1.5"/>'
+               '<path class="p-trait" d="M15.6,9.8 L22.8,11.8"/>'
+               '<path class="p-goutte" d="M30,5.5 C32.6,9.6 33.1,11.8 30,12.8 C26.9,11.8 27.4,9.6 30,5.5 Z"/>',
+    'malade': '<path class="p-trait" d="M17.2,12.4 L21.8,17 M21.8,12.4 L17.2,17"/>'
+              '<line class="p-thermo" x1="9" y1="18.5" x2="1.2" y2="24.2"/>'
+              '<circle class="p-thermo-bout" cx="1.6" cy="24" r="2"/>',
+    'dort': '<path class="p-trait" d="M16.6,14 Q19.5,17 22.4,14"/>'
+            '<text class="p-zzz" x="27" y="9">z</text><text class="p-zzz petit" x="31.5" y="4.5">z</text>',
+}
+LIBELLES = {'content': 'Poulet content', 'inquiet': 'Poulet inquiet', 'malade': 'Poulet malade',
+            'dort': 'Poulet qui dort'}
+
+
+def poulet(expression='content', classe=''):
+    """Mascotte en SVG (couleurs par eleveur.css). `expression` : content, inquiet, malade, dort,
+    ou une couleur de feu (vert, orange, rouge, gris)."""
+    expression = EXPRESSION_DU_FEU.get(expression, expression)
+    if expression not in VISAGES:
+        expression = 'content'
+    parties = []
+    for partie, forme, v in FORMES:
+        if partie == 'oeil':
+            continue
+        c = f'class="p-{partie}"'
+        if forme == 'ellipse':
+            parties.append(f'<ellipse {c} cx="{v[0]}" cy="{v[1]}" rx="{v[2]}" ry="{v[3]}"/>')
+        elif forme == 'trait':
+            parties.append(f'<line {c} x1="{v[0]}" y1="{v[1]}" x2="{v[2]}" y2="{v[3]}"/>')
+        else:
+            parties.append(f'<path {c} d="{_chemin_svg(v)}"/>')
+    return Markup(f'<svg class="poulet poulet-{expression} {classe}" viewBox="-2 0 66 64" role="img" '
+                  f'aria-label="{LIBELLES[expression]}">{"".join(parties)}{VISAGES[expression]}</svg>')

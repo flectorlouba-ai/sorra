@@ -9,7 +9,7 @@
 {% include '_tete.html' %}
   <title>{% block titre %}SORRA{% endblock %} — SORRA</title>
 </head>
-<body{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% endif %}>
+<body{% if theme_eleveur %} class="theme-eleveur"{% endif %}{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% endif %}>
 <div class="kente-band"></div>
 
 <div class="topbar">
@@ -17,7 +17,7 @@
     <div class="logo-texte">{{ logo_poulet() }}</div>
     <div>
       <div class="topbar-name">SORRA</div>
-      <div class="topbar-sub">{% block sous_titre %}{{ self.titre() }}{% endblock %}</div>
+      <div class="topbar-sub">{% if theme_eleveur %}<span class="bonjour">Bonjour {{ current_user.prenom or current_user.nom }} ! 👋</span>{% else %}{% block sous_titre %}{{ self.titre() }}{% endblock %}{% endif %}</div>
     </div>
   </a>
   <div class="topbar-right">
@@ -69,5 +69,6 @@ document.addEventListener('keydown', function (e) {
 </script>
 {% block scripts %}{% endblock %}
 {% if current_user.is_authenticated %}<script src="{{ url_for('static', filename='js/hors_ligne.js') }}"></script>{% endif %}
+{% if theme_eleveur %}<script src="{{ url_for('static', filename='js/eleveur.js') }}"></script>{% endif %}
 </body>
 </html>

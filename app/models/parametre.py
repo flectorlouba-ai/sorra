@@ -68,6 +68,16 @@ PARAMETRES_DEFAUT = [
     # Lot 6 — traçabilité
     ('tracabilite.adresse_publique', 'http://187.124.217.218:5021', TypeParametre.TEXTE,
      'Adresse du site imprimée dans les QR codes (à remplacer par le nom de domaine en HTTPS).'),
+] + [
+    # Lot 8 — espace éleveur : étoiles du bilan et conseil du feu rouge
+    ('bandes.etoiles_mortalite_3_pct', '3', TypeParametre.DECIMAL,
+     "Bilan : 3 étoiles si la mortalité est au plus de ce % (et l'indice de consommation au plus du seuil). À valider par les vétérinaires."),
+    ('bandes.etoiles_ic_3', '1.7', TypeParametre.DECIMAL,
+     'Bilan : indice de consommation maximal pour 3 étoiles. À valider par les vétérinaires.'),
+    ('bandes.etoiles_mortalite_2_pct', '5', TypeParametre.DECIMAL,
+     'Bilan : 2 étoiles si la mortalité est au plus de ce % (sinon 1 étoile, jamais 0). À valider par les vétérinaires.'),
+    ('sante.conseil_feu_rouge', "Isolez les poulets malades et ne vendez pas avant l'avis du vétérinaire.", TypeParametre.TEXTE,
+     "Conseil affiché à l'éleveur quand le feu de sa bande est rouge. À faire valider par les services vétérinaires."),
 ]
 
 

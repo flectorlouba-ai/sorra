@@ -4,5 +4,6 @@
   <link href="{{ url_for('static', filename='vendor/bootstrap-5.3.3/css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='vendor/bootstrap-icons-1.11.3/bootstrap-icons.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='css/perform.css') }}" rel="stylesheet">
+  {% if theme_eleveur or theme_illustre %}<link href="{{ url_for('static', filename='css/eleveur.css') }}" rel="stylesheet">{% endif %}
   <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
   <link rel="icon" href="{{ url_for('static', filename='icones/icone-192.png') }}">

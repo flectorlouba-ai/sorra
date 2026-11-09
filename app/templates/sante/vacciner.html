@@ -9,6 +9,21 @@
   {% if entree %}<input type="hidden" name="calendrier" value="{{ entree.id }}">{% endif %}
   {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
   {% set pid = saisie.get('produit_id') or (entree.produit_id|string if entree else '') %}
+  {% if theme_eleveur and entree %}
+  <div class="carte carte-vaccin">
+    <div class="carte-jour">💉 Vaccin du jour · {{ bande.batiment.code }}</div>
+    <div class="vaccin-nom">{{ entree.produit.nom }}</div>
+    <div class="carte-sous">{{ entree.mode }} · {{ present|qte }} poulets</div>
+  </div>
+  {% endif %}
+  {% set vue_simple = theme_eleveur and entree %}
+  {% if vue_simple %}
+  {# Vaccin du jour de l'éleveur : vaccin, mode, poulets et date déjà connus ; il ne reste que le compteur #}
+  <input type="hidden" name="produit_id" value="{{ entree.produit_id }}">
+  <input type="hidden" name="mode" value="{{ entree.mode }}">
+  <input type="hidden" name="nombre" value="{{ saisie.get('nombre') or present }}">
+  <input type="hidden" name="date" value="{{ today.isoformat() }}">
+  {% else %}
   <div class="form-group">
     <label class="form-label" for="produit_id">Vaccin</label>
     <select class="form-control" id="produit_id" name="produit_id" required>
@@ -29,15 +44,36 @@
       <button type="button" class="compteur-plus" aria-label="Plus">+</button>
     </div>
   </div>
+  {% endif %}
+  {% if theme_eleveur and entree %}
+  {% set unite = entree.produit.unite %}
+  <div class="compteur">
+    <div class="compteur-libelle">{{ unite|capitalize }} utilisé{{ 'e' if unite.endswith('doses') }}s<small>Stock à la ferme : {{ (stocks.get(entree.produit_id) or 0)|qte }} {{ unite }}</small></div>
+    <div class="compteur-boutons">
+      <button type="button" class="compteur-moins" aria-label="Moins">−</button>
+      <input type="number" name="quantite" value="{{ saisie.get('quantite') or (present if unite == 'doses' else 1) }}" min="0" step="1" inputmode="decimal" class="compteur-valeur">
+      <button type="button" class="compteur-plus" aria-label="Plus">+</button>
+    </div>
+  </div>
+  {% else %}
   <div class="form-group">
     <label class="form-label" for="quantite">Doses utilisées (stock)</label>
     <input class="form-control" id="quantite" name="quantite" inputmode="decimal" placeholder="Par défaut : une dose par poulet" value="{{ saisie.get('quantite', '') }}">
   </div>
+  {% endif %}
+  {% if not vue_simple %}
   <div class="form-group">
     <label class="form-label" for="date">Date</label>
     <input class="form-control" type="date" id="date" name="date" max="{{ today.isoformat() }}" value="{{ saisie.get('date') or today.isoformat() }}">
   </div>
+  {% endif %}
+  {% if theme_eleveur %}
+  <button type="submit" class="btn-gros btn-envoyer">✓ C'est fait</button>
+  <a class="btn-gros-secondaire" href="{{ url_for('accueil.index') }}#bat-{{ bande.ferme.numero }}-{{ bande.batiment.code }}">Pas encore fait</a>
+  <div class="form-hint">« Pas encore fait » : le vaccin reste dans « À faire aujourd'hui ». Deux jours après la date prévue, il passe « en retard » et votre agent est prévenu.</div>
+  {% else %}
   <button type="submit" class="btn-gros"><i class="bi bi-check-lg"></i> Enregistrer la vaccination</button>
+  {% endif %}
 </form>
 {% endblock %}
 {% block scripts %}<script src="{{ url_for('static', filename='js/compteurs.js') }}"></script>{% endblock %}

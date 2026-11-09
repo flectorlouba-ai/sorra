@@ -305,6 +305,7 @@ def arrondi(v, n=1):
 
 def bilan(bande):
     """Bilan figé à la clôture (enregistré dans la bande)."""
+    from app.services import ludique
     v = calculer(bande, bande.date_cloture)
     par_destinataire = {}
     for s in bande.sorties:
@@ -328,6 +329,10 @@ def bilan(bande):
         'regularite': arrondi(v['regularite'], 0),
         'partiels': bande.rattrapage,
         'sorties_par_destinataire': list(par_destinataire.values()),
+        # Lot 8 : étoiles gardées à la clôture, série record de la bande, poulets vendus
+        'etoiles': ludique.etoiles(arrondi(v['mortalite'], 2), arrondi(v['indice_consommation'], 2)),
+        'serie_record': ludique.plus_longue_serie(bande),
+        'vendus': sum(s.nombre for s in bande.sorties if s.motif in ('Abattoir', 'Vente')),
     }
 
 

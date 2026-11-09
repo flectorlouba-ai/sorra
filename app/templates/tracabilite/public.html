@@ -1,37 +1,40 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-{% include '_tete.html' %}
+{% set theme_illustre = True %}{% include '_tete.html' %}
   <meta name="robots" content="noindex">
   <title>{{ 'Produit au Gabon' if lot else 'Code inconnu' }} — SORRA</title>
 </head>
-<body class="page-connexion">
-<div class="kente-top"></div>
-<div class="login-card">
-  <div class="login-head">
-    <div class="login-head-logo">{{ logo_poulet() }}</div>
-    {% if lot %}
-    <h1>Produit au Gabon</h1>
-    <p>Consommons gabonais</p>
-    {% else %}
-    <h1>Code inconnu</h1>
-    <p>Suivi de la filière avicole</p>
-    {% endif %}
-  </div>
-  <div class="login-body">
-    {% if lot %}
-    <dl class="fiche-lignes public-lignes">
-      <dt>Ferme</dt><dd>{{ lot.ferme.nom }}</dd>
+<body class="page-publique theme-eleveur">
+{% if lot %}
+<header class="public-tete">
+  {{ poulet('content') }}
+  <h1>Produit au Gabon</h1>
+  <p>Consommons gabonais</p>
+</header>
+<main class="public-corps">
+  <div class="carte">
+    <dl class="public-lignes">
+      <dt>Élevé par</dt><dd>{{ lot.ferme.nom }}</dd>
       <dt>Localité</dt><dd>{{ lot.ferme.localite.nom }}</dd>
       <dt>Province</dt><dd>{{ lot.ferme.province.nom }}</dd>
-      <dt>Sortie de la ferme</dt><dd>{{ lot.sortie.date.strftime('%d/%m/%Y') }}</dd>
+      <dt>Sorti de la ferme</dt><dd>le {{ lot.sortie.date.strftime('%d/%m/%Y') }}</dd>
+      <dt>Lot</dt><dd class="mono">{{ lot.numero }}</dd>
     </dl>
-    <div class="public-mention"><i class="bi bi-info-circle"></i> Ce QR code n'est pas un certificat sanitaire.</div>
-    {% else %}
-    <p class="texte-aide">Ce code ne correspond à aucun lot de poulets suivi par le programme.</p>
-    {% endif %}
   </div>
-  <div class="login-foot">SORRA — suivi et traçabilité de la filière avicole</div>
-</div>
+  <p class="public-mention">Ce QR code n'est pas un certificat sanitaire.</p>
+  <p class="public-marque">SORRA</p>
+</main>
+{% else %}
+<header class="public-tete public-inconnu">
+  {{ poulet('dort') }}
+  <h1>Code inconnu</h1>
+  <p>Suivi de la filière avicole</p>
+</header>
+<main class="public-corps">
+  <div class="carte"><p class="texte-aide">Ce code ne correspond à aucun lot de poulets suivi par le programme.</p></div>
+  <p class="public-marque">SORRA</p>
+</main>
+{% endif %}
 </body>
 </html>

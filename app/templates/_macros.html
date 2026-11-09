@@ -55,3 +55,23 @@
 {% macro resume_lignes(liv) -%}
 {%- for l in liv.lignes %}{{ l.quantite_livree|qte }} {{ l.produit.unite }} {{ l.produit.nom }}{% if not loop.last %}, {% endif %}{% endfor -%}
 {%- endmacro %}
+
+
+{# ── Lot 8 : espace éleveur « illustré doux » ── #}
+{% macro etoiles(n, grande=false) -%}
+<span class="etoiles{{ ' etoiles-grandes' if grande }}" role="img" aria-label="{{ n }} étoile{{ 's' if n > 1 }} sur 3">
+  {%- for i in range(3) %}<span class="etoile{{ '' if i < n else ' eteinte' }}">★</span>{% endfor -%}
+</span>
+{%- endmacro %}
+
+{% macro poussin() -%}
+<svg class="poussin" viewBox="0 0 32 32" aria-hidden="true"><ellipse class="poussin-corps" cx="17" cy="20" rx="10" ry="8.5"/>
+<circle class="poussin-corps" cx="11" cy="11" r="6.5"/><path class="poussin-bec" d="M4.6,10.6 L1,12.3 L4.8,13.6 Z"/>
+<circle class="poussin-oeil" cx="9.5" cy="9.8" r="1.2"/><path class="poussin-aile" d="M15,19 Q20,15 24,19 Q20,23 15,19 Z"/>
+<line class="poussin-patte" x1="14" y1="28.5" x2="14" y2="31"/><line class="poussin-patte" x1="20" y1="28.5" x2="20" y2="31"/></svg>
+{%- endmacro %}
+
+{% macro serie_pastille(s) -%}
+{% if s.n >= 1 %}<span class="serie">🔥 {% if s.repart and s.n == 1 %}On repart : 1 jour !{% else %}{{ s.n }} jour{{ 's' if s.n > 1 }}{% endif %}</span>
+{%- elif s.repart %}<span class="serie serie-zero">🔥 Envoyez aujourd'hui pour repartir</span>{% endif %}
+{%- endmacro %}

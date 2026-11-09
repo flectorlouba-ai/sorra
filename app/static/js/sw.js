@@ -2,11 +2,17 @@
  * Fichiers de style et scripts : gardés sur le téléphone.
  * Pages : réseau d'abord ; sans réseau, la dernière version vue sur ce téléphone.
  * Les envois (POST) ne passent jamais par ici : hors_ligne.js s'en occupe. */
-var VERSION = 'v2';   // v2 : nom SORRA et logo
+var VERSION = 'v3';   // v3 : espace éleveur « illustré doux » (lot 8)
 var STATIQUES = 'performyl2-statiques-' + VERSION;
 var PAGES = 'performyl2-pages';
 var A_GARDER = [
   '/static/css/perform.css',
+  '/static/css/eleveur.css',
+  '/static/js/eleveur.js',
+  '/static/polices/nunito-latin-400-normal.woff2',
+  '/static/polices/nunito-latin-600-normal.woff2',
+  '/static/polices/nunito-latin-700-normal.woff2',
+  '/static/polices/nunito-latin-800-normal.woff2',
   '/static/polices/polices.css',
   '/static/vendor/bootstrap-5.3.3/css/bootstrap.min.css',
   '/static/vendor/bootstrap-icons-1.11.3/bootstrap-icons.min.css',
