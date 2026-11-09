@@ -19,7 +19,7 @@
         <div class="td-sous">Téléphone perdu : demandez à l'administrateur de la réinitialiser.</div>
         {% else %}
         <div class="mb-2">{% if obligatoire %}<span class="badge badge-warn">Obligatoire pour votre profil</span>{% else %}Facultative pour votre profil.{% endif %}</div>
-        <a class="btn-new" href="{{ url_for('auth.mise_en_place') }}">Activer la double authentification</a>
+        {% if demo %}<span class="td-sous">Désactivé en démonstration.</span>{% else %}<a class="btn-new" href="{{ url_for('auth.mise_en_place') }}">Activer la double authentification</a>{% endif %}
         {% endif %}
         {% if not active %}<div class="td-sous mt-2">Sur ce serveur (démonstration), la double authentification n'est pas demandée à la connexion.</div>{% endif %}
       </div>

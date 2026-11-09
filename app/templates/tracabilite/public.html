@@ -6,6 +6,7 @@
   <title>{{ 'Produit au Gabon' if lot else 'Code inconnu' }} — SORRA</title>
 </head>
 <body class="page-publique theme-eleveur">
+{% include '_bandeau_demo.html' %}
 {% if lot %}
 <header class="public-tete">
   {{ poulet('content', taille=100) }}

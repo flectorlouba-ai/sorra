@@ -12,8 +12,8 @@
   <label for="telephone"><small>Mon téléphone</small></label>
   {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
   <input class="form-control champ-gros" id="telephone" name="telephone" inputmode="tel" maxlength="30"
-         value="{{ request.form.get('telephone', current_user.telephone or '') }}" placeholder="+241 …">
-  <button type="submit" class="btn-gros btn-vert mt-2">Enregistrer mon téléphone</button>
+         value="{{ request.form.get('telephone', current_user.telephone or '') }}" placeholder="+241 …"{% if demo %} readonly{% endif %}>
+  {% if not demo %}<button type="submit" class="btn-gros btn-vert mt-2">Enregistrer mon téléphone</button>{% endif %}
 </form>
 
 {% for f in fermes %}

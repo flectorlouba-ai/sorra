@@ -1,0 +1,3817 @@
+{
+"reference": "2026-11-09",
+"tables": {
+"aide": [
+{
+"actif": true,
+"cle": "saisie",
+"cree_le": "2026-11-09T08:32:28.933127",
+"etapes": [
+{
+"capture": "aucun_mort",
+"texte": "Comptez les poulets morts. Touchez + ou « Aucun mort »."
+},
+{
+"capture": "comme_hier",
+"texte": "Touchez le nombre de sacs donnés, ou « Comme hier »."
+},
+{
+"capture": "envoyer",
+"texte": "Touchez « Envoyer ✓ ». C'est fini."
+}
+],
+"groupe": "Chaque jour",
+"id": 1,
+"modifie_le": "2026-11-09T08:32:28.933127",
+"ordre": 0,
+"titre": "Noter les morts et l'aliment"
+},
+{
+"actif": true,
+"cle": "vaccin",
+"cree_le": "2026-11-09T08:32:28.933127",
+"etapes": [
+{
+"capture": "",
+"texte": "Donnez le vaccin comme le vétérinaire l'a dit."
+},
+{
+"capture": "cest_fait",
+"texte": "Touchez « ✓ C'est fait »."
+},
+{
+"capture": "annuler",
+"texte": "Une erreur ? Touchez « Annuler » tout de suite."
+}
+],
+"groupe": "Chaque jour",
+"id": 2,
+"modifie_le": "2026-11-09T08:32:28.933127",
+"ordre": 1,
+"titre": "Faire un vaccin"
+},
+{
+"actif": true,
+"cle": "entretien",
+"cree_le": "2026-11-09T08:32:28.933127",
+"etapes": [
+{
+"capture": "fait",
+"texte": "Le travail est fait ? Touchez « Fait ✓ »."
+},
+{
+"capture": "panne",
+"texte": "Quelque chose est cassé ? Touchez « Quelque chose est en panne »."
+},
+{
+"capture": "",
+"texte": "Votre agent est prévenu."
+}
+],
+"groupe": "Chaque jour",
+"id": 3,
+"modifie_le": "2026-11-09T08:32:28.933127",
+"ordre": 2,
+"titre": "Cocher l'entretien, signaler une panne"
+},
+{
+"actif": true,
+"cle": "pesee",
+"cree_le": "2026-11-09T08:32:28.933127",
+"etapes": [
+{
+"capture": "balance",
+"texte": "Prenez 10 poulets au hasard."
+},
+{
+"capture": "",
+"texte": "Pesez-les ensemble et notez le poids total."
+},
+{
+"capture": "enregistrer_pesee",
+"texte": "Touchez « Enregistrer la pesée »."
+}
+],
+"groupe": "Ma bande",
+"id": 4,
+"modifie_le": "2026-11-09T08:32:28.933127",
+"ordre": 3,
+"titre": "Peser mes poulets"
+},
+{
+"actif": true,
+"cle": "sortie",
+"cree_le": "2026-11-09T08:32:28.933127",
+"etapes": [
+{
+"capture": "types_sortie",
+"texte": "Touchez qui prend les poulets : abattoir, vente ou autre."
+},
+{
+"capture": "",
+"texte": "Comptez les poulets et notez le poids."
+},
+{
+"capture": "enregistrer_sortie",
+"texte": "Notez l'argent reçu si vous le savez, puis « Enregistrer »."
+}
+],
+"groupe": "Ma bande",
+"id": 5,
+"modifie_le": "2026-11-09T08:32:28.933127",
+"ordre": 4,
+"titre": "Enregistrer une vente ou une sortie"
+},
+{
+"actif": true,
+"cle": "malade",
+"cree_le": "2026-11-09T08:32:28.933127",
+"etapes": [
+{
+"capture": "signes",
+"texte": "Touchez ce que vous voyez : toux, diarrhée…"
+},
+{
+"capture": "photo",
+"texte": "Prenez une photo si vous pouvez."
+},
+{
+"capture": "envoyer_veto",
+"texte": "Touchez « Envoyer au vétérinaire ». Il vous répondra."
+}
+],
+"groupe": "Santé",
+"id": 6,
+"modifie_le": "2026-11-09T08:32:28.933127",
+"ordre": 5,
+"titre": "Prévenir le vétérinaire"
+},
+{
+"actif": true,
+"cle": "achat",
+"cree_le": "2026-11-09T08:32:28.933127",
+"etapes": [
+{
+"capture": "produit",
+"texte": "Touchez ce que vous avez acheté."
+},
+{
+"capture": "",
+"texte": "Notez la quantité, et le prix si vous voulez."
+},
+{
+"capture": "enregistrer",
+"texte": "Touchez « Enregistrer »."
+}
+],
+"groupe": "Mon argent",
+"id": 7,
+"modifie_le": "2026-11-09T08:32:28.933127",
+"ordre": 6,
+"titre": "Noter un achat"
+},
+{
+"actif": true,
+"cle": "depense",
+"cree_le": "2026-11-09T08:32:28.933127",
+"etapes": [
+{
+"capture": "categorie",
+"texte": "Touchez pour quoi vous avez payé."
+},
+{
+"capture": "",
+"texte": "Notez combien vous avez payé."
+},
+{
+"capture": "enregistrer",
+"texte": "Touchez « Enregistrer »."
+}
+],
+"groupe": "Mon argent",
+"id": 8,
+"modifie_le": "2026-11-09T08:32:28.933127",
+"ordre": 7,
+"titre": "Noter une dépense"
+},
+{
+"actif": true,
+"cle": "argent",
+"cree_le": "2026-11-09T08:32:28.933127",
+"etapes": [
+{
+"capture": "gagne",
+"texte": "« Gagné » : l'argent de vos ventes."
+},
+{
+"capture": "depense",
+"texte": "« Dépensé » : vos achats et vos dépenses."
+},
+{
+"capture": "reste",
+"texte": "« Reste » : ce qui vous reste."
+}
+],
+"groupe": "Mon argent",
+"id": 9,
+"modifie_le": "2026-11-09T08:32:28.933127",
+"ordre": 8,
+"titre": "Lire « Mon argent »"
+}
+],
+"alerte_historique": [
+{
+"alerte_id": 1,
+"commentaire": "12 animal(aux) touché(s) : Abattement, Diarrhée",
+"date": "2026-11-08T22:37:36.671261",
+"id": 1,
+"statut": "NOUVELLE",
+"utilisateur_id": null
+},
+{
+"alerte_id": 1,
+"commentaire": "Visite prévue demain",
+"date": "2026-11-08T22:37:45.563293",
+"id": 2,
+"statut": "EN_ANALYSE",
+"utilisateur_id": "85ccc67c-77ba-4e8c-8d6d-6ac031ea445a"
+}
+],
+"alerte_sanitaire": [
+{
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"confirmee": false,
+"cree_le": "2026-11-08T22:37:36.668875",
+"declaration_id": "6d7a6cf8-20d8-4121-875b-38d38e93d5a5",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": 1,
+"modifie_le": "2026-11-08T22:37:45.561540",
+"numero": "ALS-2026-0001",
+"origine": "DECLARATION",
+"statut": "EN_ANALYSE"
+}
+],
+"bande": [
+{
+"appareil_id": null,
+"batiment_id": 1,
+"bilan": {
+"aliment_kg": 100,
+"duree_jours": 0,
+"gmq": null,
+"indice_consommation": 0.5,
+"mis_en_place": 997,
+"mortalite": 1.71,
+"morts": 17,
+"partiels": false,
+"poids_moyen_sortie_kg": 2.0,
+"poids_vif_produit_kg": 199.7,
+"regularite": 100.0,
+"sorties_par_destinataire": [
+{
+"destinataire": "Abattoir de Ntoum",
+"motif": "Abattoir",
+"nombre": 100,
+"poids_kg": 200
+}
+],
+"sortis": 100,
+"viabilite": 98.29
+},
+"cloturee_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"cree_le": "2026-11-08T22:08:03.398453",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date_cloture": "2026-11-08",
+"date_fin_prevue": "2026-12-23",
+"date_mise_en_place": "2026-11-08",
+"effectif_initial": 997,
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": "78bc1197-05da-43a5-9350-f8a668d31b86",
+"modifie_le": "2026-11-08T22:08:28.530077",
+"modifie_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"morts_avant_suivi": 0,
+"motif_cloture": "Essai de démonstration",
+"numero_metier": "EST-001-B1-01",
+"numero_provisoire": false,
+"ouverte_sans_desinfection": false,
+"poids_initial_g": 40,
+"rang": 1,
+"rattrapage": false,
+"statut": "CLOTUREE",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": null,
+"batiment_id": 2,
+"bilan": null,
+"cloturee_par": null,
+"cree_le": "2026-11-08T22:37:16.253941",
+"cree_par": null,
+"date_cloture": null,
+"date_fin_prevue": "2026-12-09",
+"date_mise_en_place": "2026-10-25",
+"effectif_initial": 1195,
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"modifie_le": "2026-11-08T23:35:32.612865",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"morts_avant_suivi": 0,
+"motif_cloture": null,
+"numero_metier": "EST-001-B2-01",
+"numero_provisoire": false,
+"ouverte_sans_desinfection": false,
+"poids_initial_g": 40,
+"rang": 1,
+"rattrapage": false,
+"statut": "EN_COURS",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": null,
+"batiment_id": 3,
+"bilan": {
+"duree_jours": 45,
+"etoiles": 2,
+"gmq": 52,
+"incomplet": false,
+"indice_consommation": 1.72,
+"jours_non_saisis": 0,
+"mis_en_place": 1000,
+"mortalite": 3.1,
+"morts": 31,
+"partiels": false,
+"poids_moyen_sortie_kg": 2.1,
+"regularite": 96,
+"serie_record": 30,
+"sorties_par_destinataire": [],
+"sortis": 969,
+"vendus": 969,
+"viabilite": 96.9
+},
+"cloturee_par": null,
+"cree_le": "2026-11-09T10:37:44.194718",
+"cree_par": null,
+"date_cloture": "2026-07-27",
+"date_fin_prevue": "2026-07-27",
+"date_mise_en_place": "2026-06-12",
+"effectif_initial": 1000,
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"id": "968c8470-7cc1-4b45-8a3c-a1e32329c51e",
+"modifie_le": "2026-11-09T10:37:44.194722",
+"modifie_par": null,
+"morts_avant_suivi": 0,
+"motif_cloture": null,
+"numero_metier": "EST-002-B1-90",
+"numero_provisoire": false,
+"ouverte_sans_desinfection": false,
+"poids_initial_g": 40,
+"rang": 90,
+"rattrapage": false,
+"statut": "CLOTUREE",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": null,
+"batiment_id": 3,
+"bilan": {
+"duree_jours": 45,
+"etoiles": 2,
+"gmq": 49,
+"incomplet": false,
+"indice_consommation": 1.8,
+"jours_non_saisis": 0,
+"mis_en_place": 1000,
+"mortalite": 4.0,
+"morts": 40,
+"partiels": false,
+"poids_moyen_sortie_kg": 2.1,
+"regularite": 91,
+"serie_record": 30,
+"sorties_par_destinataire": [],
+"sortis": 960,
+"vendus": 960,
+"viabilite": 96.0
+},
+"cloturee_par": null,
+"cree_le": "2026-11-09T10:37:44.194731",
+"cree_par": null,
+"date_cloture": "2026-05-28",
+"date_fin_prevue": "2026-05-28",
+"date_mise_en_place": "2026-04-13",
+"effectif_initial": 1000,
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"id": "62d657b7-2189-4132-9029-3c7047cef7e9",
+"modifie_le": "2026-11-09T10:37:44.194732",
+"modifie_par": null,
+"morts_avant_suivi": 0,
+"motif_cloture": null,
+"numero_metier": "EST-002-B1-91",
+"numero_provisoire": false,
+"ouverte_sans_desinfection": false,
+"poids_initial_g": 40,
+"rang": 91,
+"rattrapage": false,
+"statut": "CLOTUREE",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": null,
+"batiment_id": 4,
+"bilan": {
+"duree_jours": 45,
+"etoiles": 2,
+"gmq": 44,
+"incomplet": false,
+"indice_consommation": 2.05,
+"jours_non_saisis": 0,
+"mis_en_place": 1000,
+"mortalite": 6.5,
+"morts": 65,
+"partiels": false,
+"poids_moyen_sortie_kg": 2.1,
+"regularite": 88,
+"serie_record": 30,
+"sorties_par_destinataire": [],
+"sortis": 935,
+"vendus": 935,
+"viabilite": 93.5
+},
+"cloturee_par": null,
+"cree_le": "2026-11-09T10:37:44.216750",
+"cree_par": null,
+"date_cloture": "2026-07-27",
+"date_fin_prevue": "2026-07-27",
+"date_mise_en_place": "2026-06-12",
+"effectif_initial": 1000,
+"ferme_id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"id": "0e597191-efe3-4c83-a708-8721d7aa7305",
+"modifie_le": "2026-11-09T10:37:44.216753",
+"modifie_par": null,
+"morts_avant_suivi": 0,
+"motif_cloture": null,
+"numero_metier": "EST-003-B1-90",
+"numero_provisoire": false,
+"ouverte_sans_desinfection": false,
+"poids_initial_g": 40,
+"rang": 90,
+"rattrapage": false,
+"statut": "CLOTUREE",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": null,
+"batiment_id": 4,
+"bilan": {
+"duree_jours": 45,
+"etoiles": 2,
+"gmq": 58,
+"incomplet": false,
+"indice_consommation": 1.6,
+"jours_non_saisis": 0,
+"mis_en_place": 1000,
+"mortalite": 2.0,
+"morts": 20,
+"partiels": false,
+"poids_moyen_sortie_kg": 2.1,
+"regularite": 62,
+"serie_record": 30,
+"sorties_par_destinataire": [],
+"sortis": 980,
+"vendus": 980,
+"viabilite": 98.0
+},
+"cloturee_par": null,
+"cree_le": "2026-11-09T10:37:44.216761",
+"cree_par": null,
+"date_cloture": "2026-05-28",
+"date_fin_prevue": "2026-05-28",
+"date_mise_en_place": "2026-04-13",
+"effectif_initial": 1000,
+"ferme_id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"id": "b646cc8c-1089-433d-9eed-831e086cf03a",
+"modifie_le": "2026-11-09T10:37:44.216762",
+"modifie_par": null,
+"morts_avant_suivi": 0,
+"motif_cloture": null,
+"numero_metier": "EST-003-B1-91",
+"numero_provisoire": false,
+"ouverte_sans_desinfection": false,
+"poids_initial_g": 40,
+"rang": 91,
+"rattrapage": false,
+"statut": "CLOTUREE",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": null,
+"batiment_id": 5,
+"bilan": {
+"duree_jours": 45,
+"etoiles": 2,
+"gmq": 57,
+"incomplet": false,
+"indice_consommation": 1.58,
+"jours_non_saisis": 0,
+"mis_en_place": 1000,
+"mortalite": 2.2,
+"morts": 22,
+"partiels": false,
+"poids_moyen_sortie_kg": 2.1,
+"regularite": 98,
+"serie_record": 30,
+"sorties_par_destinataire": [],
+"sortis": 978,
+"vendus": 978,
+"viabilite": 97.8
+},
+"cloturee_par": null,
+"cree_le": "2026-11-09T10:37:44.223861",
+"cree_par": null,
+"date_cloture": "2026-07-27",
+"date_fin_prevue": "2026-07-27",
+"date_mise_en_place": "2026-06-12",
+"effectif_initial": 1000,
+"ferme_id": "a42b31e3-f812-4e06-9e68-c706f64eb946",
+"id": "208b5107-974b-415a-9cd5-89a576b4e6c7",
+"modifie_le": "2026-11-09T10:37:44.223863",
+"modifie_par": null,
+"morts_avant_suivi": 0,
+"motif_cloture": null,
+"numero_metier": "HOG-001-B1-90",
+"numero_provisoire": false,
+"ouverte_sans_desinfection": false,
+"poids_initial_g": 40,
+"rang": 90,
+"rattrapage": false,
+"statut": "CLOTUREE",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": null,
+"batiment_id": 8,
+"bilan": {
+"duree_jours": 45,
+"etoiles": 2,
+"gmq": 46,
+"incomplet": false,
+"indice_consommation": 1.95,
+"jours_non_saisis": 0,
+"mis_en_place": 1000,
+"mortalite": 5.0,
+"morts": 50,
+"partiels": false,
+"poids_moyen_sortie_kg": 2.1,
+"regularite": 85,
+"serie_record": 30,
+"sorties_par_destinataire": [],
+"sortis": 950,
+"vendus": 950,
+"viabilite": 95.0
+},
+"cloturee_par": null,
+"cree_le": "2026-11-09T10:37:44.227984",
+"cree_par": null,
+"date_cloture": "2026-07-27",
+"date_fin_prevue": "2026-07-27",
+"date_mise_en_place": "2026-06-12",
+"effectif_initial": 1000,
+"ferme_id": "b182c16f-cee7-4b68-9f7e-42c52963e6e0",
+"id": "04780bd4-46c8-49c6-9929-6be592bcf034",
+"modifie_le": "2026-11-09T10:37:44.227987",
+"modifie_par": null,
+"morts_avant_suivi": 0,
+"motif_cloture": null,
+"numero_metier": "HOG-002-B1-90",
+"numero_provisoire": false,
+"ouverte_sans_desinfection": false,
+"poids_initial_g": 40,
+"rang": 90,
+"rattrapage": false,
+"statut": "CLOTUREE",
+"statut_synchro": "SYNCHRONISE"
+}
+],
+"bande_poussins": [
+{
+"bande_id": "78bc1197-05da-43a5-9350-f8a668d31b86",
+"id": 1,
+"livraison_ligne_id": 1,
+"quantite": 997
+},
+{
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"id": 2,
+"livraison_ligne_id": 8,
+"quantite": 1195
+}
+],
+"batiment": [
+{
+"actif": true,
+"capacite": 1200,
+"code": "B1",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": 1,
+"nom": null,
+"rang": 1
+},
+{
+"actif": true,
+"capacite": 800,
+"code": "B2",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": 2,
+"nom": null,
+"rang": 2
+},
+{
+"actif": true,
+"capacite": 1500,
+"code": "B1",
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"id": 3,
+"nom": null,
+"rang": 1
+},
+{
+"actif": true,
+"capacite": 600,
+"code": "B1",
+"ferme_id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"id": 4,
+"nom": null,
+"rang": 1
+},
+{
+"actif": true,
+"capacite": 2000,
+"code": "B1",
+"ferme_id": "a42b31e3-f812-4e06-9e68-c706f64eb946",
+"id": 5,
+"nom": null,
+"rang": 1
+},
+{
+"actif": true,
+"capacite": 2000,
+"code": "B2",
+"ferme_id": "a42b31e3-f812-4e06-9e68-c706f64eb946",
+"id": 6,
+"nom": null,
+"rang": 2
+},
+{
+"actif": true,
+"capacite": 1000,
+"code": "B3",
+"ferme_id": "a42b31e3-f812-4e06-9e68-c706f64eb946",
+"id": 7,
+"nom": null,
+"rang": 3
+},
+{
+"actif": true,
+"capacite": 900,
+"code": "B1",
+"ferme_id": "b182c16f-cee7-4b68-9f7e-42c52963e6e0",
+"id": 8,
+"nom": null,
+"rang": 1
+}
+],
+"blocage_sorties": [
+{
+"alerte_id": null,
+"bande_id": "78bc1197-05da-43a5-9350-f8a668d31b86",
+"cree_le": "2026-10-15T10:26:16.350221",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": 1,
+"leve_le": "2026-10-20T10:26:16.350204",
+"leve_par": "85ccc67c-77ba-4e8c-8d6d-6ac031ea445a",
+"modifie_le": "2026-11-09T10:26:16.351563",
+"motif": "Délai d’attente après traitement",
+"motif_levee": "Délai terminé, analyses correctes",
+"pose_par": "85ccc67c-77ba-4e8c-8d6d-6ac031ea445a"
+},
+{
+"alerte_id": 1,
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"cree_le": "2026-11-09T10:26:16.355952",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": 2,
+"leve_le": null,
+"leve_par": null,
+"modifie_le": "2026-11-09T10:26:16.355955",
+"motif": "Suspicion de Newcastle : attendre les résultats du laboratoire",
+"motif_levee": null,
+"pose_par": "85ccc67c-77ba-4e8c-8d6d-6ac031ea445a"
+}
+],
+"calendrier_vaccinal": [
+{
+"actif": true,
+"age_jours": 7,
+"id": 1,
+"mode": "Goutte oculaire",
+"produit_id": 5
+},
+{
+"actif": true,
+"age_jours": 14,
+"id": 2,
+"mode": "Eau de boisson",
+"produit_id": 6
+},
+{
+"actif": true,
+"age_jours": 21,
+"id": 3,
+"mode": "Eau de boisson",
+"produit_id": 7
+},
+{
+"actif": true,
+"age_jours": 28,
+"id": 4,
+"mode": "Eau de boisson",
+"produit_id": 8
+}
+],
+"commande_intrant": [
+{
+"cree_le": "2026-11-09T10:11:24.629324",
+"decidee_le": null,
+"decidee_par": null,
+"demandee_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": 1,
+"livraison_id": null,
+"modifie_le": "2026-11-09T10:11:24.629327",
+"motif": "Bande B1 passe en croissance la semaine prochaine",
+"motif_refus": null,
+"produit_id": 3,
+"quantite": 40,
+"refus_lu_le": null,
+"statut": "ENVOYEE"
+},
+{
+"cree_le": "2026-11-09T10:11:24.631347",
+"decidee_le": "2026-11-09T10:11:24.632588",
+"decidee_par": "576cda5c-d800-43c4-9966-e6f7cbaa5577",
+"demandee_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"id": 2,
+"livraison_id": null,
+"modifie_le": "2026-11-09T10:11:24.633423",
+"motif": "Nouvelle bande prévue le 20",
+"motif_refus": null,
+"produit_id": 2,
+"quantite": 30,
+"refus_lu_le": null,
+"statut": "VALIDEE"
+},
+{
+"cree_le": "2026-11-09T10:11:24.633635",
+"decidee_le": "2026-11-09T10:11:24.635540",
+"decidee_par": "576cda5c-d800-43c4-9966-e6f7cbaa5577",
+"demandee_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"ferme_id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"id": 3,
+"livraison_id": null,
+"modifie_le": "2026-11-09T10:11:24.636028",
+"motif": "Rappel Gumboro",
+"motif_refus": "Vaccin fourni par les services vétérinaires à la visite",
+"produit_id": 6,
+"quantite": 2,
+"refus_lu_le": null,
+"statut": "REFUSEE"
+},
+{
+"cree_le": "2026-11-09T10:11:24.636176",
+"decidee_le": null,
+"decidee_par": null,
+"demandee_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"ferme_id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"id": 4,
+"livraison_id": null,
+"modifie_le": "2026-11-09T10:11:24.636178",
+"motif": null,
+"motif_refus": null,
+"produit_id": 2,
+"quantite": 25,
+"refus_lu_le": null,
+"statut": "ENVOYEE"
+}
+],
+"compteur": [
+{
+"annee": 0,
+"dernier_numero": 4,
+"id": 1,
+"prefixe": "EST",
+"type": "FERME"
+},
+{
+"annee": 0,
+"dernier_numero": 2,
+"id": 2,
+"prefixe": "EST-001",
+"type": "BATIMENT"
+},
+{
+"annee": 0,
+"dernier_numero": 1,
+"id": 3,
+"prefixe": "EST-002",
+"type": "BATIMENT"
+},
+{
+"annee": 0,
+"dernier_numero": 1,
+"id": 4,
+"prefixe": "EST-003",
+"type": "BATIMENT"
+},
+{
+"annee": 0,
+"dernier_numero": 2,
+"id": 5,
+"prefixe": "HOG",
+"type": "FERME"
+},
+{
+"annee": 0,
+"dernier_numero": 3,
+"id": 6,
+"prefixe": "HOG-001",
+"type": "BATIMENT"
+},
+{
+"annee": 0,
+"dernier_numero": 1,
+"id": 7,
+"prefixe": "HOG-002",
+"type": "BATIMENT"
+},
+{
+"annee": 0,
+"dernier_numero": 3,
+"id": 8,
+"prefixe": "OPE",
+"type": "OPERATEUR"
+},
+{
+"annee": 2026,
+"dernier_numero": 9,
+"id": 9,
+"prefixe": "LIV",
+"type": "LIVRAISON"
+},
+{
+"annee": 0,
+"dernier_numero": 1,
+"id": 10,
+"prefixe": "EST-001-B1",
+"type": "BANDE"
+},
+{
+"annee": 0,
+"dernier_numero": 1,
+"id": 11,
+"prefixe": "EST-001-B2",
+"type": "BANDE"
+},
+{
+"annee": 2026,
+"dernier_numero": 1,
+"id": 12,
+"prefixe": "ALS",
+"type": "ALERTE"
+},
+{
+"annee": 0,
+"dernier_numero": 1,
+"id": 13,
+"prefixe": "EST-001-B2-01",
+"type": "LOT"
+}
+],
+"conflit_hors_ligne": [
+{
+"bande_id": null,
+"cree_le": "2026-11-08T23:36:45.809681",
+"decide_le": null,
+"decide_par": null,
+"detail": "Deux saisies pour ce jour. Gardée : la plus récente, faite sans réseau (2 morts, 0 sacs). Remplacée : 2 morts, 0 sacs.",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"genre": "MESSAGE",
+"id": 1,
+"motif": null,
+"objet_id": null,
+"objet_table": null,
+"quoi": "Saisie du 09/11 · bande EST-001-B2-01",
+"retenue": null,
+"statut": null,
+"utilisateur_id": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"versions": null,
+"vu_le": null,
+"vu_par": null
+},
+{
+"bande_id": null,
+"cree_le": "2026-11-08T23:38:03.684534",
+"decide_le": null,
+"decide_par": null,
+"detail": "Deux saisies pour ce jour. Gardée : la plus récente, faite sans réseau (2 morts, 0 sacs). Remplacée : 2 morts, 0 sacs.",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"genre": "MESSAGE",
+"id": 2,
+"motif": null,
+"objet_id": null,
+"objet_table": null,
+"quoi": "Saisie du 09/11 · bande EST-001-B2-01",
+"retenue": null,
+"statut": null,
+"utilisateur_id": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"versions": null,
+"vu_le": null,
+"vu_par": null
+},
+{
+"bande_id": null,
+"cree_le": "2026-11-08T23:39:20.430780",
+"decide_le": null,
+"decide_par": null,
+"detail": "Deux saisies pour ce jour. Gardée : la plus récente, faite sans réseau (2 morts, 0 sacs). Remplacée : 2 morts, 0 sacs.",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"genre": "MESSAGE",
+"id": 3,
+"motif": null,
+"objet_id": null,
+"objet_table": null,
+"quoi": "Saisie du 09/11 · bande EST-001-B2-01",
+"retenue": null,
+"statut": null,
+"utilisateur_id": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"versions": null,
+"vu_le": null,
+"vu_par": null
+},
+{
+"bande_id": null,
+"cree_le": "2026-11-08T23:40:24.200123",
+"decide_le": null,
+"decide_par": null,
+"detail": "Deux saisies pour ce jour. Gardée : la plus récente, faite sans réseau (2 morts, 0 sacs). Remplacée : 2 morts, 0 sacs.",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"genre": "MESSAGE",
+"id": 4,
+"motif": null,
+"objet_id": null,
+"objet_table": null,
+"quoi": "Saisie du 09/11 · bande EST-001-B2-01",
+"retenue": null,
+"statut": null,
+"utilisateur_id": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"versions": null,
+"vu_le": null,
+"vu_par": null
+},
+{
+"bande_id": null,
+"cree_le": "2026-11-08T23:42:49.075402",
+"decide_le": null,
+"decide_par": null,
+"detail": "Deux saisies pour ce jour. Gardée : la plus récente, faite sans réseau (2 morts, 0 sacs). Remplacée : 2 morts, 0 sacs.",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"genre": "MESSAGE",
+"id": 5,
+"motif": null,
+"objet_id": null,
+"objet_table": null,
+"quoi": "Saisie du 09/11 · bande EST-001-B2-01",
+"retenue": null,
+"statut": null,
+"utilisateur_id": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"versions": null,
+"vu_le": null,
+"vu_par": null
+},
+{
+"bande_id": null,
+"cree_le": "2026-11-08T23:45:29.808419",
+"decide_le": null,
+"decide_par": null,
+"detail": "Deux saisies pour ce jour. Gardée : la plus récente, faite sans réseau (2 morts, 0 sacs). Remplacée : 2 morts, 0 sacs.",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"genre": "MESSAGE",
+"id": 6,
+"motif": null,
+"objet_id": null,
+"objet_table": null,
+"quoi": "Saisie du 09/11 · bande EST-001-B2-01",
+"retenue": null,
+"statut": null,
+"utilisateur_id": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"versions": null,
+"vu_le": null,
+"vu_par": null
+},
+{
+"bande_id": null,
+"cree_le": "2026-11-08T23:46:36.979301",
+"decide_le": null,
+"decide_par": null,
+"detail": "Deux saisies pour ce jour. Gardée : la plus récente, faite sans réseau (2 morts, 0 sacs). Remplacée : 2 morts, 0 sacs.",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"genre": "MESSAGE",
+"id": 7,
+"motif": null,
+"objet_id": null,
+"objet_table": null,
+"quoi": "Saisie du 09/11 · bande EST-001-B2-01",
+"retenue": null,
+"statut": null,
+"utilisateur_id": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"versions": null,
+"vu_le": null,
+"vu_par": null
+},
+{
+"bande_id": null,
+"cree_le": "2026-11-08T23:47:42.671112",
+"decide_le": null,
+"decide_par": null,
+"detail": "Deux saisies pour ce jour. Gardée : la plus récente, faite sans réseau (2 morts, 0 sacs). Remplacée : 2 morts, 0 sacs.",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"genre": "MESSAGE",
+"id": 8,
+"motif": null,
+"objet_id": null,
+"objet_table": null,
+"quoi": "Saisie du 09/11 · bande EST-001-B2-01",
+"retenue": null,
+"statut": null,
+"utilisateur_id": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"versions": null,
+"vu_le": null,
+"vu_par": null
+}
+],
+"consentement_bceg": [],
+"declaration": [
+{
+"appareil_id": null,
+"audio": null,
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"cree_le": "2026-11-08T22:37:36.651861",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": "6d7a6cf8-20d8-4121-875b-38d38e93d5a5",
+"modifie_le": "2026-11-08T22:37:36.651865",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"nombre_animaux": 12,
+"numero_metier": null,
+"numero_provisoire": false,
+"saisi_par_agent": false,
+"signes": [
+"Abattement",
+"Diarrhée"
+],
+"statut_synchro": "SYNCHRONISE"
+}
+],
+"depense": [],
+"diagnostic": [
+{
+"alerte_id": 1,
+"cree_le": "2026-11-09T10:26:16.323226",
+"id": 1,
+"maladie": "Newcastle",
+"modifie_le": "2026-11-09T10:26:16.323230",
+"observations": "Râles respiratoires, quelques torticolis. Prélèvements envoyés au LNVA.",
+"prelevement": true,
+"veto_id": "85ccc67c-77ba-4e8c-8d6d-6ac031ea445a"
+}
+],
+"entretien_fait": [
+{
+"annule": false,
+"appareil_id": null,
+"bande_id": "78bc1197-05da-43a5-9350-f8a668d31b86",
+"batiment_id": 1,
+"cree_le": "2026-11-09T05:48:44.341648",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"fait_le": "2026-11-09",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": "cff6830d-2537-419f-a016-e190eede4f1f",
+"modifie_le": "2026-11-09T05:48:44.341654",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"numero_metier": null,
+"numero_provisoire": false,
+"periode": null,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE",
+"tache_id": 7
+}
+],
+"ferme": [
+{
+"agent_id": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"appareil_id": null,
+"cohorte": 1,
+"cree_le": "2026-11-08T19:20:04.547001",
+"cree_par": null,
+"exploitant_nom": "Exploitant Mba",
+"exploitant_telephone": "075561909",
+"financee_bceg": false,
+"gps_date": null,
+"gps_precision_m": 8,
+"gps_source": "GPS",
+"id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"latitude": "0.3921",
+"localite_id": 2,
+"longitude": "9.6103",
+"modifie_le": "2026-11-08T19:20:04.547006",
+"modifie_par": null,
+"nom": "Ferme Mba",
+"numero_metier": "EST-001",
+"numero_provisoire": false,
+"observations": null,
+"province_id": 1,
+"reference_ami": null,
+"responsable_id": null,
+"statut": "Opérationnelle",
+"statut_synchro": "SYNCHRONISE",
+"telephone_normalise": "75561909"
+},
+{
+"agent_id": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"appareil_id": null,
+"cohorte": 1,
+"cree_le": "2026-11-08T19:20:04.609250",
+"cree_par": null,
+"exploitant_nom": "Exploitant Obiang",
+"exploitant_telephone": "075431119",
+"financee_bceg": false,
+"gps_date": null,
+"gps_precision_m": 8,
+"gps_source": "GPS",
+"id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"latitude": "0.35",
+"localite_id": 3,
+"longitude": "9.55",
+"modifie_le": "2026-11-08T19:20:04.609255",
+"modifie_par": null,
+"nom": "Ferme Obiang",
+"numero_metier": "EST-002",
+"numero_provisoire": false,
+"observations": null,
+"province_id": 1,
+"reference_ami": null,
+"responsable_id": null,
+"statut": "En préparation",
+"statut_synchro": "SYNCHRONISE",
+"telephone_normalise": "75431119"
+},
+{
+"agent_id": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"appareil_id": null,
+"cohorte": 2,
+"cree_le": "2026-11-08T19:20:04.637212",
+"cree_par": null,
+"exploitant_nom": "Exploitant Nzé",
+"exploitant_telephone": "076091665",
+"financee_bceg": false,
+"gps_date": null,
+"gps_precision_m": null,
+"gps_source": null,
+"id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"latitude": null,
+"localite_id": 4,
+"longitude": null,
+"modifie_le": "2026-11-08T19:20:04.637216",
+"modifie_par": null,
+"nom": "Ferme Nzé",
+"numero_metier": "EST-003",
+"numero_provisoire": false,
+"observations": null,
+"province_id": 1,
+"reference_ami": null,
+"responsable_id": null,
+"statut": "Suspendue",
+"statut_synchro": "SYNCHRONISE",
+"telephone_normalise": "76091665"
+},
+{
+"agent_id": "96142d6e-f28d-4a9f-ad93-b242b16af11a",
+"appareil_id": null,
+"cohorte": 2,
+"cree_le": "2026-11-08T19:20:04.663437",
+"cree_par": null,
+"exploitant_nom": "Exploitant Okouyi",
+"exploitant_telephone": "079064374",
+"financee_bceg": false,
+"gps_date": null,
+"gps_precision_m": 8,
+"gps_source": "GPS",
+"id": "a42b31e3-f812-4e06-9e68-c706f64eb946",
+"latitude": "-1.6333",
+"localite_id": 5,
+"longitude": "13.5833",
+"modifie_le": "2026-11-08T19:20:04.663442",
+"modifie_par": null,
+"nom": "Élevage Okouyi",
+"numero_metier": "HOG-001",
+"numero_provisoire": false,
+"observations": null,
+"province_id": 2,
+"reference_ami": null,
+"responsable_id": null,
+"statut": "Opérationnelle",
+"statut_synchro": "SYNCHRONISE",
+"telephone_normalise": "79064374"
+},
+{
+"agent_id": "96142d6e-f28d-4a9f-ad93-b242b16af11a",
+"appareil_id": null,
+"cohorte": 1,
+"cree_le": "2026-11-08T19:20:04.699468",
+"cree_par": null,
+"exploitant_nom": "Exploitant Mouele",
+"exploitant_telephone": "075627165",
+"financee_bceg": false,
+"gps_date": null,
+"gps_precision_m": 8,
+"gps_source": "GPS",
+"id": "b182c16f-cee7-4b68-9f7e-42c52963e6e0",
+"latitude": "0.39",
+"localite_id": 6,
+"longitude": "9.45",
+"modifie_le": "2026-11-08T19:20:04.699473",
+"modifie_par": null,
+"nom": "Ferme Mouele",
+"numero_metier": "HOG-002",
+"numero_provisoire": false,
+"observations": null,
+"province_id": 2,
+"reference_ami": null,
+"responsable_id": null,
+"statut": "Opérationnelle",
+"statut_synchro": "SYNCHRONISE",
+"telephone_normalise": "75627165"
+},
+{
+"agent_id": "67e64d4d-fd32-401f-8f34-7a7de28d87c2",
+"appareil_id": null,
+"cohorte": null,
+"cree_le": "2026-11-08T19:21:09.886919",
+"cree_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"exploitant_nom": "Pierre Ella",
+"exploitant_telephone": "077 55 44 33",
+"financee_bceg": false,
+"gps_date": "2026-11-08T19:21:09.852582",
+"gps_precision_m": 8,
+"gps_source": "GPS",
+"id": "143fff31-e2ea-409e-a8ce-c41baf019ef5",
+"latitude": "0.3921",
+"localite_id": 1,
+"longitude": "9.6103",
+"modifie_le": "2026-11-09T10:37:41.045257",
+"modifie_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"nom": "Ferme Test GPS",
+"numero_metier": "EST-004",
+"numero_provisoire": false,
+"observations": null,
+"province_id": 1,
+"reference_ami": null,
+"responsable_id": null,
+"statut": "En préparation",
+"statut_synchro": "SYNCHRONISE",
+"telephone_normalise": "77554433"
+}
+],
+"ferme_infrastructure": [],
+"ferme_statut_historique": [
+{
+"date": "2026-11-08T19:20:04.574002",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": 1,
+"statut": "Opérationnelle",
+"utilisateur_id": "ecb76119-548f-460b-a403-176a71cc2f19"
+},
+{
+"date": "2026-11-08T19:20:04.614238",
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"id": 2,
+"statut": "En préparation",
+"utilisateur_id": "ecb76119-548f-460b-a403-176a71cc2f19"
+},
+{
+"date": "2026-11-08T19:20:04.639238",
+"ferme_id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"id": 3,
+"statut": "Suspendue",
+"utilisateur_id": "ecb76119-548f-460b-a403-176a71cc2f19"
+},
+{
+"date": "2026-11-08T19:20:04.668158",
+"ferme_id": "a42b31e3-f812-4e06-9e68-c706f64eb946",
+"id": 4,
+"statut": "Opérationnelle",
+"utilisateur_id": "ecb76119-548f-460b-a403-176a71cc2f19"
+},
+{
+"date": "2026-11-08T19:20:04.702909",
+"ferme_id": "b182c16f-cee7-4b68-9f7e-42c52963e6e0",
+"id": 5,
+"statut": "Opérationnelle",
+"utilisateur_id": "ecb76119-548f-460b-a403-176a71cc2f19"
+},
+{
+"date": "2026-11-08T19:21:09.891524",
+"ferme_id": "143fff31-e2ea-409e-a8ce-c41baf019ef5",
+"id": 6,
+"statut": "En préparation",
+"utilisateur_id": "390e9611-ff2b-4567-a3d5-89f42211dbd8"
+}
+],
+"inventaire_stock": [
+{
+"agent_id": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"compte": 32,
+"cree_le": "2026-11-09T10:11:24.626558",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": 1,
+"jour": "2026-11-08",
+"livre": 40,
+"modifie_le": "2026-11-09T10:11:24.626562",
+"produit_id": 2,
+"utilise": 0
+}
+],
+"liste_deroulante": [
+{
+"actif": true,
+"categorie": "statuts_ferme",
+"id": 1,
+"ordre": 0,
+"valeur": "En préparation"
+},
+{
+"actif": true,
+"categorie": "statuts_ferme",
+"id": 2,
+"ordre": 1,
+"valeur": "Opérationnelle"
+},
+{
+"actif": true,
+"categorie": "statuts_ferme",
+"id": 3,
+"ordre": 2,
+"valeur": "Suspendue"
+},
+{
+"actif": true,
+"categorie": "types_infrastructures",
+"id": 4,
+"ordre": 0,
+"valeur": "Magasin d'aliment"
+},
+{
+"actif": true,
+"categorie": "types_infrastructures",
+"id": 5,
+"ordre": 1,
+"valeur": "Forage ou puits"
+},
+{
+"actif": true,
+"categorie": "types_infrastructures",
+"id": 6,
+"ordre": 2,
+"valeur": "Citerne ou château d'eau"
+},
+{
+"actif": true,
+"categorie": "types_infrastructures",
+"id": 7,
+"ordre": 3,
+"valeur": "Raccordement électrique (SEEG)"
+},
+{
+"actif": true,
+"categorie": "types_infrastructures",
+"id": 8,
+"ordre": 4,
+"valeur": "Groupe électrogène"
+},
+{
+"actif": true,
+"categorie": "types_infrastructures",
+"id": 9,
+"ordre": 5,
+"valeur": "Panneaux solaires"
+},
+{
+"actif": true,
+"categorie": "types_infrastructures",
+"id": 10,
+"ordre": 6,
+"valeur": "Pédiluve"
+},
+{
+"actif": true,
+"categorie": "types_infrastructures",
+"id": 11,
+"ordre": 7,
+"valeur": "Clôture"
+},
+{
+"actif": true,
+"categorie": "types_infrastructures",
+"id": 12,
+"ordre": 8,
+"valeur": "Fosse à cadavres ou incinérateur"
+},
+{
+"actif": true,
+"categorie": "types_infrastructures",
+"id": 13,
+"ordre": 9,
+"valeur": "Salle d'abattage"
+},
+{
+"actif": true,
+"categorie": "types_infrastructures",
+"id": 14,
+"ordre": 10,
+"valeur": "Chambre froide"
+},
+{
+"actif": true,
+"categorie": "types_infrastructures",
+"id": 15,
+"ordre": 11,
+"valeur": "Logement du gardien"
+},
+{
+"actif": true,
+"categorie": "types_operateurs",
+"id": 16,
+"ordre": 0,
+"valeur": "Abattoir"
+},
+{
+"actif": true,
+"categorie": "types_operateurs",
+"id": 17,
+"ordre": 1,
+"valeur": "Acheteur"
+},
+{
+"actif": true,
+"categorie": "types_operateurs",
+"id": 18,
+"ordre": 2,
+"valeur": "Distributeur"
+},
+{
+"actif": true,
+"categorie": "motifs_ecart",
+"id": 19,
+"ordre": 0,
+"valeur": "Manquant"
+},
+{
+"actif": true,
+"categorie": "motifs_ecart",
+"id": 20,
+"ordre": 1,
+"valeur": "Abîmé"
+},
+{
+"actif": true,
+"categorie": "motifs_ecart",
+"id": 21,
+"ordre": 2,
+"valeur": "Mort pendant le transport"
+},
+{
+"actif": true,
+"categorie": "motifs_ecart",
+"id": 22,
+"ordre": 3,
+"valeur": "Autre"
+},
+{
+"actif": true,
+"categorie": "fournisseurs",
+"id": 23,
+"ordre": 0,
+"valeur": "Couvoir SIAT"
+},
+{
+"actif": true,
+"categorie": "fournisseurs",
+"id": 24,
+"ordre": 1,
+"valeur": "SMAG Aliments"
+},
+{
+"actif": true,
+"categorie": "fournisseurs",
+"id": 25,
+"ordre": 2,
+"valeur": "Pharmavet Libreville"
+},
+{
+"actif": true,
+"categorie": "signes_cliniques",
+"id": 26,
+"ordre": 0,
+"valeur": "Mortalité soudaine"
+},
+{
+"actif": true,
+"categorie": "signes_cliniques",
+"id": 27,
+"ordre": 1,
+"valeur": "Abattement"
+},
+{
+"actif": true,
+"categorie": "signes_cliniques",
+"id": 28,
+"ordre": 2,
+"valeur": "Ne mange plus"
+},
+{
+"actif": true,
+"categorie": "signes_cliniques",
+"id": 29,
+"ordre": 3,
+"valeur": "Diarrhée"
+},
+{
+"actif": true,
+"categorie": "signes_cliniques",
+"id": 30,
+"ordre": 4,
+"valeur": "Toux / respiration difficile"
+},
+{
+"actif": true,
+"categorie": "signes_cliniques",
+"id": 31,
+"ordre": 5,
+"valeur": "Plumes ébouriffées"
+},
+{
+"actif": true,
+"categorie": "signes_cliniques",
+"id": 32,
+"ordre": 6,
+"valeur": "Boiterie"
+},
+{
+"actif": true,
+"categorie": "signes_cliniques",
+"id": 33,
+"ordre": 7,
+"valeur": "Gonflement de la tête"
+},
+{
+"actif": true,
+"categorie": "signes_cliniques",
+"id": 34,
+"ordre": 8,
+"valeur": "Autre"
+},
+{
+"actif": true,
+"categorie": "modes_administration",
+"id": 35,
+"ordre": 0,
+"valeur": "Eau de boisson"
+},
+{
+"actif": true,
+"categorie": "modes_administration",
+"id": 36,
+"ordre": 1,
+"valeur": "Spray"
+},
+{
+"actif": true,
+"categorie": "modes_administration",
+"id": 37,
+"ordre": 2,
+"valeur": "Injection"
+},
+{
+"actif": true,
+"categorie": "modes_administration",
+"id": 38,
+"ordre": 3,
+"valeur": "Goutte oculaire"
+},
+{
+"actif": true,
+"categorie": "categories_depenses",
+"id": 39,
+"ordre": 0,
+"valeur": "👷 Main-d'œuvre"
+},
+{
+"actif": true,
+"categorie": "categories_depenses",
+"id": 40,
+"ordre": 1,
+"valeur": "⚡ Électricité"
+},
+{
+"actif": true,
+"categorie": "categories_depenses",
+"id": 41,
+"ordre": 2,
+"valeur": "⛽ Carburant"
+},
+{
+"actif": true,
+"categorie": "categories_depenses",
+"id": 42,
+"ordre": 3,
+"valeur": "🚚 Transport"
+},
+{
+"actif": true,
+"categorie": "categories_depenses",
+"id": 43,
+"ordre": 4,
+"valeur": "💧 Eau"
+},
+{
+"actif": true,
+"categorie": "categories_depenses",
+"id": 44,
+"ordre": 5,
+"valeur": "🔧 Réparation"
+},
+{
+"actif": true,
+"categorie": "categories_depenses",
+"id": 45,
+"ordre": 6,
+"valeur": "📦 Autre"
+},
+{
+"actif": true,
+"categorie": "conseils_veterinaire",
+"id": 46,
+"ordre": 0,
+"valeur": "Isolez les poulets malades"
+},
+{
+"actif": true,
+"categorie": "conseils_veterinaire",
+"id": 47,
+"ordre": 1,
+"valeur": "Augmentez la ventilation"
+},
+{
+"actif": true,
+"categorie": "conseils_veterinaire",
+"id": 48,
+"ordre": 2,
+"valeur": "Ne vendez pas avant ma visite"
+},
+{
+"actif": true,
+"categorie": "conseils_veterinaire",
+"id": 49,
+"ordre": 3,
+"valeur": "Je passe vous voir"
+},
+{
+"actif": true,
+"categorie": "conseils_veterinaire",
+"id": 50,
+"ordre": 4,
+"valeur": "Donnez de l'eau propre en continu"
+},
+{
+"actif": true,
+"categorie": "conseils_veterinaire",
+"id": 51,
+"ordre": 5,
+"valeur": "Appelez-moi"
+},
+{
+"actif": true,
+"categorie": "recommandations_visite",
+"id": 52,
+"ordre": 0,
+"valeur": "Nettoyez les abreuvoirs chaque jour"
+},
+{
+"actif": true,
+"categorie": "recommandations_visite",
+"id": 53,
+"ordre": 1,
+"valeur": "Changez la litière humide"
+},
+{
+"actif": true,
+"categorie": "recommandations_visite",
+"id": 54,
+"ordre": 2,
+"valeur": "Pesez 10 poulets chaque semaine"
+},
+{
+"actif": true,
+"categorie": "recommandations_visite",
+"id": 55,
+"ordre": 3,
+"valeur": "Respectez le vide sanitaire"
+},
+{
+"actif": true,
+"categorie": "recommandations_visite",
+"id": 56,
+"ordre": 4,
+"valeur": "Notez les morts chaque jour"
+},
+{
+"actif": true,
+"categorie": "recommandations_visite",
+"id": 57,
+"ordre": 5,
+"valeur": "Rangez les sacs au sec, sur palette"
+},
+{
+"actif": true,
+"categorie": "objets_visite",
+"id": 58,
+"ordre": 0,
+"valeur": "Suivi"
+},
+{
+"actif": true,
+"categorie": "objets_visite",
+"id": 59,
+"ordre": 1,
+"valeur": "Vaccination"
+},
+{
+"actif": true,
+"categorie": "objets_visite",
+"id": 60,
+"ordre": 2,
+"valeur": "Contrôle"
+},
+{
+"actif": true,
+"categorie": "objets_visite",
+"id": 61,
+"ordre": 3,
+"valeur": "Panne"
+},
+{
+"actif": true,
+"categorie": "objets_visite",
+"id": 62,
+"ordre": 4,
+"valeur": "Autre"
+},
+{
+"actif": true,
+"categorie": "grille_biosecurite",
+"id": 63,
+"ordre": 0,
+"valeur": "Pédiluve à l'entrée, propre et rempli"
+},
+{
+"actif": true,
+"categorie": "grille_biosecurite",
+"id": 64,
+"ordre": 1,
+"valeur": "Clôture fermée, pas d'animaux errants"
+},
+{
+"actif": true,
+"categorie": "grille_biosecurite",
+"id": 65,
+"ordre": 2,
+"valeur": "Tenue réservée au bâtiment (bottes, blouse)"
+},
+{
+"actif": true,
+"categorie": "grille_biosecurite",
+"id": 66,
+"ordre": 3,
+"valeur": "Lavage des mains à l'entrée"
+},
+{
+"actif": true,
+"categorie": "grille_biosecurite",
+"id": 67,
+"ordre": 4,
+"valeur": "Registre des visiteurs tenu"
+},
+{
+"actif": true,
+"categorie": "grille_biosecurite",
+"id": 68,
+"ordre": 5,
+"valeur": "Morts ramassés chaque jour et éliminés (fosse, incinération)"
+},
+{
+"actif": true,
+"categorie": "grille_biosecurite",
+"id": 69,
+"ordre": 6,
+"valeur": "Litière sèche"
+},
+{
+"actif": true,
+"categorie": "grille_biosecurite",
+"id": 70,
+"ordre": 7,
+"valeur": "Abreuvoirs et mangeoires propres"
+},
+{
+"actif": true,
+"categorie": "grille_biosecurite",
+"id": 71,
+"ordre": 8,
+"valeur": "Aliment stocké au sec, sur palette"
+},
+{
+"actif": true,
+"categorie": "grille_biosecurite",
+"id": 72,
+"ordre": 9,
+"valeur": "Vide sanitaire respecté entre deux bandes"
+},
+{
+"actif": true,
+"categorie": "maladies_suspectees",
+"id": 73,
+"ordre": 0,
+"valeur": "Newcastle"
+},
+{
+"actif": true,
+"categorie": "maladies_suspectees",
+"id": 74,
+"ordre": 1,
+"valeur": "Gumboro"
+},
+{
+"actif": true,
+"categorie": "maladies_suspectees",
+"id": 75,
+"ordre": 2,
+"valeur": "Bronchite infectieuse"
+},
+{
+"actif": true,
+"categorie": "maladies_suspectees",
+"id": 76,
+"ordre": 3,
+"valeur": "Influenza aviaire"
+},
+{
+"actif": true,
+"categorie": "maladies_suspectees",
+"id": 77,
+"ordre": 4,
+"valeur": "Coccidiose"
+},
+{
+"actif": true,
+"categorie": "maladies_suspectees",
+"id": 78,
+"ordre": 5,
+"valeur": "Colibacillose"
+},
+{
+"actif": true,
+"categorie": "maladies_suspectees",
+"id": 79,
+"ordre": 6,
+"valeur": "Mycoplasmose"
+},
+{
+"actif": true,
+"categorie": "maladies_suspectees",
+"id": 80,
+"ordre": 7,
+"valeur": "Salmonellose"
+},
+{
+"actif": true,
+"categorie": "maladies_suspectees",
+"id": 81,
+"ordre": 8,
+"valeur": "Variole aviaire"
+},
+{
+"actif": true,
+"categorie": "maladies_suspectees",
+"id": 82,
+"ordre": 9,
+"valeur": "Autre"
+}
+],
+"livraison": [
+{
+"annulee_le": null,
+"annulee_par": null,
+"appareil_id": null,
+"batiment_id": null,
+"confirmee_le": "2026-11-08T20:19:38.914519",
+"confirmee_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"confirmee_par_agent": false,
+"cree_le": "2026-11-08T20:15:35.766405",
+"cree_par": null,
+"date_livraison": "2026-11-08",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"fournisseur": "Couvoir SIAT",
+"id": "729ca644-348b-42c0-88c1-c78004c08919",
+"modifie_le": "2026-11-08T20:19:38.917554",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"motif_annulation": null,
+"numero_metier": "LIV-2026-000001",
+"numero_provisoire": false,
+"origine": "ETAT",
+"photo_recu": null,
+"prix_paye_fcfa": null,
+"statut": "RECUE",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"annulee_le": null,
+"annulee_par": null,
+"appareil_id": null,
+"batiment_id": null,
+"confirmee_le": "2026-11-08T20:15:35.778403",
+"confirmee_par": null,
+"confirmee_par_agent": false,
+"cree_le": "2026-11-08T20:15:35.776604",
+"cree_par": null,
+"date_livraison": "2026-10-27",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"fournisseur": "SMAG Aliments",
+"id": "7d4014f9-1d62-4063-aaf4-790277fd0b01",
+"modifie_le": "2026-11-08T20:15:35.780014",
+"modifie_par": null,
+"motif_annulation": null,
+"numero_metier": "LIV-2026-000002",
+"numero_provisoire": false,
+"origine": "ETAT",
+"photo_recu": null,
+"prix_paye_fcfa": null,
+"statut": "RECUE",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"annulee_le": null,
+"annulee_par": null,
+"appareil_id": null,
+"batiment_id": null,
+"confirmee_le": "2026-11-08T20:20:01.089168",
+"confirmee_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"confirmee_par_agent": true,
+"cree_le": "2026-11-08T20:15:35.783406",
+"cree_par": null,
+"date_livraison": "2026-11-02",
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"fournisseur": "Pharmavet Libreville",
+"id": "31a28083-3aeb-45c8-ab0f-38096257db12",
+"modifie_le": "2026-11-08T20:20:01.091681",
+"modifie_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"motif_annulation": null,
+"numero_metier": "LIV-2026-000003",
+"numero_provisoire": false,
+"origine": "ETAT",
+"photo_recu": null,
+"prix_paye_fcfa": null,
+"statut": "RECUE_ECART",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"annulee_le": null,
+"annulee_par": null,
+"appareil_id": null,
+"batiment_id": null,
+"confirmee_le": "2026-11-08T20:15:35.788538",
+"confirmee_par": null,
+"confirmee_par_agent": false,
+"cree_le": "2026-11-08T20:15:35.787220",
+"cree_par": null,
+"date_livraison": "2026-11-05",
+"ferme_id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"fournisseur": "SMAG Aliments",
+"id": "d53e358b-2979-4048-a94a-665df29aec4b",
+"modifie_le": "2026-11-08T20:15:35.793078",
+"modifie_par": null,
+"motif_annulation": null,
+"numero_metier": "LIV-2026-000004",
+"numero_provisoire": false,
+"origine": "ETAT",
+"photo_recu": null,
+"prix_paye_fcfa": null,
+"statut": "RECUE_ECART",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"annulee_le": null,
+"annulee_par": null,
+"appareil_id": null,
+"batiment_id": null,
+"confirmee_le": null,
+"confirmee_par": null,
+"confirmee_par_agent": false,
+"cree_le": "2026-11-08T20:15:35.800503",
+"cree_par": null,
+"date_livraison": "2026-11-07",
+"ferme_id": "a42b31e3-f812-4e06-9e68-c706f64eb946",
+"fournisseur": "Couvoir SIAT",
+"id": "d3901ad4-443c-4e67-88ca-c0b676683ed9",
+"modifie_le": "2026-11-08T20:15:35.800507",
+"modifie_par": null,
+"motif_annulation": null,
+"numero_metier": "LIV-2026-000005",
+"numero_provisoire": false,
+"origine": "ETAT",
+"photo_recu": null,
+"prix_paye_fcfa": null,
+"statut": "A_CONFIRMER",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"annulee_le": null,
+"annulee_par": null,
+"appareil_id": null,
+"batiment_id": null,
+"confirmee_le": null,
+"confirmee_par": null,
+"confirmee_par_agent": false,
+"cree_le": "2026-11-08T22:37:16.212477",
+"cree_par": null,
+"date_livraison": "2026-10-25",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"fournisseur": null,
+"id": "75953b5e-0f49-4069-a32d-70fb766ccc07",
+"modifie_le": "2026-11-08T22:37:16.222450",
+"modifie_par": null,
+"motif_annulation": null,
+"numero_metier": "LIV-2026-000006",
+"numero_provisoire": false,
+"origine": "ETAT",
+"photo_recu": null,
+"prix_paye_fcfa": null,
+"statut": "RECUE",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"annulee_le": null,
+"annulee_par": null,
+"appareil_id": null,
+"batiment_id": null,
+"confirmee_le": null,
+"confirmee_par": null,
+"confirmee_par_agent": false,
+"cree_le": "2026-11-09T10:37:41.004237",
+"cree_par": null,
+"date_livraison": "2026-11-07",
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"fournisseur": "SMAG Aliments",
+"id": "25f7a51d-a537-4073-a671-352816ec5737",
+"modifie_le": "2026-11-09T10:37:41.004243",
+"modifie_par": null,
+"motif_annulation": null,
+"numero_metier": "LIV-2026-000007",
+"numero_provisoire": false,
+"origine": "ETAT",
+"photo_recu": null,
+"prix_paye_fcfa": null,
+"statut": "PREVUE",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"annulee_le": null,
+"annulee_par": null,
+"appareil_id": null,
+"batiment_id": null,
+"confirmee_le": null,
+"confirmee_par": null,
+"confirmee_par_agent": false,
+"cree_le": "2026-11-09T10:37:41.019042",
+"cree_par": null,
+"date_livraison": "2026-11-14",
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"fournisseur": "Couvoir SIAT",
+"id": "044b1b3b-2591-425c-8cc3-c0d49fe98fed",
+"modifie_le": "2026-11-09T10:37:41.019047",
+"modifie_par": null,
+"motif_annulation": null,
+"numero_metier": "LIV-2026-000008",
+"numero_provisoire": false,
+"origine": "ETAT",
+"photo_recu": null,
+"prix_paye_fcfa": null,
+"statut": "PREVUE",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"annulee_le": null,
+"annulee_par": null,
+"appareil_id": null,
+"batiment_id": null,
+"confirmee_le": null,
+"confirmee_par": null,
+"confirmee_par_agent": false,
+"cree_le": "2026-11-09T10:37:41.026407",
+"cree_par": null,
+"date_livraison": "2026-11-18",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"fournisseur": "SMAG Aliments",
+"id": "145efa06-6731-4812-829a-97e07457e504",
+"modifie_le": "2026-11-09T10:37:41.026411",
+"modifie_par": null,
+"motif_annulation": null,
+"numero_metier": "LIV-2026-000009",
+"numero_provisoire": false,
+"origine": "ETAT",
+"photo_recu": null,
+"prix_paye_fcfa": null,
+"statut": "PREVUE",
+"statut_synchro": "SYNCHRONISE"
+}
+],
+"livraison_ligne": [
+{
+"id": 1,
+"livraison_id": "729ca644-348b-42c0-88c1-c78004c08919",
+"morts_arrivee": 3,
+"motif_ecart": null,
+"part_subventionnee": 50,
+"produit_id": 1,
+"quantite_livree": 1000,
+"quantite_recue": 1000,
+"subventionne": true,
+"valeur_unitaire": null
+},
+{
+"id": 2,
+"livraison_id": "729ca644-348b-42c0-88c1-c78004c08919",
+"morts_arrivee": null,
+"motif_ecart": null,
+"part_subventionnee": 50,
+"produit_id": 2,
+"quantite_livree": 40,
+"quantite_recue": 40,
+"subventionne": true,
+"valeur_unitaire": null
+},
+{
+"id": 3,
+"livraison_id": "7d4014f9-1d62-4063-aaf4-790277fd0b01",
+"morts_arrivee": null,
+"motif_ecart": null,
+"part_subventionnee": 50,
+"produit_id": 3,
+"quantite_livree": 20,
+"quantite_recue": 20,
+"subventionne": true,
+"valeur_unitaire": null
+},
+{
+"id": 4,
+"livraison_id": "7d4014f9-1d62-4063-aaf4-790277fd0b01",
+"morts_arrivee": null,
+"motif_ecart": null,
+"part_subventionnee": 50,
+"produit_id": 4,
+"quantite_livree": 1000,
+"quantite_recue": 1000,
+"subventionne": true,
+"valeur_unitaire": null
+},
+{
+"id": 5,
+"livraison_id": "31a28083-3aeb-45c8-ab0f-38096257db12",
+"morts_arrivee": null,
+"motif_ecart": "Abîmé",
+"part_subventionnee": 50,
+"produit_id": 4,
+"quantite_livree": 500,
+"quantite_recue": 498,
+"subventionne": true,
+"valeur_unitaire": null
+},
+{
+"id": 6,
+"livraison_id": "d53e358b-2979-4048-a94a-665df29aec4b",
+"morts_arrivee": null,
+"motif_ecart": null,
+"part_subventionnee": 50,
+"produit_id": 2,
+"quantite_livree": 30,
+"quantite_recue": 27,
+"subventionne": true,
+"valeur_unitaire": null
+},
+{
+"id": 7,
+"livraison_id": "d3901ad4-443c-4e67-88ca-c0b676683ed9",
+"morts_arrivee": null,
+"motif_ecart": null,
+"part_subventionnee": 50,
+"produit_id": 1,
+"quantite_livree": 2000,
+"quantite_recue": null,
+"subventionne": true,
+"valeur_unitaire": null
+},
+{
+"id": 8,
+"livraison_id": "75953b5e-0f49-4069-a32d-70fb766ccc07",
+"morts_arrivee": 5,
+"motif_ecart": null,
+"part_subventionnee": null,
+"produit_id": 1,
+"quantite_livree": 1200,
+"quantite_recue": 1200,
+"subventionne": false,
+"valeur_unitaire": null
+},
+{
+"id": 9,
+"livraison_id": "75953b5e-0f49-4069-a32d-70fb766ccc07",
+"morts_arrivee": null,
+"motif_ecart": null,
+"part_subventionnee": null,
+"produit_id": 6,
+"quantite_livree": 2000,
+"quantite_recue": 2000,
+"subventionne": false,
+"valeur_unitaire": null
+},
+{
+"id": 10,
+"livraison_id": "75953b5e-0f49-4069-a32d-70fb766ccc07",
+"morts_arrivee": null,
+"motif_ecart": null,
+"part_subventionnee": null,
+"produit_id": 9,
+"quantite_livree": 10,
+"quantite_recue": 10,
+"subventionne": false,
+"valeur_unitaire": null
+},
+{
+"id": 11,
+"livraison_id": "25f7a51d-a537-4073-a671-352816ec5737",
+"morts_arrivee": null,
+"motif_ecart": null,
+"part_subventionnee": 100,
+"produit_id": 2,
+"quantite_livree": 30,
+"quantite_recue": null,
+"subventionne": true,
+"valeur_unitaire": null
+},
+{
+"id": 12,
+"livraison_id": "044b1b3b-2591-425c-8cc3-c0d49fe98fed",
+"morts_arrivee": null,
+"motif_ecart": null,
+"part_subventionnee": 100,
+"produit_id": 1,
+"quantite_livree": 1500,
+"quantite_recue": null,
+"subventionne": true,
+"valeur_unitaire": null
+},
+{
+"id": 13,
+"livraison_id": "145efa06-6731-4812-829a-97e07457e504",
+"morts_arrivee": null,
+"motif_ecart": null,
+"part_subventionnee": 100,
+"produit_id": 3,
+"quantite_livree": 40,
+"quantite_recue": null,
+"subventionne": true,
+"valeur_unitaire": null
+}
+],
+"localite": [
+{
+"a_verifier": false,
+"actif": true,
+"id": 1,
+"nom": "Libreville",
+"province_id": 1
+},
+{
+"a_verifier": false,
+"actif": true,
+"id": 2,
+"nom": "Ntoum",
+"province_id": 1
+},
+{
+"a_verifier": false,
+"actif": true,
+"id": 3,
+"nom": "N'kok",
+"province_id": 1
+},
+{
+"a_verifier": false,
+"actif": true,
+"id": 4,
+"nom": "Owendo",
+"province_id": 1
+},
+{
+"a_verifier": false,
+"actif": true,
+"id": 5,
+"nom": "Franceville",
+"province_id": 2
+},
+{
+"a_verifier": false,
+"actif": true,
+"id": 6,
+"nom": "Moanda",
+"province_id": 2
+},
+{
+"a_verifier": true,
+"actif": true,
+"id": 7,
+"nom": "Nkoq",
+"province_id": 1
+}
+],
+"lot_trace": [
+{
+"annule": false,
+"code": "pu9NFqqn4HIwbSMnqF2PGg",
+"cree_le": "2026-11-08T23:13:50.630196",
+"cree_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": 1,
+"modifie_le": "2026-11-08T23:13:50.630203",
+"motif_annulation": null,
+"numero": "EST-001-B2-01-S1",
+"sortie_id": "7dac762b-1e0f-4e4e-a10a-1a5646d5cb58"
+}
+],
+"operateur": [
+{
+"actif": true,
+"contact": null,
+"convention": true,
+"convention_date": null,
+"cree_le": "2026-11-08T19:20:05.276892",
+"id": 1,
+"localite_id": null,
+"modifie_le": "2026-11-08T19:20:05.276898",
+"nom": "Abattoir de Ntoum",
+"numero": "OPE-0001",
+"province_id": 1,
+"telephone": "066 00 00 00",
+"type": "Abattoir"
+},
+{
+"actif": true,
+"contact": null,
+"convention": false,
+"convention_date": null,
+"cree_le": "2026-11-08T19:20:05.281861",
+"id": 2,
+"localite_id": null,
+"modifie_le": "2026-11-08T19:20:05.281867",
+"nom": "Super Gros Libreville",
+"numero": "OPE-0002",
+"province_id": 1,
+"telephone": "066 00 00 00",
+"type": "Distributeur"
+},
+{
+"actif": true,
+"contact": null,
+"convention": false,
+"convention_date": null,
+"cree_le": "2026-11-08T19:20:05.289009",
+"id": 3,
+"localite_id": null,
+"modifie_le": "2026-11-08T19:20:05.289014",
+"nom": "Marché de Franceville",
+"numero": "OPE-0003",
+"province_id": 2,
+"telephone": "066 00 00 00",
+"type": "Acheteur"
+}
+],
+"panne": [
+{
+"appareil_id": null,
+"batiment_id": null,
+"cree_le": "2026-11-09T05:48:34.885647",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": "9377b418-9652-4862-8ffe-658668e59145",
+"modifie_le": "2026-11-09T05:48:34.885651",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"numero_metier": null,
+"numero_provisoire": false,
+"photo": null,
+"reparee_le": null,
+"reparee_par": null,
+"reparee_par_agent": false,
+"saisie_par_agent": false,
+"signalee_le": "2026-11-09T05:48:34.885589",
+"statut": "SIGNALEE",
+"statut_synchro": "SYNCHRONISE",
+"type": "ELECTRICITE"
+}
+],
+"parametre": [
+{
+"cle": "securite.mdp_longueur_min",
+"description": "Nombre minimal de caractères d'un mot de passe.",
+"id": 1,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "10"
+},
+{
+"cle": "securite.duree_session_minutes",
+"description": "Pilotage : durée d'inactivité, en minutes, au bout de laquelle la session se ferme (jamais pour l'éleveur ni l'agent).",
+"id": 2,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "30"
+},
+{
+"cle": "securite.echecs_avant_blocage",
+"description": "Nombre d'échecs de connexion consécutifs avant le blocage du compte.",
+"id": 3,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "5"
+},
+{
+"cle": "securite.blocage_minutes",
+"description": "Durée du blocage, en minutes, après trop d'échecs de connexion.",
+"id": 4,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "15"
+},
+{
+"cle": "intrants.delai_confirmation_jours",
+"description": "Nombre de jours après lesquels une livraison non confirmée est signalée dans les alertes.",
+"id": 5,
+"modifie_le": null,
+"modifie_par": null,
+"type": "JOURS",
+"valeur": "3"
+},
+{
+"cle": "intrants.alerte_ecart_jours",
+"description": "Pendant combien de jours une livraison reçue avec écart reste signalée dans les alertes.",
+"id": 6,
+"modifie_le": null,
+"modifie_par": null,
+"type": "JOURS",
+"valeur": "30"
+},
+{
+"cle": "bandes.duree_reference_jours",
+"description": "Durée de référence d'une bande (jours) : fixe la date de fin prévue.",
+"id": 7,
+"modifie_le": null,
+"modifie_par": null,
+"type": "JOURS",
+"valeur": "45"
+},
+{
+"cle": "bandes.poids_poussin_g",
+"description": "Poids moyen d'un poussin à la mise en place (g), quand il n'est pas pesé.",
+"id": 8,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "40"
+},
+{
+"cle": "bandes.saisie_passee_jours",
+"description": "L'éleveur peut saisir un jour passé jusqu'à ce nombre de jours (au-delà : agent ou ADMIN).",
+"id": 9,
+"modifie_le": null,
+"modifie_par": null,
+"type": "JOURS",
+"valeur": "3"
+},
+{
+"cle": "bandes.frequence_pesee_jours",
+"description": "Une pesée est prévue tous les … jours.",
+"id": 10,
+"modifie_le": null,
+"modifie_par": null,
+"type": "JOURS",
+"valeur": "7"
+},
+{
+"cle": "bandes.pesee_nombre_defaut",
+"description": "Nombre de poulets à peser, proposé par défaut.",
+"id": 11,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "10"
+},
+{
+"cle": "bandes.ecart_courbe_pct",
+"description": "Écart toléré sous la courbe de croissance attendue (%), à valider par les vétérinaires.",
+"id": 12,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "10"
+},
+{
+"cle": "bandes.fin_proche_jours",
+"description": "« Fin de bande proche » affiché ce nombre de jours avant la fin prévue.",
+"id": 13,
+"modifie_le": null,
+"modifie_par": null,
+"type": "JOURS",
+"valeur": "3"
+},
+{
+"cle": "bandes.seuil_orange_pct",
+"description": "Feu orange : morts du jour au-delà de ce % de l'effectif présent, à valider par les vétérinaires.",
+"id": 14,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "0.5"
+},
+{
+"cle": "bandes.seuil_rouge_pct",
+"description": "Feu rouge : morts du jour au-delà de ce % de l'effectif présent, à valider par les vétérinaires.",
+"id": 15,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "1"
+},
+{
+"cle": "bandes.courbe_poids",
+"description": "Courbe de croissance attendue « âge en jours : poids en g », à valider par les vétérinaires.",
+"id": 16,
+"modifie_le": null,
+"modifie_par": null,
+"type": "TEXTE",
+"valeur": "0:42; 7:180; 14:450; 21:900; 28:1450; 35:2050; 42:2650; 49:3150"
+},
+{
+"cle": "sante.retard_vaccin_jours",
+"description": "Un vaccin non fait à la date prévue + ce nombre de jours est signalé « en retard ».",
+"id": 17,
+"modifie_le": null,
+"modifie_par": null,
+"type": "JOURS",
+"valeur": "2"
+},
+{
+"cle": "sante.calendrier_valide",
+"description": "Calendrier vaccinal validé par les services vétérinaires (oui / non).",
+"id": 18,
+"modifie_le": null,
+"modifie_par": null,
+"type": "BOOLEEN",
+"valeur": "non"
+},
+{
+"cle": "intrants.seuil_mortalite_arrivee_pct",
+"description": "Alerte DGE : poussins morts à l'arrivée au-delà de ce % d'une livraison, à valider par les vétérinaires.",
+"id": 19,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "2"
+},
+{
+"cle": "tracabilite.adresse_publique",
+"description": "Adresse du site imprimée dans les QR codes (à remplacer par le nom de domaine en HTTPS).",
+"id": 20,
+"modifie_le": null,
+"modifie_par": null,
+"type": "TEXTE",
+"valeur": "http://187.124.217.218:5021"
+},
+{
+"cle": "bandes.etoiles_mortalite_3_pct",
+"description": "Bilan : 3 étoiles si la mortalité est au plus de ce % (et l'indice de consommation au plus du seuil). À valider par les vétérinaires.",
+"id": 21,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "3"
+},
+{
+"cle": "bandes.etoiles_ic_3",
+"description": "Bilan : indice de consommation maximal pour 3 étoiles. À valider par les vétérinaires.",
+"id": 22,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "1.7"
+},
+{
+"cle": "bandes.etoiles_mortalite_2_pct",
+"description": "Bilan : 2 étoiles si la mortalité est au plus de ce % (sinon 1 étoile, jamais 0). À valider par les vétérinaires.",
+"id": 23,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "5"
+},
+{
+"cle": "sante.conseil_feu_rouge",
+"description": "Conseil affiché à l'éleveur quand le feu de sa bande est rouge. À faire valider par les services vétérinaires.",
+"id": 24,
+"modifie_le": null,
+"modifie_par": null,
+"type": "TEXTE",
+"valeur": "Isolez les poulets malades et ne vendez pas avant l'avis du vétérinaire."
+},
+{
+"cle": "securite.profils_2fa",
+"description": "Profils pour lesquels la double authentification est obligatoire (jamais l'éleveur). Quatre yeux.",
+"id": 25,
+"modifie_le": null,
+"modifie_par": null,
+"type": "TEXTE",
+"valeur": "ADMIN,DGE,MAEDR,BCEG,AUDITEUR"
+},
+{
+"cle": "verifications.delai_rouge_heures",
+"description": "Heures après lesquelles un doublon de sortie non tranché passe en rouge et remonte à la DGE. Quatre yeux.",
+"id": 26,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "48"
+},
+{
+"cle": "intrants.seuil_ecart_stock_pct",
+"description": "Écart de stock (livré − utilisé − compté) au-delà duquel la ferme passe en orange chez l'agent, en % du livré. Quatre yeux.",
+"id": 27,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "10"
+},
+{
+"cle": "classement.poids_mortalite",
+"description": "Classement des fermes : poids de la mortalité. Quatre yeux.",
+"id": 28,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "35"
+},
+{
+"cle": "classement.poids_ic",
+"description": "Classement des fermes : poids de l'indice de consommation. Quatre yeux.",
+"id": 29,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "25"
+},
+{
+"cle": "classement.poids_gmq",
+"description": "Classement des fermes : poids de la croissance (GMQ). Quatre yeux.",
+"id": 30,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "20"
+},
+{
+"cle": "classement.poids_regularite",
+"description": "Classement des fermes : poids de la régularité des saisies. Quatre yeux.",
+"id": 31,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "20"
+},
+{
+"cle": "rapports.email_destinataires",
+"description": "Adresses qui recevront le rapport mensuel national (séparées par des virgules). Envoi coupé tant que rapports.email_actif vaut 0.",
+"id": 32,
+"modifie_le": "2026-11-09T10:37:41.049521",
+"modifie_par": null,
+"type": "TEXTE",
+"valeur": "dge.poufa@exemple.ga"
+},
+{
+"cle": "rapports.email_actif",
+"description": "Envoi du rapport mensuel par e-mail (0 = coupé). Il faut aussi un serveur de messagerie configuré.",
+"id": 33,
+"modifie_le": null,
+"modifie_par": null,
+"type": "BOOLEEN",
+"valeur": "0"
+},
+{
+"cle": "classement.seuil_complet_pct",
+"description": "Classement : % de jours saisis en dessous duquel une bande est incomplète (ignorée). Quatre yeux.",
+"id": 34,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "80"
+},
+{
+"cle": "classement.mortalite_note_zero_pct",
+"description": "Classement : mortalité (%) qui donne la note 0 (0 % donne 100). Quatre yeux.",
+"id": 35,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "10"
+},
+{
+"cle": "classement.ic_note_100",
+"description": "Classement : indice de consommation qui donne la note 100. Quatre yeux.",
+"id": 36,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "1.4"
+},
+{
+"cle": "classement.ic_note_zero",
+"description": "Classement : indice de consommation qui donne la note 0. Quatre yeux.",
+"id": 37,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "2.6"
+},
+{
+"cle": "classement.gmq_note_zero",
+"description": "Classement : GMQ (g/j) qui donne la note 0. Quatre yeux.",
+"id": 38,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "30"
+},
+{
+"cle": "classement.gmq_note_100",
+"description": "Classement : GMQ (g/j) qui donne la note 100. Quatre yeux.",
+"id": 39,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "70"
+}
+],
+"pesee": [
+{
+"appareil_id": null,
+"bande_id": "78bc1197-05da-43a5-9350-f8a668d31b86",
+"cree_le": "2026-11-08T22:08:08.441697",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date": "2026-11-08",
+"id": "0dfca492-e414-41e7-b77d-cb230fd1e200",
+"modifie_le": "2026-11-08T22:08:08.441702",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"nombre_pesees": 10,
+"numero_metier": null,
+"numero_provisoire": false,
+"poids_attendu_g": 42,
+"poids_moyen_g": 45,
+"poids_total_kg": "0.45",
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": "ccdd380d-b572-4534-ae1a-fb51c50b8439",
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"cree_le": "2026-11-08T23:40:24.336574",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date": "2026-11-09",
+"id": "dea11e3e-bcd8-4df5-ba91-1cc01cdb840b",
+"modifie_le": "2026-11-08T23:40:24.336725",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"nombre_pesees": 10,
+"numero_metier": null,
+"numero_provisoire": false,
+"poids_attendu_g": "514.3",
+"poids_moyen_g": 410,
+"poids_total_kg": "4.1",
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": "ca2205b3-830b-4294-bfe6-caf56053d041",
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"cree_le": "2026-11-08T23:42:49.354170",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date": "2026-11-09",
+"id": "232f1b65-224b-49dc-b059-5ad955e774bd",
+"modifie_le": "2026-11-08T23:42:49.354174",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"nombre_pesees": 10,
+"numero_metier": null,
+"numero_provisoire": false,
+"poids_attendu_g": "514.3",
+"poids_moyen_g": 410,
+"poids_total_kg": "4.1",
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": "b04659b9-98f8-40cb-8fc4-1961b12a8b61",
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"cree_le": "2026-11-08T23:45:30.406669",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date": "2026-11-09",
+"id": "0557fb82-d471-44d1-bf09-15fe2e3708c6",
+"modifie_le": "2026-11-08T23:45:30.406674",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"nombre_pesees": 10,
+"numero_metier": null,
+"numero_provisoire": false,
+"poids_attendu_g": "514.3",
+"poids_moyen_g": 410,
+"poids_total_kg": "4.1",
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": "0634f5f4-1e64-4dd8-9b1f-8a41fa3b8925",
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"cree_le": "2026-11-08T23:46:37.173041",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date": "2026-11-09",
+"id": "d0d9df14-d067-4baf-a999-3144a1921112",
+"modifie_le": "2026-11-08T23:46:37.173046",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"nombre_pesees": 10,
+"numero_metier": null,
+"numero_provisoire": false,
+"poids_attendu_g": "514.3",
+"poids_moyen_g": 410,
+"poids_total_kg": "4.1",
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": "eff5f78c-18b5-4cba-a5bb-9355d593436f",
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"cree_le": "2026-11-08T23:47:42.783538",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date": "2026-11-09",
+"id": "db37e215-d31e-48b1-95b6-04d3f4f7c726",
+"modifie_le": "2026-11-08T23:47:42.783542",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"nombre_pesees": 10,
+"numero_metier": null,
+"numero_provisoire": false,
+"poids_attendu_g": "514.3",
+"poids_moyen_g": 410,
+"poids_total_kg": "4.1",
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": "1da62432-d1eb-45b4-8dcf-f4c48790f43d",
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"cree_le": "2026-11-08T23:55:44.914506",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date": "2026-11-09",
+"id": "1c39efab-67ec-4a0b-8027-a1bbd4ed93cb",
+"modifie_le": "2026-11-08T23:55:44.914511",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"nombre_pesees": 10,
+"numero_metier": null,
+"numero_provisoire": false,
+"poids_attendu_g": "514.3",
+"poids_moyen_g": 410,
+"poids_total_kg": "4.1",
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+}
+],
+"produit": [
+{
+"actif": true,
+"cree_le": "2026-11-08T20:15:35.734469",
+"delai_attente_jours": null,
+"id": 1,
+"modifie_le": "2026-11-08T20:15:35.734475",
+"nom": "Poussins chair Cobb 500",
+"poids_sac_kg": null,
+"type": "Poussins",
+"unite": "têtes"
+},
+{
+"actif": true,
+"cree_le": "2026-11-08T20:15:35.734477",
+"delai_attente_jours": null,
+"id": 2,
+"modifie_le": "2026-11-08T20:15:35.734478",
+"nom": "Aliment démarrage 25 kg",
+"poids_sac_kg": 25,
+"type": "Aliment",
+"unite": "sacs"
+},
+{
+"actif": true,
+"cree_le": "2026-11-08T20:15:35.734479",
+"delai_attente_jours": null,
+"id": 3,
+"modifie_le": "2026-11-08T20:15:35.734480",
+"nom": "Aliment croissance 50 kg",
+"poids_sac_kg": 50,
+"type": "Aliment",
+"unite": "sacs"
+},
+{
+"actif": true,
+"cree_le": "2026-11-08T20:15:35.734481",
+"delai_attente_jours": null,
+"id": 4,
+"modifie_le": "2026-11-08T20:15:35.734482",
+"nom": "Vaccin Newcastle",
+"poids_sac_kg": null,
+"type": "Vaccin",
+"unite": "doses"
+},
+{
+"actif": true,
+"cree_le": "2026-11-08T22:37:13.013956",
+"delai_attente_jours": null,
+"id": 5,
+"modifie_le": "2026-11-08T22:37:13.013956",
+"nom": "Vaccin Newcastle + Bronchite (HB1/H120)",
+"poids_sac_kg": null,
+"type": "Vaccin",
+"unite": "doses"
+},
+{
+"actif": true,
+"cree_le": "2026-11-08T22:37:13.013956",
+"delai_attente_jours": null,
+"id": 6,
+"modifie_le": "2026-11-08T22:37:13.013956",
+"nom": "Vaccin Gumboro",
+"poids_sac_kg": null,
+"type": "Vaccin",
+"unite": "doses"
+},
+{
+"actif": true,
+"cree_le": "2026-11-08T22:37:13.013956",
+"delai_attente_jours": null,
+"id": 7,
+"modifie_le": "2026-11-08T22:37:13.013956",
+"nom": "Vaccin Newcastle (La Sota)",
+"poids_sac_kg": null,
+"type": "Vaccin",
+"unite": "doses"
+},
+{
+"actif": true,
+"cree_le": "2026-11-08T22:37:13.013956",
+"delai_attente_jours": null,
+"id": 8,
+"modifie_le": "2026-11-08T22:37:13.013956",
+"nom": "Vaccin Gumboro (rappel)",
+"poids_sac_kg": null,
+"type": "Vaccin",
+"unite": "doses"
+},
+{
+"actif": true,
+"cree_le": "2026-11-08T22:37:16.181216",
+"delai_attente_jours": 7,
+"id": 9,
+"modifie_le": "2026-11-08T22:37:16.181221",
+"nom": "Anticoccidien buvable",
+"poids_sac_kg": null,
+"type": "Médicament",
+"unite": "flacons"
+}
+],
+"proposition": [
+{
+"apres": "4",
+"avant": "1",
+"cle": "bandes.seuil_rouge_pct",
+"decide_le": null,
+"decide_par": null,
+"domaine": "SANITAIRE",
+"donnees": {
+"valeur": "4"
+},
+"genre": "PARAMETRE",
+"id": 1,
+"libelle": "Feu rouge : morts du jour au-delà de ce % de l'effectif présent, à valider par les vétérinaires.",
+"motif": "Alerte plus tôt pendant la saison des pluies",
+"motif_decision": null,
+"propose_le": "2026-11-09T09:25:48.932042",
+"propose_par": "ecb76119-548f-460b-a403-176a71cc2f19",
+"statut": "EN_ATTENTE"
+}
+],
+"province": [
+{
+"actif": true,
+"code": "EST",
+"id": 1,
+"nom": "Estuaire",
+"ordre": 1
+},
+{
+"actif": true,
+"code": "HOG",
+"id": 2,
+"nom": "Haut-Ogooué",
+"ordre": 2
+},
+{
+"actif": true,
+"code": "MOG",
+"id": 3,
+"nom": "Moyen-Ogooué",
+"ordre": 3
+},
+{
+"actif": true,
+"code": "NGO",
+"id": 4,
+"nom": "Ngounié",
+"ordre": 4
+},
+{
+"actif": true,
+"code": "NYA",
+"id": 5,
+"nom": "Nyanga",
+"ordre": 5
+},
+{
+"actif": true,
+"code": "OGI",
+"id": 6,
+"nom": "Ogooué-Ivindo",
+"ordre": 6
+},
+{
+"actif": true,
+"code": "OGL",
+"id": 7,
+"nom": "Ogooué-Lolo",
+"ordre": 7
+},
+{
+"actif": true,
+"code": "OGM",
+"id": 8,
+"nom": "Ogooué-Maritime",
+"ordre": 8
+},
+{
+"actif": true,
+"code": "WNT",
+"id": 9,
+"nom": "Woleu-Ntem",
+"ordre": 9
+}
+],
+"reponse_veterinaire": [],
+"saisie_aliment": [
+{
+"id": 1,
+"kg": 100,
+"produit_id": 3,
+"sacs": 2,
+"saisie_id": "543b32c9-052c-44ba-94e5-8015285948b2"
+}
+],
+"saisie_jour": [
+{
+"a_verifier": false,
+"appareil_id": null,
+"bande_id": "78bc1197-05da-43a5-9350-f8a668d31b86",
+"cree_le": "2026-11-08T22:08:05.446133",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date": "2026-11-08",
+"id": "543b32c9-052c-44ba-94e5-8015285948b2",
+"modifie_le": "2026-11-08T22:08:14.931904",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"morts": 17,
+"numero_metier": null,
+"numero_provisoire": false,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"a_verifier": false,
+"appareil_id": "147cc9f2-a054-4187-9bb7-c502275c32c2",
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"cree_le": "2026-11-08T23:35:32.633049",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date": "2026-11-09",
+"id": "10c95b20-0d1a-4512-84b6-612c26f5e26a",
+"modifie_le": "2026-11-08T23:35:32.633054",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"morts": 2,
+"numero_metier": null,
+"numero_provisoire": false,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+}
+],
+"sortie": [
+{
+"a_verifier": false,
+"appareil_id": null,
+"bande_id": "78bc1197-05da-43a5-9350-f8a668d31b86",
+"blocage_id": null,
+"cree_le": "2026-11-08T22:08:11.929682",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date": "2026-11-08",
+"destinataire_libre": null,
+"id": "b80fdd3e-9221-4211-96c5-0a529eb10569",
+"mise_de_cote": false,
+"modifie_le": "2026-11-08T22:08:11.929689",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"montant_fcfa": null,
+"motif": "Abattoir",
+"nombre": 100,
+"numero_metier": null,
+"numero_provisoire": false,
+"operateur_id": 1,
+"poids_total_kg": 200,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"a_verifier": false,
+"appareil_id": null,
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"blocage_id": null,
+"cree_le": "2026-11-08T23:13:50.606257",
+"cree_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"date": "2026-11-09",
+"destinataire_libre": "Marché de Nkembo",
+"id": "7dac762b-1e0f-4e4e-a10a-1a5646d5cb58",
+"mise_de_cote": false,
+"modifie_le": "2026-11-08T23:13:50.606278",
+"modifie_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"montant_fcfa": null,
+"motif": "Vente",
+"nombre": 50,
+"numero_metier": null,
+"numero_provisoire": false,
+"operateur_id": null,
+"poids_total_kg": 110,
+"saisi_par_agent": true,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"a_verifier": true,
+"appareil_id": null,
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"blocage_id": 2,
+"cree_le": "2026-11-09T10:26:16.364710",
+"cree_par": null,
+"date": "2026-11-09",
+"destinataire_libre": null,
+"id": "8f7e8299-b8a7-405b-b030-643df125825f",
+"mise_de_cote": true,
+"modifie_le": "2026-11-09T10:26:16.367840",
+"modifie_par": null,
+"montant_fcfa": null,
+"motif": "Abattoir",
+"nombre": 30,
+"numero_metier": null,
+"numero_provisoire": false,
+"operateur_id": 1,
+"poids_total_kg": 63,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+}
+],
+"tache_entretien": [
+{
+"actif": true,
+"cree_le": "2026-11-09T05:45:10.826171",
+"frequence": "JOUR",
+"icone": "💧",
+"id": 1,
+"infrastructure": null,
+"modifie_le": "2026-11-09T05:45:10.826171",
+"nom": "Laver les abreuvoirs",
+"ordre": 0,
+"portee": "BANDE"
+},
+{
+"actif": true,
+"cree_le": "2026-11-09T05:45:10.826171",
+"frequence": "JOUR",
+"icone": "🍽️",
+"id": 2,
+"infrastructure": null,
+"modifie_le": "2026-11-09T05:45:10.826171",
+"nom": "Nettoyer les mangeoires",
+"ordre": 1,
+"portee": "BANDE"
+},
+{
+"actif": true,
+"cree_le": "2026-11-09T05:45:10.826171",
+"frequence": "SEMAINE",
+"icone": "🦶",
+"id": 3,
+"infrastructure": "Pédiluve",
+"modifie_le": "2026-11-09T05:45:10.826171",
+"nom": "Changer l'eau du pédiluve",
+"ordre": 2,
+"portee": "FERME"
+},
+{
+"actif": true,
+"cree_le": "2026-11-09T05:45:10.826171",
+"frequence": "SEMAINE",
+"icone": "🛏️",
+"id": 4,
+"infrastructure": null,
+"modifie_le": "2026-11-09T05:45:10.826171",
+"nom": "Vérifier la litière",
+"ordre": 3,
+"portee": "BANDE"
+},
+{
+"actif": true,
+"cree_le": "2026-11-09T05:45:10.826171",
+"frequence": "MOIS",
+"icone": "⚡",
+"id": 5,
+"infrastructure": "Groupe électrogène",
+"modifie_le": "2026-11-09T05:45:10.826171",
+"nom": "Vérifier le groupe électrogène",
+"ordre": 4,
+"portee": "FERME"
+},
+{
+"actif": true,
+"cree_le": "2026-11-09T05:45:10.826171",
+"frequence": "MOIS",
+"icone": "🚰",
+"id": 6,
+"infrastructure": "Forage ou puits",
+"modifie_le": "2026-11-09T05:45:10.826171",
+"nom": "Vérifier la pompe du forage",
+"ordre": 5,
+"portee": "FERME"
+},
+{
+"actif": true,
+"cree_le": "2026-11-09T05:45:10.826171",
+"frequence": "VIDE_SANITAIRE",
+"icone": "🧽",
+"id": 7,
+"infrastructure": null,
+"modifie_le": "2026-11-09T05:45:10.826171",
+"nom": "Nettoyer et désinfecter",
+"ordre": 6,
+"portee": "VIDE"
+}
+],
+"traitement": [
+{
+"appareil_id": null,
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"cree_le": "2026-11-08T22:37:40.271107",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date_debut": "2026-11-08",
+"date_fin": "2026-11-08",
+"id": "65739198-dc90-4dc3-a56e-7f4c03addddb",
+"modifie_le": "2026-11-08T22:37:40.271114",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"motif": "diarrhée",
+"nombre_animaux": 1195,
+"numero_metier": null,
+"numero_provisoire": false,
+"produit_id": 9,
+"quantite": 2,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+}
+],
+"utilisateur": [
+{
+"actif": true,
+"bloque_jusqu_a": null,
+"codes_secours": null,
+"cree_le": "2026-11-08T19:20:04.486851",
+"derniere_connexion": null,
+"doit_changer_mdp": false,
+"echecs_connexion": 0,
+"email": null,
+"id": "ecb76119-548f-460b-a403-176a71cc2f19",
+"identifiant": "admin",
+"modifie_le": "2026-11-09T09:31:21.004748",
+"mot_de_passe_hash": "scrypt:32768:8:1$I6U72XrXYMml3kKm$5c777e246fbcf0bcc9f43e24f41e9596c8b13bb7a22a2b7b23a11cf8b44625374842ab3bb3a3a134ac482e10223e8058189cd8fbe1bb03631ae9e93208e2988b",
+"nom": "Nguema",
+"prenom": "Hervé",
+"presentation_vue_le": null,
+"profil": "ADMIN",
+"telephone": null,
+"totp_active": false,
+"totp_secret": null
+},
+{
+"actif": true,
+"bloque_jusqu_a": null,
+"codes_secours": null,
+"cree_le": "2026-11-08T19:20:04.486879",
+"derniere_connexion": null,
+"doit_changer_mdp": false,
+"echecs_connexion": 0,
+"email": null,
+"id": "576cda5c-d800-43c4-9966-e6f7cbaa5577",
+"identifiant": "dge",
+"modifie_le": "2026-11-09T09:31:16.578276",
+"mot_de_passe_hash": "scrypt:32768:8:1$Y0uBfzQXFJlugE5c$99ad48c72a0f71954386575d8b1030ba78f98e0f4c358575eb6511d15a29c9ba64fe7818f5e135eb5077b3d95c9818546b0c08d994e181b1c9f4a722fd8d4f41",
+"nom": "Nzé",
+"prenom": "Alice",
+"presentation_vue_le": null,
+"profil": "DGE",
+"telephone": null,
+"totp_active": false,
+"totp_secret": null
+},
+{
+"actif": true,
+"bloque_jusqu_a": null,
+"codes_secours": null,
+"cree_le": "2026-11-08T19:20:04.486894",
+"derniere_connexion": null,
+"doit_changer_mdp": false,
+"echecs_connexion": 0,
+"email": null,
+"id": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"identifiant": "agent.est",
+"modifie_le": "2026-11-09T09:31:06.631124",
+"mot_de_passe_hash": "scrypt:32768:8:1$J5aBHlBe84ISeSOT$8858a8adb2d292ac90836bb17e6534f2c38134fa5113cf741577d48f4632a5c739e36c28df0b4d126acb35136676298fb8e6a7f4ca117617a67eb82f80ee6103",
+"nom": "Ndong",
+"prenom": "Paul",
+"presentation_vue_le": null,
+"profil": "AGENT",
+"telephone": "+241 77 12 34 56",
+"totp_active": false,
+"totp_secret": null
+},
+{
+"actif": true,
+"bloque_jusqu_a": null,
+"codes_secours": null,
+"cree_le": "2026-11-08T19:20:04.486907",
+"derniere_connexion": null,
+"doit_changer_mdp": false,
+"echecs_connexion": 0,
+"email": null,
+"id": "96142d6e-f28d-4a9f-ad93-b242b16af11a",
+"identifiant": "agent.hog",
+"modifie_le": "2026-11-08T19:20:04.486908",
+"mot_de_passe_hash": "scrypt:32768:8:1$weEeGfvRgxx02jqY$688896ad1ff653f31bcb1ea74cf28eaa9da640d6369018971b4d3138f3dce06f27b141fb999c245c37e32335cedd0167427d330220f260fb4cd2865b2b54bfc7",
+"nom": "Okouyi",
+"prenom": "Marie",
+"presentation_vue_le": null,
+"profil": "AGENT",
+"telephone": "+241 66 98 76 54",
+"totp_active": false,
+"totp_secret": null
+},
+{
+"actif": true,
+"bloque_jusqu_a": null,
+"codes_secours": null,
+"cree_le": "2026-11-08T19:20:04.486919",
+"derniere_connexion": null,
+"doit_changer_mdp": false,
+"echecs_connexion": 0,
+"email": null,
+"id": "85ccc67c-77ba-4e8c-8d6d-6ac031ea445a",
+"identifiant": "veto",
+"modifie_le": "2026-11-09T10:26:16.303301",
+"mot_de_passe_hash": "scrypt:32768:8:1$gTzpGKKQ8CGO41nM$7ef783fa16ef2f1ff16b30a3d2956c1ac57b9b6a88b2bdc588f483460d08963b3a535e02741c48945235eb2e251a9d40f263b1ca01832de95d12d538f03237e1",
+"nom": "Moussavou",
+"prenom": "Dr Jean",
+"presentation_vue_le": null,
+"profil": "VETO",
+"telephone": "+241 66 20 30 40",
+"totp_active": false,
+"totp_secret": null
+},
+{
+"actif": true,
+"bloque_jusqu_a": null,
+"codes_secours": null,
+"cree_le": "2026-11-08T19:20:04.486932",
+"derniere_connexion": null,
+"doit_changer_mdp": false,
+"echecs_connexion": 0,
+"email": null,
+"id": "4efd6952-0acd-4f57-bea7-5f671307174e",
+"identifiant": "aninf",
+"modifie_le": "2026-11-08T19:21:22.454010",
+"mot_de_passe_hash": "scrypt:32768:8:1$kioFc6eSqbgfAXpm$b9a450001a59262b98c546e49f68872a2234c38a036adf8e33d340f03d10c1c795c46b3fb90a67d37cb47ead01cc016768cf77ecdc8509be624490149f2d71cf",
+"nom": "ANINF",
+"prenom": null,
+"presentation_vue_le": null,
+"profil": "AUDITEUR",
+"telephone": null,
+"totp_active": false,
+"totp_secret": null
+},
+{
+"actif": true,
+"bloque_jusqu_a": null,
+"codes_secours": null,
+"cree_le": "2026-11-08T19:20:04.486946",
+"derniere_connexion": null,
+"doit_changer_mdp": false,
+"echecs_connexion": 0,
+"email": null,
+"id": "c25a38b2-8497-49ce-9f4e-c27e016178c8",
+"identifiant": "bceg",
+"modifie_le": "2026-11-08T19:21:26.002051",
+"mot_de_passe_hash": "scrypt:32768:8:1$FK0hs67bnLldnC7O$990edfa6017e9812dbab35d0a029ec10527424be0a6646ef003a42ac8253877d15aa709648a996e39abc3830f35b43f4289d608f2c7f90dc5b860826ec9600c8",
+"nom": "BCEG",
+"prenom": null,
+"presentation_vue_le": null,
+"profil": "BCEG",
+"telephone": null,
+"totp_active": false,
+"totp_secret": null
+},
+{
+"actif": true,
+"bloque_jusqu_a": null,
+"codes_secours": null,
+"cree_le": "2026-11-08T19:20:05.228800",
+"derniere_connexion": null,
+"doit_changer_mdp": false,
+"echecs_connexion": 0,
+"email": null,
+"id": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"identifiant": "eleveur",
+"modifie_le": "2026-11-09T08:53:47.617896",
+"mot_de_passe_hash": "scrypt:32768:8:1$5FkPRU4YkBjMLvBf$d89351fcc16978098b9d3a51b1e0c465ae20e9113cfd800ce2d39812007f0fd4cce8a10c7dcdb7c4378d4585c383d05b51e6b6d6954f345377fa39f40ada2623",
+"nom": "Mba",
+"prenom": "Jean",
+"presentation_vue_le": "2026-11-09T08:53:47.613111",
+"profil": "ELEVEUR",
+"telephone": null,
+"totp_active": false,
+"totp_secret": null
+},
+{
+"actif": true,
+"bloque_jusqu_a": null,
+"codes_secours": null,
+"cree_le": "2026-11-09T09:25:48.875004",
+"derniere_connexion": null,
+"doit_changer_mdp": false,
+"echecs_connexion": 0,
+"email": null,
+"id": "af0949fc-59e2-4c6e-a3d4-f5530bdd1544",
+"identifiant": "auditeur",
+"modifie_le": "2026-11-09T09:31:13.443223",
+"mot_de_passe_hash": "scrypt:32768:8:1$Y0uBfzQXFJlugE5c$99ad48c72a0f71954386575d8b1030ba78f98e0f4c358575eb6511d15a29c9ba64fe7818f5e135eb5077b3d95c9818546b0c08d994e181b1c9f4a722fd8d4f41",
+"nom": "Mintsa",
+"prenom": "Claire",
+"presentation_vue_le": null,
+"profil": "AUDITEUR",
+"telephone": null,
+"totp_active": false,
+"totp_secret": null
+},
+{
+"actif": true,
+"bloque_jusqu_a": null,
+"codes_secours": null,
+"cree_le": "2026-11-09T10:11:24.821058",
+"derniere_connexion": null,
+"doit_changer_mdp": false,
+"echecs_connexion": 0,
+"email": null,
+"id": "a9fa875b-6e0f-4e19-a360-add112032d4f",
+"identifiant": "marie.nze",
+"modifie_le": "2026-11-09T10:11:24.821062",
+"mot_de_passe_hash": "scrypt:32768:8:1$5FkPRU4YkBjMLvBf$d89351fcc16978098b9d3a51b1e0c465ae20e9113cfd800ce2d39812007f0fd4cce8a10c7dcdb7c4378d4585c383d05b51e6b6d6954f345377fa39f40ada2623",
+"nom": "Nzé",
+"prenom": "Marie",
+"presentation_vue_le": null,
+"profil": "ELEVEUR",
+"telephone": "+241 77 45 12 90",
+"totp_active": false,
+"totp_secret": null
+},
+{
+"actif": true,
+"bloque_jusqu_a": null,
+"codes_secours": null,
+"cree_le": "2026-11-09T10:37:41.037719",
+"derniere_connexion": null,
+"doit_changer_mdp": false,
+"echecs_connexion": 0,
+"email": null,
+"id": "67e64d4d-fd32-401f-8f34-7a7de28d87c2",
+"identifiant": "agent.est2",
+"modifie_le": "2026-11-09T10:37:41.037722",
+"mot_de_passe_hash": "scrypt:32768:8:1$J5aBHlBe84ISeSOT$8858a8adb2d292ac90836bb17e6534f2c38134fa5113cf741577d48f4632a5c739e36c28df0b4d126acb35136676298fb8e6a7f4ca117617a67eb82f80ee6103",
+"nom": "Ondo",
+"prenom": "Sylvie",
+"presentation_vue_le": null,
+"profil": "AGENT",
+"telephone": "+241 77 88 99 00",
+"totp_active": false,
+"totp_secret": null
+}
+],
+"utilisateur_ferme": [
+{
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"utilisateur_id": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1"
+},
+{
+"ferme_id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"utilisateur_id": "a9fa875b-6e0f-4e19-a360-add112032d4f"
+}
+],
+"utilisateur_province": [
+{
+"province_id": 1,
+"utilisateur_id": "c25a38b2-8497-49ce-9f4e-c27e016178c8"
+},
+{
+"province_id": 2,
+"utilisateur_id": "96142d6e-f28d-4a9f-ad93-b242b16af11a"
+},
+{
+"province_id": 1,
+"utilisateur_id": "390e9611-ff2b-4567-a3d5-89f42211dbd8"
+},
+{
+"province_id": 1,
+"utilisateur_id": "85ccc67c-77ba-4e8c-8d6d-6ac031ea445a"
+},
+{
+"province_id": 1,
+"utilisateur_id": "67e64d4d-fd32-401f-8f34-7a7de28d87c2"
+}
+],
+"vaccination": [
+{
+"annule": false,
+"appareil_id": null,
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"calendrier_id": 1,
+"cree_le": "2026-11-08T22:37:38.536385",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date": "2026-11-08",
+"id": "64aedebd-3bbc-40eb-b2cf-7783964ca65b",
+"mode": "Goutte oculaire",
+"modifie_le": "2026-11-08T22:37:38.536390",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"nombre_animaux": 1195,
+"numero_metier": null,
+"numero_provisoire": false,
+"produit_id": 5,
+"quantite": 1195,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"annule": true,
+"appareil_id": null,
+"bande_id": "bc7e6bd4-5e39-4741-bac9-992fd553d354",
+"calendrier_id": 2,
+"cree_le": "2026-11-09T06:52:59.413064",
+"cree_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"date": "2026-11-09",
+"id": "cae45ad3-1a9d-455f-b410-97582e23eb6c",
+"mode": "Eau de boisson",
+"modifie_le": "2026-11-09T06:53:04.002811",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"nombre_animaux": 1143,
+"numero_metier": null,
+"numero_provisoire": false,
+"produit_id": 6,
+"quantite": 1143,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+}
+],
+"visite": [
+{
+"agent_id": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"appareil_id": null,
+"biosecurite": null,
+"constats": null,
+"cree_le": "2026-11-09T10:11:24.561880",
+"cree_par": null,
+"date_prevue": "2026-11-09",
+"faite_le": null,
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": "3c502e3f-6b9d-44a1-ae01-bf6e0e73dd61",
+"latitude": null,
+"longitude": null,
+"mesures_correctives": null,
+"modifie_le": "2026-11-09T10:11:24.561884",
+"modifie_par": null,
+"motif_annulation": null,
+"numero_metier": null,
+"numero_provisoire": false,
+"objet": "Suivi",
+"photo": null,
+"recommandation_libre": null,
+"recommandations": [],
+"score_biosecurite": null,
+"statut": "PREVUE",
+"statut_synchro": "SYNCHRONISE",
+"vue_par_eleveur_le": null
+},
+{
+"agent_id": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"appareil_id": null,
+"biosecurite": null,
+"constats": null,
+"cree_le": "2026-11-09T10:11:24.561893",
+"cree_par": null,
+"date_prevue": "2026-11-07",
+"faite_le": null,
+"ferme_id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"id": "45748d29-91b4-4954-8d88-bbe587f9d299",
+"latitude": null,
+"longitude": null,
+"mesures_correctives": null,
+"modifie_le": "2026-11-09T10:11:24.561894",
+"modifie_par": null,
+"motif_annulation": null,
+"numero_metier": null,
+"numero_provisoire": false,
+"objet": "Vaccination",
+"photo": null,
+"recommandation_libre": null,
+"recommandations": [],
+"score_biosecurite": null,
+"statut": "PREVUE",
+"statut_synchro": "SYNCHRONISE",
+"vue_par_eleveur_le": null
+},
+{
+"agent_id": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"appareil_id": null,
+"biosecurite": {
+"Abreuvoirs et mangeoires propres": "oui",
+"Aliment stocké au sec, sur palette": "oui",
+"Clôture fermée, pas d'animaux errants": "non",
+"Lavage des mains à l'entrée": "oui",
+"Litière sèche": "non",
+"Morts ramassés chaque jour et éliminés (fosse, incinération)": "non",
+"Pédiluve à l'entrée, propre et rempli": "non",
+"Registre des visiteurs tenu": "non",
+"Tenue réservée au bâtiment (bottes, blouse)": "oui",
+"Vide sanitaire respecté entre deux bandes": "non"
+},
+"constats": null,
+"cree_le": "2026-11-06T10:11:24.583524",
+"cree_par": null,
+"date_prevue": null,
+"faite_le": "2026-11-06",
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"id": "24aa0438-ebe4-4f07-ba38-2cb3371c979c",
+"latitude": null,
+"longitude": null,
+"mesures_correctives": [
+{
+"mesure": "Remplir le pédiluve chaque matin (chaux vive)",
+"point": "Pédiluve à l'entrée, propre et rempli"
+},
+{
+"mesure": "Réparer la clôture côté route",
+"point": "Clôture fermée, pas d'animaux errants"
+},
+{
+"mesure": "Tenir un cahier des visiteurs",
+"point": "Registre des visiteurs tenu"
+},
+{
+"mesure": "Creuser une fosse à cadavres, couvrir de chaux",
+"point": "Morts ramassés chaque jour et éliminés (fosse, incinération)"
+},
+{
+"mesure": "Changer la litière humide sous les abreuvoirs",
+"point": "Litière sèche"
+},
+{
+"mesure": "Respecter 15 jours de vide sanitaire",
+"point": "Vide sanitaire respecté entre deux bandes"
+}
+],
+"modifie_le": "2026-11-09T10:11:24.584502",
+"modifie_par": null,
+"motif_annulation": null,
+"numero_metier": null,
+"numero_provisoire": false,
+"objet": "Biosécurité",
+"photo": null,
+"recommandation_libre": null,
+"recommandations": [],
+"score_biosecurite": 40,
+"statut": "FAITE",
+"statut_synchro": "SYNCHRONISE",
+"vue_par_eleveur_le": null
+},
+{
+"agent_id": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
+"appareil_id": null,
+"biosecurite": {
+"Abreuvoirs et mangeoires propres": "oui",
+"Aliment stocké au sec, sur palette": "oui",
+"Clôture fermée, pas d'animaux errants": "oui",
+"Lavage des mains à l'entrée": "oui",
+"Litière sèche": "non",
+"Morts ramassés chaque jour et éliminés (fosse, incinération)": "oui",
+"Pédiluve à l'entrée, propre et rempli": "oui",
+"Registre des visiteurs tenu": "non",
+"Tenue réservée au bâtiment (bottes, blouse)": "oui",
+"Vide sanitaire respecté entre deux bandes": "oui"
+},
+"constats": null,
+"cree_le": "2026-10-30T10:11:24.588403",
+"cree_par": null,
+"date_prevue": null,
+"faite_le": "2026-10-30",
+"ferme_id": "18a6a9db-27f7-432f-b999-13ae4788d840",
+"id": "17b68b07-599e-4b34-85e2-ff9563400121",
+"latitude": null,
+"longitude": null,
+"mesures_correctives": [
+{
+"mesure": "Tenir un cahier des visiteurs",
+"point": "Registre des visiteurs tenu"
+},
+{
+"mesure": "Changer la litière humide sous les abreuvoirs",
+"point": "Litière sèche"
+}
+],
+"modifie_le": "2026-11-09T12:01:57.653749",
+"modifie_par": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"motif_annulation": null,
+"numero_metier": null,
+"numero_provisoire": false,
+"objet": "Biosécurité",
+"photo": null,
+"recommandation_libre": null,
+"recommandations": [],
+"score_biosecurite": 80,
+"statut": "FAITE",
+"statut_synchro": "SYNCHRONISE",
+"vue_par_eleveur_le": "2026-11-09T12:01:57.650128"
+}
+]
+}
+}

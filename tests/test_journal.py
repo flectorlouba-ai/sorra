@@ -128,11 +128,11 @@ def test_export_csv_journalise(client_admin):
 
 def test_adresse_reelle_derriere_nginx(app, monkeypatch):
     import config as module_config
-    from werkzeug.middleware.proxy_fix import ProxyFix
     from app import create_app
+    from app.utils.demo import ProxyDeConfiance
     monkeypatch.setattr(module_config.TestingConfig, 'DERRIERE_PROXY', True)
-    assert isinstance(create_app('testing').wsgi_app, ProxyFix)
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
+    assert isinstance(create_app('testing').wsgi_app, ProxyDeConfiance)    # en-tête cru depuis nginx (127.0.0.1)
+    app.wsgi_app = ProxyDeConfiance(app.wsgi_app)
     app.test_client().post('/auth/connexion', data={'identifiant': 'inconnu', 'mot_de_passe': 'x'},
-                           headers={'X-Forwarded-For': '41.158.1.2'})
+                           headers={'X-Forwarded-For': '41.158.1.2'}, environ_base={'REMOTE_ADDR': '127.0.0.1'})
     assert lignes('ECHEC_CONNEXION')[-1].adresse_ip == '41.158.1.2'

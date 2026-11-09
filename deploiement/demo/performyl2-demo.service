@@ -1,0 +1,15 @@
+[Unit]
+Description=SORRA — démonstration (sorra.performyl.com) — Flask/Gunicorn
+After=network.target postgresql.service
+
+[Service]
+User=performyl2-demo
+Group=performyl2-demo
+WorkingDirectory=/var/www/performyl2-demo
+EnvironmentFile=/var/www/performyl2-demo/.env
+ExecStart=/var/www/performyl2-demo/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8008 --timeout 120 --access-logfile /var/log/performyl2-demo/access.log --error-logfile /var/log/performyl2-demo/error.log performyl2:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

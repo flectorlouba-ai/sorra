@@ -62,3 +62,39 @@ def rapports_mensuels():
     nouveaux = dge.generer_manquants(auteur)
     db.session.commit()
     click.echo(', '.join(r.mois for r in nouveaux) + ' produit(s).' if nouveaux else 'Rien à produire.')
+
+
+DONNEES_DEMO = 'deploiement/demo/donnees_demo.json'
+
+
+@click.command('demo-exporter')
+@click.option('--fichier', default=DONNEES_DEMO, show_default=True)
+@with_appcontext
+def demo_exporter(fichier):
+    """Exporte la base courante (une base de démo locale) en données fictives pour la démonstration."""
+    import json
+    from app.services import demo_donnees
+    with db.engine.connect() as c:
+        donnees = demo_donnees.exporter(c, db.metadata)
+    with open(fichier, 'w', encoding='utf-8') as f:
+        json.dump(donnees, f, ensure_ascii=False, indent=0, sort_keys=True)
+    click.echo(f'{sum(len(v) for v in donnees["tables"].values())} lignes exportées dans {fichier}.')
+
+
+@click.command('demo-charger')
+@click.option('--fichier', default=DONNEES_DEMO, show_default=True)
+@click.option('--adresse', default='', help="Adresse publique des QR codes (ex. https://sorra.performyl.com)")
+@with_appcontext
+def demo_charger(fichier, adresse):
+    """Charge les données fictives dans la base de la DÉMONSTRATION (YL2_DEMO=1 obligatoire, base neuve)."""
+    from flask import current_app
+    from app.services import demo_donnees
+    if not current_app.config.get('DEMO'):
+        raise click.ClickException('Refusé : YL2_DEMO=1 est obligatoire (jamais sur une base réelle).')
+    try:
+        with db.engine.begin() as c:
+            comptes = demo_donnees.charger(c, db.metadata, demo_donnees.lire(fichier), adresse or None)
+    except demo_donnees.RegleDemo as e:
+        raise click.ClickException(str(e))
+    click.echo(f'{sum(comptes.values())} lignes chargées ({comptes.get("utilisateur", 0)} comptes, '
+               f'{comptes.get("ferme", 0)} fermes).')

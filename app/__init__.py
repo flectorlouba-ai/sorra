@@ -33,8 +33,8 @@ def create_app(env='default'):
     app.config.from_object(config[env])
     config[env].verifier()
     if app.config['DERRIERE_PROXY']:
-        from werkzeug.middleware.proxy_fix import ProxyFix
-        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
+        from app.utils.demo import ProxyDeConfiance
+        app.wsgi_app = ProxyDeConfiance(app.wsgi_app)
 
     db.init_app(app)
     migrate.init_app(app, db, render_as_batch=True)
@@ -107,9 +107,11 @@ def create_app(env='default'):
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
     # ── CLI ──
-    from app.commandes import init_performyl2, rapports_mensuels
+    from app.commandes import init_performyl2, rapports_mensuels, demo_exporter, demo_charger
     app.cli.add_command(init_performyl2)
     app.cli.add_command(rapports_mensuels)
+    app.cli.add_command(demo_exporter)
+    app.cli.add_command(demo_charger)
 
     # ── Globals et filtres Jinja2 ──
     from app.utils.permissions import a_profil
@@ -126,7 +128,7 @@ def create_app(env='default'):
 
     @app.context_processor
     def _aujourdhui():
-        return {'today': _date.today()}
+        return {'today': _date.today(), 'demo': bool(app.config.get('DEMO'))}
 
     @app.context_processor
     def _theme():
@@ -211,7 +213,7 @@ def _installer_controles_session(app):
             enregistree.derniere_activite = _maintenant()
             _db.session.commit()
         session['derniere_activite'] = maintenant
-        if current_user.doit_changer_mdp and request.endpoint not in libres:
+        if current_user.doit_changer_mdp and request.endpoint not in libres and not app.config.get('DEMO'):
             return redirect(url_for('auth.mot_de_passe'))
         return None
 

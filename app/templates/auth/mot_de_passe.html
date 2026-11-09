@@ -19,6 +19,7 @@
       <li>différent de l'ancien ;</li>
       <li>tapez le nouveau deux fois, pareil.</li>
     </ul>
+    {% if not demo_bloque %}
     <form method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="form-group mb-3">
@@ -37,6 +38,7 @@
         <button type="submit" class="btn-enregistrer">Enregistrer</button>
       </div>
     </form>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

@@ -144,6 +144,9 @@ def creer():
 def modifier(user_id):
     user = _charger(user_id)
     donnees, erreur = _lire_formulaire(user)
+    from app.utils import demo
+    if not erreur and demo.active() and (donnees['mot_de_passe'] or not donnees['actif']):
+        erreur = f'{demo.MESSAGE} (mot de passe et désactivation des comptes)'
     if not erreur and user.id == current_user.id and not donnees['actif']:
         erreur = 'Vous ne pouvez pas désactiver votre propre compte.'
     if (not erreur and user.profil == Profil.ADMIN and user.actif

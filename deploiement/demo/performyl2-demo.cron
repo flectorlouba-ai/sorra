@@ -1,0 +1,3 @@
+# SORRA — démonstration : sauvegarde de nuit (2 h 45, heure du serveur) et rapport mensuel (le 1er à 6 h)
+45 2 * * * root /usr/local/bin/performyl2-demo-sauvegarde.sh
+0 6 1 * * performyl2-demo cd /var/www/performyl2-demo && set -a && . ./.env && set +a && venv/bin/flask --app performyl2 rapports-mensuels >> /var/log/performyl2-demo/rapports.log 2>&1

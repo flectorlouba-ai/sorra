@@ -726,3 +726,7 @@ i.picto-panne{font-style:normal;font-size:2rem;display:block;}
 
 /* Nouvel éleveur sans réseau : identifiant et mot de passe préparés sur le téléphone */
 .carte-provisoire{border:1.5px dashed var(--att-bord);background:var(--att-fond);border-radius:10px;padding:.75rem;margin-bottom:1rem;}
+
+/* Démonstration publique (YL2_DEMO=1) : bandeau sur toutes les pages */
+.bandeau-demo{position:sticky;top:0;z-index:2000;background:var(--att-encre);color:var(--blanc);text-align:center;
+  font-weight:800;font-size:.8rem;letter-spacing:.06em;padding:.3rem .5rem;}

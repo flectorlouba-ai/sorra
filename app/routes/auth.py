@@ -9,6 +9,7 @@ from app.models import Utilisateur, Profil
 from app.models.base import maintenant
 from app.services import parametres, securite
 from app.services.journal import enregistrer, Action
+from app.utils import demo
 from app.utils.dates import en_utc
 
 auth_bp = Blueprint('auth', __name__)
@@ -25,7 +26,16 @@ def connexion():
         mot_de_passe = request.form.get('mot_de_passe', '')
         user = Utilisateur.query.filter_by(identifiant=identifiant).first()
 
-        if user and user.bloque_jusqu_a:
+        if demo.active() and demo.bloque(identifiant, request.remote_addr):
+            # Démonstration : celui qui se trompe est bloqué depuis SON adresse ; les autres se connectent
+            enregistrer(Action.ECHEC_CONNEXION, identifiant=identifiant[:64] or '(vide)',
+                        detail='compte bloqué pour cette adresse')
+            db.session.commit()
+            duree = parametres.obtenir('securite.blocage_minutes', 15)
+            return render_template('auth/connexion.html',
+                                   erreur=f'Trop d\'essais depuis cet appareil : réessayez dans {duree} minutes.')
+
+        if user and user.bloque_jusqu_a and not demo.active():
             if user.est_bloque:
                 enregistrer(Action.ECHEC_CONNEXION, identifiant=user.identifiant,
                             detail='compte bloqué')
@@ -53,6 +63,15 @@ def connexion():
             motif = 'identifiant ou mot de passe incorrect'
         enregistrer(Action.ECHEC_CONNEXION, identifiant=identifiant[:64] or '(vide)',
                     detail=motif)
+        if demo.active():
+            db.session.commit()
+            if demo.bloque(identifiant, request.remote_addr):
+                enregistrer(Action.BLOCAGE, identifiant=identifiant[:64],
+                            detail=f'Démonstration : blocage pour l\'adresse {request.remote_addr} seulement')
+                db.session.commit()
+                erreur = 'Trop d\'essais depuis cet appareil : réessayez dans ' \
+                         f'{parametres.obtenir("securite.blocage_minutes", 15)} minutes.'
+            return render_template('auth/connexion.html', erreur=erreur)
         if user and user.actif and motif != 'compte désactivé':
             user.echecs_connexion += 1
             maximum = parametres.obtenir('securite.echecs_avant_blocage', 5)
@@ -118,6 +137,9 @@ def deux_facteurs():
 def mise_en_place():
     """Mise en place guidée : à la première connexion d'un profil obligatoire, ou depuis « Ma sécurité »."""
     user = current_user if current_user.is_authenticated else _en_attente_2fa()
+    if demo.active():
+        flash(demo.MESSAGE, 'warning')
+        return redirect(url_for('auth.securite') if current_user.is_authenticated else url_for('auth.connexion'))
     if user is None or not securite.possible(user):
         return redirect(url_for('auth.connexion'))
     if not session.get('2fa_secret'):
@@ -212,6 +234,11 @@ def mot_de_passe():
     longueur_min = parametres.obtenir('securite.mdp_longueur_min', 10)
     erreur = None
     obligatoire = current_user.doit_changer_mdp
+    if demo.active():                                   # mot de passe connu de tous : on ne le change pas
+        if request.method == 'POST':
+            erreur = demo.MESSAGE
+        return render_template('auth/mot_de_passe.html', erreur=erreur or demo.MESSAGE, longueur_min=longueur_min,
+                               obligatoire=False, demo_bloque=True)
     if request.method == 'POST':
         actuel = request.form.get('actuel', '')
         nouveau = request.form.get('nouveau', '')

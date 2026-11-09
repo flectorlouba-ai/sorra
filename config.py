@@ -37,6 +37,9 @@ class Config:
     # Lot 15 : double authentification (TOTP). Coupée par défaut en développement et en test ;
     # active par défaut en production ; YL2_2FA=0 pour la démo locale SEULEMENT.
     DEUX_FACTEURS = _oui('YL2_2FA', '0')
+    # Démonstration publique (sorra.performyl.com) : données fictives, mot de passe connu de tous.
+    # Bandeau sur toutes les pages, comptes protégés, verrouillage par compte + adresse IP.
+    DEMO = _oui('YL2_DEMO', '0')
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024   # fichier d'import POUFA
 
     @classmethod

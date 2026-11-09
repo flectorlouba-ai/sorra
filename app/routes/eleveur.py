@@ -300,7 +300,10 @@ TELEPHONE = re.compile(r'^\+?[0-9 ]{6,20}$')
 def mon_compte():
     fermes = _fermes()
     erreur = None
-    if request.method == 'POST':
+    from app.utils import demo
+    if request.method == 'POST' and demo.active():
+        erreur = demo.MESSAGE
+    elif request.method == 'POST':
         tel = ' '.join((request.form.get('telephone') or '').split())
         if tel and not TELEPHONE.match(tel):
             erreur = 'Écrivez le numéro avec des chiffres, par exemple +241 77 12 34 56.'

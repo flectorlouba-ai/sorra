@@ -10,6 +10,7 @@
   <title>{% block titre %}SORRA{% endblock %} — SORRA</title>
 </head>
 <body{% if theme_eleveur %} class="theme-eleveur"{% endif %}{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% if current_user.profil.value in ('ELEVEUR', 'AGENT') %} data-pages-hors-ligne{% endif %}{% endif %}>
+{% include '_bandeau_demo.html' %}
 <div class="kente-band"></div>
 
 <div class="topbar">
