@@ -123,7 +123,7 @@ def _classement():
 def classement():
     r, pid, cohorte = _classement()
     return render_template('dge/classement.html', r=r, criteres=regles.CRITERES, province=pid, cohorte=cohorte,
-                           provinces=Province.query.order_by(Province.ordre).all(), seuil=regles.SEUIL_COMPLET)
+                           provinces=Province.query.order_by(Province.ordre).all(), seuil=r['seuil'])
 
 
 @dge_bp.route('/classement.csv')

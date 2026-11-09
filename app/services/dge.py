@@ -117,7 +117,19 @@ def arbitrages_par_province(user):
 
 CRITERES = [('mortalite', 'Mortalité'), ('ic', 'Indice de consommation'), ('gmq', 'Croissance (GMQ)'),
             ('regularite', 'Régularité des saisies')]
-SEUIL_COMPLET = 80          # % de jours saisis en dessous duquel une bande est incomplète
+SEUIL_COMPLET = 80          # valeur par défaut du paramètre classement.seuil_complet_pct
+
+
+def seuil_complet():
+    return parametres.obtenir('classement.seuil_complet_pct', SEUIL_COMPLET)
+
+
+def bareme():
+    """Bornes des notes (paramètres classement.*, quatre yeux) : valeur qui donne 0 et valeur qui donne 100."""
+    o = parametres.obtenir
+    return {'mortalite_zero': float(o('classement.mortalite_note_zero_pct', 10)),
+            'ic_100': float(o('classement.ic_note_100', 1.4)), 'ic_zero': float(o('classement.ic_note_zero', 2.6)),
+            'gmq_zero': float(o('classement.gmq_note_zero', 30)), 'gmq_100': float(o('classement.gmq_note_100', 70))}
 
 
 def poids():
@@ -129,23 +141,29 @@ def _borne(x):
     return max(0.0, min(100.0, x))
 
 
-def notes(bilan):
-    """Notes sur 100 de chaque critère (barème de départ, à valider : docs/a_faire_valider.md)."""
-    return {'mortalite': _borne(100 - (bilan.get('mortalite') or 0) * 10),
-            'ic': _borne((2.6 - (bilan.get('indice_consommation') or 2.6)) / 1.2 * 100),
-            'gmq': _borne(((bilan.get('gmq') or 30) - 30) / 40 * 100),
+def _lineaire(x, zero, cent):
+    """0 à `zero`, 100 à `cent`, droite entre les deux (dans un sens ou dans l'autre)."""
+    return _borne((x - zero) / (cent - zero) * 100) if cent != zero else 0.0
+
+
+def notes(bilan, b=None):
+    """Notes sur 100 de chaque critère, selon le barème des paramètres (à valider : docs/a_faire_valider.md)."""
+    b = b or bareme()
+    return {'mortalite': _lineaire(bilan.get('mortalite') or 0, b['mortalite_zero'], 0),
+            'ic': _lineaire(bilan.get('indice_consommation') or b['ic_zero'], b['ic_zero'], b['ic_100']),
+            'gmq': _lineaire(bilan.get('gmq') or b['gmq_zero'], b['gmq_zero'], b['gmq_100']),
             'regularite': _borne(bilan.get('regularite') or 0)}
 
 
-def incomplete(bilan):
-    return bool(bilan.get('incomplet')) or (bilan.get('regularite') or 0) < SEUIL_COMPLET \
-        or not bilan.get('gmq')
+def incomplete(bilan, seuil=None):
+    seuil = seuil_complet() if seuil is None else seuil
+    return bool(bilan.get('incomplet')) or (bilan.get('regularite') or 0) < seuil or not bilan.get('gmq')
 
 
 def classement(user, province_id=None, cohorte=None):
     from app.models.bande import StatutBande
     from app.utils.permissions import filtre_perimetre
-    p = poids()
+    p, b, seuil = poids(), bareme(), seuil_complet()
     total = sum(p.values()) or 1
     depuis = date.today() - timedelta(days=365)
     q = filtre_perimetre(Ferme.query, utilisateur=user)
@@ -157,21 +175,22 @@ def classement(user, province_id=None, cohorte=None):
     for f in q:
         bandes = Bande.query.filter(Bande.ferme_id == f.id, Bande.statut == StatutBande.CLOTUREE,
                                     Bande.date_cloture >= depuis).all()
-        completes = [b for b in bandes if b.bilan and not incomplete(b.bilan)]
+        completes = [x for x in bandes if x.bilan and not incomplete(x.bilan, seuil)]
         n_inc = len(bandes) - len(completes)
         ignorees += n_inc
         if not completes:
             if bandes:
                 non_classees.append({'ferme': f, 'incompletes': n_inc})
             continue
-        moyennes = {c: sum(notes(b.bilan)[c] for b in completes) / len(completes) for c, _ in CRITERES}
+        moyennes = {c: sum(notes(x.bilan, b)[c] for x in completes) / len(completes) for c, _ in CRITERES}
         score = sum(moyennes[c] * p[c] for c, _ in CRITERES) / total
         classees.append({'ferme': f, 'score': round(score, 1), 'notes': {c: round(v) for c, v in moyennes.items()},
                          'bandes': len(completes), 'incompletes': n_inc})
     classees.sort(key=lambda x: (-x['score'], x['ferme'].numero_metier))
     for i, x in enumerate(classees, 1):
         x['rang'] = i
-    return {'classees': classees, 'non_classees': non_classees, 'ignorees': ignorees, 'poids': p}
+    return {'classees': classees, 'non_classees': non_classees, 'ignorees': ignorees, 'poids': p, 'bareme': b,
+            'seuil': seuil}
 
 
 # ── E. Rapports mensuels gardés ─────────────────────────────────────────

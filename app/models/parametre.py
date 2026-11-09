@@ -71,6 +71,12 @@ PARAMETRES_DEFAUT = [
     ('classement.poids_ic', '25', TypeParametre.ENTIER, "Classement des fermes : poids de l'indice de consommation. Quatre yeux."),
     ('classement.poids_gmq', '20', TypeParametre.ENTIER, 'Classement des fermes : poids de la croissance (GMQ). Quatre yeux.'),
     ('classement.poids_regularite', '20', TypeParametre.ENTIER, 'Classement des fermes : poids de la régularité des saisies. Quatre yeux.'),
+    ('classement.seuil_complet_pct', '80', TypeParametre.ENTIER, 'Classement : % de jours saisis en dessous duquel une bande est incomplète (ignorée). Quatre yeux.'),
+    ('classement.mortalite_note_zero_pct', '10', TypeParametre.DECIMAL, 'Classement : mortalité (%) qui donne la note 0 (0 % donne 100). Quatre yeux.'),
+    ('classement.ic_note_100', '1.4', TypeParametre.DECIMAL, 'Classement : indice de consommation qui donne la note 100. Quatre yeux.'),
+    ('classement.ic_note_zero', '2.6', TypeParametre.DECIMAL, 'Classement : indice de consommation qui donne la note 0. Quatre yeux.'),
+    ('classement.gmq_note_zero', '30', TypeParametre.DECIMAL, 'Classement : GMQ (g/j) qui donne la note 0. Quatre yeux.'),
+    ('classement.gmq_note_100', '70', TypeParametre.DECIMAL, 'Classement : GMQ (g/j) qui donne la note 100. Quatre yeux.'),
     ('rapports.email_destinataires', '', TypeParametre.TEXTE,
      'Adresses qui recevront le rapport mensuel national (séparées par des virgules). Envoi coupé tant que '
      'rapports.email_actif vaut 0.'),

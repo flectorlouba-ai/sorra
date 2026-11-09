@@ -18,7 +18,7 @@
   </select>
 </form>
 <div class="td-sous mb-2" data-poids>Pondérations : {% for c, t in criteres %}{{ t }} {{ r.poids[c] }}{{ ' · ' if not loop.last }}{% endfor %}
-  — modifiables dans Paramètres (<code>classement.poids_*</code>), avec l'accord d'une autre personne.</div>
+  — pondérations et barème modifiables dans Paramètres (<code>classement.*</code>), avec l'accord d'une autre personne.</div>
 {% if r.ignorees %}<div class="flash-item warning" data-ignorees><i class="bi bi-exclamation-triangle"></i>{{ r.ignorees }} bande{{ 's' if r.ignorees > 1 }} incomplète{{ 's' if r.ignorees > 1 }} ignorée{{ 's' if r.ignorees > 1 }} (moins de {{ seuil }} % des jours saisis, ou sans pesée).</div>{% endif %}
 <div class="table-wrap"><div class="table-scroll">
   <table>

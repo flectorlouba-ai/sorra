@@ -57,3 +57,9 @@ Chaque décision : la question, le choix fait, l'autre option, et comment reveni
 | 18-6 ★ | E-mail des rapports | **Préparé mais coupé** : message construit et journalisé « préparé, non envoyé » ; aucun envoi (pas de serveur de messagerie, interrupteur à 0). | Brancher SMTP. | `dge.preparer_email`. |
 | 18-7 | Réaffecter une ferme | Seulement vers un agent **actif de la même province**, avec motif ; ADMIN et DGE. | Tout agent. | `dge.reaffecter`. |
 | 18-8 | Arbitrages « national » | L'écran existant gagne un **compteur et un filtre par province** pour la DGE et l'ADMIN ; les provinces avec des saisies de plus de 48 h viennent d'abord. | Un écran à part. | `routes/hors_ligne.conflits`. |
+
+## Après relecture (09/11/2026)
+
+| # | Question | Choix fait | Autre option | Revenir en arrière |
+|---|---|---|---|---|
+| R-2 | Classement : qu'est-ce qui peut rester fixe ? (demande : « seuls les seuils des étoiles ») | **Pondérations** (`classement.poids_*`, déjà), **barème des notes** et **seuil « bande incomplète »** sont des paramètres `classement.*`, tous sous **quatre yeux** (migration 0020, test `test_ponderations_et_bareme_reglables_sous_quatre_yeux`). Les seuils des étoiles sont aussi des paramètres (`bandes.etoiles_*`, lot 8), listés dans `a_faire_valider.md`. Remplace la décision 18-4 pour le barème. | Garder le barème dans le code. | Migration 0020 (retour arrière). |

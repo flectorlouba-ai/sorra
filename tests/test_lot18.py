@@ -186,3 +186,31 @@ def test_agents_charge_et_reaffectation(client, monde):
     changer(client, 'agent2')
     assert f.numero in client.get('/fermes/').get_data(as_text=True)
     assert client.get('/agents').status_code == 403
+
+
+def test_ponderations_et_bareme_reglables_sous_quatre_yeux(client, monde):
+    """Pondérations, barème des notes et seuil « incomplète » : paramètres classement.*, quatre yeux.
+    Seuls les seuils des étoiles (bandes.etoiles_*) sont hors du classement."""
+    from app.services import bandes as regles_bandes
+    b = bande_ouverte(monde)
+    regles_bandes.cloturer(b, monde['agent'], 'fin')
+    b.bilan = _bilan(2, 1.6, 55, 95)
+    admin, dge = creer_utilisateur('admin', Profil.ADMIN), creer_utilisateur('dge', Profil.DGE)
+    db.session.commit()
+    cles = [p.cle for p in Parametre.query.filter(Parametre.cle.like('classement.%'))]
+    assert len(cles) == 10 and all(approbations.sensible(c) for c in cles)
+    avant = regles.classement(dge)['classees'][0]['score']
+    for cle, valeur in (('classement.poids_mortalite', '80'), ('classement.mortalite_note_zero_pct', '4'),
+                        ('classement.seuil_complet_pct', '96')):
+        p = Parametre.query.filter_by(cle=cle).one()
+        approbations.proposer('PARAMETRE', cle, p.description, p.valeur, valeur, {'valeur': valeur}, 'essai', admin)
+    db.session.commit()
+    assert regles.classement(dge)['classees'][0]['score'] == avant            # rien avant l'approbation
+    from app.models.securite import Proposition
+    for prop in Proposition.query.filter_by(statut='EN_ATTENTE').all():
+        assert not approbations.peut_decider(admin, prop)                  # jamais l'auteur
+        approbations.decider(prop, dge, True)
+    db.session.commit()
+    r = regles.classement(dge)
+    assert r['poids']['mortalite'] == 80 and r['bareme']['mortalite_zero'] == 4 and r['seuil'] == 96
+    assert r['classees'] == [] and r['ignorees'] == 1                      # 95 % < 96 % : bande incomplète
