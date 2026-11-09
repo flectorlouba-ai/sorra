@@ -26,11 +26,23 @@ echo "== Envoi de main ($VERSION) vers le serveur"
 "${SSH[@]}" "rm -rf '$ATTENTE' && mkdir -p '$ATTENTE'"
 "${SSH[@]}" "tar -xzf - -C '$ATTENTE'" < "$ARCHIVE"
 rm -f "$ARCHIVE"
+# La partie serveur tourne détachée (setsid nohup) avec son journal : une coupure du réseau entre le poste et le
+# serveur ne l'interrompt pas (incident du 09/11/2026). Le poste lit ensuite le journal jusqu'à la fin.
+JOURNAL="/root/sorra-deploiement/journaux/$VERSION.log"
+"${SSH[@]}" "mkdir -p /root/sorra-deploiement/journaux && setsid nohup bash '$ATTENTE/deploiement/demo/deployer_serveur.sh' '$ATTENTE' '$VERSION' > '$JOURNAL' 2>&1 < /dev/null & echo \$! > '$JOURNAL.pid'"
 set +e
-"${SSH[@]}" "bash '$ATTENTE/deploiement/demo/deployer_serveur.sh' '$ATTENTE' '$VERSION'"
+LUS=0
+while true; do
+  sleep 10
+  ETAT=$("${SSH[@]}" -o ConnectTimeout=15 "tail -n +$((LUS + 1)) '$JOURNAL'; echo '@@'; wc -l < '$JOURNAL'; kill -0 \$(cat '$JOURNAL.pid') 2>/dev/null && echo encours || echo fini" 2>/dev/null) || { echo '  (réseau coupé : le déploiement continue sur le serveur, nouvel essai…)'; continue; }
+  printf '%s\n' "${ETAT%%@@*}" | sed '/^$/d'
+  LUS=$(printf '%s\n' "${ETAT##*@@}" | sed -n '2p')
+  printf '%s\n' "$ETAT" | tail -n 1 | grep -q fini && break
+done
+"${SSH[@]}" "grep -q '^== Déployé : ' '$JOURNAL'"
 CODE=$?
 set -e
-"${SSH[@]}" "rm -rf '$ATTENTE'; ls -1dt /root/sorra-deploiement/* 2>/dev/null | tail -n +4 | xargs -r rm -rf" || true
+"${SSH[@]}" "rm -rf '$ATTENTE'; ls -1dt /root/sorra-deploiement/2* 2>/dev/null | tail -n +4 | xargs -r rm -rf" || true
 if [ $CODE = 0 ]; then
   git tag -a "$ETIQUETTE" -m "Démonstration déployée : $VERSION" && git push -q origin "$ETIQUETTE"
   echo "== Déployé sur la démo : oui — version $VERSION (étiquette $ETIQUETTE)"
