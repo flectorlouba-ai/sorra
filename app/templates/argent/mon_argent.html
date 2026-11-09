@@ -41,7 +41,7 @@
     {% for m in mouvements %}
     <li>
       <span class="mvt-ico" aria-hidden="true">{{ m.ico }}</span>
-      <span class="mvt-texte">{{ m.texte }}<small>{{ m.date.strftime('%d/%m') }}{% if m.agent %} · Agent pour l'éleveur{% endif %}{% if m.hors_bande %} · hors bande{% endif %}{% if periode == 'bande' and bande and m.genre != 'vente' and m.parts|length > 1 %} · votre part : {{ m.parts[bande.id]|qte }}{% endif %}</small></span>
+      <span class="mvt-texte">{{ m.texte }}<small>{{ m.date.strftime('%d/%m') }}{% if m.agent %} · Agent pour l'éleveur{% endif %}{% if m.hors_bande %} · hors bande{% endif %}{% if m.a_verifier %} · <span class="a-verifier">◷ À vérifier par votre agent</span>{% endif %}{% if periode == 'bande' and bande and m.genre != 'vente' and m.parts|length > 1 %} · votre part : {{ m.parts[bande.id]|qte }}{% endif %}</small></span>
       {% if m.a_completer %}<a class="mvt-completer" href="{{ url_for('argent.montant_vente', ident=m.objet.id) }}">à compléter →</a>
       {% elif m.montant is none %}<span class="mvt-montant">—</span>
       {% else %}<span class="mvt-montant {{ 'plus' if m.signe > 0 else 'moins' }}">{{ '+' if m.signe > 0 else '−' }} {{ m.montant|qte }}</span>{% endif %}

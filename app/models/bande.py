@@ -57,6 +57,25 @@ class Bande(SaisieTerrainMixin, db.Model):
     def numero(self):
         return self.numero_metier
 
+    def aliment_veille(self, jour):
+        """(produit, sacs) le plus donné la veille de `jour`, ou None (bouton « Comme hier », lot 12)."""
+        from datetime import timedelta
+        veille = next((s for s in self.saisies if s.date == jour - timedelta(days=1)), None)
+        lignes = [a for a in (veille.aliments if veille else []) if a.sacs]
+        if not lignes:
+            return None
+        a = max(lignes, key=lambda a: a.sacs)
+        return a.produit, a.sacs
+
+    @property
+    def sorties_comptees(self):
+        """Sorties qui comptent : une sortie mise de côté (doublon possible, lot 12) attend la décision."""
+        return [s for s in self.sorties if not s.mise_de_cote]
+
+    @property
+    def a_verifier(self):
+        return any(s.a_verifier for s in self.saisies) or any(s.a_verifier for s in self.sorties)
+
     @property
     def en_cours(self):
         return self.statut == StatutBande.EN_COURS
@@ -88,6 +107,7 @@ class SaisieJour(SaisieTerrainMixin, db.Model):
     date            = db.Column(db.Date, nullable=False)
     morts           = db.Column(db.Integer, nullable=False, default=0)
     saisi_par_agent = db.Column(db.Boolean, nullable=False, default=False)
+    a_verifier      = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())  # lot 12
 
     bande = db.relationship('Bande', back_populates='saisies')
     aliments = db.relationship('SaisieAliment', back_populates='saisie', cascade='all, delete-orphan',
@@ -144,6 +164,9 @@ class Sortie(SaisieTerrainMixin, db.Model):
     poids_total_kg   = db.Column(db.Numeric(12, 2, asdecimal=False), nullable=False)
     saisi_par_agent  = db.Column(db.Boolean, nullable=False, default=False)
     montant_fcfa     = db.Column(db.Integer, nullable=True)   # lot 11 : « Combien avez-vous reçu ? »
+    # Lot 12 : doublon possible (même jour, même nombre, même destinataire, deux personnes)
+    a_verifier       = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
+    mise_de_cote     = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
 
     bande = db.relationship('Bande', back_populates='sorties')
     operateur = db.relationship('Operateur')

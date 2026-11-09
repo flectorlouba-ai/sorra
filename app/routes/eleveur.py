@@ -110,8 +110,17 @@ def accueil(user):
     entretien_tuile = {'cle': 'entretien', 'ico': '🔧', 'nom': 'Entretien', 'lien': url_for('entretien.ecran'),
                        'sous': 'pannes en cours' if pannes else ('tâches à faire' if a_faire_entretien else 'tout est fait'),
                        'pastille': (a_faire_entretien + pannes) or None, 'pastille_classe': 'rouge' if pannes else ''}
+    # Lot 12 : réponse du vétérinaire non lue (pastille 💬), prochaine visite de l'agent
+    reponses = sante.reponses_non_lues(user)
+    if reponses:
+        tuiles[2]['pastille'], tuiles[2]['pastille_classe'] = '💬', 'bleue'
+    from app.services import visites
+    visite = visites.prochaine([f.id for f in fermes])
     rouges = [s for s in sit if s['couleur'] == 'rouge']
     return {'fermes': fermes, 'situation': sit, 'pire': pire, 'etat': etat, 'tuiles': tuiles,
+            'reponse_veto': bool(reponses),
+            'visite': {'qui': visite.agent.prenom or visite.agent.nom, 'quand': visites.quand(visite.date_prevue),
+                       'objet': visite.objet} if visite else None,
             'entretien': entretien_tuile, 'saisie': {'avec_bande': bool(sit), 'a_saisir': a_saisir},
             'pesee': pesees[0] if pesees else None,
             'vaccins': vaccins_a_faire(sit, avec_demain=False), 'rouges': rouges}

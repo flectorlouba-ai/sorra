@@ -17,6 +17,8 @@
 {% endfor %}
 
 <div class="liens-moi">
+  <a class="lien-moi" href="{{ url_for('visites.mes_visites') }}" data-moi="visites">📋 Mes visites
+    {% if visites_nouvelles() %}<span class="pastille-nouveau">nouveau</span>{% else %}<small>conseils de votre agent</small>{% endif %}</a>
   <a class="lien-moi" href="{{ url_for('auth.mot_de_passe') }}" data-moi="compte">🔑 Mon compte <small>mot de passe</small></a>
   <a class="lien-moi" href="{{ url_for('eleveur.bientot', quoi='bceg') }}" data-moi="bceg">🏦 Partage avec la BCEG <small>bientôt</small></a>
   <a class="lien-moi" href="{{ url_for('eleveur.bientot', quoi='aide') }}" data-moi="aide">❓ Comment faire ? <small>bientôt</small></a>

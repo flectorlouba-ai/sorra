@@ -1,0 +1,31 @@
+{% extends '_base.html' %}
+{% block titre %}Mes signalements{% endblock %}
+{% block icone %}chat-dots{% endblock %}
+{% block page_titre %}💬 Mes signalements{% endblock %}
+{% block page_sous_titre %}Vos poulets malades signalés, et la réponse du vétérinaire{% endblock %}
+
+{% block contenu %}
+{% for e in elements %}
+{% set a, d = e.alerte, e.declaration %}
+<div class="carte signalement" id="alerte-{{ a.id if a else 'd' ~ loop.index }}">
+  <div class="carte-titre-ligne">
+    <span class="carte-titre">{{ e.date|date_locale('%d/%m') }}{% if e.bande %} · {{ e.bande.batiment.code }}{% endif %}
+      {% if d %} · {{ d.nombre_animaux|qte }} poulet{{ 's' if d.nombre_animaux > 1 }}{% else %} · beaucoup de morts{% endif %}</span>
+    <span class="etat-signalement etat-{{ e.etat }}">{{ etats[e.etat] }}</span>
+  </div>
+  {% if d and d.signes %}<div class="carte-sous">{{ d.signes|join(' · ') }}</div>{% endif %}
+  {% for r in (a.reponses if a else []) %}
+  <div class="reponse-veto{{ ' nouvelle' if r.id in nouvelles }}">
+    <div class="reponse-qui">{{ r.veto.nom_complet }}, vétérinaire · {{ r.cree_le|date_locale('%d/%m') }}{% if r.id in nouvelles %} <span class="pastille-nouveau">nouveau</span>{% endif %}</div>
+    {% if r.conseils %}<ul class="conseils-veto">{% for c in r.conseils %}<li>{{ c }}</li>{% endfor %}</ul>{% endif %}
+    {% if r.texte %}<div class="reponse-texte">« {{ r.texte }} »</div>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="carte carte-calme centre">
+  <div class="carte-phrase">Aucun signalement</div>
+  <div class="carte-sous">Si un poulet est malade, touchez « 🩺 Poulet malade » sur l'accueil.</div>
+</div>
+{% endfor %}
+{% endblock %}

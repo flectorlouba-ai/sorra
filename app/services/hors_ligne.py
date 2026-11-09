@@ -94,6 +94,7 @@ def _lire_entetes():
 
 
 def _avant_requete():
+    g.pop('hors_ligne', None)     # jamais l'état d'une requête précédente (contexte partagé dans les tests)
     if request.method != 'POST' or ENTETE not in request.headers:
         return None
     infos = _lire_entetes()

@@ -1,4 +1,4 @@
-# SORRA — Saisie sans réseau (lot 7)
+# SORRA — Saisie sans réseau (lot 7, règle des conflits revue au lot 12)
 
 ## 1. Ce que voit l'éleveur
 
@@ -88,16 +88,29 @@ Ce n'est pas un conflit : rien n'est signalé à l'agent.
 
 Une confirmation de livraison déjà faite par la même personne ne s'additionne pas : sa confirmation la plus récente compte, sans signalement.
 
-### Vrai conflit (deux personnes) : la plus récente gagne, l'agent est prévenu
-Il n'y a conflit que si **deux personnes différentes** (l'éleveur et l'agent) ont saisi la même chose pour la même bande et le même jour.
+### Deux personnes : les deux versions sont gardées (lot 12)
+
+**« La plus récente gagne » est supprimée partout.** Aucune donnée n'est perdue ni écrasée. La même règle vaut avec ou sans réseau.
 
 | Cas | Règle |
 |---|---|
-| **Saisie du jour** déjà faite ce jour-là par une autre personne | On compare l'heure de la saisie sur le téléphone et l'heure de la dernière modification sur le serveur. **La plus récente est gardée**, sans addition des deux. Si les deux saisies sont identiques, rien n'est changé ni signalé. |
-| **Livraison déjà confirmée** par une autre personne | Même règle. Si la confirmation du téléphone est plus récente, elle remplace l'autre (quantités reçues, morts à l'arrivée). |
-| Pesée, sortie, déclaration | Elles s'ajoutent : pas de conflit possible, seulement les doublons ci-dessus. |
+| **Saisie du jour** déjà faite ce jour-là par une autre personne (éleveur et agent), avec d'autres valeurs (morts ou aliment) | Les **deux versions sont gardées**. La journée passe « à vérifier ». **La version de l'éleveur compte** pour les indicateurs jusqu'à la décision, qu'elle soit arrivée en premier ou en second. Mêmes valeurs : rien à vérifier. |
+| En ligne, l'agent saisit après l'éleveur | L'écran « Déjà envoyé » propose : **« Ajouter »** (des morts de plus dans la journée : cela s'additionne) ou **« Mes chiffres sont différents »** (deux versions, à vérifier). |
+| **Confirmation de livraison** déjà faite par une autre personne, avec d'autres quantités ou morts | Les deux versions sont gardées, celle de l'éleveur compte. L'écart est visible de l'agent **et de la DGE**. |
+| **Sorties** du même jour par deux personnes | Ce n'est pas un conflit (deux ventes), **sauf** si le nombre **et** le destinataire sont identiques : **« doublon possible »**. Celle de l'éleveur compte. Celle de l'autre personne est **mise de côté** : elle n'entre ni dans les poulets présents, ni dans les indicateurs, ni dans « Mon argent », et son lot QR n'est créé (ou réactivé) que si elle est retenue. **Non tranché sous 48 h** : l'alerte passe en rouge chez l'agent et remonte à la DGE. |
+| Pesée, déclaration | Elles s'ajoutent : pas de conflit possible, seulement les doublons ci-dessus. |
 
-Pour chaque vrai conflit, une ligne « **Saisies à vérifier** » est créée pour l'agent de la ferme : alerte sur son accueil, puis écran avec bouton « Vu ». Elle dit ce qui a été gardé et ce qui a été remplacé, valeurs comprises. Pour revenir à l'autre version, l'agent corrige la saisie depuis la fiche de la bande ou de la livraison (correction déjà journalisée).
+**L'éleveur** voit « ◷ À vérifier par votre agent » sur la saisie ou la sortie concernée (saisie du jour, Mes bandes, Mon argent). Jamais un message d'erreur.
+
+**L'agent** (et la DGE, l'ADMIN) ouvre **« Saisies à vérifier »** (`/hors-ligne/a-verifier`), depuis l'encadré Alertes :
+- les deux versions côte à côte : qui, quand, valeurs, laquelle compte en attendant ;
+- **« Retenir cette version »**, ou pour une sortie : « Ce sont deux sorties différentes », « Garder celle de l'éleveur » ou « Garder celle de l'autre personne » ;
+- **motif obligatoire** ;
+- la décision est inscrite au journal (« Saisie à vérifier tranchée »). Les indicateurs se recalculent, et le bilan aussi si la bande est terminée.
+
+L'éleveur ne tranche jamais.
+
+Table : `conflit_hors_ligne`, complétée (genre, versions en JSON, statut, décision, motif). Les refus d'envoi restent des lignes « Vu ». Service : `app/services/verifications.py`.
 
 ### Refus
 Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple plus de poulets sortis que de poulets présents) :
@@ -107,26 +120,26 @@ Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple pl
 - la saisie est retirée du téléphone.
 
 ### Limites connues
-- Entre deux personnes, l'heure du téléphone sert à départager. Un téléphone mal réglé peut fausser l'ordre ; l'agent voit chaque conflit.
+- Entre deux personnes, l'heure du téléphone ne départage plus rien : les deux versions sont gardées, c'est l'agent qui tranche.
 - Pour la même personne, les saisies s'additionnent sans question. En ligne, l'écran « Déjà envoyé » propose d'ajouter ; une erreur se corrige ensuite par l'agent depuis la fiche de la bande.
 - Les pages gardées montrent l'état au dernier passage avec réseau (chiffres, « À faire aujourd'hui »).
 
 ## 6. Tests
 
-`tests/test_hors_ligne.py` (14 tests) couvre :
-- doublon (même identifiant renvoyé) ;
-- reprise après coupure (file renvoyée en entier) ;
-- même personne : saisie en ligne puis deux saisies sans réseau, additionnées quel que soit l'ordre des heures ;
-- même personne : deux saisies sans réseau, additionnées ;
-- même personne : confirmation de livraison sans conflit ;
-- vrai conflit (agent puis éleveur) sur la saisie du jour, dans les deux sens ;
-- vrai conflit sur la confirmation de livraison ;
-- deux personnes, mêmes valeurs : pas de conflit ;
-- refus ;
-- session perdue ;
-- jour passé compté depuis le jour de la saisie ;
-- déclaration avec photo ;
-- absence d'effet sans en-tête ;
-- fichiers de l'application installable.
+- `tests/test_hors_ligne.py` (12 tests) couvre :
+  - doublon (même identifiant renvoyé) ;
+  - reprise après coupure ;
+  - même personne : les saisies s'additionnent ;
+  - deux personnes, mêmes valeurs : pas de conflit ;
+  - confirmation de livraison par la même personne ;
+  - refus, session perdue, jour passé ;
+  - déclaration avec photo ;
+  - absence d'effet sans en-tête ;
+  - application installable.
+- `tests/test_verifications.py` (lot 12) couvre :
+  - deux versions de la saisie du jour, dans les deux sens, en ligne et sans réseau ;
+  - décision avec motif, journal et recalcul ;
+  - doublon possible de sortie (mise de côté, décisions, rouge à 48 h, DGE) ;
+  - écart de confirmation de livraison visible de la DGE.
 
 Le parcours complet (saisie et pesée sans réseau, puis retour du réseau) a été vérifié dans Chromium au format téléphone.

@@ -167,6 +167,42 @@
 </div>
 {% endif %}
 
+{% if visites is not none %}
+<div class="card-p" id="visites">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-clipboard-check"></i> Visites</span>
+    {% if current_user.profil.value == 'AGENT' %}<span class="d-flex gap-2">
+      <a class="btn-top" href="{{ url_for('visites.planifier', numero=ferme.numero) }}"><i class="bi bi-calendar-plus"></i> Planifier une visite</a>
+      <a class="btn-top" href="{{ url_for('visites.compte_rendu', numero=ferme.numero) }}"><i class="bi bi-clipboard-plus"></i> Compte rendu</a></span>{% endif %}</div>
+  <div class="card-p-body">
+    {% for v in visites.prevues %}
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+      <strong>{{ v.date_prevue.strftime('%d/%m/%Y') }}</strong> · {{ v.objet }}
+      {% if v.date_prevue < today %}<span class="badge badge-danger">en retard</span>{% endif %}
+      {% if current_user.profil.value == 'AGENT' %}
+      <a class="btn-edit" href="{{ url_for('visites.compte_rendu', numero=ferme.numero, visite=v.id) }}">Compte rendu</a>
+      <form method="post" action="{{ url_for('visites.annuler', ident=v.id) }}" class="d-flex gap-1">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input class="form-control form-control-sm" name="motif" placeholder="motif" required style="max-width:160px">
+        <button type="submit" class="btn-edit">Annuler</button>
+      </form>{% endif %}
+    </div>
+    {% else %}<div class="td-sous mb-2">Aucune visite prévue.</div>{% endfor %}
+    {% for v in visites.faites %}
+    <div class="mb-2"><strong>{{ v.faite_le.strftime('%d/%m/%Y') }}</strong> · {{ v.objet }} · {{ v.agent.nom_complet }}
+      {% if v.latitude is not none %}<span class="td-sous">· 📍 {{ '%.4f'|format(v.latitude) }}, {{ '%.4f'|format(v.longitude) }}</span>{% endif %}
+      {% if v.photo %}<a href="{{ url_for('visites.photo', ident=v.id) }}" target="_blank">photo</a>{% endif %}
+      {% if v.vue_par_eleveur_le %}<span class="td-sous">· lu par l'éleveur</span>{% endif %}
+      {% if v.toutes_recommandations %}<div class="td-sous">{{ v.toutes_recommandations|join(' · ') }}</div>{% endif %}</div>
+    {% endfor %}
+  </div>
+  {% if signalements %}
+  <div class="card-p-body" style="border-top:1px solid var(--bord)"><strong>Signalements</strong> <span class="td-sous">(contenu réservé aux vétérinaires)</span>
+    {% for s in signalements %}<div class="td-sous">{{ s.date|date_locale('%d/%m') }} · {{ 'beaucoup de morts' if s.origine == 'FEU_ROUGE' else "déclaration de l'éleveur" }} ·
+      {% if s.repondu_le %}le vétérinaire a répondu le {{ s.repondu_le|date_locale('%d/%m') }}{% else %}pas encore de réponse{% endif %}</div>{% endfor %}
+  </div>{% endif %}
+</div>
+{% endif %}
+
 {% if argent is not none %}
 <div class="card-p" id="argent">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-cash-coin"></i> Argent de l'éleveur</span>

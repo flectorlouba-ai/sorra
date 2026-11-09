@@ -1,7 +1,7 @@
 """Hors connexion : service worker, jeton d'envoi, saisies à vérifier par l'agent."""
 import os
 
-from flask import Blueprint, render_template, jsonify, redirect, url_for, flash, make_response, current_app
+from flask import Blueprint, render_template, jsonify, redirect, url_for, flash, make_response, current_app, request
 from flask_login import current_user
 from flask_wtf.csrf import generate_csrf
 
@@ -59,21 +59,50 @@ def jeton():
     return jsonify(etat='ok', jeton=generate_csrf(), utilisateur=current_user.identifiant)
 
 
+VERIFICATEURS = (Profil.AGENT, Profil.DGE, Profil.ADMIN)
+
+
 def conflits_a_voir(user):
+    """Refus à marquer « vus » et versions à trancher (lot 12)."""
+    from sqlalchemy import or_, and_
+    from app.models.hors_ligne import GenreVerification as G, StatutVerification as SV
     return (filtre_perimetre(ConflitHorsLigne.query, utilisateur=user)
-            .filter(ConflitHorsLigne.vu_le.is_(None)))
+            .filter(or_(and_(ConflitHorsLigne.genre == G.MESSAGE, ConflitHorsLigne.vu_le.is_(None)),
+                        and_(ConflitHorsLigne.genre != G.MESSAGE, ConflitHorsLigne.statut == SV.A_VERIFIER))))
 
 
 @hors_ligne_bp.route('/hors-ligne/a-verifier')
-@profil_requis(Profil.AGENT, Profil.ADMIN)
+@profil_requis(*VERIFICATEURS)
 def conflits():
-    liste = (filtre_perimetre(ConflitHorsLigne.query)
-             .order_by(ConflitHorsLigne.vu_le.isnot(None), ConflitHorsLigne.cree_le.desc()).limit(100).all())
-    return render_template('hors_ligne/conflits.html', conflits=liste)
+    from app.models.hors_ligne import GenreVerification as G
+    from app.services import verifications
+    tous = filtre_perimetre(ConflitHorsLigne.query)
+    a_trancher = (verifications.a_trancher(tous).order_by(ConflitHorsLigne.cree_le).all())
+    from sqlalchemy import or_
+    from app.models.hors_ligne import StatutVerification as SV
+    autres = (tous.filter(or_(ConflitHorsLigne.statut.is_(None), ConflitHorsLigne.statut != SV.A_VERIFIER))
+              .order_by(ConflitHorsLigne.cree_le.desc()).limit(100).all())
+    return render_template('hors_ligne/conflits.html', a_trancher=a_trancher, conflits=autres, G=G,
+                           en_retard=verifications.en_retard, choix_sortie=verifications.CHOIX_SORTIE)
+
+
+@hors_ligne_bp.route('/hors-ligne/a-verifier/<int:ident>/trancher', methods=['POST'])
+@profil_requis(*VERIFICATEURS)
+def trancher(ident):
+    from app.services import verifications
+    c = filtre_perimetre(ConflitHorsLigne.query.filter_by(id=ident)).first_or_404()
+    try:
+        verifications.trancher(c, request.form.get('choix'), request.form.get('motif', ''), current_user)
+        db.session.commit()
+        flash('Décision enregistrée (inscrite au journal) : les chiffres sont recalculés.', 'success')
+    except verifications.RegleVerification as e:
+        db.session.rollback()
+        flash(str(e), 'danger')
+    return redirect(url_for('hors_ligne.conflits') + f'#verif-{ident}')
 
 
 @hors_ligne_bp.route('/hors-ligne/a-verifier/<int:ident>/vu', methods=['POST'])
-@profil_requis(Profil.AGENT, Profil.ADMIN)
+@profil_requis(*VERIFICATEURS)
 def vu(ident):
     c = filtre_perimetre(ConflitHorsLigne.query.filter_by(id=ident)).first_or_404()
     if c.vu_le is None:

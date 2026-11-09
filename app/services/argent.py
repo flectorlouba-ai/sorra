@@ -34,7 +34,7 @@ class RegleArgent(Exception):
 def presents(bande, jour):
     """Poulets présents dans la bande le jour donné."""
     morts = bande.morts_avant_suivi + sum(s.morts for s in bande.saisies if s.date <= jour)
-    sortis = sum(s.nombre for s in bande.sorties if s.date <= jour)
+    sortis = sum(s.nombre for s in bande.sorties_comptees if s.date <= jour)
     return max(0, bande.effectif_initial - morts - sortis)
 
 
@@ -84,7 +84,8 @@ def _parts_achat(achat, montant):
 # ── Mouvements ──────────────────────────────────────────────────────────
 
 def _ventes(ferme_ids):
-    return (Sortie.query.join(Bande).filter(Bande.ferme_id.in_(ferme_ids), Sortie.motif.in_(VENTES))
+    return (Sortie.query.join(Bande).filter(Bande.ferme_id.in_(ferme_ids), Sortie.motif.in_(VENTES),
+                                            Sortie.mise_de_cote.is_(False))
             .order_by(Sortie.date.desc()).all())
 
 
@@ -108,7 +109,7 @@ def mouvements(ferme_ids):
                          'ico': '🏭' if s.motif == MotifSortie.ABATTOIR else '🚚',
                          'texte': f'{s.motif} · {s.nombre} poulets · {s.bande.batiment.code}',
                          'montant': s.montant_fcfa, 'signe': 1, 'a_completer': s.montant_fcfa is None,
-                         'agent': s.saisi_par_agent,
+                         'agent': s.saisi_par_agent, 'a_verifier': s.a_verifier,
                          'parts': {s.bande_id: s.montant_fcfa} if s.montant_fcfa else {}})
     for a in _achats(ferme_ids):
         l = a.lignes[0]
@@ -193,7 +194,7 @@ def bilan_financier(bande):
     t = totaux(filtrer(mvts, 'bande', bande), bande.id)
     return {'chiffre_affaires': t['gagne'], 'depenses': t['depense'], 'marge': t['reste'],
             'aide_etat': aide_etat(bande),
-            'ventes_a_completer': sum(1 for s in bande.sorties if s.motif in VENTES and s.montant_fcfa is None)}
+            'ventes_a_completer': sum(1 for s in bande.sorties_comptees if s.motif in VENTES and s.montant_fcfa is None)}
 
 
 def rafraichir_bilans(ferme_id):

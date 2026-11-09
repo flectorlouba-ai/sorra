@@ -1,0 +1,8 @@
+{# Lot 12 : deux versions d'une saisie ou d'une sortie, en attente de l'agent. Jamais un message
+   d'erreur : l'éleveur voit seulement « ◷ À vérifier par votre agent ». Variable : bande. #}
+{% for s in bande.saisies if s.a_verifier %}
+<div class="carte-sous mb-1"><span class="a-verifier">◷ À vérifier par votre agent</span> saisie du {{ s.date.strftime('%d/%m') }}</div>
+{% endfor %}
+{% for o in bande.sorties if o.a_verifier and not o.mise_de_cote %}
+<div class="carte-sous mb-1"><span class="a-verifier">◷ À vérifier par votre agent</span> sortie du {{ o.date.strftime('%d/%m') }} · {{ o.nombre|qte }} poulets</div>
+{% endfor %}

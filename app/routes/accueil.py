@@ -179,13 +179,43 @@ def _alertes(user):
                              'lien': url_for('fermes.fiche', numero=p.ferme.numero) + '#entretien', 'nombre': 1,
                              'niveau': 'urgence', 'meta': f'{p.ferme.nom} · entretien'})
     if user.profil == Profil.AGENT:
+        # Lot 12 : saisies à vérifier (deux versions, doublons, refus) ; doublon de sortie > 48 h en rouge
         from app.routes.hors_ligne import conflits_a_voir
-        n = conflits_a_voir(user).count()
+        from app.services import verifications
+        a_voir = conflits_a_voir(user).all()
+        n = len(a_voir)
         if n:
             s = 's' if n > 1 else ''
-            resultat.append({'texte': f'{n} saisie{s} faite{s} sans réseau à vérifier',
+            rouges = [c for c in a_voir if verifications.en_retard(c)]
+            resultat.append({'texte': f'{n} saisie{s} à vérifier' + (f' dont {len(rouges)} doublon{"s" if len(rouges) > 1 else ""} '
+                                                                     f'de sortie depuis plus de 48 h' if rouges else ''),
+                             'lien': url_for('hors_ligne.conflits'), 'nombre': n,
+                             'niveau': 'urgence' if rouges else 'warning', 'meta': 'Deux versions à trancher'})
+    if user.profil in (Profil.DGE, Profil.ADMIN):
+        # Lot 12 : écarts de livraison de l'État et doublons de sortie non tranchés sous 48 h
+        from app.models.hors_ligne import ConflitHorsLigne, GenreVerification as G
+        from app.services import verifications
+        ouvertes = verifications.a_trancher(filtre_perimetre(ConflitHorsLigne.query, utilisateur=user)).all()
+        livraisons = [c for c in ouvertes if c.genre == G.LIVRAISON]
+        rouges = [c for c in ouvertes if verifications.en_retard(c)]
+        if livraisons:
+            n = len(livraisons)
+            resultat.append({'texte': f'{n} écart{"s" if n > 1 else ""} de confirmation de livraison de l\'État à vérifier',
                              'lien': url_for('hors_ligne.conflits'), 'nombre': n, 'niveau': 'warning',
-                             'meta': 'Envoyée(s) après coup'})
+                             'meta': 'Saisies à vérifier · livraisons'})
+        if rouges:
+            n = len(rouges)
+            resultat.append({'texte': f'{n} doublon{"s" if n > 1 else ""} de sortie non tranché{"s" if n > 1 else ""} '
+                                      f'depuis plus de 48 h', 'lien': url_for('hors_ligne.conflits'), 'nombre': n,
+                             'niveau': 'urgence', 'meta': 'Saisies à vérifier · sorties'})
+    if user.profil == Profil.AGENT:
+        from app.services import visites
+        from datetime import date as _date
+        for v in visites.du_jour_pour_agent(user):
+            en_retard = v.date_prevue < _date.today()
+            resultat.append({'texte': f'Visite {"en retard (prévue le " + v.date_prevue.strftime("%d/%m") + ")" if en_retard else "prévue aujourd’hui"} : {v.ferme.nom}',
+                             'lien': url_for('fermes.fiche', numero=v.ferme.numero) + '#visites', 'nombre': 1,
+                             'niveau': 'warning', 'meta': f'{v.objet} · visites'})
     if user.profil in (Profil.VETO, Profil.AGENT):
         for b, retards in sante.vaccins_en_retard(filtre_perimetre(Bande.query)):
             resultat.append({'texte': f'{b.numero} · vaccin en retard : {retards[0]["calendrier"].produit.nom}',

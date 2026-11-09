@@ -200,7 +200,7 @@ def test_saisie_du_jour_s_ouvre_sur_le_premier_batiment_a_saisir(client, monde):
     blocs = re.findall(r'<section class="bloc-bat" id="([^"]+)"', page)
     assert blocs[0] == 'bat-EST-001-B2' and 'pastilles-bat' in page and '‹ Accueil' in page
     # Après l'envoi : retour sur la saisie du jour, « Il reste … » si besoin
-    r = client.post(f'/bandes/{b1.numero}/saisie', data={'morts': '1', 'ajouter': '1'})
+    r = client.post(f'/bandes/{b1.numero}/saisie', data={'sacs': '0', 'morts': '1', 'ajouter': '1'})
     assert r.location.endswith('/saisie-du-jour#bat-EST-001-B1')
 
 

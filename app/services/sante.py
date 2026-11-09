@@ -280,3 +280,70 @@ def fin_delai_attente(bande, jour=None):
             for t in Traitement.query.filter_by(bande_id=bande.id) if t.produit.delai_attente_jours]
     fins = [f for f in fins if f >= jour]
     return max(fins) if fins else None
+
+
+# ── Réponse du vétérinaire à l'éleveur (lot 12) ─────────────────────────
+
+ETATS_ELEVEUR = {'envoye': 'Envoyé ✓', 'regarde': 'Le vétérinaire regarde', 'reponse': '💬 Réponse du vétérinaire',
+                 'termine': 'Terminé'}
+
+
+def repondre(alerte, texte, conseils, user):
+    """Réponse datée, signée du vétérinaire, inscrite au journal ; jamais effacée."""
+    from app.models.sante import ReponseVeterinaire
+    if user.profil != Profil.VETO:
+        raise RegleSante("Seuls les vétérinaires répondent à l'éleveur.")
+    texte = (texte or '').strip()[:300] or None
+    conseils = [c for c in (conseils or []) if c]
+    if not texte and not conseils:
+        raise RegleSante('Cochez un conseil ou écrivez un message.')
+    r = ReponseVeterinaire(alerte=alerte, texte=texte, conseils=conseils, veto_id=user.id)
+    db.session.add(r)
+    db.session.flush()
+    enregistrer(Action.REPONSE_VETO, table='alerte_sanitaire', enregistrement_id=alerte.id,
+                detail=f'Alerte {alerte.numero} : réponse de {user.nom_complet} à l\'éleveur'
+                       f' ({", ".join(conseils) or "message"}).')
+    return r
+
+
+def etat_eleveur(alerte):
+    """Les mots de l'éleveur : jamais « confirmée » ni « infirmée »."""
+    if alerte is None or alerte.statut == SA.NOUVELLE and not alerte.reponses:
+        return 'envoye'
+    if alerte.statut in (SA.CONFIRMEE, SA.INFIRMEE, SA.CLOSE):
+        return 'termine'
+    if alerte.reponses:
+        return 'reponse'
+    return 'regarde'
+
+
+def _alertes_eleveur(user):
+    from app.models import Ferme
+    fermes = [f.id for f in filtre_perimetre(Ferme.query, utilisateur=user)]
+    return AlerteSanitaire.query.filter(AlerteSanitaire.ferme_id.in_(fermes)) if fermes else \
+        AlerteSanitaire.query.filter(db.false())
+
+
+def signalements_eleveur(user):
+    """Mes signalements : ses déclarations (avec l'alerte qui en découle), et les alertes du feu rouge
+    de ses fermes qui ont reçu une réponse du vétérinaire. Du plus récent au plus ancien."""
+    declarations = declarations_visibles(user).order_by(Declaration.cree_le.desc()).all()
+    alertes = {a.declaration_id: a for a in AlerteSanitaire.query.filter(
+        AlerteSanitaire.declaration_id.in_([d.id for d in declarations]))} if declarations else {}
+    elements = [{'date': d.cree_le, 'declaration': d, 'alerte': alertes.get(d.id), 'bande': d.bande,
+                 'etat': etat_eleveur(alertes.get(d.id))} for d in declarations]
+    for a in _alertes_eleveur(user).filter(AlerteSanitaire.origine == OrigineAlerte.FEU_ROUGE):
+        if a.reponses:
+            elements.append({'date': a.cree_le, 'declaration': None, 'alerte': a, 'bande': a.bande,
+                             'etat': etat_eleveur(a)})
+    return sorted(elements, key=lambda e: e['date'], reverse=True)
+
+
+def reponses_non_lues(user):
+    from app.models.sante import ReponseVeterinaire
+    ids = [a.id for a in _alertes_eleveur(user)]
+    if not ids:
+        return []
+    return ReponseVeterinaire.query.filter(ReponseVeterinaire.alerte_id.in_(ids),
+                                           ReponseVeterinaire.lue_le.is_(None)).all()
+

@@ -45,6 +45,10 @@ def _retour(bande):
     return redirect(url_for('bandes.fiche', numero=bande.numero))
 
 
+
+MSG_MORTS = "Touchez « Aucun mort » s'il n'y a pas eu de mort."
+MSG_ALIMENT = "Touchez « Pas d'aliment donné » si vous n'avez pas donné d'aliment."
+
 def _nombre(texte, entier=False):
     texte = (texte or '').strip().replace(',', '.').replace(' ', '')
     if not texte:
@@ -200,7 +204,7 @@ def bilan(numero):
         return render_template('bandes/bilan_eleveur.html', bande=bande, b=bande.bilan, etoiles=n,
                                phrase=ludique.PHRASES_ETOILES[n],
                                serie_record=bande.bilan.get('serie_record', ludique.plus_longue_serie(bande)),
-                               vendus=bande.bilan.get('vendus', sum(s.nombre for s in bande.sorties
+                               vendus=bande.bilan.get('vendus', sum(s.nombre for s in bande.sorties_comptees
                                                                     if s.motif in (MotifSortie.ABATTOIR, MotifSortie.VENTE))))
     return render_template('bandes/bilan.html', bande=bande, b=bande.bilan)
 
@@ -339,6 +343,11 @@ def saisie(numero):
     f = request.form
     try:
         jour = _jour(f.get('jour'))
+        # Lot 12 : case vide ≠ zéro — « — » (rien de noté) est refusé, « Aucun mort » vaut 0
+        if (f.get('morts') or '').strip() == '':
+            raise regles.RegleBande(MSG_MORTS)
+        if (f.get('sacs') or '').strip() == '':
+            raise regles.RegleBande(MSG_ALIMENT)
         morts = _nombre(f.get('morts'), entier=True) or 0
         aliments = {}
         sacs = _nombre(f.get('sacs')) or 0
@@ -362,6 +371,8 @@ def saisie(numero):
         db.session.rollback()
         if hors_ligne.actif():
             return _conflit_saisie(bande, e.saisie, jour, morts, aliments)
+        if f.get('differente') == '1':                 # « Mes chiffres sont différents » (lot 12)
+            return _deux_versions(bande, e.saisie, jour, morts, aliments)
         return render_template('bandes/deja_envoye.html', bande=bande, existante=e.saisie, form=f, jour=jour,
                                morts=morts, aliments=aliments)
     except regles.RegleBande as e:
@@ -391,7 +402,7 @@ def _bien_recu(bande):
 def _conflit_saisie(bande, existante, jour, morts, aliments):
     """Saisie faite sans réseau alors qu'une autre existe déjà ce jour-là.
     Même personne (même téléphone ou non) : les deux s'additionnent, comme en ligne.
-    Deux personnes différentes (éleveur et agent) : vrai conflit, la plus récente gagne."""
+    Deux personnes différentes (éleveur et agent) : deux versions gardées, à vérifier (lot 12)."""
     if (existante.modifie_par or existante.cree_par) == current_user.id:
         try:
             _, avertissements = regles.saisir(bande, jour, morts, aliments, current_user, ajouter=True)
@@ -406,33 +417,22 @@ def _conflit_saisie(bande, existante, jour, morts, aliments):
         for a in avertissements:
             flash(a, 'warning')
         return _retour(bande)
-    if existante.morts == morts and {a.produit_id: a.sacs for a in existante.aliments if a.sacs} == \
-            {p.id: s for p, s in aliments.items() if s}:
+    return _deux_versions(bande, existante, jour, morts, aliments)
+
+
+def _deux_versions(bande, existante, jour, morts, aliments):
+    """Deux personnes (éleveur et agent), même jour, valeurs différentes (lot 12) : les deux versions
+    sont gardées, la journée passe « à vérifier » ; celle de l'éleveur compte jusqu'à la décision."""
+    from app.services import verifications
+    if verifications.memes_valeurs(existante, morts, aliments):
         flash('Envoyé ✓', 'success')   # même saisie des deux côtés : rien à trancher
         return _retour(bande)
-    quoi = f'Saisie du {jour.strftime("%d/%m")} · bande {bande.numero}'
-    avant = f'{existante.morts} morts, {sum(a.sacs for a in existante.aliments):g} sacs'
-    apres = f'{morts} morts, {sum(aliments.values()):g} sacs'
-    if hors_ligne.plus_recente(existante.modifie_le):
-        existante.morts = morts
-        for a in list(existante.aliments):
-            if a.produit not in aliments:
-                existante.aliments.remove(a)
-        for produit, sacs in aliments.items():
-            ligne = next((a for a in existante.aliments if a.produit_id == produit.id), None)
-            if ligne is None:
-                ligne = SaisieAliment(produit=produit, sacs=0, kg=0)
-                existante.aliments.append(ligne)
-            ligne.sacs, ligne.kg = sacs, sacs * float(produit.poids_sac_kg or 0)
-        detail = f'Deux saisies pour ce jour. Gardée : la plus récente, faite sans réseau ({apres}). Remplacée : {avant}.'
-        db.session.flush()
-        sante.alerte_si_feu_rouge(bande)
-    else:
-        detail = f'Deux saisies pour ce jour. Gardée : la plus récente ({avant}). Non retenue : celle faite sans réseau ({apres}).'
-    hors_ligne.signaler(bande.ferme, quoi, detail)
+    verifications.deux_versions_saisie(bande, existante, morts, aliments, current_user, hors_ligne.saisi_le())
+    sante.alerte_si_feu_rouge(bande)
     hors_ligne.conflit()
     db.session.commit()
-    flash(detail, 'info')
+    flash('◷ À vérifier par votre agent : deux versions pour ce jour.' if current_user.profil == Profil.ELEVEUR
+          else 'Deux versions gardées pour ce jour : à trancher dans « Saisies à vérifier ».', 'info')
     return _retour(bande)
 
 

@@ -76,6 +76,8 @@ class AlerteSanitaire(HorodatageMixin, db.Model):
     declaration = db.relationship('Declaration')
     historique = db.relationship('AlerteHistorique', back_populates='alerte', order_by='AlerteHistorique.date',
                                  cascade='all, delete-orphan', lazy='selectin')
+    reponses = db.relationship('ReponseVeterinaire', back_populates='alerte', order_by='ReponseVeterinaire.id',
+                               lazy='selectin')
 
     @property
     def libelle_statut(self):
@@ -146,3 +148,20 @@ class Traitement(SaisieTerrainMixin, db.Model):
 
     bande = db.relationship('Bande')
     produit = db.relationship('Produit', lazy='joined')
+
+
+class ReponseVeterinaire(HorodatageMixin, db.Model):
+    """Réponse du vétérinaire à l'éleveur sur une alerte (lot 12) : datée, signée, au journal.
+    Ne s'efface pas ; `lue_le` fait disparaître la pastille de l'éleveur."""
+    __tablename__ = 'reponse_veterinaire'
+
+    id        = db.Column(db.Integer, primary_key=True)
+    alerte_id = db.Column(db.Integer, db.ForeignKey('alerte_sanitaire.id'), nullable=False, index=True)
+    texte     = db.Column(db.String(300), nullable=True)
+    conseils  = db.Column(db.JSON, nullable=False, default=list)
+    veto_id   = db.Column(db.Uuid, db.ForeignKey('utilisateur.id'), nullable=False)
+    lue_le    = db.Column(db.DateTime(timezone=True), nullable=True)
+
+    alerte = db.relationship('AlerteSanitaire', back_populates='reponses')
+    veto = db.relationship('Utilisateur')
+

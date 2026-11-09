@@ -4,19 +4,25 @@
 {% block icone %}question-circle{% endblock %}
 {% block page_sous_titre %}<span class="mono">{{ bande.numero }}</span> · {{ jour.strftime('%d/%m') }}{% endblock %}
 {% block contenu %}
+{% set autre = (existante.modifie_par or existante.cree_par) != current_user.id %}
 <div class="ma-ferme-zone">
   <div class="carte-livraison">
-    <div class="carte-livraison-titre"><i class="bi bi-question-circle"></i> Vous avez déjà envoyé {{ "aujourd'hui" if jour == today else 'ce jour-là' }}</div>
+    <div class="carte-livraison-titre"><i class="bi bi-question-circle"></i>
+      {% if autre %}Une saisie existe déjà {{ "aujourd'hui" if jour == today else 'ce jour-là' }}{% else %}Vous avez déjà envoyé {{ "aujourd'hui" if jour == today else 'ce jour-là' }}{% endif %}</div>
     <div class="carte-livraison-lignes">
       <div>Déjà envoyé : <span class="num">{{ existante.morts|qte }}</span> morts · <span class="num">{{ existante.sacs|qte }}</span> sacs</div>
-      <div>Ajouter : <span class="num">{{ morts|qte }}</span> morts{% for p, s in aliments.items() %} · <span class="num">{{ s|qte }}</span> sacs {{ p.nom }}{% endfor %}</div>
+      <div>{{ 'Votre saisie' if autre else 'Ajouter' }} : <span class="num">{{ morts|qte }}</span> morts{% for p, s in aliments.items() %} · <span class="num">{{ s|qte }}</span> sacs {{ p.nom }}{% endfor %}</div>
     </div>
+    {% macro reenvoyer(champ, libelle, classe) %}
     <form method="post" action="{{ url_for('bandes.saisie', numero=bande.numero) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      {% for cle in ['jour', 'morts', 'sacs', 'aliment_choisi'] %}{% if form.get(cle) %}<input type="hidden" name="{{ cle }}" value="{{ form.get(cle) }}">{% endif %}{% endfor %}
-      <input type="hidden" name="ajouter" value="1">
-      <button type="submit" class="btn-gros"><i class="bi bi-plus-lg"></i> Oui, ajouter</button>
+      {% for cle in ['jour', 'morts', 'sacs', 'aliment_choisi'] %}{% if form.get(cle) is not none and form.get(cle) != '' %}<input type="hidden" name="{{ cle }}" value="{{ form.get(cle) }}">{% endif %}{% endfor %}
+      <input type="hidden" name="{{ champ }}" value="1">
+      <button type="submit" class="{{ classe }}">{{ libelle|safe }}</button>
     </form>
+    {% endmacro %}
+    {{ reenvoyer('ajouter', '<i class="bi bi-plus-lg"></i> ' ~ ('Ajouter (des morts de plus dans la journée)' if autre else 'Oui, ajouter'), 'btn-gros') }}
+    {% if autre %}{{ reenvoyer('differente', 'Mes chiffres sont différents : garder les deux, à vérifier', 'btn-gros-secondaire') }}{% endif %}
     <a class="btn-gros-secondaire" href="{{ url_for('accueil.index') if current_user.profil.value == 'ELEVEUR' else url_for('bandes.fiche', numero=bande.numero) }}">Non</a>
   </div>
 </div>

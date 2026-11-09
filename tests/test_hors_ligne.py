@@ -1,4 +1,5 @@
-"""Lot 7 — hors connexion : envois après coup, doublons, conflits, reprise après coupure."""
+"""Lot 7 — hors connexion : envois après coup, doublons, reprise après coupure.
+Les conflits entre deux personnes (deux versions gardées) sont dans test_verifications.py (lot 12)."""
 import io
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -47,7 +48,7 @@ def test_envoi_apres_coup_et_doublon_refuse(client, monde):
 def test_reprise_apres_coupure(client, monde):
     b = bande_ouverte(monde)
     connecter(client, 'eleveur1')
-    file = [(str(uuid.uuid4()), f'/bandes/{b.numero}/saisie', {'morts': '2'}),
+    file = [(str(uuid.uuid4()), f'/bandes/{b.numero}/saisie', {'sacs': '0', 'morts': '2'}),
             (str(uuid.uuid4()), f'/bandes/{b.numero}/pesee', {'nombre': '10', 'poids_total': '4'}),
             (str(uuid.uuid4()), f'/bandes/{b.numero}/sortie', {'motif': 'Autre', 'nombre': '5', 'poids_total': '10'})]
     # Le réseau coupe après les deux premiers envois : le téléphone n'a reçu aucune réponse
@@ -58,35 +59,6 @@ def test_reprise_apres_coupure(client, monde):
     assert etats == ['deja', 'deja', 'ok']
     assert (SaisieJour.query.count(), Pesee.query.count(), Sortie.query.count()) == (1, 1, 1)
     assert SaisieJour.query.one().morts == 2 and EnvoiHorsLigne.query.count() == 3
-
-
-def test_conflit_saisie_du_jour_la_plus_recente_gagne(client, monde):
-    b = bande_ouverte(monde)
-    connecter(client, 'agent1')
-    client.post(f'/bandes/{b.numero}/saisie', data={'morts': '4'})   # saisie de l'agent, en ligne
-    changer(client, 'eleveur1')
-    # Saisie du téléphone faite AVANT celle de l'agent : celle de l'agent est gardée
-    ident, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '1', 'jour': AUJ.isoformat()},
-                         il_y_a=timedelta(hours=2))
-    assert rep['etat'] == 'conflit' and SaisieJour.query.one().morts == 4
-    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '1', 'jour': AUJ.isoformat()}, ident=ident)
-    assert rep['etat'] == 'deja' and ConflitHorsLigne.query.count() == 1   # pas de second conflit
-    # Saisie du téléphone plus récente : elle remplace (sans s'ajouter)
-    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '6', 'jour': AUJ.isoformat()},
-                     il_y_a=timedelta(0))
-    assert rep['etat'] == 'conflit' and SaisieJour.query.one().morts == 6
-    conflits = ConflitHorsLigne.query.order_by(ConflitHorsLigne.id).all()
-    assert len(conflits) == 2 and 'Gardée : la plus récente (4 morts' in conflits[0].detail
-    assert 'Remplacée : 4 morts' in conflits[1].detail
-    # L'agent est prévenu, et marque « vu »
-    changer(client, 'agent1')
-    assert '2 saisies faites sans réseau à vérifier' in client.get('/').get_data(as_text=True)
-    page = client.get('/hors-ligne/a-verifier').get_data(as_text=True)
-    assert 'Saisie du' in page and b.numero in page
-    client.post(f'/hors-ligne/a-verifier/{conflits[0].id}/vu')
-    assert '1 saisie faite sans réseau à vérifier' in client.get('/').get_data(as_text=True)
-    changer(client, 'eleveur1')
-    assert client.get('/hors-ligne/a-verifier').status_code == 403
 
 
 def test_meme_personne_les_saisies_du_jour_s_additionnent(client, monde):
@@ -100,7 +72,7 @@ def test_meme_personne_les_saisies_du_jour_s_additionnent(client, monde):
                      {'morts': '2', 'sacs': '1', 'aliment_choisi': aliment, 'jour': AUJ.isoformat()},
                      il_y_a=timedelta(hours=1))
     assert rep['etat'] == 'ok' and 'ajouté à la saisie' in rep['message']
-    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '1', 'jour': AUJ.isoformat()},
+    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'sacs': '0', 'morts': '1', 'jour': AUJ.isoformat()},
                      il_y_a=timedelta(0))
     s = SaisieJour.query.one()
     assert rep['etat'] == 'ok' and s.morts == 6 and s.aliments[0].sacs == 3 and s.aliments[0].kg == 75
@@ -110,17 +82,17 @@ def test_meme_personne_les_saisies_du_jour_s_additionnent(client, monde):
 def test_meme_personne_deux_saisies_hors_ligne_s_additionnent(client, monde):
     b = bande_ouverte(monde)
     connecter(client, 'eleveur1')
-    rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '2', 'jour': AUJ.isoformat()}, il_y_a=timedelta(hours=3))
-    rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '4', 'jour': AUJ.isoformat()}, il_y_a=timedelta(hours=1))
+    rejouer(client, f'/bandes/{b.numero}/saisie', {'sacs': '0', 'morts': '2', 'jour': AUJ.isoformat()}, il_y_a=timedelta(hours=3))
+    rejouer(client, f'/bandes/{b.numero}/saisie', {'sacs': '0', 'morts': '4', 'jour': AUJ.isoformat()}, il_y_a=timedelta(hours=1))
     assert SaisieJour.query.one().morts == 6 and ConflitHorsLigne.query.count() == 0
 
 
 def test_deux_personnes_memes_valeurs_pas_de_conflit(client, monde):
     b = bande_ouverte(monde)
     connecter(client, 'agent1')
-    client.post(f'/bandes/{b.numero}/saisie', data={'morts': '3'})
+    client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': '3'})
     changer(client, 'eleveur1')
-    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '3', 'jour': AUJ.isoformat()})
+    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'sacs': '0', 'morts': '3', 'jour': AUJ.isoformat()})
     assert rep['etat'] == 'ok' and SaisieJour.query.one().morts == 3 and ConflitHorsLigne.query.count() == 0
 
 
@@ -142,10 +114,10 @@ def test_jour_passe_compte_depuis_le_jour_de_la_saisie(client, monde):
     connecter(client, 'eleveur1')
     jour = (AUJ - timedelta(days=5)).isoformat()
     # En ligne, 5 jours en arrière est refusé à l'éleveur (limite 3 jours)…
-    client.post(f'/bandes/{b.numero}/saisie', data={'morts': '1', 'jour': jour})
+    client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': '1', 'jour': jour})
     assert SaisieJour.query.count() == 0
     # … mais une saisie faite ce jour-là sans réseau, envoyée aujourd'hui, est acceptée
-    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '1', 'jour': jour}, il_y_a=timedelta(days=5))
+    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'sacs': '0', 'morts': '1', 'jour': jour}, il_y_a=timedelta(days=5))
     assert rep['etat'] == 'ok', rep
     assert SaisieJour.query.one().date.isoformat() == jour
 
@@ -157,7 +129,7 @@ def test_refus_signale_au_telephone_et_a_l_agent(client, monde):
     assert rep['etat'] == 'refuse' and 'entre 1 et 997' in rep['message'] and Sortie.query.count() == 0
     c = ConflitHorsLigne.query.one()
     assert c.quoi == 'Envoi refusé : Essai' and c.ferme_id == monde['f'].id
-    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '-3'})
+    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'sacs': '0', 'morts': '-3'})
     assert rep['etat'] == 'refuse' and EnvoiHorsLigne.query.count() == 0
 
 
@@ -175,29 +147,6 @@ def test_connexion_perdue_la_saisie_reste_sur_le_telephone(client, monde):
         s['derniere_activite'] = 1
     _, rep = rejouer(client, f'/bandes/{b.numero}/pesee', {'nombre': '10', 'poids_total': '4'})
     assert rep['etat'] == 'connexion' and Pesee.query.count() == 0
-
-
-def test_conflit_confirmation_de_livraison(client, monde):
-    liv = intrants.nouvelle_livraison(monde['f'], AUJ - timedelta(days=1), None)
-    db.session.add(liv)
-    intrants.remplacer_lignes(liv, [{'produit': monde['aliment'], 'quantite_livree': 40, 'subventionne': False,
-                                     'part_subventionnee': None, 'valeur_unitaire': None}])
-    db.session.commit()
-    connecter(client, 'agent1')
-    client.post(f'/livraisons/{liv.numero}/tout-recu')   # l'agent confirme en ligne
-    changer(client, 'eleveur1')
-    ligne = liv.lignes[0]
-    # L'éleveur avait confirmé « reçu moins » sans réseau, plus tôt : la confirmation de l'agent reste
-    _, rep = rejouer(client, f'/livraisons/{liv.numero}/recu-moins',
-                     {f'recue-{ligne.id}': '30', f'motif-{ligne.id}': 'Sacs abîmés'}, il_y_a=timedelta(hours=3))
-    assert rep['etat'] == 'conflit'
-    assert db.session.get(Livraison, liv.id).statut == S.RECUE
-    # Plus récente : elle remplace
-    _, rep = rejouer(client, f'/livraisons/{liv.numero}/recu-moins',
-                     {f'recue-{ligne.id}': '30', f'motif-{ligne.id}': 'Sacs abîmés'}, il_y_a=timedelta(0))
-    db.session.expire_all()
-    assert rep['etat'] == 'conflit' and db.session.get(Livraison, liv.id).statut == S.RECUE_ECART
-    assert ConflitHorsLigne.query.count() == 2
 
 
 def test_declaration_avec_photo_envoyee_apres_coup(client, monde):

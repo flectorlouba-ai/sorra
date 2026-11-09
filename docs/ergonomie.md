@@ -280,6 +280,40 @@ Le mot de passe et la déconnexion ne sont plus dans l'en-tête de l'éleveur. L
 - Fiche de la ferme : « Dernière synchronisation du téléphone de l'éleveur : il y a X jours ». La mention « à vérifier » s'ajoute à partir de 3 jours.
 - La consigne pour les agents est dans `docs/exploitation.md`.
 
+### Réponses, visites, conflits, case vide (lot 12)
+
+**Case vide ≠ zéro** (saisie du jour, éleveur et agent) :
+- les morts et l'aliment démarrent à **« — »** ;
+- grosses cases **« ✓ Aucun mort »** et **« Pas d'aliment donné »** (0, explicite), et **« Comme hier (N sacs) »** si la veille a été saisie. Ce sont des choix dans l'écran, jamais un pré-remplissage ;
+- le premier « + » met 1, et « − » à 0 revient à « — » ;
+- « Envoyer » est refusé tant qu'une case est à « — », sur le téléphone (même sans réseau) et sur le serveur : « Touchez « Aucun mort » s'il n'y a pas eu de mort ».
+
+La saisie du jour reste à **2 clics**.
+
+**Calculs** : un jour non saisi n'est **jamais** compté comme 0 mort ou 0 aliment. Il est compté « non saisi » (régularité). La mortalité cumulée et l'indice de consommation portent la mention **« incomplet »** sur la fiche de la bande, le bilan, le rapport PDF et le tableau de bord (« Jours non saisis »).
+
+**Mes signalements** (Vaccins et soins → 💬) :
+- quatre états simples : Envoyé ✓ · Le vétérinaire regarde · 💬 Réponse du vétérinaire · Terminé. Jamais « confirmée » ni « infirmée » ;
+- les conseils et le message du vétérinaire sont affichés en gros ;
+- une réponse non lue met la pastille 💬 sur la tuile et la ligne « 💬 Le vétérinaire vous a répondu → » sur l'accueil (1 toucher).
+
+**Visites** :
+- la ligne d'état de l'accueil affiche « 📅 Visite de Paul jeudi 12 » ;
+- 👤 Moi → 📋 Mes visites donne les recommandations en gros ;
+- une pastille « nouveau » reste sur 👤 Moi tant que le dernier compte rendu n'est pas ouvert.
+
+**À vérifier** : l'éleveur voit seulement « ◷ À vérifier par votre agent », jamais un message d'erreur. Règle complète dans `docs/hors_ligne.md`, section 5.
+
+| Qui | Action | Clics |
+|---|---|---|
+| Éleveur | Accueil → « 💬 Le vétérinaire vous a répondu » | 1 |
+| Éleveur | Vaccins et soins → Mes signalements | 2 |
+| Éleveur | 👤 Moi → Mes visites | 2 |
+| Vétérinaire | Alertes → alerte → Envoyer à l'éleveur | 3 |
+| Agent | fiche ferme → Planifier une visite → Enregistrer | 2 |
+| Agent | fiche ferme → Compte rendu → Enregistrer | 2 |
+| Agent | Alertes → Saisies à vérifier → Retenir cette version | 2 |
+
 ## Liste de contrôle d'un écran (à cocher dans chaque rapport de lot)
 
 - [ ] Un seul bouton mis en avant ?

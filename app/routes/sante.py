@@ -84,6 +84,16 @@ def declarations():
 @sante_bp.route('/mes-declarations')
 @profil_requis(Profil.ELEVEUR)
 def mes_declarations():
+    if current_user.profil == Profil.ELEVEUR:
+        # Lot 12 : « Mes signalements », états simples, réponses du vétérinaire en gros ; lues à l'ouverture
+        elements = regles.signalements_eleveur(current_user)
+        nouvelles = {r.id for r in regles.reponses_non_lues(current_user)}
+        from app.models.base import maintenant
+        for r in regles.reponses_non_lues(current_user):
+            r.lue_le = maintenant()
+        db.session.commit()
+        return render_template('sante/mes_signalements.html', elements=elements, nouvelles=nouvelles,
+                               etats=regles.ETATS_ELEVEUR, icone=regles.icone_signe)
     liste = regles.declarations_visibles(current_user).order_by(Declaration.cree_le.desc()).all()
     alertes = {a.declaration_id: a for a in AlerteSanitaire.query.filter(
         AlerteSanitaire.declaration_id.in_([d.id for d in liste]))} if liste else {}
@@ -143,9 +153,26 @@ def alerte(numero):
         except regles.RegleSante as e:
             db.session.rollback()
             erreur = str(e)
+    from app.models.liste_deroulante import ld_choices as _ld
     return render_template('sante/alerte.html', a=a, erreur=erreur, icone=regles.icone_signe,
+                           conseils=[v for v, _ in _ld('conseils_veterinaire')],
                            suivants=[(s, SA.LIBELLES[s]) for s in SA.SUIVANTS.get(a.statut, [])]
                            if current_user.profil == Profil.VETO else [])
+
+
+@sante_bp.route('/alertes/<numero>/repondre', methods=['POST'])
+@profil_requis(Profil.VETO)
+def repondre(numero):
+    """Réponse du vétérinaire à l'éleveur (lot 12)."""
+    a = regles.alertes_visibles(current_user).filter(AlerteSanitaire.numero == numero).first_or_404()
+    try:
+        regles.repondre(a, request.form.get('texte'), request.form.getlist('conseils'), current_user)
+        db.session.commit()
+        flash("Réponse envoyée à l'éleveur ✓", 'success')
+    except regles.RegleSante as e:
+        db.session.rollback()
+        flash(str(e), 'danger')
+    return redirect(url_for('sante.alerte', numero=a.numero) + '#reponse')
 
 
 # ── Vaccins et traitements ──────────────────────────────────────────────

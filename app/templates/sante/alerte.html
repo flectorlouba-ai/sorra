@@ -31,6 +31,26 @@
     {% endif %}
   </div>
   <div class="col-lg-5">
+    <div class="card-p" id="reponse">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-chat-dots"></i> Réponse à l'éleveur</span></div>
+      <div class="card-p-body">
+        {% for r in a.reponses %}
+        <div class="reponse-veto mb-2"><div class="td-sous">{{ r.cree_le|date_locale('%d/%m/%Y %H:%M') }} · {{ r.veto.nom_complet }}{% if r.lue_le %} · lue par l'éleveur{% endif %}</div>
+          {% if r.conseils %}<ul class="mb-1">{% for c in r.conseils %}<li><strong>{{ c }}</strong></li>{% endfor %}</ul>{% endif %}
+          {% if r.texte %}<div>« {{ r.texte }} »</div>{% endif %}</div>
+        {% else %}<div class="td-sous mb-2">Pas encore de réponse.</div>{% endfor %}
+        {% if current_user.profil.value == 'VETO' %}
+        <form method="post" action="{{ url_for('sante.repondre', numero=a.numero) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="form-label">Conseils</div>
+          <div class="choix-conseils">{% for c in conseils %}<label class="d-flex gap-2 align-items-center"><input type="checkbox" name="conseils" value="{{ c }}"> {{ c }}</label>{% endfor %}</div>
+          <label class="form-label mt-2" for="texte">Message court <span class="form-hint">facultatif</span></label>
+          <textarea class="form-control mb-2" id="texte" name="texte" rows="2" maxlength="300"></textarea>
+          <button type="submit" class="btn-new">Envoyer à l'éleveur</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
     <div class="card-p">
       <div class="card-p-head"><span class="card-p-title"><i class="bi bi-clock-history"></i> Suivi de l'alerte</span></div>
       <div class="card-p-body">

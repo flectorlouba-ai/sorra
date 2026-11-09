@@ -15,13 +15,14 @@
 {% if bande.motif_cloture %}<div class="flash-item warning"><i class="bi bi-flag"></i>Clôturée avec des poulets présents : {{ bande.motif_cloture }}</div>{% endif %}
 <div class="cartes-chiffres">
   <div class="carte-chiffre"><div class="cc-libelle">Mortalité</div><div class="cc-valeur">{{ b.mortalite|qte }} %</div>
-    <div class="cc-sous">{{ b.morts|qte }} morts sur {{ b.mis_en_place|qte }} · viabilité {{ b.viabilite|qte }} %</div></div>
+    <div class="cc-sous">{{ b.morts|qte }} morts sur {{ b.mis_en_place|qte }} · viabilité {{ b.viabilite|qte }} %
+      {% if b.incomplet %}<br><span class="a-verifier">incomplet : {{ b.jours_non_saisis }} jour{{ 's' if b.jours_non_saisis > 1 }} non saisi{{ 's' if b.jours_non_saisis > 1 }}</span>{% endif %}</div></div>
   <div class="carte-chiffre"><div class="cc-libelle">Poids moyen à la sortie</div>
     <div class="cc-valeur">{% if b.poids_moyen_sortie_kg %}{{ b.poids_moyen_sortie_kg|qte }} kg{% else %}—{% endif %}</div>
     <div class="cc-sous">GMQ {{ b.gmq|qte if b.gmq is not none else '—' }} g/j</div></div>
   <div class="carte-chiffre"><div class="cc-libelle">Indice de consommation</div>
     <div class="cc-valeur">{{ b.indice_consommation|qte if b.indice_consommation else '—' }}</div>
-    <div class="cc-sous">{{ b.aliment_kg|qte }} kg d'aliment</div></div>
+    <div class="cc-sous">{{ b.aliment_kg|qte }} kg d'aliment{% if b.incomplet %} · <span class="a-verifier">incomplet</span>{% endif %}</div></div>
   <div class="carte-chiffre"><div class="cc-libelle">Poids vif produit</div>
     <div class="cc-valeur">{{ b.poids_vif_produit_kg|qte if b.poids_vif_produit_kg is not none else '—' }} kg</div>
     <div class="cc-sous">{{ b.sortis|qte }} poulets sortis · régularité {{ b.regularite|qte }} %</div></div>

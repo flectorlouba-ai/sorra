@@ -111,7 +111,8 @@ def rapport_fin_bande(bande):
                          _q(b.get('viabilite'), 2, ' %')],
                         ['Poids moyen de sortie', 'GMQ', 'Indice de consommation', 'Poids vif produit'],
                         [_q(b.get('poids_moyen_sortie_kg'), 3, ' kg'), _q(b.get('gmq'), 1, ' g/j'),
-                         _q(b.get('indice_consommation'), 2), _q(b.get('poids_vif_produit_kg'), 1, ' kg')]],
+                         _q(b.get('indice_consommation'), 2) + (' (incomplet)' if b.get('incomplet') else ''),
+                         _q(b.get('poids_vif_produit_kg'), 1, ' kg')]],
                        [4.4 * cm] * 4),
                 Paragraph('Sorties par destinataire', SECTION),
                 _table([['Destinataire', 'Motif', 'Poulets', 'Poids (kg)']] +
@@ -119,5 +120,7 @@ def rapport_fin_bande(bande):
                         for s in b.get('sorties_par_destinataire', [])] or [['—', '', '', '']]),
                 Spacer(1, 8),
                 Paragraph(f'Aliment consommé : {_q(b.get("aliment_kg"), 1, " kg")} · régularité des saisies : '
-                          f'{_q(b.get("regularite"), 0, " %")}', TEXTE)]
+                          f'{_q(b.get("regularite"), 0, " %")}'
+                          + (f' · {b.get("jours_non_saisis")} jour(s) non saisi(s) : mortalité et indice de '
+                             f'consommation incomplets' if b.get('incomplet') else ''), TEXTE)]
     return _document(elements)

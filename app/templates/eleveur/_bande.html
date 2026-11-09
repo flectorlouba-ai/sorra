@@ -46,6 +46,7 @@
 </div>
 
 <div class="carte">
+  {% if bande.a_verifier %}{% include 'eleveur/_a_verifier.html' %}{% endif %}
   {% with aliments=x.aliments, deja=x.deja, couleur=x.couleur, vue_eleveur=True, jour_saisie=None %}
     {% include 'bandes/_form_saisie.html' %}
   {% endwith %}

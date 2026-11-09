@@ -1,31 +1,68 @@
 {% extends '_base.html' %}
 {% block titre %}Saisies à vérifier{% endblock %}
-{% block icone %}wifi-off{% endblock %}
-{% block page_sous_titre %}Saisies faites sans réseau, envoyées après coup, qui ont rencontré une autre version ou ont été refusées · la plus récente est gardée{% endblock %}
+{% block icone %}check2-square{% endblock %}
+{% block page_sous_titre %}Deux personnes, deux versions : rien n'est perdu · la version de l'éleveur compte jusqu'à votre décision{% endblock %}
 
 {% block contenu %}
+{% for c in a_trancher %}
+<div class="card-p mb-3 verif{{ ' verif-rouge' if en_retard(c) }}" id="verif-{{ c.id }}">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-{{ {'SAISIE_JOUR': 'pencil', 'LIVRAISON': 'box-seam', 'SORTIE': 'truck'}[c.genre] }}"></i>
+    {{ c.quoi }}{% if c.genre == G.SORTIE %} · doublon possible{% endif %}</span>
+    <span class="td-sous" style="color:inherit;opacity:.8">{{ c.ferme.nom if c.ferme else '' }} · depuis le {{ c.cree_le|date_locale('%d/%m à %H:%M') }}
+      {% if en_retard(c) %}<span class="badge badge-danger">plus de 48 h</span>{% endif %}</span></div>
+  <div class="card-p-body">
+    <div class="td-sous mb-2">{{ c.detail }}</div>
+    <form method="post" action="{{ url_for('hors_ligne.trancher', ident=c.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="versions">
+        {% for v in c.versions %}
+        <div class="version{{ ' version-comptee' if (c.genre != G.SORTIE and loop.first) or (c.genre == G.SORTIE and not v.valeurs.mise_de_cote) }}">
+          <div class="version-qui">{{ {'ELEVEUR': 'Éleveur', 'AGENT': 'Agent', 'ADMIN': 'Administrateur'}.get(v.profil, v.profil) }} · {{ v.auteur }}</div>
+          <div class="td-sous">saisie le {{ v.saisi_le[8:10] }}/{{ v.saisi_le[5:7] }} à {{ v.saisi_le[11:16] }}</div>
+          <div class="version-valeur">{{ v.libelle }}</div>
+          {% if c.genre == G.SORTIE %}<div class="td-sous">{{ 'mise de côté en attendant' if v.valeurs.mise_de_cote else 'compte en attendant' }}</div>
+          {% else %}<div class="td-sous">{{ 'compte en attendant votre décision' if loop.first else 'gardée, ne compte pas encore' }}</div>
+          <button type="submit" name="choix" value="{{ loop.index0 }}" class="btn-new mt-2">Retenir cette version</button>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% if c.genre == G.SORTIE %}
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        <button type="submit" name="choix" value="deux" class="btn-new">{{ choix_sortie.deux }}</button>
+        <button type="submit" name="choix" value="eleveur" class="btn-new">{{ choix_sortie.eleveur }}</button>
+        <button type="submit" name="choix" value="autre" class="btn-new">{{ choix_sortie.autre }}</button>
+      </div>
+      {% endif %}
+      <label class="form-label mt-2" for="motif-{{ c.id }}">Motif (obligatoire)</label>
+      <input class="form-control" id="motif-{{ c.id }}" name="motif" maxlength="300" required placeholder="ex. compté avec l'éleveur au bâtiment">
+    </form>
+  </div>
+</div>
+{% else %}
+<div class="empty-note mb-3"><i class="bi bi-check-circle"></i> Aucune saisie à trancher.</div>
+{% endfor %}
+
 <div class="table-wrap"><div class="table-scroll">
   <table>
     <thead><tr><th>Reçue le</th><th>Quoi</th><th>Ferme</th><th>Ce qui s'est passé</th><th>Par</th><th></th></tr></thead>
     <tbody>
     {% for c in conflits %}
-      <tr{% if c.vu_le %} class="ligne-vue"{% endif %}>
+      <tr{% if c.vu_le or c.statut == 'TRANCHE' %} class="ligne-vue"{% endif %}>
         <td>{{ c.cree_le|date_locale('%d/%m/%Y %H:%M') }}</td>
         <td><strong>{{ c.quoi }}</strong></td>
         <td>{{ c.ferme.nom if c.ferme else '—' }}</td>
-        <td>{{ c.detail }}</td>
+        <td>{% if c.statut == 'TRANCHE' %}Tranché le {{ c.decide_le|date_locale('%d/%m') }} par {{ c.decideur.nom_complet if c.decideur else '—' }} : {{ c.motif }}{% else %}{{ c.detail }}{% endif %}</td>
         <td>{{ c.auteur.nom_complet if c.auteur else '—' }}</td>
-        <td>{% if c.vu_le %}<span class="badge badge-off">Vu</span>{% else %}
+        <td>{% if c.statut == 'TRANCHE' %}<span class="badge badge-ok">Tranché</span>{% elif c.vu_le %}<span class="badge badge-off">Vu</span>{% else %}
           <form method="post" action="{{ url_for('hors_ligne.vu', ident=c.id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn-edit">Vu</button>
           </form>{% endif %}</td>
       </tr>
     {% else %}
-      <tr><td colspan="6" class="table-vide"><i class="bi bi-check-circle"></i>Rien à vérifier.</td></tr>
+      <tr><td colspan="6" class="table-vide"><i class="bi bi-check-circle"></i>Rien d'autre.</td></tr>
     {% endfor %}
     </tbody>
   </table>
 </div></div>
-<div class="empty-note mt-3">Pour changer une valeur gardée, corrigez la saisie depuis la fiche de la bande ou de la livraison.</div>
 {% endblock %}

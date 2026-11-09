@@ -15,6 +15,7 @@
         <div class="carte-phrase">Jour {{ v.age }} · {{ b.batiment.code }}</div>
         <div class="carte-sous">depuis le {{ b.date_mise_en_place.strftime('%d/%m/%Y') }}</div></div>
     </div>
+    {% if b.a_verifier %}{% with bande=b %}{% include 'eleveur/_a_verifier.html' %}{% endwith %}{% endif %}
     <div class="chiffres-bilan">
       <div><span class="num">{{ v.effectif_present|qte }}</span><small>poulets présents</small></div>
       <div><span class="num">{{ v.mortalite|round(1)|qte if v.mortalite is not none else '—' }} %</span><small>mortalité</small></div>

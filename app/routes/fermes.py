@@ -97,9 +97,25 @@ def fiche(numero):
                                    .order_by(Livraison.date_livraison.desc(), Livraison.numero_metier.desc()).all()
                                    if current_user.profil in (Profil.AGENT, Profil.DGE, Profil.ADMIN) else None),
                            argent=_argent(ferme) if current_user.profil in (Profil.AGENT, Profil.ADMIN) else None,
+                           visites=_visites(ferme) if current_user.profil in (Profil.AGENT, Profil.DGE, Profil.ADMIN) else None,
+                           signalements=_signalements(ferme) if current_user.profil in (Profil.AGENT, Profil.ADMIN) else None,
                            etats={b.id: regles_bandes.etat_batiment(b) for b in ferme.batiments},
                            bandes=Bande.query.filter_by(ferme_id=ferme.id)
                            .order_by(Bande.date_mise_en_place.desc()).all())
+
+
+def _visites(ferme):
+    from app.models.visite import Visite, StatutVisite
+    toutes = Visite.query.filter_by(ferme_id=ferme.id).order_by(Visite.date_prevue.desc(), Visite.cree_le.desc()).all()
+    return {'prevues': sorted([v for v in toutes if v.statut == StatutVisite.PREVUE], key=lambda v: v.date_prevue),
+            'faites': [v for v in toutes if v.statut == StatutVisite.FAITE][:5]}
+
+
+def _signalements(ferme):
+    """L'agent voit qu'une réponse a été donnée, jamais le contenu (déclarations réservées aux vétérinaires)."""
+    from app.models.sante import AlerteSanitaire
+    return [{'date': a.cree_le, 'origine': a.origine, 'repondu_le': a.reponses[-1].cree_le if a.reponses else None}
+            for a in AlerteSanitaire.query.filter_by(ferme_id=ferme.id).order_by(AlerteSanitaire.cree_le.desc()).limit(10)]
 
 
 def _argent(ferme):

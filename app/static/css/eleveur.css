@@ -406,6 +406,8 @@
 /* ── Lot 11 : 8 tuiles, regroupements, Mon argent, Moi ───────────────── */
 .theme-eleveur .btn-entete{font-weight:900;border-radius:999px;padding:6px 11px;white-space:nowrap;text-decoration:none;font-size:.9rem;}
 .theme-eleveur .btn-entete:hover{color:var(--e-blanc);background:rgba(255,255,255,.12);}
+.theme-eleveur .btn-entete{position:relative;}
+.theme-eleveur .btn-entete .pastille-nouveau{position:absolute;top:-9px;right:-8px;font-size:.62rem;padding:1px 5px;}
 .theme-eleveur .raccourci{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--e-blanc);
   border:1px solid var(--e-trait);border-radius:14px;padding:8px 10px 8px 12px;font-weight:800;margin:-2px 0 10px;
   color:var(--e-nuit);text-decoration:none;font-size:.92rem;}
@@ -463,6 +465,38 @@
   padding:14px;font:inherit;font-weight:900;color:var(--e-nuit);text-decoration:none;}
 .theme-eleveur .lien-moi small{color:var(--e-gris);font-weight:700;margin-left:4px;}
 .theme-eleveur .lien-quitter{color:var(--e-rouge);}
+
+/* ── Lot 12 : case vide ≠ zéro, réponses, visites ─────────────────────── */
+.theme-eleveur .compteur-valeur::placeholder{color:var(--e-gris);opacity:1;}
+.theme-eleveur .cases-rapides{display:flex;flex-wrap:wrap;gap:8px;flex-basis:100%;margin-top:4px;}
+.theme-eleveur .case-rapide{flex:1;min-height:46px;border:1px solid var(--e-trait);background:var(--e-blanc);border-radius:14px;
+  font:inherit;font-weight:900;color:var(--e-nuit);padding:8px 10px;}
+.theme-eleveur .case-rapide.choisie{border-color:var(--e-prairie);background:var(--e-vert-pale);color:var(--e-prairie-fonce);
+  box-shadow:0 0 0 2px var(--e-prairie);}
+.theme-eleveur .message-vide{background:var(--e-jaune-pale);border:1px solid var(--e-jaune-bord);border-radius:14px;padding:10px 12px;
+  font-weight:800;margin-bottom:10px;}
+.theme-eleveur .a-verifier{display:inline-block;background:var(--e-jaune-pale);color:var(--e-nuit);border-radius:999px;
+  padding:2px 10px;font-weight:900;font-size:.8rem;}
+
+.theme-eleveur .ligne-info{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--e-blanc);
+  border:1px solid var(--e-trait);border-radius:14px;padding:9px 12px;font-weight:800;margin:-2px 0 10px;color:var(--e-nuit);
+  text-decoration:none;font-size:.92rem;}
+.theme-eleveur .ligne-reponse{background:var(--e-vert-pale);border-color:var(--e-vert-pale);color:var(--e-prairie-fonce);}
+.theme-eleveur .ligne-info-sous{color:var(--e-gris);font-weight:700;}
+.theme-eleveur .pastille-nouveau{display:inline-block;background:var(--e-orange);color:var(--e-blanc);border-radius:999px;
+  padding:1px 7px;font-weight:900;font-size:.7rem;vertical-align:middle;}
+.theme-eleveur .etat-signalement{border-radius:999px;padding:2px 10px;font-weight:900;font-size:.78rem;white-space:nowrap;}
+.theme-eleveur .etat-envoye{background:var(--e-bleu-pale);color:var(--e-bleu);}
+.theme-eleveur .etat-regarde{background:var(--e-jaune-pale);color:var(--e-nuit);}
+.theme-eleveur .etat-reponse{background:var(--e-vert-pale);color:var(--e-prairie-fonce);}
+.theme-eleveur .etat-termine{background:var(--e-gris-clair);color:var(--e-gris);}
+.theme-eleveur .reponse-veto{background:var(--e-vert-pale);border-radius:16px;padding:12px;margin-top:10px;}
+.theme-eleveur .reponse-veto.nouvelle{box-shadow:0 0 0 2px var(--e-prairie);}
+.theme-eleveur .reponse-qui{color:var(--e-gris);font-weight:800;font-size:.85rem;}
+.theme-eleveur .conseils-veto{margin:6px 0;padding-left:20px;}
+.theme-eleveur .conseils-veto li{font-weight:900;font-size:1.08rem;margin:4px 0;}
+.theme-eleveur .reponse-texte{font-weight:800;}
+.theme-eleveur .carte-titre-ligne{gap:8px;}
 
 /* ── Animations (transform, opacity) ──────────────────────────────────── */
 @keyframes e-rebond{0%{transform:scale(1);}45%{transform:scale(1.25);}100%{transform:scale(1);}}

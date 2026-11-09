@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SORRA — aperçu du lot 12</title><link rel="stylesheet" href="../../app/static/css/perform.css"><link rel="stylesheet" href="../../app/static/css/eleveur.css">
+<style>
+body{margin:0;background:#e9edf5}
+.grille-ecrans{display:flex;flex-wrap:wrap;gap:24px;justify-content:center;padding:10px 16px 40px}
+.tel{width:360px;border-radius:26px;overflow:hidden;box-shadow:0 10px 30px rgba(27,42,94,.18);background:var(--e-creme)}
+.legende-tel{font:800 .85rem system-ui;color:#555;text-align:center;margin:6px 0 0;max-width:360px}
+.tete{background:linear-gradient(135deg,var(--e-bleu),var(--e-bleu-fonce));color:#fff;padding:12px 12px 14px;display:flex;gap:8px;align-items:center}
+.tete b{font-weight:900;font-size:1.1rem}.tete small{display:block;font-weight:700;font-size:.8rem}
+.tete .droite{margin-left:auto;display:flex;gap:6px}
+.pil{border:1.5px solid rgba(255,255,255,.7);border-radius:999px;padding:6px 10px;font-weight:900;font-size:.85rem;white-space:nowrap}
+.zone{padding:12px}.titre{font-weight:900;font-size:1.35rem;margin:2px 0 10px}
+.retour{color:var(--e-bleu);font-weight:800;display:block;margin-bottom:4px}
+.raccourci{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--e-trait);border-radius:14px;padding:10px 12px;font-weight:800;margin:-4px 0 8px;font-size:.9rem}
+.raccourci span:last-child{color:var(--e-prairie-fonce);font-weight:900;white-space:nowrap}
+.gcases{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gcase{background:#fff;border:1px solid var(--e-trait);border-radius:18px;padding:14px;font-weight:900;box-shadow:0 2px 10px var(--e-ombre)}
+.gcase span{display:block;font-size:1.9rem}.gcase small{display:block;color:var(--e-gris);font-weight:700}
+.gcase.large{grid-column:1 / -1}
+.carte-v{background:#fff;border:1px solid var(--e-trait);border-radius:18px;padding:12px 14px;margin-bottom:10px;box-shadow:0 2px 10px var(--e-ombre)}
+.carte-v b{display:block;font-weight:900}.carte-v small{color:var(--e-gris);font-weight:700}
+.ligne{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.mini{border-radius:12px;padding:8px 10px;font-weight:900;white-space:nowrap}
+.mvert{background:var(--e-prairie);color:#fff}.msec{background:#fff;color:var(--e-bleu);border:1px solid var(--e-bleu-bord)}
+.trois{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.chiffre{background:#fff;border:1px solid var(--e-trait);border-radius:16px;padding:10px 6px;text-align:center}
+.chiffre small{display:block;font-weight:800;color:var(--e-gris);font-size:.8rem}.chiffre b{font-weight:900;font-size:1.05rem}
+.chiffre.g b{color:var(--e-prairie-fonce)}.chiffre.d b{color:var(--e-orange)}
+.cases{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 8px}
+.case{background:#fff;border:1px solid var(--e-trait);border-radius:14px;padding:9px 4px;text-align:center;font-weight:800;font-size:.9rem}
+.case.choisie{border-color:var(--e-bleu);background:var(--e-bleu-pale);box-shadow:0 0 0 2px var(--e-bleu)}
+.images{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0 10px}
+.img{background:#fff;border:1px solid var(--e-trait);border-radius:14px;padding:8px 2px;text-align:center;font-weight:800;font-size:.72rem}
+.img span{display:block;font-size:1.6rem}.img.choisie{border-color:var(--e-bleu);background:var(--e-bleu-pale);box-shadow:0 0 0 2px var(--e-bleu)}
+.lab{font-weight:900;margin-top:4px}
+.champ{background:#fff;border:1px solid var(--e-trait);border-radius:14px;padding:12px;font-weight:900;font-size:1.2rem;margin:4px 0 8px}
+.btn{display:block;text-align:center;border-radius:16px;padding:14px;font-weight:900;color:#fff;margin-top:8px}
+.bleu{background:var(--e-bleu)}.vert{background:var(--e-prairie)}.sec{background:#fff;color:var(--e-bleu);border:1px solid var(--e-bleu-bord)}
+.mvt{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--e-trait);font-weight:800;font-size:.88rem}
+.mvt .p{color:var(--e-prairie-fonce);white-space:nowrap}.mvt .m{color:var(--e-orange);white-space:nowrap}.mvt .c{color:var(--e-bleu);white-space:nowrap}
+.aide{background:var(--e-jaune-pale);border:1px solid var(--e-jaune-bord);border-radius:14px;padding:10px 12px;font-weight:800;font-size:.9rem;margin-top:10px}
+.bandeau{background:#1f2937;color:#fff;border-radius:16px;padding:12px 14px;font-weight:800;display:flex;justify-content:space-between;margin-bottom:10px}
+.lien-moi{display:block;background:#fff;border:1px solid var(--e-trait);border-radius:16px;padding:14px;font-weight:900;margin-bottom:8px}
+.lien-moi small{color:var(--e-gris);font-weight:700}
+
+.etat{display:inline-block;border-radius:999px;padding:2px 10px;font-weight:900;font-size:.78rem}
+.e-envoye{background:var(--e-bleu-pale);color:var(--e-bleu)}.e-regarde{background:var(--e-jaune-pale);color:#8a6a00}
+.e-reponse{background:var(--e-vert-pale);color:var(--e-prairie-fonce)}.e-fini{background:var(--e-gris-clair);color:var(--e-gris)}
+.reponse{background:var(--e-vert-pale);border-radius:16px;padding:12px;margin-top:8px}
+.reponse b{display:block;font-size:1.05rem}.reponse li{font-weight:900;font-size:1.05rem;margin:4px 0}
+.reponse small{color:var(--e-gris);font-weight:700}
+.ligne-sup{display:flex;justify-content:space-between;background:#fff;border:1px solid var(--e-trait);border-radius:14px;padding:9px 12px;font-weight:800;margin-bottom:8px;font-size:.92rem}
+.ligne-sup.verte{background:var(--e-vert-pale);border-color:var(--e-vert-pale);color:var(--e-prairie-fonce)}
+.compt{display:flex;align-items:center;gap:8px;margin:6px 0 12px}
+.compt .b{width:44px;height:44px;border-radius:14px;background:var(--e-gris-clair);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.3rem}
+.compt .b.plus{background:var(--e-bleu);color:#fff}.compt .v{width:56px;text-align:center;font-weight:900;font-size:1.6rem;color:var(--e-gris)}
+.compt .zero{flex:1;text-align:center;border:1px solid var(--e-trait);background:#fff;border-radius:14px;padding:11px 4px;font-weight:900;font-size:.88rem}
+.compt .zero.choisie{border-color:var(--e-prairie);background:var(--e-vert-pale);color:var(--e-prairie-fonce);box-shadow:0 0 0 2px var(--e-prairie)}
+.refus{background:var(--e-jaune-pale);border:1px solid var(--e-jaune-bord);border-radius:14px;padding:10px 12px;font-weight:800;font-size:.9rem;margin-bottom:8px}
+.attente{display:inline-block;background:var(--e-jaune-pale);color:#8a6a00;border-radius:999px;padding:2px 10px;font-weight:900;font-size:.8rem}
+.pc{width:760px;border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(27,42,94,.18);background:#fff;font-family:system-ui}
+.pc .bar{background:#0c2461;color:#fff;padding:10px 16px;font-weight:800}
+.pc .corps{padding:16px}.cote{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.version{border:1px solid #ddd;border-radius:10px;padding:12px}.version h4{margin:0 0 6px;font-size:1rem}
+.version .val{font-size:1.4rem;font-weight:800;margin:4px 0}.btnv{display:inline-block;background:#1241a8;color:#fff;border-radius:8px;padding:8px 12px;font-weight:700;margin-top:8px}
+.motif{border:1px solid #ccc;border-radius:8px;padding:8px;color:#888;margin-top:10px}
+</style></head><body><div style="max-width:900px;margin:0 auto;padding:18px 16px 0;font-family:system-ui;color:#333">
+<h1 style="margin:0 0 6px">SORRA — aperçu du lot 12 : réponses, visites, conflits, case vide</h1><p style="margin:0">Aperçu indicatif avant construction.</p></div>
+<div class="grille-ecrans"><div><div class="tel theme-eleveur"><div class="tete"><div class="logo-texte"><svg class="logo-poulet" width="32" height="32" viewBox="0 0 64 64" role="img" aria-label="SORRA"><title>SORRA</title><path class="logo-corps" d="M54,14 C62,22 60,34 52,38 L60,36 L58,44 L52,47 C46,53 30,54 22,47 C16,42 16,34 18,30 C19,26 14,22 14,17 C14,10 24,8 27,15 C29,21 28,28 34,30 C42,32 48,26 50,18 Z"/><path class="logo-crete" d="M15,11 C14,5 19,4 20,8 C21,3 26,3 25,9 C29,7 31,11 27,14 C23,11 18,11 15,11 Z"/><ellipse class="logo-crete" cx="13.2" cy="22.5" rx="2.4" ry="3.6"/><path class="logo-bec" d="M14.5,15 L7.5,18 L14.5,20 Z"/><circle class="logo-oeil" cx="19.5" cy="14.5" r="1.9"/><path class="logo-aile" d="M28,37 C34,33 43,34 47,39 C42,45 33,46 28,37 Z"/><line class="logo-pattes" x1="31" y1="52" x2="30" y2="61"/><line class="logo-pattes" x1="40" y1="52" x2="41" y2="61"/><line class="logo-pattes" x1="26" y1="61" x2="34" y2="61"/><line class="logo-pattes" x1="37" y1="61" x2="45" y2="61"/></svg></div><div><b>SORRA</b><small>Bonjour Jean ! 👋</small></div><div class="droite"><span class="pil">📞 Paul</span><span class="pil">👤 Moi</span></div></div><div class="zone accueil-eleveur">
+    <div class="ligne-etat"><span style="width:44px;flex-shrink:0"><svg class="logo-poulet" width="44" height="44" viewBox="0 0 64 64" role="img" aria-label="SORRA"><title>SORRA</title><path class="logo-corps" d="M54,14 C62,22 60,34 52,38 L60,36 L58,44 L52,47 C46,53 30,54 22,47 C16,42 16,34 18,30 C19,26 14,22 14,17 C14,10 24,8 27,15 C29,21 28,28 34,30 C42,32 48,26 50,18 Z"/><path class="logo-crete" d="M15,11 C14,5 19,4 20,8 C21,3 26,3 25,9 C29,7 31,11 27,14 C23,11 18,11 15,11 Z"/><ellipse class="logo-crete" cx="13.2" cy="22.5" rx="2.4" ry="3.6"/><path class="logo-bec" d="M14.5,15 L7.5,18 L14.5,20 Z"/><circle class="logo-oeil" cx="19.5" cy="14.5" r="1.9"/><path class="logo-aile" d="M28,37 C34,33 43,34 47,39 C42,45 33,46 28,37 Z"/><line class="logo-pattes" x1="31" y1="52" x2="30" y2="61"/><line class="logo-pattes" x1="40" y1="52" x2="41" y2="61"/><line class="logo-pattes" x1="26" y1="61" x2="34" y2="61"/><line class="logo-pattes" x1="37" y1="61" x2="45" y2="61"/></svg></span><div><strong>2 bâtiments · tout va bien</strong><small>B1 jour 23 · B2 jour 5</small></div></div>
+    <div class="ligne-sup verte"><span>💬 Le vétérinaire vous a répondu</span><span>→</span></div>
+    <div class="ligne-sup"><span>📅 Visite de Paul jeudi 12</span><span>suivi</span></div>
+    <a class="tuile tuile-saisie"><span class="pastille">2</span><span class="tuile-ico">✏️</span><span class="tuile-nom">Saisie du jour</span><span class="tuile-sous">B1, B2 à faire · morts et aliment</span></a>
+    <div class="tuiles">
+      <a class="tuile "><span class="tuile-ico">🐔</span><span class="tuile-nom">Ma bande</span><span class="tuile-sous">peser, mes bandes</span></a><a class="tuile "><span class="tuile-ico">🚚</span><span class="tuile-nom">Ventes et sorties</span><span class="tuile-sous">abattoir, vente</span></a>
+      <a class="tuile "><span class="pastille bleue">💬</span><span class="tuile-ico">💉</span><span class="tuile-nom">Vaccins et soins</span><span class="tuile-sous">vaccins, traitements</span></a><a class="tuile tuile-malade"><span class="tuile-ico">🩺</span><span class="tuile-nom">Poulet malade</span><span class="tuile-sous">prévenir le vétérinaire</span></a>
+    </div></div></div><p class="legende-tel">Accueil : réponse du vétérinaire et prochaine visite dans la ligne d’état</p></div><div><div class="tel theme-eleveur"><div class="tete"><div class="logo-texte"><svg class="logo-poulet" width="32" height="32" viewBox="0 0 64 64" role="img" aria-label="SORRA"><title>SORRA</title><path class="logo-corps" d="M54,14 C62,22 60,34 52,38 L60,36 L58,44 L52,47 C46,53 30,54 22,47 C16,42 16,34 18,30 C19,26 14,22 14,17 C14,10 24,8 27,15 C29,21 28,28 34,30 C42,32 48,26 50,18 Z"/><path class="logo-crete" d="M15,11 C14,5 19,4 20,8 C21,3 26,3 25,9 C29,7 31,11 27,14 C23,11 18,11 15,11 Z"/><ellipse class="logo-crete" cx="13.2" cy="22.5" rx="2.4" ry="3.6"/><path class="logo-bec" d="M14.5,15 L7.5,18 L14.5,20 Z"/><circle class="logo-oeil" cx="19.5" cy="14.5" r="1.9"/><path class="logo-aile" d="M28,37 C34,33 43,34 47,39 C42,45 33,46 28,37 Z"/><line class="logo-pattes" x1="31" y1="52" x2="30" y2="61"/><line class="logo-pattes" x1="40" y1="52" x2="41" y2="61"/><line class="logo-pattes" x1="26" y1="61" x2="34" y2="61"/><line class="logo-pattes" x1="37" y1="61" x2="45" y2="61"/></svg></div><div><b>SORRA</b><small>Bonjour Jean ! 👋</small></div><div class="droite"><span class="pil">📞 Paul</span><span class="pil">👤 Moi</span></div></div><div class="zone"><a class="retour">‹ Accueil</a>
+    <div class="titre">💬 Mes signalements</div>
+    <div class="carte-v"><div class="ligne"><b>08/11 · B2 · 12 poulets</b><span class="etat e-reponse">💬 Réponse</span></div><small>🤧 respire mal · 💩 diarrhée</small>
+      <div class="reponse"><b>Dr Nzé, vétérinaire · 09/11</b>
+        <ul style="padding-left:18px;margin:6px 0"><li>Isolez les poulets malades</li><li>Ne vendez pas avant ma visite</li><li>Je passe vous voir</li></ul>
+        <div style="font-weight:800">« Donnez l’eau avec le sachet de vitamines, je viens jeudi. »</div></div></div>
+    <div class="carte-v"><div class="ligne"><b>05/11 · B1 · 3 poulets</b><span class="etat e-regarde">Le vétérinaire regarde</span></div><small>😴 fatigués</small></div>
+    <div class="carte-v"><div class="ligne"><b>02/11 · B1 · 1 poulet</b><span class="etat e-envoye">Envoyé ✓</span></div></div>
+    <div class="carte-v"><div class="ligne"><b>20/10 · B1 · 5 poulets</b><span class="etat e-fini">Terminé</span></div></div></div></div><p class="legende-tel">Mes signalements : états simples, réponse en gros</p></div><div><div class="tel theme-eleveur"><div class="tete"><div class="logo-texte"><svg class="logo-poulet" width="32" height="32" viewBox="0 0 64 64" role="img" aria-label="SORRA"><title>SORRA</title><path class="logo-corps" d="M54,14 C62,22 60,34 52,38 L60,36 L58,44 L52,47 C46,53 30,54 22,47 C16,42 16,34 18,30 C19,26 14,22 14,17 C14,10 24,8 27,15 C29,21 28,28 34,30 C42,32 48,26 50,18 Z"/><path class="logo-crete" d="M15,11 C14,5 19,4 20,8 C21,3 26,3 25,9 C29,7 31,11 27,14 C23,11 18,11 15,11 Z"/><ellipse class="logo-crete" cx="13.2" cy="22.5" rx="2.4" ry="3.6"/><path class="logo-bec" d="M14.5,15 L7.5,18 L14.5,20 Z"/><circle class="logo-oeil" cx="19.5" cy="14.5" r="1.9"/><path class="logo-aile" d="M28,37 C34,33 43,34 47,39 C42,45 33,46 28,37 Z"/><line class="logo-pattes" x1="31" y1="52" x2="30" y2="61"/><line class="logo-pattes" x1="40" y1="52" x2="41" y2="61"/><line class="logo-pattes" x1="26" y1="61" x2="34" y2="61"/><line class="logo-pattes" x1="37" y1="61" x2="45" y2="61"/></svg></div><div><b>SORRA</b><small>Bonjour Jean ! 👋</small></div><div class="droite"><span class="pil">📞 Paul</span><span class="pil">👤 Moi</span></div></div><div class="zone"><a class="retour">‹ Accueil</a>
+    <div class="titre">✏️ Saisie du jour · B1</div>
+    <div class="refus">Touchez « Aucun mort » s’il n’y a pas eu de mort.</div>
+    <div class="lab">Morts aujourd’hui</div>
+    <div class="compt"><span class="b">−</span><span class="v">—</span><span class="b plus">+</span><span class="zero">✓ Aucun mort</span></div>
+    <div class="lab">Sacs d’aliment <small style="color:var(--e-gris)">Aliment démarrage · 25 kg</small></div>
+    <div class="compt"><span class="b">−</span><span class="v" style="color:var(--e-nuit)">2</span><span class="b plus">+</span><span class="zero">Pas d’aliment donné</span></div>
+    <div class="btn vert">Envoyer ✓</div>
+    <div style="margin-top:14px" class="carte-v"><b>B2 · saisie d’hier</b><span class="attente">◷ À vérifier par votre agent</span></div></div></div><p class="legende-tel">Saisie du jour : « — » au départ, « Aucun mort », refus explicite</p></div><div><div class="tel theme-eleveur"><div class="tete"><div class="logo-texte"><svg class="logo-poulet" width="32" height="32" viewBox="0 0 64 64" role="img" aria-label="SORRA"><title>SORRA</title><path class="logo-corps" d="M54,14 C62,22 60,34 52,38 L60,36 L58,44 L52,47 C46,53 30,54 22,47 C16,42 16,34 18,30 C19,26 14,22 14,17 C14,10 24,8 27,15 C29,21 28,28 34,30 C42,32 48,26 50,18 Z"/><path class="logo-crete" d="M15,11 C14,5 19,4 20,8 C21,3 26,3 25,9 C29,7 31,11 27,14 C23,11 18,11 15,11 Z"/><ellipse class="logo-crete" cx="13.2" cy="22.5" rx="2.4" ry="3.6"/><path class="logo-bec" d="M14.5,15 L7.5,18 L14.5,20 Z"/><circle class="logo-oeil" cx="19.5" cy="14.5" r="1.9"/><path class="logo-aile" d="M28,37 C34,33 43,34 47,39 C42,45 33,46 28,37 Z"/><line class="logo-pattes" x1="31" y1="52" x2="30" y2="61"/><line class="logo-pattes" x1="40" y1="52" x2="41" y2="61"/><line class="logo-pattes" x1="26" y1="61" x2="34" y2="61"/><line class="logo-pattes" x1="37" y1="61" x2="45" y2="61"/></svg></div><div><b>SORRA</b><small>Bonjour Jean ! 👋</small></div><div class="droite"><span class="pil">📞 Paul</span><span class="pil">👤 Moi <span style="background:var(--e-orange);border-radius:999px;padding:0 6px;font-size:.7rem">nouveau</span></span></div></div><div class="zone"><a class="retour">‹ Moi</a>
+    <div class="titre">📋 Mes visites</div>
+    <div class="carte-v"><div class="ligne"><b>Visite de Paul · 07/11</b><span class="etat e-reponse">nouveau</span></div><small>suivi · B1 et B2</small>
+      <div class="reponse"><ul style="padding-left:18px;margin:4px 0"><li>Changez la litière humide de B2</li><li>Pesez 10 poulets chaque semaine</li><li>Notez les morts chaque jour</li></ul>
+        <small>Constats : litière mouillée près des abreuvoirs, bonne croissance en B1.</small></div></div>
+    <div class="carte-v"><b>Visite de Paul · 18/10</b><small>vaccination</small>
+      <div class="reponse" style="background:var(--e-gris-clair)"><ul style="padding-left:18px;margin:4px 0"><li>Respectez le vide sanitaire</li></ul></div></div>
+    <div class="ligne-sup"><span>📅 Prochaine visite : jeudi 12</span><span>suivi</span></div></div></div><p class="legende-tel">👤 Moi → 📋 Mes visites : recommandations en gros</p></div><div><div class="pc"><div class="bar">SORRA · Saisies à vérifier (agent, ordinateur)</div><div class="corps">
+  <b>Saisie du 09/11 · bande EST-001-B2-01 · Ferme Mba</b> <span style="color:#a07800;font-weight:700">· à vérifier</span>
+  <div class="cote" style="margin-top:10px">
+    <div class="version"><h4>Éleveur · Jean Mba</h4><small>saisie sur le téléphone le 09/11 à 07:12 (sans réseau)</small>
+      <div class="val">4 morts · 2 sacs</div><small>utilisée pour les indicateurs en attendant</small><br><span class="btnv">Retenir cette version</span></div>
+    <div class="version"><h4>Agent · Paul Ndong</h4><small>saisie le 09/11 à 10:40, en visite</small>
+      <div class="val">6 morts · 2 sacs</div><br><span class="btnv">Retenir cette version</span></div>
+  </div><div class="motif">Motif (obligatoire) : ex. « compté avec l’éleveur au bâtiment »</div>
+  <hr style="margin:16px 0"><b>Doublon possible · sorties du 08/11 · B1</b>
+  <div class="cote" style="margin-top:8px"><div class="version"><h4>Éleveur</h4><div class="val">120 poulets · Marché de Ntoum</div><small>compte</small></div>
+    <div class="version"><h4>Agent</h4><div class="val">120 poulets · Marché de Ntoum</div><small>mise de côté</small></div></div>
+  <div style="margin-top:10px"><span class="btnv" style="background:#15803d">Ce sont deux sorties différentes</span> <span class="btnv">Garder celle de l’éleveur</span> <span class="btnv">Garder celle de l’agent</span></div>
+</div></div><p class="legende-tel">Agent : les deux versions côte à côte, motif obligatoire</p></div></div></body></html>

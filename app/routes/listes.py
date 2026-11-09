@@ -21,6 +21,9 @@ CATEGORIES = {
     'signes_cliniques':      'Signes cliniques',
     'modes_administration':  "Modes d'administration des vaccins",
     'categories_depenses':   "Catégories de dépenses (« J'ai payé », l'émoji en tête sert d'image)",
+    'conseils_veterinaire':  "Conseils du vétérinaire à l'éleveur (provisoire)",
+    'recommandations_visite': "Recommandations de visite (provisoire)",
+    'objets_visite':         "Objets de visite (provisoire)",
 }
 
 

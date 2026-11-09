@@ -192,7 +192,7 @@ def calculer(bande, jour=None):
     jour = jour or date.today()
     fin = bande.date_cloture or jour
     morts = bande.morts_avant_suivi + sum(s.morts for s in bande.saisies if s.date <= fin)
-    sorties = [s for s in bande.sorties if s.date <= fin]
+    sorties = [s for s in bande.sorties_comptees if s.date <= fin]
     pesees = [p for p in bande.pesees if p.date <= fin]
     derniere = pesees[-1] if pesees else None
     jc = _jour_considere(bande, min(jour, fin))
@@ -220,6 +220,10 @@ def calculer(bande, jour=None):
     v['sacs'] = sum(s.sacs for s in bande.saisies if s.date <= fin)
     v['effectif_present'] = int(round(v['effectif_present'])) if v['effectif_present'] is not None else present
     v['partiels'] = bande.rattrapage
+    # Lot 12 : un jour non saisi n'est jamais compté « 0 mort, 0 aliment » : il est « non saisi »,
+    # et la mortalité cumulée comme l'indice de consommation sont alors « incomplets »
+    v['jours_non_saisis'] = max(0, v['jours_ecoules'] - v['jours_saisis'])
+    v['incomplet'] = v['jours_non_saisis'] > 0
     return v
 
 
@@ -308,7 +312,7 @@ def bilan(bande):
     from app.services import ludique
     v = calculer(bande, bande.date_cloture)
     par_destinataire = {}
-    for s in bande.sorties:
+    for s in bande.sorties_comptees:
         d = par_destinataire.setdefault(s.destinataire, {'destinataire': s.destinataire, 'motif': s.motif,
                                                          'nombre': 0, 'poids_kg': 0})
         d['nombre'] += s.nombre
@@ -327,12 +331,13 @@ def bilan(bande):
         'poids_vif_produit_kg': arrondi(v['poids_vif_produit'], 1),
         'aliment_kg': arrondi(v['aliment_kg'], 1),
         'regularite': arrondi(v['regularite'], 0),
+        'jours_non_saisis': v['jours_non_saisis'], 'incomplet': v['incomplet'],
         'partiels': bande.rattrapage,
         'sorties_par_destinataire': list(par_destinataire.values()),
         # Lot 8 : étoiles gardées à la clôture, série record de la bande, poulets vendus
         'etoiles': ludique.etoiles(arrondi(v['mortalite'], 2), arrondi(v['indice_consommation'], 2)),
         'serie_record': ludique.plus_longue_serie(bande),
-        'vendus': sum(s.nombre for s in bande.sorties if s.motif in ('Abattoir', 'Vente')),
+        'vendus': sum(s.nombre for s in bande.sorties_comptees if s.motif in ('Abattoir', 'Vente')),
         # Lot 11 : chiffre d'affaires, dépenses, marge, aide de l'État
         **_argent().bilan_financier(bande),
     }
@@ -400,7 +405,8 @@ def synthese(bandes, du=None, au=None):
     """Chiffres agrégés d'un ensemble de bandes ; sorties et aliment comptés sur la période."""
     from app.models.bande import StatutBande
     s = {'bandes_en_cours': 0, 'effectifs_presents': 0, 'mis_en_place': 0, 'morts': 0, 'poids_vif_kg': 0.0,
-         'sortis_tetes': 0, 'sortis_kg': 0.0, 'aliment_kg': 0.0, 'regularites': [], 'feux': {'vert': 0, 'orange': 0, 'rouge': 0}}
+         'sortis_tetes': 0, 'sortis_kg': 0.0, 'aliment_kg': 0.0, 'regularites': [], 'feux': {'vert': 0, 'orange': 0, 'rouge': 0},
+         'bandes': 0, 'bandes_incompletes': 0, 'jours_non_saisis': 0}
     for b in bandes:
         v = calculer(b)
         if b.statut == StatutBande.EN_COURS:
@@ -413,8 +419,11 @@ def synthese(bandes, du=None, au=None):
                 s['feux'][couleur] += 1
         s['mis_en_place'] += v['mis_en_place']
         s['morts'] += v['morts_cumules']
+        s['bandes'] += 1
+        s['jours_non_saisis'] += v['jours_non_saisis']
+        s['bandes_incompletes'] += 1 if v['incomplet'] else 0
         s['poids_vif_kg'] += v['poids_vif_produit'] or 0
-        for o in b.sorties:
+        for o in b.sorties_comptees:
             if (du is None or o.date >= du) and (au is None or o.date <= au):
                 s['sortis_tetes'] += o.nombre
                 s['sortis_kg'] += o.poids_total_kg

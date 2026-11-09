@@ -97,7 +97,7 @@ def test_saisie_hors_ligne_compte_a_sa_date(client, monde):
     assert ludique.serie(b) == 2
     connecter(client, 'eleveur1')
     jour = (AUJ - timedelta(days=3)).isoformat()
-    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'morts': '0', 'jour': jour}, il_y_a=timedelta(days=3))
+    _, rep = rejouer(client, f'/bandes/{b.numero}/saisie', {'sacs': '0', 'morts': '0', 'jour': jour}, il_y_a=timedelta(days=3))
     assert rep['etat'] == 'ok'
     db.session.expire_all()
     assert ludique.serie(b) == 5
@@ -144,13 +144,13 @@ def test_bien_recu_avec_etincelles_seulement_en_vert(client, monde):
     b = bande_ouverte(monde, jour=AUJ - timedelta(days=3))
     jours(b, 2, 1)
     connecter(client, 'eleveur1')
-    page = client.post(f'/bandes/{b.numero}/saisie', data={'morts': '1'}, follow_redirects=True).get_data(as_text=True)
+    page = client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': '1'}, follow_redirects=True).get_data(as_text=True)
     assert 'class="bien-recu joie"' in page and 'class="etincelles"' in page and 'Bien reçu !' in page
     assert "3 jours d'affilée" in page and 'Envoyé ✓' not in page
     # Feu rouge : ni saut ni étincelles, seulement « Envoyé ✓ — Votre agent est prévenu »
-    page = client.post(f'/bandes/{b.numero}/saisie', data={'morts': '30'}, follow_redirects=True).get_data(as_text=True)
+    page = client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': '30'}, follow_redirects=True).get_data(as_text=True)
     if 'Ajouter à la saisie' in page or 'déjà' in page.lower():
-        page = client.post(f'/bandes/{b.numero}/saisie', data={'morts': '30', 'ajouter': '1'},
+        page = client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': '30', 'ajouter': '1'},
                            follow_redirects=True).get_data(as_text=True)
     assert indicateurs.feu(b)[0] == 'rouge'
     assert 'class="bien-recu sobre"' in page and 'etincelles' not in page and 'Bien reçu !' not in page
@@ -160,14 +160,14 @@ def test_bien_recu_avec_etincelles_seulement_en_vert(client, monde):
 def test_bien_recu_en_orange_sans_etincelles(client, monde):
     b = bande_ouverte(monde, jour=AUJ - timedelta(days=3))   # rien envoyé hier : orange
     connecter(client, 'eleveur1')
-    page = client.post(f'/bandes/{b.numero}/saisie', data={'morts': '0'}, follow_redirects=True).get_data(as_text=True)
+    page = client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': '0'}, follow_redirects=True).get_data(as_text=True)
     assert 'class="bien-recu sobre"' in page and 'etincelles' not in page and 'Votre agent est prévenu' in page
 
 
 def test_l_agent_ne_voit_pas_bien_recu(client, monde):
     b = bande_ouverte(monde)
     connecter(client, 'agent1')
-    page = client.post(f'/bandes/{b.numero}/saisie', data={'morts': '1'}, follow_redirects=True).get_data(as_text=True)
+    page = client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': '1'}, follow_redirects=True).get_data(as_text=True)
     assert 'bien-recu' not in page
 
 
@@ -192,16 +192,16 @@ def test_deux_batiments_point_orange_et_il_reste_b2(client, monde):
     page = client.get('/saisie-du-jour').get_data(as_text=True)
     assert page.count('class="pastille-bat') == 2 and page.count('class="point-a-saisir"') == 2
     assert 'B1 · J0' in page and 'B2 · J0' in page
-    page = client.post(f'/bandes/{b1.numero}/saisie', data={'morts': '1'}, follow_redirects=True).get_data(as_text=True)
+    page = client.post(f'/bandes/{b1.numero}/saisie', data={'sacs': '0', 'morts': '1'}, follow_redirects=True).get_data(as_text=True)
     assert 'Il reste B2 à saisir →' in page and 'data-cible="bat-EST-001-B2"' in page
     assert page.count('class="point-a-saisir"') == 1                 # le point de B1 a disparu
     assert '✓ Saisie du jour envoyée' in page and 'Ajouter à la saisie du jour' in page
-    page = client.post(f'/bandes/{b2.numero}/saisie', data={'morts': '0'}, follow_redirects=True).get_data(as_text=True)
+    page = client.post(f'/bandes/{b2.numero}/saisie', data={'sacs': '0', 'morts': '0'}, follow_redirects=True).get_data(as_text=True)
     assert 'Il reste' not in page and 'point-a-saisir' not in page
     assert SaisieJour.query.filter_by(bande_id=b1.id).one().morts == 1   # saisies séparées par bande
     assert SaisieJour.query.filter_by(bande_id=b2.id).one().morts == 0
     # Ajouter à une saisie déjà envoyée : la confirmation du lot 3
-    page = client.post(f'/bandes/{b1.numero}/saisie', data={'morts': '2'}, follow_redirects=True).get_data(as_text=True)
+    page = client.post(f'/bandes/{b1.numero}/saisie', data={'sacs': '0', 'morts': '2'}, follow_redirects=True).get_data(as_text=True)
     assert 'ajouter' in page.lower() and SaisieJour.query.filter_by(bande_id=b1.id).one().morts == 1
 
 

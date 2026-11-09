@@ -55,6 +55,11 @@ def _listes_de_depart():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     listes['categories_depenses'] = module.CATEGORIES_DEPENSES
+    spec = importlib.util.spec_from_file_location('migration_0014',
+                                                  chemin.with_name('0014_reponses_visites_verifications.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    listes.update(module.LISTES)
     return listes
 
 

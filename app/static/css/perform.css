@@ -683,3 +683,19 @@ i.picto-panne{font-style:normal;font-size:2rem;display:block;}
 
 /* ── Argent (lot 11) : « J'ai payé » saisi par l'agent pour l'éleveur ─ */
 .categories-depense{grid-template-columns:repeat(4,1fr);}
+
+/* ── Saisies à vérifier (lot 12) : deux versions côte à côte ─────────── */
+.versions{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.7rem;}
+.version{border:1px solid var(--bord);border-radius:10px;padding:.8rem;}
+.version-comptee{border-color:var(--ok-bord);background:var(--ok-fond);}
+.version-qui{font-weight:800;}
+.version-valeur{font-size:1.15rem;font-weight:800;margin:.3rem 0;}
+.verif-rouge{border:2px solid var(--rouge);}
+.cases-rapides{display:flex;flex-wrap:wrap;gap:.5rem;flex-basis:100%;margin-top:.3rem;}
+.case-rapide{flex:1;min-height:42px;border:1px solid var(--bord-champ);background:var(--blanc);border-radius:8px;font-weight:700;padding:.4rem .6rem;}
+.case-rapide.choisie{border-color:var(--vert);background:var(--ok-fond);color:var(--ok-encre);}
+.message-vide{background:var(--warn-fond);border:1px solid var(--warn-trait);border-radius:8px;padding:.5rem .8rem;font-weight:700;margin-bottom:.6rem;}
+.a-verifier{display:inline-block;background:var(--warn-fond);color:var(--warn-encre);border-radius:999px;padding:0 .5rem;font-weight:700;font-size:.8rem;}
+.choix-conseils,.choix-recommandations{display:flex;flex-direction:column;gap:.3rem;}
+.reponse-veto{background:var(--ok-fond);border-radius:8px;padding:.5rem .7rem;}
+

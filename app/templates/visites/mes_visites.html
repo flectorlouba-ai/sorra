@@ -1,0 +1,28 @@
+{% extends '_base.html' %}
+{% block titre %}Mes visites{% endblock %}
+{% block icone %}clipboard-check{% endblock %}
+{% block page_titre %}📋 Mes visites{% endblock %}
+{% block page_sous_titre %}Les conseils de votre agent{% endblock %}
+
+{% block contenu %}
+{% if prochaine %}<div class="ligne-info">📅 Prochaine visite : {{ quand(prochaine.date_prevue) }} · {{ prochaine.objet|lower }}</div>{% endif %}
+{% for v in visites %}
+<div class="carte visite">
+  <div class="carte-titre-ligne">
+    <span class="carte-titre">Visite de {{ v.agent.prenom or v.agent.nom }} · {{ v.faite_le.strftime('%d/%m') }}</span>
+    {% if v.id in nouvelles %}<span class="pastille-nouveau">nouveau</span>{% endif %}
+  </div>
+  <div class="carte-sous">{{ v.objet|lower }}</div>
+  {% if v.toutes_recommandations %}
+  <ul class="conseils-veto">{% for r in v.toutes_recommandations %}<li>{{ r }}</li>{% endfor %}</ul>
+  {% endif %}
+  {% if v.constats %}<div class="carte-sous">Constats : {{ v.constats }}</div>{% endif %}
+  {% if v.photo %}<a class="carte-sous" href="{{ url_for('visites.photo', ident=v.id) }}" target="_blank">📷 photo</a>{% endif %}
+</div>
+{% else %}
+<div class="carte carte-calme centre">
+  <div class="carte-phrase">Pas encore de visite</div>
+  <div class="carte-sous">Après chaque visite, les conseils de votre agent apparaîtront ici.</div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -164,7 +164,7 @@ def test_seconde_saisie_du_jour_s_ajoute_apres_confirmation(client, monde):
 def test_controles_de_saisie(client, monde):
     b = bande_ouverte(monde, effectif=10)
     connecter(client, 'eleveur1')
-    r = client.post(f'/bandes/{b.numero}/saisie', data={'morts': 11}, follow_redirects=True)
+    r = client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': 11}, follow_redirects=True)
     assert 'entre 0 et 10' in r.get_data(as_text=True) and SaisieJour.query.count() == 0
     r = client.post(f'/bandes/{b.numero}/saisie', data={'morts': 0, 'sacs': 50, 'aliment_choisi': monde['aliment'].id},
                     follow_redirects=True)
@@ -175,15 +175,15 @@ def test_controles_de_saisie(client, monde):
 def test_jour_passe_limite_pour_l_eleveur(client, monde):
     b = bande_ouverte(monde, jour=AUJ - timedelta(days=10))
     connecter(client, 'eleveur1')
-    r = client.post(f'/bandes/{b.numero}/saisie', data={'jour': (AUJ - timedelta(days=5)).isoformat(), 'morts': 1},
+    r = client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'jour': (AUJ - timedelta(days=5)).isoformat(), 'morts': 1},
                     follow_redirects=True)
     assert 'trop ancien' in r.get_data(as_text=True)
-    client.post(f'/bandes/{b.numero}/saisie', data={'jour': (AUJ - timedelta(days=3)).isoformat(), 'morts': 1})
+    client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'jour': (AUJ - timedelta(days=3)).isoformat(), 'morts': 1})
     assert SaisieJour.query.count() == 1
     assert 'Jour oublié' in client.get(f'/bandes/{b.numero}/oublie').get_data(as_text=True)
     client.post('/auth/deconnexion')
     connecter(client, 'agent1')
-    client.post(f'/bandes/{b.numero}/saisie', data={'jour': (AUJ - timedelta(days=8)).isoformat(), 'morts': 1})
+    client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'jour': (AUJ - timedelta(days=8)).isoformat(), 'morts': 1})
     assert SaisieJour.query.count() == 2
 
 
@@ -193,7 +193,7 @@ def test_saisie_de_l_agent_pour_l_eleveur(client, monde):
     page = client.get(f'/bandes/{b.numero}').get_data(as_text=True)
     assert "Saisir pour l'éleveur" in page
     assert 'Envoyer' in client.get(f'/bandes/{b.numero}/saisir').get_data(as_text=True)
-    client.post(f'/bandes/{b.numero}/saisie', data={'morts': 2})
+    client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': 2})
     s = SaisieJour.query.one()
     assert s.saisi_par_agent and s.cree_par == monde['agent'].id
     j = JournalAudit.query.filter_by(action='POUR_ELEVEUR').order_by(JournalAudit.id.desc()).first()
@@ -353,7 +353,7 @@ def test_cloture_par_l_eleveur_a_zero_et_lecture_seule(client, monde):
     assert b.statut == StatutBande.CLOTUREE and b.bilan['sortis'] == 10
     page = client.get('/saisie-du-jour').get_data(as_text=True)      # lot 11 : plus de bande, page simple
     assert 'Aucune bande en cours' in page and 'poulet-dort' in page and 'Mes bandes' in page
-    assert client.post(f'/bandes/{b.numero}/saisie', data={'morts': 1}).status_code == 403
+    assert client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': 1}).status_code == 403
     assert client.get(f'/bandes/{b.numero}/bilan').status_code == 200
 
 
@@ -362,9 +362,9 @@ def test_cloture_par_l_agent_avec_motif_et_correction(client, monde):
     db.session.add(SaisieJour(bande=b, date=AUJ, morts=50))
     db.session.commit()
     connecter(client, 'agent1')
-    r = client.post(f'/bandes/{b.numero}/corriger/saisie/{AUJ.isoformat()}', data={'morts': '5'})
+    r = client.post(f'/bandes/{b.numero}/corriger/saisie/{AUJ.isoformat()}', data={'sacs': '0', 'morts': '5'})
     assert 'motif' in r.get_data(as_text=True)
-    client.post(f'/bandes/{b.numero}/corriger/saisie/{AUJ.isoformat()}', data={'morts': '5', 'motif': 'faute de frappe'})
+    client.post(f'/bandes/{b.numero}/corriger/saisie/{AUJ.isoformat()}', data={'sacs': '0', 'morts': '5', 'motif': 'faute de frappe'})
     assert SaisieJour.query.one().morts == 5
     assert JournalAudit.query.filter_by(action='CORRECTION').count() == 1
     r = client.post(f'/bandes/{b.numero}/cloturer', follow_redirects=True)
@@ -376,7 +376,7 @@ def test_cloture_par_l_agent_avec_motif_et_correction(client, monde):
     client.post('/auth/deconnexion')
     creer_utilisateur('admin', Profil.ADMIN)
     connecter(client, 'admin')
-    client.post(f'/bandes/{b.numero}/corriger/saisie/{AUJ.isoformat()}', data={'morts': '7', 'motif': 'recompté'})
+    client.post(f'/bandes/{b.numero}/corriger/saisie/{AUJ.isoformat()}', data={'sacs': '0', 'morts': '7', 'motif': 'recompté'})
     db.session.refresh(b)
     assert b.bilan['morts'] == 7   # bilan recalculé après la correction de l'ADMIN
 
@@ -390,7 +390,7 @@ def test_cloisonnement(client, monde):
     assert b.numero in client.get('/bandes/').get_data(as_text=True)
     fiche = client.get(f'/bandes/{b.numero}').get_data(as_text=True)
     assert 'Clôturer' not in fiche and 'Saisir pour' not in fiche
-    assert client.post(f'/bandes/{b.numero}/saisie', data={'morts': 1}).status_code == 403
+    assert client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': 1}).status_code == 403
     client.post('/auth/deconnexion')
     connecter(client, 'agent2')
     assert client.get(f'/bandes/{b.numero}').status_code == 403
@@ -406,4 +406,4 @@ def test_cloisonnement(client, monde):
     creer_utilisateur('dge', Profil.DGE)
     connecter(client, 'dge')
     fiche = client.get(f'/bandes/{b.numero}').get_data(as_text=True)
-    assert 'Clôturer' not in fiche and client.post(f'/bandes/{b.numero}/saisie', data={'morts': 1}).status_code == 403
+    assert 'Clôturer' not in fiche and client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': 1}).status_code == 403

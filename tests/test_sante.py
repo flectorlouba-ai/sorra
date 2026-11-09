@@ -134,10 +134,10 @@ def test_feu_rouge_cree_une_seule_alerte(client, monde):
         db.session.add(SaisieJour(bande=b, date=b.date_mise_en_place + timedelta(days=i), morts=1))
     db.session.commit()
     connecter(client, 'eleveur1')
-    client.post(f'/bandes/{b.numero}/saisie', data={'morts': '15'})
+    client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': '15'})
     a = AlerteSanitaire.query.one()
     assert a.origine == 'FEU_ROUGE' and a.bande_id == b.id and '15 morts' in a.historique[0].commentaire
-    client.post(f'/bandes/{b.numero}/saisie', data={'morts': '5', 'ajouter': '1'})
+    client.post(f'/bandes/{b.numero}/saisie', data={'sacs': '0', 'morts': '5', 'ajouter': '1'})
     assert AlerteSanitaire.query.count() == 1
 
 

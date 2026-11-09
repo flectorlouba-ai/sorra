@@ -65,6 +65,7 @@ def create_app(env='default'):
     from app.routes.eleveur import eleveur_bp
     from app.routes.entretien import entretien_bp
     from app.routes.argent import argent_bp
+    from app.routes.visites import visites_bp
 
     app.register_blueprint(auth_bp,          url_prefix='/auth')
     app.register_blueprint(accueil_bp)
@@ -91,6 +92,7 @@ def create_app(env='default'):
     # Entretien simple des installations (lot 10)
     app.register_blueprint(entretien_bp)
     app.register_blueprint(argent_bp)
+    app.register_blueprint(visites_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
@@ -130,7 +132,13 @@ def create_app(env='default'):
             # En-tête de l'éleveur (lot 11) : son agent, s'il a un téléphone
             from app.routes.eleveur import _fermes
             return next((f.agent for f in _fermes() if f.agent and f.agent.telephone), None) if eleveur else None
-        return {'theme_eleveur': eleveur, 'bandes_eleveur': bandes_eleveur, 'agent_eleveur': agent_eleveur}
+        def visites_nouvelles():
+            # Pastille « nouveau » sur 👤 Moi (lot 12) : compte rendu de visite pas encore ouvert
+            from app.routes.eleveur import _fermes
+            from app.services import visites
+            return visites.nouvelles([f.id for f in _fermes()]) if eleveur else 0
+        return {'theme_eleveur': eleveur, 'bandes_eleveur': bandes_eleveur, 'agent_eleveur': agent_eleveur,
+                'visites_nouvelles': visites_nouvelles}
 
     _installer_controles_session(app)
     _installer_erreurs(app)

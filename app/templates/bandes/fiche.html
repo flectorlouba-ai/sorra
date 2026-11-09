@@ -4,7 +4,7 @@
 {% block icone %}collection{% endblock %}
 {% block page_titre %}Bande <span class="mono">{{ bande.numero }}</span> · Jour {{ v.age }}
   <span class="badge {{ 'badge-info' if bande.en_cours else 'badge-off' }}">{{ bande.libelle_statut }}</span>{% endblock %}
-{% block page_sous_titre %}{{ bande.ferme.nom }} ({{ bande.ferme.numero }}) · Bâtiment {{ bande.batiment.code }} · ouverte le {{ bande.date_mise_en_place.strftime('%d/%m/%Y') }}{% if bande.rattrapage %} · rattrapage{% endif %}{% endblock %}
+{% block page_sous_titre %}{{ bande.ferme.nom }} ({{ bande.ferme.numero }}) · Bâtiment {{ bande.batiment.code }} · ouverte le {{ bande.date_mise_en_place.strftime('%d/%m/%Y') }}{% if bande.rattrapage %} · rattrapage{% endif %}{% if bande.a_verifier %} · <a class="a-verifier" href="{{ url_for('hors_ligne.conflits') }}">à vérifier</a>{% endif %}{% endblock %}
 
 {% block actions %}
 {% if peut_saisir and current_user.profil.value == 'AGENT' %}
@@ -29,13 +29,15 @@
   <div class="carte-chiffre"><div class="cc-libelle">Poulets présents</div><div class="cc-valeur">{{ v.effectif_present|qte }}</div>
     <div class="cc-sous">sur {{ bande.effectif_initial|qte }} mis en place</div></div>
   <div class="carte-chiffre"><div class="cc-libelle">Mortalité</div><div class="cc-valeur">{{ (v.mortalite or 0)|round(2)|qte }} %</div>
-    <div class="cc-sous">viabilité {{ (v.viabilite or 0)|round(2)|qte }} % · {{ v.morts_cumules|qte }} morts</div></div>
+    <div class="cc-sous">viabilité {{ (v.viabilite or 0)|round(2)|qte }} % · {{ v.morts_cumules|qte }} morts
+      {% if v.incomplet %}<br><span class="a-verifier">incomplet : {{ v.jours_non_saisis }} jour{{ 's' if v.jours_non_saisis > 1 }} non saisi{{ 's' if v.jours_non_saisis > 1 }}</span>{% endif %}</div></div>
   <div class="carte-chiffre"><div class="cc-libelle">Croissance</div>
     <div class="cc-valeur">{% if v.gmq is not none %}{{ v.gmq|round(1)|qte }} g/j{% else %}—{% endif %}</div>
     <div class="cc-sous">{% if v.poids_moyen_g %}poids moyen {{ v.poids_moyen_g|round|qte }} g{% else %}pas encore de pesée{% endif %}</div></div>
   <div class="carte-chiffre"><div class="cc-libelle">Indice de consommation</div>
     <div class="cc-valeur">{% if v.indice_consommation is not none and v.indice_consommation > 0 %}{{ v.indice_consommation|round(2)|qte }}{% else %}—{% endif %}</div>
-    <div class="cc-sous">{% if v.poids_vif_produit %}{{ v.poids_vif_produit|round(1)|qte }} kg de poids vif produit{% else %}pesée nécessaire{% endif %}</div></div>
+    <div class="cc-sous">{% if v.poids_vif_produit %}{{ v.poids_vif_produit|round(1)|qte }} kg de poids vif produit{% else %}pesée nécessaire{% endif %}
+      {% if v.incomplet %}<br><span class="a-verifier">incomplet</span>{% endif %}</div></div>
 </div>
 
 <div class="row g-3">

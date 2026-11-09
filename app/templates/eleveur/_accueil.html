@@ -16,6 +16,8 @@
     <div><strong>{{ e.etat }}</strong>
       {% if e.situation %}<small>{% for s in e.situation %}{{ s.code }} jour {{ s.age }}{{ ' · ' if not loop.last }}{% endfor %}</small>{% endif %}</div>
   </div>
+  {% if e.reponse_veto %}<a class="ligne-info ligne-reponse" href="{{ url_for('sante.mes_declarations') }}" data-ligne="reponse"><span>💬 Le vétérinaire vous a répondu</span><span>→</span></a>{% endif %}
+  {% if e.visite %}<div class="ligne-info" data-ligne="visite"><span>📅 Visite de {{ e.visite.qui }} {{ e.visite.quand }}</span><span class="ligne-info-sous">{{ e.visite.objet|lower }}</span></div>{% endif %}
 
   {% set reste = e.saisie.a_saisir %}
   <a class="tuile tuile-saisie{{ ' tuile-calme' if not reste }}" href="{{ url_for('eleveur.saisie') }}" data-tuile="saisie">

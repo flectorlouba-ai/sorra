@@ -36,6 +36,8 @@
   <div class="carte-chiffre"><div class="cc-libelle">Poulets sortis</div><div class="cc-valeur">{{ t.sortis_tetes|qte }}</div><div class="cc-sous">{{ t.sortis_kg|round|qte }} kg · {{ (t.sortis_kg / 1000)|round(2)|qte }} t</div></div>
   <div class="carte-chiffre"><div class="cc-libelle">Aliment consommé</div><div class="cc-valeur">{{ (t.aliment_kg / 1000)|round(2)|qte }} t</div><div class="cc-sous">{{ t.aliment_kg|round|qte }} kg</div></div>
   <div class="carte-chiffre"><div class="cc-libelle">Régularité des saisies</div><div class="cc-valeur">{{ t.regularite|round|qte if t.regularite is not none else '—' }} %</div><div class="cc-sous">{{ alertes }} alerte{{ 's' if alertes != 1 }} sanitaire{{ 's' if alertes != 1 }} en cours</div></div>
+  <div class="carte-chiffre" id="incomplets"><div class="cc-libelle">Jours non saisis</div><div class="cc-valeur">{{ t.jours_non_saisis|qte }}</div>
+    <div class="cc-sous">jamais comptés comme 0 · mortalité et IC incomplets pour {{ t.bandes_incompletes }} bande{{ 's' if t.bandes_incompletes != 1 }} sur {{ t.bandes }}</div></div>
 </div>
 
 {% if d.par_province and (national or d.par_province|length > 1) %}
