@@ -9,7 +9,7 @@
 set -euo pipefail
 HOTE=${VPS_HOTE:-root@187.124.217.218}
 CLE=${VPS_SSH_KEY:-$HOME/.ssh/perform_yl_ed25519}
-SSH=(ssh -i "$CLE" -o BatchMode=yes "$HOTE")
+SSH=(ssh -i "$CLE" -o BatchMode=yes -o ConnectTimeout=15 "$HOTE")
 cd "$(git rev-parse --show-toplevel)"
 
 [ "$(git branch --show-current)" = main ] || { echo "Déploiement refusé : se placer sur main."; exit 1; }
@@ -34,7 +34,7 @@ set +e
 LUS=0
 while true; do
   sleep 10
-  ETAT=$("${SSH[@]}" -o ConnectTimeout=15 "tail -n +$((LUS + 1)) '$JOURNAL'; echo '@@'; wc -l < '$JOURNAL'; kill -0 \$(cat '$JOURNAL.pid') 2>/dev/null && echo encours || echo fini" 2>/dev/null) || { echo '  (réseau coupé : le déploiement continue sur le serveur, nouvel essai…)'; continue; }
+  ETAT=$("${SSH[@]}" "tail -n +$((LUS + 1)) '$JOURNAL'; echo '@@'; wc -l < '$JOURNAL'; kill -0 \$(cat '$JOURNAL.pid') 2>/dev/null && echo encours || echo fini" 2>/dev/null) || { echo '  (réseau coupé : le déploiement continue sur le serveur, nouvel essai…)'; continue; }
   printf '%s\n' "${ETAT%%@@*}" | sed '/^$/d'
   LUS=$(printf '%s\n' "${ETAT##*@@}" | sed -n '2p')
   printf '%s\n' "$ETAT" | tail -n 1 | grep -q fini && break
