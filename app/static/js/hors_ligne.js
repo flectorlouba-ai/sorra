@@ -179,6 +179,9 @@
                 if (rep.etat === 'connexion') { arret = 'Reconnectez-vous pour envoyer les saisies gardées.'; return; }
                 if (rep.etat === 'refuse') refus.push(e.libelle + ' : ' + rep.message);
                 else { envoyees += 1; libelles.push(e.libelle); }
+                // Le serveur a répondu (reçu, déjà reçu ou refusé) : la saisie est effacée du téléphone tout de
+                // suite, avec tout ce qu'elle contient (mot de passe provisoire d'un nouvel éleveur compris).
+                // Elle n'est gardée que si elle n'est pas arrivée (réseau coupé, reconnexion demandée).
                 return retirer(e.id);
               }, function () { arret = 'Réseau coupé : nouvel essai bientôt.'; });
             });
