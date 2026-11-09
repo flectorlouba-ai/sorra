@@ -109,7 +109,7 @@
 | Entretien → C'est réparé | 2 | oui |
 | 👤 Moi → Mes visites | 2 | oui |
 | 👤 Moi → Mon compte → Enregistrer mon téléphone | 3 | oui |
-| 👤 Moi → Mon compte → Changer mon mot de passe → Enregistrer | 4 | **non** (voir ci-dessous) |
+| 👤 Moi → Mon compte → Changer mon mot de passe → Enregistrer | 4 | exception validée (action rare et sensible) |
 | 👤 Moi → Ma banque → J'accepte | 3 | oui |
 | 👤 Moi → Ma banque → Retirer mon accord → Oui, retirer | 4 | exception validée |
 | 👤 Moi → Comment faire ? → une aide | 3 | oui |
@@ -118,11 +118,11 @@
 | 📞 Appeler l'agent | 1 | oui |
 | Annuler (10) après une saisie | 1 | oui |
 
-**Un écart restant, à trancher par vous** : changer son mot de passe depuis « Moi » fait 4 clics (Moi → Mon compte → Changer mon mot de passe → Enregistrer). C'est une action rare. Deux choix :
+**Écart tranché après le lot (option 1)** : changer son mot de passe depuis « Moi » fait 4 clics (Moi → Mon compte → Changer mon mot de passe → Enregistrer). Il est ajouté à l'exception « action rare et sensible » de `docs/ergonomie.md`, avec le retrait du consentement ; l'écran Mon compte ne change pas. Les deux choix proposés étaient :
 - l'ajouter à l'exception « action rare et sensible » ;
 - ou mettre le formulaire du mot de passe directement dans « Mon compte » (3 clics).
 
-Je ne l'ai pas changé sans votre accord.
+
 
 **Autres constats :** aucun mot technique visible sur les 47 pages. Toutes tiennent à 360 px. Aucune erreur JavaScript.
 
@@ -153,7 +153,7 @@ Je ne l'ai pas changé sans votre accord.
 ## Liste de contrôle d'ergonomie
 
 - [x] **Un seul bouton mis en avant** : Suivant, Enregistrer mon téléphone, J'accepte, Oui, retirer.
-- [x] **3 clics au plus**, sauf le retrait du consentement (exception validée) et le mot de passe (à trancher, voir ci-dessus).
+- [x] **3 clics au plus**, sauf le retrait du consentement et le changement de mot de passe (exception « action rare et sensible », validée).
 - [x] **Rien d'inutile** : « Ma banque » seulement pour le responsable d'une ferme financée ; « ? » seulement chez l'éleveur.
 - [x] **Aucun mot technique**.
 - [x] **360 px**, boutons ≥ 44 px, textes ≥ 12 px, contrastes AA : contrôle automatique sur les 47 pages.
@@ -190,5 +190,4 @@ Base de démonstration : `http://127.0.0.1:5020`, mot de passe `Demo-yl2-2026`.
 ## Points à valider
 
 - **Textes du tutoriel, des 9 aides et de « Ma banque »** : à faire relire (`docs/a_faire_valider.md`). Le texte de « Ma banque » est aussi à faire valider par la BCEG.
-- **Mot de passe à 4 clics** : l'ajouter à l'exception, ou le mettre dans Mon compte (voir la partie E).
 - **Le test terrain** avec 3 à 5 éleveurs, avant de figer l'interface de l'éleveur (c'était le dernier gros lot de cette interface).

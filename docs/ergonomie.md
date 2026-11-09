@@ -40,7 +40,9 @@ Le lot de réalisation est indiqué entre parenthèses.
 
 - **Une seule action principale par écran** : un seul bouton mis en avant.
 - **Trois clics maximum** pour toute action courante. **Comptent** comme clics : ouvrir un écran, et valider (Envoyer, Enregistrer, C'est fait, Tout reçu…). **Ne comptent pas** : les choix faits dans le même écran (bâtiment, produit, signe, catégorie, type de sortie) et les + / − des compteurs (règle précisée au lot 11).
-  **Exception validée (lot 13)** : « Retirer mon accord » à la BCEG demande 4 touchers (Moi → Ma banque → Retirer mon accord → Oui, retirer). C'est une action rare et sensible : la confirmation est obligatoire.
+  **Exception « action rare et sensible » (validée au lot 13)** : deux actions peuvent demander 4 touchers.
+  - « Retirer mon accord » à la BCEG : Moi → Ma banque → Retirer mon accord → Oui, retirer. La confirmation est obligatoire.
+  - « Changer son mot de passe » : Moi → Mon compte → Changer mon mot de passe → Enregistrer. L'écran reste séparé de Mon compte (ancien mot de passe, nouveau deux fois, règles en clair).
 - **Chacun ne voit que ce qu'il a le droit de faire** : pas de bouton grisé, pas de tuile inutile.
 - **Mots simples, aucun terme technique** à l'écran (pas d'UUID, de synchro, d'enregistrement…).
 - **Les fonctions techniques restent invisibles** (journal, numérotation, hors ligne) : l'utilisateur n'en voit que le résultat.
