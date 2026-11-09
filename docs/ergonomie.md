@@ -40,6 +40,7 @@ Le lot de réalisation est indiqué entre parenthèses.
 
 - **Une seule action principale par écran** : un seul bouton mis en avant.
 - **Trois clics maximum** pour toute action courante. **Comptent** comme clics : ouvrir un écran, et valider (Envoyer, Enregistrer, C'est fait, Tout reçu…). **Ne comptent pas** : les choix faits dans le même écran (bâtiment, produit, signe, catégorie, type de sortie) et les + / − des compteurs (règle précisée au lot 11).
+  **Exception validée (lot 13)** : « Retirer mon accord » à la BCEG demande 4 touchers (Moi → Ma banque → Retirer mon accord → Oui, retirer). C'est une action rare et sensible : la confirmation est obligatoire.
 - **Chacun ne voit que ce qu'il a le droit de faire** : pas de bouton grisé, pas de tuile inutile.
 - **Mots simples, aucun terme technique** à l'écran (pas d'UUID, de synchro, d'enregistrement…).
 - **Les fonctions techniques restent invisibles** (journal, numérotation, hors ligne) : l'utilisateur n'en voit que le résultat.
@@ -313,6 +314,32 @@ La saisie du jour reste à **2 clics**.
 | Agent | fiche ferme → Planifier une visite → Enregistrer | 2 |
 | Agent | fiche ferme → Compte rendu → Enregistrer | 2 |
 | Agent | Alertes → Saisies à vérifier → Retenir cette version | 2 |
+
+### Tutoriel, aides, Mon compte, Ma banque (lot 13)
+
+- **Tutoriel** : 4 écrans au premier lancement, une fois par compte (gardé sur le serveur). « Suivant » et « Passer » sur chaque écran. On le revoit depuis 👤 Moi → « 🎬 Revoir la présentation ». Le prénom affiché est celui de l'agent réellement affecté. Sans agent ou sans téléphone d'agent, pas de bouton 📞.
+- **« ? »** : un bouton rond de 44 px en haut des 9 écrans principaux (saisie du jour, sortie, pesée, vaccin, poulet malade, achat, dépense, entretien, Mon argent).
+  - 1 toucher ouvre **l'aide de cet écran** : 3 étapes au plus, chacune avec le vrai bouton reproduit en petit ; « ‹ Retour » ramène à l'écran.
+  - La liste complète est dans 👤 Moi → « ❓ Comment faire ? ». Les aides marchent sans réseau.
+  - Les textes se modifient dans Configuration → Aides (ADMIN), et chaque modification est inscrite au journal.
+  - Le « ? » n'est montré qu'à l'éleveur.
+- **Mon compte** :
+  - affiché en gros : nom, téléphone, fermes et bâtiments, agent 📞, vétérinaires de la zone. Au-delà de 3 vétérinaires, d'abord ceux qui ont répondu à l'éleveur, puis « Voir les autres » ;
+  - **seuls le téléphone et le mot de passe** se modifient. Pour le reste : « Pour changer cela, appelez Paul » ;
+  - les règles du mot de passe sont affichées en clair.
+- **Me déconnecter** : s'il reste des saisies gardées sans réseau, un avertissement s'affiche (« 1 saisie n'est pas encore partie… Elle partira quand vous vous reconnecterez ») et il faut un second toucher. Les saisies ne sont **jamais effacées**. Elles gardent leur auteur et ne partent **jamais** sous le compte d'une autre personne connectée sur le même téléphone.
+- **Ma banque** (consentement BCEG) :
+  - seulement pour le **responsable** d'une ferme **financée par la BCEG** (case et responsable sur la fiche ferme, réglés par l'agent ou l'ADMIN). Sinon, rien ne s'affiche ;
+  - ce que la BCEG verra (ventes, dépenses, marge, régularité) et ne verra pas ; « J'accepte » ou « Je refuse » ; « Retirer mon accord » avec confirmation ;
+  - historique daté, inscrit au journal ;
+  - un changement de responsable fait tomber l'accord, et le nouveau doit répondre (pastille sur Moi).
+
+### Contrôle de l'interface de l'éleveur (lot 13)
+
+- **Contrastes (WCAG AA)** : 4,5 pour le texte courant, 3 pour le gros texte gras. Couleurs de texte : `--e-gris` #5c6683 (5,4 sur crème), `--e-orange-fonce` #a8520f pour « attention » en texte (5,4), `--e-prairie-fonce` #17734a (5,2 sur vert pâle), et le bleu foncé de la charte pour les liens.
+  - **Pastilles orange** : fond orange, texte bleu nuit (5,4). Elles restent distinctes des pastilles rouges, où le texte est blanc : l'orange reste « attention », le rouge « alerte ».
+- **Tailles** : textes de 12 px (0,75 rem) au moins, boutons et cases de 44 px de haut au moins. C'est vérifié par un contrôle automatique au navigateur sur toutes les pages de l'éleveur (rapport du lot 13).
+- **Sans réseau** : toutes les pages de l'éleveur viennent d'**une seule liste** (`routes/hors_ligne.PAGES_ELEVEUR`, servie par `/hors-ligne/pages`). Le téléphone la garde à chaque ouverture de l'accueil. Un test vérifie qu'aucune page de l'éleveur n'y manque.
 
 ## Liste de contrôle d'un écran (à cocher dans chaque rapport de lot)
 

@@ -180,10 +180,9 @@ def test_entete_agent_et_moi(client, monde):
     assert 'Appeler Paul' not in client.get('/').get_data(as_text=True)  # plus de tuile « Appeler »
     page = client.get('/moi').get_data(as_text=True)
     assert 'Ma ferme' in page and 'Ferme Un' in page and '2 300 places' in page
-    for cle in ('compte', 'bceg', 'aide', 'quitter'):
+    for cle in ('visites', 'compte', 'aide', 'presentation', 'quitter'):
         assert f'data-moi="{cle}"' in page
-    assert 'Bientôt disponible' in client.get('/bientot/bceg').get_data(as_text=True)
-    assert 'Bientôt disponible' in client.get('/bientot/aide').get_data(as_text=True)
+    assert 'data-moi="banque"' not in page                              # ferme non financée : rien (lot 13)
     # 👤 Moi → Se déconnecter : 2
     client.post('/auth/deconnexion')
     assert client.get('/moi').status_code == 302

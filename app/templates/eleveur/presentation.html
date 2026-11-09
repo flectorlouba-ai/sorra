@@ -1,0 +1,62 @@
+{% extends '_base.html' %}
+{% block titre %}Bienvenue{% endblock %}
+{% block icone %}stars{% endblock %}
+{% block page_titre %}Bienvenue sur SORRA{% endblock %}
+
+{% block contenu %}
+{# Lot 13 : 4 écrans dans une seule page (gardée par le téléphone : marche sans réseau).
+   « Passer » ou « C'est parti ! » : vue une fois pour ce compte, gardé sur le serveur. #}
+{% set prenom = (agent.prenom or agent.nom) if agent else None %}
+<div class="presentation" id="presentation">
+  {% set ecrans = [
+    ('content', 'Chaque jour, notez vos morts et votre aliment.', 'saisie'),
+    ('inquiet', 'Un problème avec vos poulets ? Prévenez le vétérinaire.', 'malade'),
+    ('dort', 'Pas de réseau ? Saisissez quand même : tout part quand le réseau revient.', 'reseau'),
+    ('content', ('Votre agent ' ~ prenom ~ ' est là pour vous aider.') if prenom else 'Votre agent technique est là pour vous aider.', 'agent'),
+  ] %}
+  {% for expr, phrase, illu in ecrans %}
+  <section class="pres-ecran" data-ecran="{{ loop.index }}"{% if not loop.first %} hidden{% endif %}>
+    <div class="pres-points" aria-hidden="true">{% for _ in ecrans %}<span></span>{% endfor %}</div>
+    <div class="pres-mascotte">{{ poulet(expr, taille=130) }}</div>
+    <div class="pres-phrase">{{ phrase }}</div>
+    <div class="pres-illu">
+      {% if illu == 'saisie' %}<span class="mini-bouton vert">✏️ Saisie du jour</span> → <span class="mini-bouton vert">Envoyer ✓</span><small>2 touchers</small>
+      {% elif illu == 'malade' %}<span class="mini-bouton rose">🩺 Poulet malade</span>
+      {% elif illu == 'reseau' %}<span class="mini-bouton jaune">◷ en attente</span> → <span class="mini-bouton case">✓ envoyé</span>
+      {% elif agent and agent.telephone %}<a class="mini-bouton case appel" href="tel:{{ agent.telephone|replace(' ', '') }}">📞 Appeler {{ prenom }}</a>{% endif %}
+    </div>
+    {% if not loop.last %}
+    <button type="button" class="btn-gros btn-vert pres-suivant">Suivant</button>
+    {% else %}
+    <form method="post" action="{{ url_for('eleveur.presentation_vue') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn-gros btn-vert" data-fin="1">C'est parti !</button>
+    </form>
+    {% endif %}
+    <form method="post" action="{{ url_for('eleveur.presentation_vue') }}" class="pres-passer">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="lien-discret" data-passer="1">Passer</button>
+    </form>
+  </section>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var ecrans = document.querySelectorAll('.pres-ecran');
+  function montrer(n) {
+    ecrans.forEach(function (e, i) {
+      e.hidden = i !== n;
+      e.querySelectorAll('.pres-points span').forEach(function (p, j) { p.classList.toggle('on', j === n); });
+    });
+  }
+  ecrans.forEach(function (e, i) {
+    var b = e.querySelector('.pres-suivant');
+    if (b) b.addEventListener('click', function () { montrer(i + 1); });
+  });
+  montrer(0);
+})();
+</script>
+{% endblock %}

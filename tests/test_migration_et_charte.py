@@ -132,5 +132,6 @@ def test_couleurs_eleveur_uniquement_dans_root():
     fin = texte.index('}', debut)
     assert re.findall(r'#[0-9a-fA-F]{3,6}\b', texte[:debut] + texte[fin:]) == []
     for nom in ('--e-nuit:#1b2a5e', '--e-bleu:#2a7de1', '--e-soleil:#f7c948', '--e-prairie:#2fa36b',
-                '--e-orange:#f08a24', '--e-rouge:#e5484d', '--e-creme:#fbf8f2', '--e-gris:#6b7594', '--e-trait:#edf0f6'):
+                '--e-orange:#f08a24', '--e-rouge:#e5484d', '--e-creme:#fbf8f2', '--e-gris:#5c6683', '--e-trait:#edf0f6',
+                '--e-orange-fonce:#a8520f'):   # lot 13 : contrastes
         assert nom in texte[debut:fin], nom

@@ -1,6 +1,6 @@
 """Accueil — repris de l'accueil de PERFORM YL.1 : onglets par module, tuiles,
 encadré Alertes (maquette A, docs/maquettes/maquettes_lot1.md)."""
-from flask import Blueprint, render_template, url_for, session
+from flask import Blueprint, render_template, url_for, session, redirect
 from flask_login import login_required, current_user
 
 from app import indicateurs
@@ -30,6 +30,7 @@ MODULES = [
         ('Catalogue des intrants', 'Produits, unités, sacs', 'box-seam', 'catalogue.index', {A}),
         ('Formules des indicateurs', 'Mortalité, GMQ, IC…', 'calculator', 'pilotage.formules', {A}),
         ("Tâches d'entretien", 'Abreuvoirs, litière, désinfection…', 'tools', 'entretien.taches', {A}),
+        ('Aides', '« Comment faire ? » de l\'éleveur', 'question-circle', 'aides.administrer', {A}),
     ]},
     {'code': 'fermes', 'titre': 'Fermes et élevage', 'icone': 'egg', 'option': False, 'tuiles': [
         ('Fermes', 'Fiches, bâtiments, GPS', 'house-door', 'fermes.liste',
@@ -277,6 +278,8 @@ def _bandeau_annulation(user):
 @login_required
 def index():
     if current_user.profil == Profil.ELEVEUR:
+        if current_user.presentation_vue_le is None:          # lot 13 : une fois par compte
+            return redirect(url_for('eleveur.presentation'))
         from app.routes.eleveur import accueil as accueil_eleveur, bandeau_vaccin
         return render_template('accueil.html', eleveur=True, onglets=[], e=accueil_eleveur(current_user),
                                bandeau_vaccin=bandeau_vaccin(current_user))

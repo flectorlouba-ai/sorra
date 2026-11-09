@@ -1,0 +1,30 @@
+{% extends '_base.html' %}
+{% block titre %}Ma banque{% endblock %}
+{% block icone %}bank{% endblock %}
+{% block page_titre %}🏦 Ma banque{% endblock %}
+
+{% block contenu %}
+{% for f, d in etats %}
+{% if etats|length > 1 %}<div class="carte-jour">{{ f.nom }}</div>{% endif %}
+<div class="carte banque-voit">
+  <div class="carte-phrase">La BCEG finance votre ferme.</div>
+  <div>Si vous êtes d'accord, elle pourra voir :</div>
+  <ul class="liste-voit"><li>✓ vos ventes</li><li>✓ vos dépenses</li><li>✓ ce qui vous reste</li><li>✓ si vous notez chaque jour</li></ul>
+</div>
+<div class="carte banque-voit">
+  <strong>Elle ne verra rien d'autre</strong> : ni vos poulets malades, ni vos visites, ni vos messages.
+  <div class="carte-sous">Vous pouvez changer d'avis à tout moment.</div>
+</div>
+{% if d and d.decision == 'ACCEPTE' %}
+<div class="etat-banque ok" data-banque="accepte">✓ Vous avez accepté le {{ d.cree_le|date_locale('%d/%m/%Y') }}.</div>
+<a class="btn-gros-secondaire" href="{{ url_for('eleveur.retirer_banque', numero=f.numero) }}" data-banque="retirer">Retirer mon accord</a>
+{% else %}
+{% if d and d.decision in ('REFUSE', 'RETIRE') %}<div class="etat-banque" data-banque="{{ d.decision|lower }}">{{ 'Vous avez refusé' if d.decision == 'REFUSE' else 'Vous avez retiré votre accord' }} le {{ d.cree_le|date_locale('%d/%m/%Y') }}. La BCEG ne voit pas vos chiffres.</div>{% endif %}
+<form method="post" action="{{ url_for('eleveur.repondre_banque', numero=f.numero) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" name="decision" value="ACCEPTE" class="btn-gros btn-vert">J'accepte</button>
+  {% if not d or d.decision == 'CADUC' %}<button type="submit" name="decision" value="REFUSE" class="btn-gros-secondaire mt-2">Je refuse</button>{% endif %}
+</form>
+{% endif %}
+{% endfor %}
+{% endblock %}

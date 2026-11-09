@@ -53,10 +53,13 @@
         <div class="page-sub">{% block page_sous_titre %}{% endblock %}</div>
       </div>
     </div>
-    <div class="page-actions">{% block actions %}{% endblock %}</div>
+    <div class="page-actions">{% block actions %}{% endblock %}
+      {% set cle_aide = self.aide()|trim %}
+      {% if aide_active(cle_aide) %}<a class="btn-aide" href="{{ url_for('aides.aide', cle=cle_aide, retour=request.path) }}" aria-label="Comment faire ?" title="Comment faire ?" data-aide="{{ cle_aide }}">?</a>{% endif %}
+    </div>
   </div>
 
-  {% block pastilles %}{% endblock %}
+  {% block pastilles %}{% endblock %}{% if false %}{% block aide %}{% endblock %}{% endif %}
 
   {% block contenu %}{% endblock %}
 </div>

@@ -1,0 +1,13 @@
+{% extends '_base.html' %}
+{% block titre %}Comment faire ?{% endblock %}
+{% block icone %}question-circle{% endblock %}
+{% block page_titre %}❓ Comment faire ?{% endblock %}
+
+{% block contenu %}
+{% for groupe, aides in groupes %}
+<div class="form-label mt-2">{{ groupe }}</div>
+<div class="liens-moi">
+  {% for a in aides %}<a class="lien-moi" href="{{ url_for('aides.aide', cle=a.cle) }}" data-aide="{{ a.cle }}">{{ a.titre }}</a>{% endfor %}
+</div>
+{% endfor %}
+{% endblock %}

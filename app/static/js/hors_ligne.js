@@ -201,19 +201,21 @@
     if (anciens) anciens.remove();
   }
 
-  // Pages utiles sans réseau : gardées par le service worker pendant qu'il y a du réseau
-  if (navigator.onLine && /^\/$/.test(location.pathname)) {
-    var vues = {};
-    document.querySelectorAll('a[href]').forEach(function (a) {
-      var u = new URL(a.href, location.href);
-      if (u.origin === location.origin && /^\/(bandes\/[^/]+\/(pesee|sortie)|sante\/declarer|livraisons\/[^/]+\/recu-moins|saisie-du-jour|aller\/[a-z]+|j-ai-achete|mon-stock|bandes\/mes-bandes|livraisons\/mes-livraisons)$/.test(u.pathname)) {
-        vues[u.pathname + u.search] = true;
-      }
-    });
+  // Pages utiles sans réseau (lot 13) : à chaque ouverture de l'accueil avec du réseau, le
+  // téléphone garde TOUTES les pages de l'éleveur (liste unique du serveur : /hors-ligne/pages)
+  if (navigator.onLine && /^\/$/.test(location.pathname) && corps.classList.contains('theme-eleveur')) {
     setTimeout(function () {
-      Object.keys(vues).forEach(function (u) { fetch(u, {credentials: 'same-origin'}).catch(function () {}); });
+      fetch('/hors-ligne/pages', {credentials: 'same-origin', cache: 'no-store'})
+        .then(function (r) { return r.ok ? r.json() : {pages: []}; })
+        .then(function (j) {
+          (j.pages || []).forEach(function (u) { fetch(u, {credentials: 'same-origin'}).catch(function () {}); });
+        }).catch(function () {});
     }, 1500);
   }
+
+  // Saisies en attente de CET utilisateur (lot 13) : « Me déconnecter » avertit avant de sortir.
+  // Elles gardent leur auteur et ne partent jamais sous le compte d'une autre personne.
+  window.sorraEnAttente = function () { return toutes().then(function (l) { return l.length; }); };
 
   window.addEventListener('online', function () { envoyer(); });
   window.addEventListener('offline', function () { toutes().then(function (l) { afficher(l); }); });

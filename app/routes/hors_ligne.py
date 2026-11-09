@@ -59,6 +59,42 @@ def jeton():
     return jsonify(etat='ok', jeton=generate_csrf(), utilisateur=current_user.identifiant)
 
 
+# Lot 13 : toutes les pages de l'éleveur sont gardées par le téléphone (service worker) à chaque
+# ouverture de l'accueil avec du réseau. Une seule liste, vérifiée par tests/test_pages_hors_ligne.py.
+PAGES_ELEVEUR = ['accueil.index', 'eleveur.saisie', 'eleveur.ma_bande', 'eleveur.soins', 'eleveur.produits',
+                 'argent.mon_argent', 'argent.payer', 'eleveur.achat', 'eleveur.stock', 'livraisons.mes_livraisons',
+                 'bandes.mes_bandes', 'bandes.ouvrir', 'entretien.ecran', 'entretien.panne', 'eleveur.moi',
+                 'eleveur.mon_compte', 'visites.mes_visites', 'sante.mes_declarations', 'eleveur.presentation',
+                 'aides.liste', 'auth.mot_de_passe']
+ALLER = ['peser', 'sortie', 'malade', 'traitement', 'vaccins']
+
+
+def pages_a_garder(user):
+    """Adresses des pages de l'éleveur : fixes, puis celles de ses bandes, livraisons et aides."""
+    from app.models import Livraison
+    from app.models.aide import Aide
+    from app.models.intrant import StatutLivraison
+    from app.routes.eleveur import bandes_en_cours
+    from app.services import bceg
+    pages = [url_for(e) for e in PAGES_ELEVEUR] + [url_for('eleveur.aller', quoi=q) for q in ALLER]
+    if bceg.fermes_du_responsable(user):
+        pages.append(url_for('eleveur.ma_banque'))
+    for b in bandes_en_cours():
+        pages += [url_for('bandes.pesee', numero=b.numero), url_for('bandes.sortie', numero=b.numero),
+                  url_for('sante.declarer', bande=b.numero), url_for('sante.traiter', numero=b.numero),
+                  url_for('bandes.oublie', numero=b.numero)]
+    for liv in filtre_perimetre(Livraison.query).filter(Livraison.statut == StatutLivraison.A_CONFIRMER):
+        pages.append(url_for('livraisons.recu_moins', numero=liv.numero))
+    pages += [url_for('aides.aide', cle=a.cle) for a in Aide.query.filter_by(actif=True)]
+    return list(dict.fromkeys(pages))
+
+
+@hors_ligne_bp.route('/hors-ligne/pages')
+@profil_requis(Profil.ELEVEUR)
+def pages():
+    return jsonify(pages=pages_a_garder(current_user))
+
+
 VERIFICATEURS = (Profil.AGENT, Profil.DGE, Profil.ADMIN)
 
 

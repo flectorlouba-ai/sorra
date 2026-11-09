@@ -2,4 +2,4 @@
    Mot de passe et déconnexion sont dans « Moi ». #}
 {% set agent = agent_eleveur() %}
 {% if agent %}<a href="tel:{{ agent.telephone|replace(' ', '') }}" class="btn-top btn-entete" data-entete="agent">📞 {{ agent.prenom or agent.nom }}</a>{% endif %}
-<a href="{{ url_for('eleveur.moi') }}" class="btn-top btn-entete" data-entete="moi">👤 Moi{% if visites_nouvelles() %} <span class="pastille-nouveau">nouveau</span>{% endif %}</a>
+<a href="{{ url_for('eleveur.moi') }}" class="btn-top btn-entete" data-entete="moi">👤 Moi{% if moi_nouveau() %} <span class="pastille-nouveau">nouveau</span>{% endif %}</a>

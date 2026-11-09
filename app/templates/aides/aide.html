@@ -1,0 +1,17 @@
+{% extends '_base.html' %}
+{% block titre %}{{ a.titre }}{% endblock %}
+{% block icone %}question-circle{% endblock %}
+{% block page_titre %}❓ {{ a.titre }}{% endblock %}
+
+{% block contenu %}
+{% if retour and retour.startswith('/') %}<a class="retour-ecran" href="{{ retour }}">‹ Retour</a>{% endif %}
+{% for e in a.etapes[:3] %}
+<div class="etape-aide">
+  <span class="etape-numero">{{ loop.index }}</span>
+  <div><strong>{{ e.texte }}</strong>
+    {% set c = captures.get(e.capture, ('', '')) %}
+    {% if c[0] %}<div class="mt-1"><span class="mini-bouton {{ c[1] }}">{{ c[0] }}</span></div>{% endif %}</div>
+</div>
+{% endfor %}
+<div class="carte-sous mt-2">Autre question ? 👤 Moi → <a href="{{ url_for('aides.liste') }}">Comment faire ?</a></div>
+{% endblock %}

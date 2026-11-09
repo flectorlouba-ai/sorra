@@ -1,11 +1,13 @@
 import os
+import uuid
 
 from flask import (Blueprint, render_template, request, redirect, url_for, flash, abort,
                    Response, session)
 from flask_login import current_user
 
 from app import db
-from app.models import Ferme, Province, Localite, Utilisateur, Profil, FermeInfrastructure, Batiment, Livraison
+from app.models import (Ferme, Province, Localite, Utilisateur, Profil, FermeInfrastructure, Batiment, Livraison,
+                        UtilisateurFerme)
 from app.models.intrant import OrigineLivraison
 from app.services import entretien
 from app.models.base import maintenant
@@ -97,11 +99,50 @@ def fiche(numero):
                                    .order_by(Livraison.date_livraison.desc(), Livraison.numero_metier.desc()).all()
                                    if current_user.profil in (Profil.AGENT, Profil.DGE, Profil.ADMIN) else None),
                            argent=_argent(ferme) if current_user.profil in (Profil.AGENT, Profil.ADMIN) else None,
+                           bceg=_bceg(ferme) if current_user.profil in (Profil.AGENT, Profil.DGE, Profil.ADMIN) else None,
                            visites=_visites(ferme) if current_user.profil in (Profil.AGENT, Profil.DGE, Profil.ADMIN) else None,
                            signalements=_signalements(ferme) if current_user.profil in (Profil.AGENT, Profil.ADMIN) else None,
                            etats={b.id: regles_bandes.etat_batiment(b) for b in ferme.batiments},
                            bandes=Bande.query.filter_by(ferme_id=ferme.id)
                            .order_by(Bande.date_mise_en_place.desc()).all())
+
+
+def _bceg(ferme):
+    """Carte « Banque (BCEG) » : financée, responsable, état et historique du consentement."""
+    from app.models.bceg import ConsentementBceg
+    ids = [uf.utilisateur_id for uf in UtilisateurFerme.query.filter_by(ferme_id=ferme.id)]
+    eleveurs = Utilisateur.query.filter(Utilisateur.id.in_(ids)).all() if ids else []
+    return {'eleveurs': sorted(eleveurs, key=lambda u: u.nom_complet),
+            'historique': ConsentementBceg.query.filter_by(ferme_id=ferme.id).order_by(ConsentementBceg.id.desc()).all(),
+            'modifiable': current_user.profil == Profil.ADMIN or (current_user.profil == Profil.AGENT
+                                                                   and ferme.agent_id == current_user.id)}
+
+
+@fermes_bp.route('/<numero>/bceg', methods=['POST'])
+@profil_requis(Profil.AGENT, Profil.ADMIN)
+def regler_bceg(numero):
+    """Ferme financée par la BCEG et responsable (agent de la ferme, ADMIN). Journal automatique ;
+    un changement de responsable fait tomber l'accord en cours."""
+    from app.models import Utilisateur
+    from app.services import bceg
+    ferme = charger(numero)
+    if current_user.profil == Profil.AGENT and ferme.agent_id != current_user.id:
+        abort(403)
+    ident = request.form.get('responsable') or ''
+    responsable = None
+    if ident:
+        try:
+            responsable = db.session.get(Utilisateur, uuid.UUID(ident))
+        except ValueError:
+            responsable = None
+    try:
+        bceg.regler(ferme, request.form.get('financee') == 'on', responsable, current_user)
+        db.session.commit()
+        flash('Banque (BCEG) enregistrée.', 'success')
+    except bceg.RegleBceg as e:
+        db.session.rollback()
+        flash(str(e), 'danger')
+    return redirect(url_for('fermes.fiche', numero=ferme.numero) + '#bceg')
 
 
 def _visites(ferme):

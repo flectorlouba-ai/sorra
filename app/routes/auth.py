@@ -102,6 +102,7 @@ def deconnexion():
 def mot_de_passe():
     longueur_min = parametres.obtenir('securite.mdp_longueur_min', 10)
     erreur = None
+    obligatoire = current_user.doit_changer_mdp
     if request.method == 'POST':
         actuel = request.form.get('actuel', '')
         nouveau = request.form.get('nouveau', '')
@@ -120,6 +121,8 @@ def mot_de_passe():
             enregistrer(Action.CHANGEMENT_MDP)
             db.session.commit()
             flash('Votre mot de passe a été changé.', 'success')
+            if current_user.profil.value == 'ELEVEUR' and not obligatoire:
+                return redirect(url_for('eleveur.mon_compte'))
             return redirect(url_for('accueil.index'))
     return render_template('auth/mot_de_passe.html', erreur=erreur, longueur_min=longueur_min,
                            obligatoire=current_user.doit_changer_mdp)

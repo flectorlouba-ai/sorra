@@ -1,0 +1,16 @@
+{% extends '_base.html' %}
+{% block titre %}Retirer mon accord{% endblock %}
+{% block icone %}bank{% endblock %}
+{% block page_titre %}🏦 Retirer mon accord ?{% endblock %}
+
+{% block contenu %}
+<div class="carte banque-voit">
+  <div class="carte-phrase">La BCEG ne verra plus vos chiffres.</div>
+  <div class="carte-sous">Vous pourrez de nouveau accepter plus tard.</div>
+</div>
+<form method="post" action="{{ url_for('eleveur.repondre_banque', numero=ferme.numero) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" name="decision" value="RETIRE" class="btn-gros-rouge" data-banque="confirmer-retrait">Oui, retirer mon accord</button>
+</form>
+<a class="btn-gros-secondaire mt-2" href="{{ url_for('eleveur.ma_banque') }}">Non, garder</a>
+{% endblock %}

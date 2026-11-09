@@ -58,6 +58,10 @@ def _condition_fermes(colonne, user):
         return colonne.in_(user.ferme_ids)
     if user.profil == Profil.VETO:
         return colonne.in_(select(Ferme.id).where(Ferme.province_id.in_(user.province_ids)))
+    if user.profil == Profil.BCEG:
+        # Lot 13 : seulement les fermes financées avec un accord en cours du responsable
+        from app.services.bceg import condition_acces
+        return condition_acces(colonne)
     return false()
 
 

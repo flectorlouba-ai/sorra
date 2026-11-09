@@ -88,6 +88,7 @@ class Utilisateur(UserMixin, HorodatageMixin, db.Model):
     derniere_connexion = db.Column(db.DateTime(timezone=True), nullable=True)
     echecs_connexion   = db.Column(db.Integer, nullable=False, default=0, server_default='0')
     bloque_jusqu_a     = db.Column(db.DateTime(timezone=True), nullable=True)
+    presentation_vue_le = db.Column(db.DateTime(timezone=True), nullable=True)   # lot 13 : tutoriel vu (éleveur)
 
     provinces = db.relationship('Province', secondary=utilisateur_province,
                                 order_by='Province.ordre', lazy='selectin')

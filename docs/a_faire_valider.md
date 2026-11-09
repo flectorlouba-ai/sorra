@@ -31,6 +31,14 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | Délai avant qu'un doublon de sortie non tranché passe en rouge et remonte à la DGE | code (`verifications.DELAI_ROUGE_HEURES`) | 48 h | 12 |
 | Seuil « à vérifier » de la dernière synchronisation du téléphone | code | 3 jours | 10 |
 
+## Textes à faire relire (éleveurs, agents, DGE)
+
+| Point | Où le changer | Lot |
+|---|---|---|
+| **Les 4 phrases du tutoriel** : « Chaque jour, notez vos morts et votre aliment. » · « Un problème avec vos poulets ? Prévenez le vétérinaire. » · « Pas de réseau ? Saisissez quand même : tout part quand le réseau revient. » · « Votre agent Paul est là pour vous aider. » | `templates/eleveur/presentation.html` | 13 |
+| **Les 9 aides « Comment faire ? »** (titres et 3 étapes chacune) | Configuration → Aides (ADMIN) | 13 |
+| **Le texte de « Ma banque »** (ce que la BCEG verra et ne verra pas) — à faire valider aussi par la BCEG | `templates/eleveur/ma_banque.html` | 13 |
+
 ## Test terrain
 
 L'écran de l'éleveur doit être **testé par 3 à 5 vrais éleveurs** avant d'être figé (`docs/ergonomie.md`, section E) : 8 tuiles, saisie du jour avec « — », « Aucun mort », « Comme hier ».

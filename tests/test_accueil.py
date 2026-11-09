@@ -31,7 +31,7 @@ def test_admin_tous_les_onglets(client, app):
     assert tuiles_disponibles(page) == ['Journal des opérations', 'Utilisateurs',
                                         'Provinces et localités', 'Listes', 'Paramètres',
                                         'Catalogue des intrants', 'Formules des indicateurs',
-                                        'Tâches d&#39;entretien',
+                                        'Tâches d&#39;entretien', 'Aides',
                                         'Fermes', 'Bandes', 'Intrants', 'Indicateurs d&#39;élevage',
                                         'Alertes sanitaires', 'Déclarations', 'Vaccins et traitements',
                                         'Lots et QR codes', 'Opérateurs', 'Tableau de bord national',

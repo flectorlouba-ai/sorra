@@ -203,6 +203,31 @@
 </div>
 {% endif %}
 
+{% if bceg is not none %}
+<div class="card-p" id="bceg">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-bank"></i> Banque (BCEG)</span></div>
+  <div class="card-p-body">
+    {% if bceg.modifiable %}
+    <form method="post" action="{{ url_for('fermes.regler_bceg', numero=ferme.numero) }}" class="d-flex flex-wrap gap-3 align-items-end mb-2">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="d-flex gap-2 align-items-center"><input type="checkbox" name="financee" {% if ferme.financee_bceg %}checked{% endif %}> Ferme financée par la BCEG</label>
+      <div><label class="form-label" for="responsable">Responsable de la ferme</label>
+        <select class="form-control" id="responsable" name="responsable">
+          <option value="">— aucun —</option>
+          {% for u in bceg.eleveurs %}<option value="{{ u.id }}" {% if ferme.responsable_id == u.id %}selected{% endif %}>{{ u.nom_complet }}</option>{% endfor %}
+        </select></div>
+      <button type="submit" class="btn-new">Enregistrer</button>
+    </form>
+    <div class="td-sous mb-2">Seul le responsable voit « Ma banque » et répond. Changer de responsable fait tomber l'accord en cours.</div>
+    {% else %}
+    <div class="mb-2">{{ 'Ferme financée par la BCEG' if ferme.financee_bceg else 'Ferme non financée par la BCEG' }} · responsable : {{ ferme.responsable.nom_complet if ferme.responsable else '—' }}</div>
+    {% endif %}
+    {% for c in bceg.historique %}<div class="td-sous">{{ c.cree_le|date_locale('%d/%m/%Y %H:%M') }} · {{ c.libelle }}{% if c.utilisateur %} · {{ c.utilisateur.nom_complet }}{% endif %}</div>
+    {% else %}{% if ferme.financee_bceg %}<div class="td-sous">Le responsable n'a pas encore répondu.</div>{% endif %}{% endfor %}
+  </div>
+</div>
+{% endif %}
+
 {% if argent is not none %}
 <div class="card-p" id="argent">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-cash-coin"></i> Argent de l'éleveur</span>

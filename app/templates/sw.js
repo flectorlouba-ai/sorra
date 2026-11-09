@@ -60,7 +60,14 @@ function reseauDAbord(req, cacheNom, accepter) {
   return delai(fetch(req), 8000).then(function (rep) {
     if (rep.ok && accepter(rep)) {
       var copie = rep.clone();
-      caches.open(cacheNom).then(function (c) { c.put(req, copie); });
+      caches.open(cacheNom).then(function (c) {
+        // Page obtenue par redirection (/aller/peser → la pesée de la bande) : une copie « propre »,
+        // sinon le navigateur refuse de l'afficher sans réseau (lot 13)
+        if (!copie.redirected) return c.put(req, copie);
+        return copie.blob().then(function (corps) {
+          return c.put(req, new Response(corps, {status: copie.status, statusText: copie.statusText, headers: copie.headers}));
+        });
+      });
     }
     return rep;
   });

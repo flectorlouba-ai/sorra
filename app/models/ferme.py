@@ -40,8 +40,12 @@ class Ferme(SaisieTerrainMixin, db.Model):
     gps_precision_m      = db.Column(db.Integer, nullable=True)
     gps_date             = db.Column(db.DateTime(timezone=True), nullable=True)
     gps_source           = db.Column(db.String(10), nullable=True)
+    # Lot 13 : financement BCEG et responsable de la ferme (seul à répondre « Ma banque »)
+    financee_bceg        = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
+    responsable_id       = db.Column(db.Uuid, db.ForeignKey('utilisateur.id'), nullable=True)
 
     province = db.relationship('Province')
+    responsable = db.relationship('Utilisateur', foreign_keys=[responsable_id])
     localite = db.relationship('Localite')
     agent    = db.relationship('Utilisateur', foreign_keys=[agent_id])
     batiments = db.relationship('Batiment', back_populates='ferme', order_by='Batiment.rang',

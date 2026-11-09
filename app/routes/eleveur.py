@@ -1,6 +1,7 @@
 """Espace de l'éleveur (lot 9) : accueil en tuiles, « Saisie du jour », accès directs
 (Peser, Sortie, Poulet malade, Vaccins), « Mon stock », « J'ai acheté ».
 Les écrans eux-mêmes sont ceux des lots 2 à 8 : ici on organise l'accès."""
+import re
 from datetime import date
 
 from flask import (Blueprint, render_template, request, redirect, url_for, flash, abort, session,
@@ -249,20 +250,112 @@ def produits():
 @eleveur_bp.route('/moi')
 @profil_requis(Profil.ELEVEUR)
 def moi():
-    return render_template('eleveur/moi.html', fermes=_fermes())
+    from app.services import bceg
+    return render_template('eleveur/moi.html', fermes=_fermes(), banque=bool(bceg.fermes_du_responsable(current_user)),
+                           banque_a_repondre=bool(bceg.a_repondre(current_user)))
 
 
-BIENTOT = {'bceg': ('🏦 Partage avec la BCEG', 'Bientôt, vous pourrez choisir de partager vos chiffres avec la BCEG.'),
-           'aide': ('❓ Comment faire ?', 'De petites explications en images arrivent bientôt.')}
+# ── Tutoriel au premier lancement (lot 13) ──────────────────────────────
 
-
-@eleveur_bp.route('/bientot/<quoi>')
+@eleveur_bp.route('/presentation')
 @profil_requis(Profil.ELEVEUR)
-def bientot(quoi):
-    if quoi not in BIENTOT:
+def presentation():
+    agent = next((f.agent for f in _fermes() if f.agent), None)
+    return render_template('eleveur/presentation.html', agent=agent)
+
+
+@eleveur_bp.route('/presentation/vue', methods=['POST'])
+@profil_requis(Profil.ELEVEUR)
+def presentation_vue():
+    """« Passer » ou « C'est parti ! » : vue une fois pour ce compte (gardé sur le serveur)."""
+    if current_user.presentation_vue_le is None:
+        current_user.presentation_vue_le = maintenant()
+        db.session.commit()
+    return redirect(url_for('accueil.index'))
+
+
+# ── Mon compte (lot 13) : seuls le téléphone et le mot de passe se modifient ─
+
+def veterinaires_de_la_zone(user, fermes):
+    """Vétérinaires des provinces des fermes ; au-delà de 3, d'abord ceux qui ont répondu aux
+    signalements de l'éleveur, puis les autres (« Voir les autres »)."""
+    from app.models import Utilisateur
+    from app.models.sante import ReponseVeterinaire, AlerteSanitaire
+    provinces = {f.province_id for f in fermes}
+    vetos = sorted([u for u in Utilisateur.query.filter_by(profil=Profil.VETO, actif=True)
+                    if provinces & set(u.province_ids)], key=lambda u: u.nom_complet)
+    ont_repondu = {r.veto_id for r in ReponseVeterinaire.query.join(AlerteSanitaire)
+                   .filter(AlerteSanitaire.ferme_id.in_([f.id for f in fermes]))} if fermes else set()
+    if len(vetos) <= 3:
+        return vetos, []
+    premiers = [u for u in vetos if u.id in ont_repondu] or vetos[:1]
+    return premiers, [u for u in vetos if u not in premiers]
+
+
+TELEPHONE = re.compile(r'^\+?[0-9 ]{6,20}$')
+
+
+@eleveur_bp.route('/mon-compte', methods=['GET', 'POST'])
+@profil_requis(Profil.ELEVEUR)
+def mon_compte():
+    fermes = _fermes()
+    erreur = None
+    if request.method == 'POST':
+        tel = ' '.join((request.form.get('telephone') or '').split())
+        if tel and not TELEPHONE.match(tel):
+            erreur = 'Écrivez le numéro avec des chiffres, par exemple +241 77 12 34 56.'
+        else:
+            current_user.telephone = tel or None         # journal : MODIFICATION automatique
+            db.session.commit()
+            flash('Téléphone enregistré ✓', 'success')
+            return redirect(url_for('eleveur.mon_compte'))
+    premiers, autres = veterinaires_de_la_zone(current_user, fermes)
+    agent = next((f.agent for f in fermes if f.agent), None)
+    return render_template('eleveur/mon_compte.html', fermes=fermes, agent=agent, vetos=premiers,
+                           autres_vetos=autres, erreur=erreur)
+
+
+# ── Ma banque : consentement BCEG du responsable de la ferme (lot 13) ────
+
+def _ferme_du_responsable(numero):
+    from app.services import bceg
+    f = next((f for f in bceg.fermes_du_responsable(current_user) if f.numero == numero), None)
+    if f is None:
         abort(404)
-    titre, texte = BIENTOT[quoi]
-    return render_template('eleveur/bientot.html', titre=titre, texte=texte)
+    return f
+
+
+@eleveur_bp.route('/ma-banque')
+@profil_requis(Profil.ELEVEUR)
+def ma_banque():
+    from app.services import bceg
+    fermes = bceg.fermes_du_responsable(current_user)
+    if not fermes:
+        abort(404)                                      # ferme non financée, ou pas le responsable
+    return render_template('eleveur/ma_banque.html', etats=[(f, bceg.derniere(f)) for f in fermes])
+
+
+@eleveur_bp.route('/ma-banque/<numero>', methods=['POST'])
+@profil_requis(Profil.ELEVEUR)
+def repondre_banque(numero):
+    from app.services import bceg
+    f = _ferme_du_responsable(numero)
+    try:
+        c = bceg.repondre(f, current_user, request.form.get('decision'))
+        db.session.commit()
+        flash({'ACCEPTE': 'Merci : votre accord est enregistré ✓', 'REFUSE': 'Votre refus est enregistré.',
+               'RETIRE': 'Votre accord est retiré : la BCEG ne voit plus vos chiffres.'}[c.decision], 'success')
+    except bceg.RegleBceg as e:
+        db.session.rollback()
+        flash(str(e), 'warning')
+    return redirect(url_for('eleveur.ma_banque'))
+
+
+@eleveur_bp.route('/ma-banque/<numero>/retirer')
+@profil_requis(Profil.ELEVEUR)
+def retirer_banque(numero):
+    """Retirer son accord : confirmation obligatoire (action rare et sensible, 4 touchers)."""
+    return render_template('eleveur/ma_banque_retirer.html', ferme=_ferme_du_responsable(numero))
 
 
 # ── Mon stock ───────────────────────────────────────────────────────────

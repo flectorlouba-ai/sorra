@@ -18,6 +18,7 @@ from app.models import Utilisateur, Profil, Province, Localite, Parametre, Liste
 from app.models.referentiel import PROVINCES_GABON  # noqa: E402
 from app.models.parametre import PARAMETRES_DEFAUT  # noqa: E402
 from app.models.entretien import TacheEntretien  # noqa: E402
+from app.models.aide import Aide  # noqa: E402
 
 MDP = 'MotDePasse-2026'
 
@@ -31,6 +32,17 @@ def _taches_de_depart():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module.TACHES
+
+
+def _aides_de_depart():
+    """Aides « Comment faire ? » de départ, lues dans la migration du lot 13."""
+    import importlib.util
+    from pathlib import Path
+    chemin = Path(__file__).resolve().parent.parent / 'migrations' / 'versions' / '0015_tutoriel_aides_compte_bceg.py'
+    spec = importlib.util.spec_from_file_location('migration_0015', chemin)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.AIDES
 
 
 def _listes_de_depart():
@@ -76,6 +88,9 @@ def app(tmp_path):
         for k, (nom, icone, frequence, portee, infra) in enumerate(_taches_de_depart()):
             db.session.add(TacheEntretien(nom=nom, icone=icone, frequence=frequence, portee=portee,
                                           infrastructure=infra, ordre=k))
+        for i, (cle, groupe, titre, etapes) in enumerate(_aides_de_depart()):
+            db.session.add(Aide(cle=cle, groupe=groupe, titre=titre, ordre=i,
+                                etapes=[{'texte': t, 'capture': k} for t, k in etapes]))
         for categorie, valeurs in _listes_de_depart().items():
             for i, v in enumerate(valeurs):
                 db.session.add(ListeDeroulante(categorie=categorie, valeur=v, ordre=i))
@@ -99,6 +114,9 @@ def creer_utilisateur(identifiant, profil, provinces=(), doit_changer=False, act
                     actif=actif, doit_changer_mdp=doit_changer,
                     provinces=[province(c) for c in provinces])
     u.set_password(MDP)
+    if profil == Profil.ELEVEUR:
+        from app.models.base import maintenant
+        u.presentation_vue_le = maintenant()     # tutoriel déjà vu (tests du tutoriel : remis à None)
     db.session.add(u)
     db.session.commit()
     return u

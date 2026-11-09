@@ -1,0 +1,28 @@
+{# « Me déconnecter » (lot 13) : s'il reste des saisies gardées sans réseau, avertir et demander un
+   second toucher. Elles ne sont jamais effacées : elles gardent leur auteur et partiront quand il se
+   reconnectera (jamais sous le compte d'une autre personne). #}
+<form method="post" action="{{ url_for('auth.deconnexion') }}" class="form-quitter" data-quitter="1">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="alerte-attente" hidden></div>
+  <button type="submit" class="lien-moi lien-quitter" data-moi="quitter">🚪 {{ libelle or 'Me déconnecter' }}</button>
+</form>
+<script>
+(function () {
+  var forms = document.querySelectorAll('.form-quitter');
+  var f = forms[forms.length - 1];
+  f.addEventListener('submit', function (ev) {
+    if (f.dataset.confirme === '1' || !window.sorraEnAttente) return;
+    ev.preventDefault();
+    window.sorraEnAttente().then(function (n) {
+      if (!n) { f.dataset.confirme = '1'; f.submit(); return; }
+      var a = f.querySelector('.alerte-attente');
+      a.textContent = '⚠️ ' + n + ' saisie' + (n > 1 ? 's ne sont' : ' n\'est') + ' pas encore partie' + (n > 1 ? 's' : '') +
+        '. Ne vous déconnectez pas avant qu\'elle' + (n > 1 ? 's partent' : ' parte') +
+        '. Elle' + (n > 1 ? 's partiront' : ' partira') + ' quand vous vous reconnecterez.';
+      a.hidden = false;
+      f.querySelector('button').textContent = '🚪 Me déconnecter quand même';
+      f.dataset.confirme = '1';
+    }, function () { f.dataset.confirme = '1'; f.submit(); });
+  }, true);
+})();
+</script>

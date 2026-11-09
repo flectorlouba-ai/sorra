@@ -1,0 +1,45 @@
+{% extends '_base.html' %}
+{% block titre %}Aides{% endblock %}
+{% block sous_titre %}Configuration{% endblock %}
+{% block icone %}question-circle{% endblock %}
+{% block page_sous_titre %}« Comment faire ? » de l'éleveur · 3 étapes au plus · chaque modification est inscrite au journal{% endblock %}
+
+{% block contenu %}
+<div class="flash-item warning"><i class="bi bi-exclamation-triangle"></i>Textes de départ <strong>à faire relire</strong> (docs/a_faire_valider.md).</div>
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead><tr><th>Écran</th><th>Titre</th><th>Groupe</th><th>État</th><th></th></tr></thead>
+      <tbody>{% for a in aides %}
+        <tr{% if not a.actif %} class="ligne-vue"{% endif %}><td class="mono">{{ a.cle }}</td><td>{{ a.titre }}</td><td>{{ a.groupe }}</td>
+          <td>{% if a.actif %}<span class="badge badge-ok">Active</span>{% else %}<span class="badge badge-off">Inactive</span>{% endif %}</td>
+          <td><a class="btn-edit" href="{{ url_for('aides.administrer', modifier=a.cle) }}#formulaire">Modifier</a></td></tr>
+      {% endfor %}</tbody>
+    </table></div></div>
+  </div>
+  <div class="col-lg-6">
+    {% if modifiee %}
+    <div class="card-p" id="formulaire">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-pencil"></i> Modifier « {{ modifiee.titre }} »</span></div>
+      <div class="card-p-body">
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="cle" value="{{ modifiee.cle }}">
+          <label class="form-label" for="titre">Titre</label>
+          <input class="form-control mb-2" id="titre" name="titre" maxlength="120" value="{{ modifiee.titre }}" required>
+          {% for i in range(3) %}{% set e = modifiee.etapes[i] if i < modifiee.etapes|length else {} %}
+          <label class="form-label" for="texte-{{ i }}">Étape {{ i + 1 }}</label>
+          <input class="form-control mb-1" id="texte-{{ i }}" name="texte-{{ i }}" maxlength="200" value="{{ e.get('texte', '') }}">
+          <select class="form-control mb-2" name="capture-{{ i }}" aria-label="Capture de l'étape {{ i + 1 }}">
+            {% for k, (lib, _) in captures.items() %}<option value="{{ k }}" {% if e.get('capture', '') == k %}selected{% endif %}>{{ lib or '— sans capture —' }}</option>{% endfor %}
+          </select>
+          {% endfor %}
+          <label class="d-flex gap-2 align-items-center mb-3"><input type="checkbox" name="actif" {% if modifiee.actif %}checked{% endif %}> Active (bouton « ? » affiché)</label>
+          <button type="submit" class="btn-new">Enregistrer</button>
+        </form>
+      </div>
+    </div>
+    {% else %}<div class="empty-note">Choisissez une aide à modifier.</div>{% endif %}
+  </div>
+</div>
+{% endblock %}

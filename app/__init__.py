@@ -66,6 +66,7 @@ def create_app(env='default'):
     from app.routes.entretien import entretien_bp
     from app.routes.argent import argent_bp
     from app.routes.visites import visites_bp
+    from app.routes.aides import aides_bp
 
     app.register_blueprint(auth_bp,          url_prefix='/auth')
     app.register_blueprint(accueil_bp)
@@ -93,6 +94,7 @@ def create_app(env='default'):
     app.register_blueprint(entretien_bp)
     app.register_blueprint(argent_bp)
     app.register_blueprint(visites_bp)
+    app.register_blueprint(aides_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
@@ -137,8 +139,17 @@ def create_app(env='default'):
             from app.routes.eleveur import _fermes
             from app.services import visites
             return visites.nouvelles([f.id for f in _fermes()]) if eleveur else 0
+        def moi_nouveau():
+            # Pastille « nouveau » sur 👤 Moi : compte rendu de visite non lu, ou « Ma banque » sans réponse
+            from app.services import bceg
+            return eleveur and bool(visites_nouvelles() or bceg.a_repondre(current_user))
+
+        def aide_active(cle):
+            # Bouton « ? » (lot 13) : seulement pour l'éleveur, et si l'aide de cet écran est active
+            from app.models.aide import Aide
+            return eleveur and bool(cle) and Aide.query.filter_by(cle=cle, actif=True).first() is not None
         return {'theme_eleveur': eleveur, 'bandes_eleveur': bandes_eleveur, 'agent_eleveur': agent_eleveur,
-                'visites_nouvelles': visites_nouvelles}
+                'visites_nouvelles': visites_nouvelles, 'moi_nouveau': moi_nouveau, 'aide_active': aide_active}
 
     _installer_controles_session(app)
     _installer_erreurs(app)
