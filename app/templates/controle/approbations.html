@@ -1,0 +1,41 @@
+{% extends '_base.html' %}
+{% block titre %}Paramètres à approuver{% endblock %}
+{% block icone %}check2-circle{% endblock %}
+{% block page_sous_titre %}Quatre yeux : l'ancienne valeur s'applique jusqu'à l'approbation · jamais par l'auteur{% endblock %}
+
+{% block contenu %}
+{% for p in a_decider %}
+<div class="card-p mb-3" id="proposition-{{ p.id }}">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-sliders"></i> {{ p.libelle }}</span>
+    <span class="td-sous" style="color:inherit;opacity:.8">{{ p.domaine|lower }} · proposé par {{ p.auteur.nom_complet }} le {{ p.propose_le|date_locale('%d/%m/%Y %H:%M') }}</span></div>
+  <div class="card-p-body">
+    <div class="versions">
+      <div class="version version-comptee"><div class="version-qui">Avant (s'applique)</div><div class="version-valeur mono">{{ p.avant or '—' }}</div></div>
+      <div class="version"><div class="version-qui">Après</div><div class="version-valeur mono">{{ p.apres }}</div></div>
+    </div>
+    <div class="mt-2"><strong>Motif :</strong> {{ p.motif }}</div>
+    <form method="post" action="{{ url_for('controle.decider', ident=p.id) }}" class="d-flex flex-wrap gap-2 align-items-end mt-2">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input class="form-control" style="max-width:320px" name="motif" placeholder="Motif (obligatoire pour refuser)">
+      <button type="submit" name="decision" value="approuver" class="btn-new">Approuver</button>
+      <button type="submit" name="decision" value="refuser" class="btn-annuler">Refuser</button>
+    </form>
+  </div>
+</div>
+{% else %}
+<div class="empty-note mb-3"><i class="bi bi-check-circle"></i> Rien à approuver.</div>
+{% endfor %}
+
+{% if mes_propositions %}
+<div class="card-p mb-3"><div class="card-p-head"><span class="card-p-title"><i class="bi bi-hourglass"></i> Mes propositions en attente</span></div>
+  <div class="card-p-body">{% for p in mes_propositions %}<div>{{ p.libelle }} : {{ p.avant }} → <strong>{{ p.apres }}</strong> <span class="td-sous">(une autre personne doit approuver)</span></div>{% endfor %}</div></div>
+{% endif %}
+
+<div class="table-wrap"><div class="table-scroll"><table>
+  <thead><tr><th>Décidé le</th><th>Réglage</th><th>Avant → après</th><th>Proposé par</th><th>Décision</th></tr></thead>
+  <tbody>{% for p in historique %}
+    <tr><td>{{ p.decide_le|date_locale('%d/%m/%Y %H:%M') }}</td><td>{{ p.libelle }}</td><td class="mono">{{ p.avant }} → {{ p.apres }}</td>
+      <td>{{ p.auteur.nom_complet }}</td><td><span class="badge {{ 'badge-ok' if p.statut == 'APPROUVEE' else 'badge-off' }}">{{ p.libelle_statut }}</span> {{ p.decideur.nom_complet if p.decideur else '' }}{% if p.motif_decision %} — {{ p.motif_decision }}{% endif %}</td></tr>
+  {% else %}<tr><td colspan="5" class="table-vide">Aucune décision pour l'instant.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

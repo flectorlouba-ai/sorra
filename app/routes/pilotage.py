@@ -228,12 +228,16 @@ def formules():
         texte = request.form.get('formule', '').strip()
         p = Parametre.query.filter_by(cle=f'formule.{nom}').first()
         try:
+            from app.services import approbations
+            libelle = f'Formule : {indicateurs.FORMULES[nom][0]}'
             if action == 'origine':
-                if p is not None:
-                    p.valeur = indicateurs.FORMULES[nom][1]
-                    p.modifie_par = current_user.id
-                    db.session.commit()
-                flash(f'« {indicateurs.FORMULES[nom][0]} » : formule d\'origine rétablie.', 'success')
+                # Lot 15 : quatre yeux — la formule actuelle s'applique jusqu'à l'approbation
+                approbations.proposer('FORMULE', f'formule.{nom}', libelle, indicateurs.formule(nom),
+                                      indicateurs.FORMULES[nom][1], {'valeur': indicateurs.FORMULES[nom][1],
+                                                                     'type': 'TEXTE', 'description': libelle},
+                                      request.form.get('motif') or "Retour à la formule d'origine", current_user)
+                db.session.commit()
+                flash(f'« {indicateurs.FORMULES[nom][0]} » : retour à la formule d\'origine proposé (à approuver).', 'info')
                 return redirect(url_for('pilotage.formules'))
             indicateurs.analyser(texte, _autorisees(nom))
             if action == 'tester':
@@ -241,15 +245,16 @@ def formules():
                 essai = indicateurs.evaluer(texte, {k: v for k, v in valeurs.items() if k in _autorisees(nom)})
                 resultat = {'nom': nom, 'texte': texte, 'valeur': essai}
             else:
-                if p is None:
-                    p = Parametre(cle=f'formule.{nom}', type=TypeParametre.TEXTE,
-                                  description=f'Formule : {indicateurs.FORMULES[nom][0]}')
-                    db.session.add(p)
-                p.valeur = texte
-                p.modifie_par = current_user.id
+                approbations.proposer('FORMULE', f'formule.{nom}', libelle, indicateurs.formule(nom), texte,
+                                      {'valeur': texte, 'type': 'TEXTE', 'description': libelle},
+                                      request.form.get('motif', ''), current_user)
                 db.session.commit()
-                flash(f'« {indicateurs.FORMULES[nom][0]} » : formule enregistrée.', 'success')
+                flash(f'« {indicateurs.FORMULES[nom][0]} » : formule proposée ; elle s\'appliquera après '
+                      f'approbation par une autre personne.', 'info')
                 return redirect(url_for('pilotage.formules'))
+        except approbations.RegleApprobation as e:
+            db.session.rollback()
+            flash(str(e), 'danger')
         except indicateurs.FormuleInvalide as e:
             flash(f'« {indicateurs.FORMULES[nom][0]} » : {e}', 'danger')
             resultat = {'nom': nom, 'texte': texte, 'invalide': True}

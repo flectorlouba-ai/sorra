@@ -40,7 +40,7 @@ def test_accueil_sans_tuile_inutile(client, app):
     client.post('/auth/deconnexion')
     connecter(client, 'aninf')
     page = client.get('/').get_data(as_text=True)
-    assert 'Journal des opérations' in page and 'Utilisateurs' not in page
+    assert 'data-tuile-pilotage="journal"' in page and 'Utilisateurs' not in page      # lot 15 : tuiles
 
 
 def test_aucune_route_ne_modifie_le_journal(app):

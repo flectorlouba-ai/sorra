@@ -12,7 +12,7 @@
     {% for p in parametres %}
       <tr>
         <td>{{ p.description }}</td>
-        <td class="td-num">{{ p.valeur }}</td>
+        <td class="td-num">{{ p.valeur }}{% if sensible(p.cle) %} <span class="badge badge-info" title="Modification approuvée par une autre personne">quatre yeux</span>{% endif %}{% if p.cle in en_attente %} <span class="badge badge-warn">modification en attente</span>{% endif %}</td>
         <td>{{ p.modifie_le|date_locale }}</td>
         <td>{{ p.auteur.nom_complet if p.auteur else '' }}</td>
         <td style="text-align:right;">
@@ -42,6 +42,8 @@
             <option value="non">Non</option>
           </select>
           <div class="form-hint" id="param-aide"></div>
+          <label class="form-label mt-2" for="param-motif">Motif <span class="form-hint">obligatoire pour un réglage sensible (quatre yeux)</span></label>
+          <input class="form-control" id="param-motif" name="motif" maxlength="300">
         </div>
       </div>
       {{ pied_fenetre('fen-param') }}

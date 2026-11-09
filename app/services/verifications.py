@@ -253,8 +253,9 @@ def trancher(c, choix, motif, user):
 # ── Pour les alertes ────────────────────────────────────────────────────
 
 def en_retard(c):
-    return c.genre == G.SORTIE and c.a_trancher and \
-        maintenant() - en_utc(c.cree_le) > timedelta(hours=DELAI_ROUGE_HEURES)
+    from app.services import parametres
+    heures = parametres.obtenir('verifications.delai_rouge_heures', DELAI_ROUGE_HEURES)
+    return c.genre == G.SORTIE and c.a_trancher and maintenant() - en_utc(c.cree_le) > timedelta(hours=heures)
 
 
 def a_trancher(requete):

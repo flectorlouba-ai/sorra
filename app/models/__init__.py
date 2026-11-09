@@ -23,3 +23,4 @@ from app.models.argent import Depense  # noqa: F401
 from app.models.visite import Visite  # noqa: F401
 from app.models.aide import Aide  # noqa: F401
 from app.models.bceg import ConsentementBceg, DecisionBceg  # noqa: F401
+from app.models.securite import JournalChaine, Proposition, SessionUtilisateur  # noqa: F401

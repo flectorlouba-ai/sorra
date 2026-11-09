@@ -17,127 +17,115 @@ accueil_bp = Blueprint('accueil', __name__)
 
 A, D = Profil.ADMIN, Profil.DGE
 
-# Une tuile : (titre, sous-titre, icône, endpoint ou None si pas encore livrée,
-#              profils qui l'ouvrent). La première tuile de chaque onglet est orange.
-MODULES = [
-    {'code': 'config', 'titre': 'Configuration', 'icone': 'gear', 'option': False, 'tuiles': [
-        ('Journal des opérations', 'Qui a fait quoi, et quand', 'journal-text', 'journal.index',
-         {A, Profil.AUDITEUR}),
-        ('Utilisateurs', 'Comptes et droits', 'people-fill', 'utilisateurs.index', {A}),
-        ('Provinces et localités', 'Référentiel géographique', 'map', 'referentiel.index', {A}),
-        ('Listes', 'Valeurs des listes', 'list-ul', 'listes.index', {A}),
-        ('Paramètres', 'Seuils et durées', 'sliders', 'parametres.index', {A}),
-        ('Catalogue des intrants', 'Produits, unités, sacs', 'box-seam', 'catalogue.index', {A}),
-        ('Formules des indicateurs', 'Mortalité, GMQ, IC…', 'calculator', 'pilotage.formules', {A}),
-        ("Tâches d'entretien", 'Abreuvoirs, litière, désinfection…', 'tools', 'entretien.taches', {A}),
-        ('Aides', '« Comment faire ? » de l\'éleveur', 'question-circle', 'aides.administrer', {A}),
-    ]},
-    {'code': 'fermes', 'titre': 'Fermes et élevage', 'icone': 'egg', 'option': False, 'tuiles': [
-        ('Fermes', 'Fiches, bâtiments, GPS', 'house-door', 'fermes.liste',
-         {A, D, Profil.AGENT, Profil.VETO}),
-        ('Bandes', 'Du poussin à la sortie', 'collection', 'bandes.liste',
-         {A, D, Profil.AGENT, Profil.VETO}),
-        ('Intrants', 'Poussins, aliment, vaccins', 'box-seam', 'livraisons.liste',
-         {A, D, Profil.AGENT}),
-        ("Indicateurs d'élevage", 'Mortalité, croissance, aliment', 'graph-up', 'pilotage.tableau',
-         {A, D, Profil.AGENT, Profil.VETO}),
-    ]},
-    {'code': 'sante', 'titre': 'Santé animale', 'icone': 'heart-pulse', 'option': False, 'tuiles': [
-        ('Alertes sanitaires', 'Mortalité anormale', 'exclamation-triangle', 'sante.alertes',
-         {A, D, Profil.VETO}),
-        ('Déclarations', 'Signes et photos', 'camera', 'sante.declarations', {A, Profil.VETO}),
-        ('Vaccins et traitements', 'Calendrier vaccinal', 'capsule', 'sante.vaccins',
-         {A, Profil.VETO, Profil.AGENT}),
-        ('Biosécurité', 'Contrôles des fermes', 'shield-check', None, None),
-    ]},
-    {'code': 'tracabilite', 'titre': 'Traçabilité', 'icone': 'qr-code', 'option': False, 'tuiles': [
-        ('Indicateurs de traçabilité', 'Lots tracés, QR', 'graph-up', None, None),
-        ('Lots et QR codes', 'De la ferme au consommateur', 'qr-code-scan', 'tracabilite.lots',
-         {A, D, Profil.AGENT, Profil.VETO}),
-        ('Opérateurs', 'Abattoirs, acheteurs', 'truck', 'operateurs.liste', {A, D, Profil.AGENT}),
-        ('Recherche amont / aval', 'Origine d\'un lot', 'search', None, None),
-    ]},
-    {'code': 'economie', 'titre': 'Économie', 'icone': 'cash-coin', 'option': False, 'tuiles': [
-        ('Rentabilité', 'Marge par ferme', 'graph-up-arrow', None, None),
-        ('Ventes', 'Quantités et prix', 'cart', None, None),
-        ('Charges', 'Par poste', 'receipt', None, None),
-        ('Coût de production', 'Par kg vif', 'calculator', None, None),
-    ]},
-    {'code': 'pilotage', 'titre': 'Pilotage', 'icone': 'speedometer2', 'option': False, 'tuiles': [
-        ('Tableau de bord national', 'Provinces et programme', 'bar-chart-line', 'pilotage.tableau', {A, D}),
-        ('Carte des fermes', 'Couleur selon l\'état', 'geo-alt', 'pilotage.carte', {A, D}),
-        ('Rapports', 'Hebdomadaires et mensuels', 'file-earmark-text', 'pilotage.rapports', {A, D}),
-        ('Classement des fermes', 'Bonnes pratiques', 'trophy', None, None),
-    ]},
-    {'code': 'maintenance', 'titre': 'Maintenance', 'icone': 'tools', 'option': True, 'tuiles': [
-        ('Indicateurs de maintenance', '', 'graph-up', None, None),
-        ('Suivi des pannes', '', 'wrench', None, None),
-        ('Maintenance préventive', 'Pendant le vide sanitaire', 'calendar-check', None, None),
-        ('Stock de pièces', '', 'boxes', None, None),
-    ]},
-    {'code': 'qhse', 'titre': 'QHSE', 'icone': 'shield-check', 'option': True, 'tuiles': [
-        ('Indicateurs QHSE', '', 'graph-up', None, None),
-        ('Audits', '', 'clipboard-check', None, None),
-        ('Non-conformités', '', 'x-octagon', None, None),
-        ('Sécurité et environnement', '', 'tree', None, None),
-    ]},
-    {'code': 'comptabilite', 'titre': 'Comptabilité', 'icone': 'calculator', 'option': True,
-     'tuiles': [
-        ('Tableau financier', '', 'graph-up', None, None),
-        ('Trésorerie', 'Caisse, banque, Mobile Money', 'wallet2', None, None),
-        ('Écritures', 'SYSCOHADA', 'journal-bookmark', None, None),
-        ('Fiscalité et prêt BCEG', '', 'bank', None, None),
-    ]},
-]
+# ── Lot 15 : accueil du pilotage en tuiles par profil ───────────────────
+# Une tuile : (titre, sous-titre, icône, endpoint, compteur). Une tuile n'existe que si son écran
+# existe (aucune tuile morte) ; la table tuile → écran → lot est dans docs/pilotage.md.
 
-# Onglets visibles par profil, et tuiles réduites à celles qu'il peut ouvrir.
-# ADMIN et DGE : tous les onglets ; la DGE n'a pas les écrans réservés à l'ADMIN
-# (Configuration), cet onglet lui est donc masqué (« pas de tuile inutile »).
-ONGLETS = {
-    Profil.ADMIN:    [m['code'] for m in MODULES],
-    Profil.DGE:      [m['code'] for m in MODULES if m['code'] != 'config'],
-    Profil.AGENT:    ['fermes', 'sante', 'tracabilite'],
-    Profil.VETO:     ['sante', 'fermes', 'tracabilite'],
-    Profil.AUDITEUR: ['config'],
+
+def _n_a_verifier(user):
+    from app.routes.hors_ligne import conflits_a_voir
+    return conflits_a_voir(user).count()
+
+
+def _n_arbitrages(user):
+    from app.models.hors_ligne import ConflitHorsLigne
+    from app.services import verifications
+    return verifications.a_trancher(filtre_perimetre(ConflitHorsLigne.query, utilisateur=user)).count()
+
+
+def _n_a_approuver(user):
+    from app.services import approbations
+    return len(approbations.a_decider(user))
+
+
+def _n_signalements(user):
+    from app.models.sante import AlerteSanitaire, StatutAlerte
+    from app.services import sante
+    return sante.alertes_visibles(user).filter(AlerteSanitaire.statut.in_(StatutAlerte.OUVERTES)).count()
+
+
+def _n_alertes_confirmees(user):
+    from app.models.sante import AlerteSanitaire, StatutAlerte
+    from app.services import sante
+    return sante.alertes_visibles(user).filter(AlerteSanitaire.statut == StatutAlerte.CONFIRMEE).count()
+
+
+TUILES = {
+    'mes_fermes':      ('Mes fermes', 'Fiches, bâtiments, GPS', 'house-door', 'fermes.liste', None),
+    'fermes':          ('Fermes', 'Fiches, bâtiments, GPS', 'house-door', 'fermes.liste', None),
+    'a_verifier':      ('Saisies à vérifier', 'Deux versions à trancher', 'check2-square', 'hors_ligne.conflits', _n_a_verifier),
+    'arbitrages':      ('Arbitrages', 'Saisies et livraisons à trancher', 'check2-square', 'hors_ligne.conflits', _n_arbitrages),
+    'livraisons':      ('Livraisons et stock', 'Réceptions, écarts', 'box-seam', 'livraisons.liste', None),
+    'livraisons_etat': ("Livraisons de l'État", 'Poussins, aliment, vaccins', 'box-seam', 'livraisons.liste', None),
+    'bandes':          ('Bandes', 'Du poussin à la sortie', 'collection', 'bandes.liste', None),
+    'indicateurs':     ("Indicateurs d'élevage", 'Mortalité, croissance, aliment', 'graph-up', 'pilotage.tableau', None),
+    'tableau':         ('Tableau de bord', 'Provinces et programme', 'bar-chart-line', 'pilotage.tableau', None),
+    'carte':           ('Carte', "Couleur selon l'état", 'geo-alt', 'pilotage.carte', None),
+    'rapports':        ('Rapports', 'Hebdomadaires et mensuels', 'file-earmark-text', 'pilotage.rapports', None),
+    'signalements':    ('Signalements', 'Alertes à qualifier', 'exclamation-triangle', 'sante.alertes', _n_signalements),
+    'alertes_sanitaires': ('Alertes sanitaires', 'Alertes confirmées', 'exclamation-triangle', 'sante.alertes', _n_alertes_confirmees),
+    'declarations':    ('Déclarations', 'Signes et photos', 'camera', 'sante.declarations', None),
+    'vaccins':         ('Vaccins et calendrier', 'Calendrier vaccinal, délais', 'capsule', 'sante.vaccins', None),
+    'lots':            ('Lots et QR codes', 'De la ferme au consommateur', 'qr-code-scan', 'tracabilite.lots', None),
+    'operateurs':      ('Opérateurs', 'Abattoirs, acheteurs', 'truck', 'operateurs.liste', None),
+    'utilisateurs':    ('Utilisateurs', 'Comptes et droits', 'people-fill', 'utilisateurs.index', None),
+    'configuration':   ('Configuration', 'Listes, paramètres, catalogue…', 'gear', 'controle.configuration', None),
+    'a_approuver':     ('Paramètres à approuver', 'Quatre yeux', 'check2-circle', 'controle.approbations_ecran', _n_a_approuver),
+    'sessions':        ('Sessions', 'Appareils connectés', 'pc-display', 'controle.sessions', None),
+    'journal':         ('Journal', 'Qui a fait quoi, et quand', 'journal-text', 'journal.index', None),
+    'integrite':       ('Intégrité', 'Journal chaîné', 'shield-check', 'controle.integrite', None),
 }
-SEULEMENT_DISPONIBLES = {
-    Profil.AUDITEUR: {'config'},   # Configuration avec le Journal seul
-    Profil.VETO: {'fermes', 'tracabilite'},   # Fermes et Bandes en lecture ; Lots et QR codes
+
+# Tuiles visées d'abord (dans l'ordre demandé), puis les écrans existants qui restent utiles.
+TUILES_PROFIL = {
+    Profil.AGENT:    ['mes_fermes', 'a_verifier', 'livraisons', 'bandes', 'indicateurs', 'vaccins', 'lots', 'operateurs'],
+    Profil.VETO:     ['signalements', 'vaccins', 'a_approuver', 'fermes', 'bandes', 'declarations', 'indicateurs', 'lots'],
+    Profil.DGE:      ['tableau', 'carte', 'livraisons_etat', 'arbitrages', 'rapports', 'a_approuver', 'fermes', 'bandes',
+                      'alertes_sanitaires', 'lots', 'operateurs'],
+    Profil.ADMIN:    ['utilisateurs', 'configuration', 'a_approuver', 'sessions', 'journal', 'integrite', 'arbitrages',
+                      'tableau', 'fermes', 'bandes', 'livraisons_etat', 'signalements', 'declarations', 'vaccins', 'lots',
+                      'operateurs', 'carte', 'rapports'],
+    Profil.AUDITEUR: ['journal', 'integrite'],
 }
+
+# Écran « Configuration » (ADMIN) : les réglages, regroupés
+TUILES_CONFIGURATION = [
+    ('Provinces et localités', 'Référentiel géographique', 'map', 'referentiel.index'),
+    ('Listes', 'Valeurs des listes', 'list-ul', 'listes.index'),
+    ('Paramètres', 'Seuils et durées', 'sliders', 'parametres.index'),
+    ('Catalogue des intrants', 'Produits, unités, sacs', 'box-seam', 'catalogue.index'),
+    ('Formules des indicateurs', 'Mortalité, GMQ, IC…', 'calculator', 'pilotage.formules'),
+    ("Tâches d'entretien", 'Abreuvoirs, litière, désinfection…', 'tools', 'entretien.taches'),
+    ('Aides', "« Comment faire ? » de l'éleveur", 'question-circle', 'aides.administrer'),
+]
 COULEURS = ['mc-navy', 'mc-blue', 'mc-steel', 'mc-cobalt']
 
 
-def _phrase(titre, sous_titre, option):
-    if option:
-        return f'« {titre} » est proposé en option' + (f' : {sous_titre[0].lower()}{sous_titre[1:]}.'
-                                                        if sous_titre else '.')
-    return f'« {titre} » arrive bientôt' + (f' : {sous_titre[0].lower()}{sous_titre[1:]}.'
-                                             if sous_titre else '.')
+def tuiles_pour(user):
+    """Tuiles de l'accueil du pilotage, avec leur compteur (alertes, à vérifier, à approuver)."""
+    resultat = []
+    for i, cle in enumerate(TUILES_PROFIL.get(user.profil, [])):
+        titre, sous, icone, endpoint, compteur = TUILES[cle]
+        resultat.append({'cle': cle, 'titre': titre, 'sous_titre': sous, 'icone': icone, 'lien': url_for(endpoint),
+                         'couleur': 'mc-amber' if i == 0 else COULEURS[(i - 1) % len(COULEURS)],
+                         'compteur': compteur(user) if compteur else None})
+    return resultat
 
 
 def onglets_pour(user):
-    resultat = []
-    filtrer = SEULEMENT_DISPONIBLES.get(user.profil, set())
-    for m in MODULES:
-        if m['code'] not in ONGLETS.get(user.profil, []):
-            continue
-        tuiles = []
-        for i, (titre, sous, icone, endpoint, profils) in enumerate(m['tuiles']):
-            disponible = endpoint is not None and user.profil in profils
-            if endpoint is not None and not disponible:
-                continue   # écran livré mais pas pour ce profil : pas de tuile inutile
-            if m['code'] in filtrer and not disponible:
-                continue
-            tuiles.append({
-                'titre': titre, 'sous_titre': sous, 'icone': icone,
-                'lien': url_for(endpoint) if disponible else None,
-                'couleur': 'mc-amber' if i == 0 else COULEURS[(i - 1) % len(COULEURS)],
-                'etiquette': None if disponible else ('Option' if m['option'] else 'Bientôt'),
-                'phrase': None if disponible else _phrase(titre, sous, m['option']),
-            })
-        if tuiles:
-            resultat.append({**m, 'tuiles': tuiles})
-    return resultat
+    """Compatibilité : un seul panneau de tuiles (les onglets « Bientôt » ont disparu au lot 15)."""
+    tuiles = tuiles_pour(user)
+    return [{'code': 'accueil', 'titre': 'Accueil', 'icone': 'grid', 'option': False, 'tuiles': tuiles}] if tuiles else []
+
+
+def perimetre(user):
+    if user.est_national:
+        return 'National'
+    if user.profil == Profil.AGENT:
+        n = Ferme.query.filter_by(agent_id=user.id).count()
+        return f'{n} ferme{"s" if n > 1 else ""} suivie{"s" if n > 1 else ""}'
+    noms = [p.nom for p in user.provinces]
+    return ', '.join(noms) if noms else '—'
 
 
 def _alertes(user):
@@ -284,4 +272,4 @@ def index():
         return render_template('accueil.html', eleveur=True, onglets=[], e=accueil_eleveur(current_user),
                                bandeau_vaccin=bandeau_vaccin(current_user))
     return render_template('accueil.html', eleveur=False, onglets=onglets_pour(current_user),
-                           alertes=_alertes(current_user))
+                           alertes=_alertes(current_user), perimetre=perimetre(current_user))

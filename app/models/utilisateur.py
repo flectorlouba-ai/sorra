@@ -89,6 +89,10 @@ class Utilisateur(UserMixin, HorodatageMixin, db.Model):
     echecs_connexion   = db.Column(db.Integer, nullable=False, default=0, server_default='0')
     bloque_jusqu_a     = db.Column(db.DateTime(timezone=True), nullable=True)
     presentation_vue_le = db.Column(db.DateTime(timezone=True), nullable=True)   # lot 13 : tutoriel vu (éleveur)
+    # Lot 15 : double authentification (TOTP) et codes de secours (hachés)
+    totp_secret        = db.Column(db.String(64), nullable=True)
+    totp_active        = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
+    codes_secours      = db.Column(db.JSON, nullable=True)
 
     provinces = db.relationship('Province', secondary=utilisateur_province,
                                 order_by='Province.ordre', lazy='selectin')

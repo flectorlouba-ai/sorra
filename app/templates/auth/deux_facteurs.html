@@ -1,0 +1,19 @@
+{% extends '_base.html' %}
+{% block titre %}Double authentification{% endblock %}
+{% block icone %}shield-lock{% endblock %}
+{% block page_sous_titre %}Code de votre application d'authentification{% endblock %}
+
+{% block contenu %}
+<div class="card-p" style="max-width:420px;">
+  <div class="card-p-body">
+    {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="form-label" for="code">Code à 6 chiffres (ou un code de secours)</label>
+      <input class="form-control mb-3" id="code" name="code" inputmode="numeric" autocomplete="one-time-code" autofocus required>
+      <button type="submit" class="btn-enregistrer">Valider</button>
+    </form>
+    <div class="td-sous mt-3">Téléphone perdu ? Utilisez un de vos codes de secours, ou demandez à l'administrateur de réinitialiser la double authentification.</div>
+  </div>
+</div>
+{% endblock %}

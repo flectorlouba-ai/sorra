@@ -67,6 +67,7 @@ def create_app(env='default'):
     from app.routes.argent import argent_bp
     from app.routes.visites import visites_bp
     from app.routes.aides import aides_bp
+    from app.routes.controle import controle_bp
 
     app.register_blueprint(auth_bp,          url_prefix='/auth')
     app.register_blueprint(accueil_bp)
@@ -95,6 +96,7 @@ def create_app(env='default'):
     app.register_blueprint(argent_bp)
     app.register_blueprint(visites_bp)
     app.register_blueprint(aides_bp)
+    app.register_blueprint(controle_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
@@ -166,16 +168,30 @@ def _installer_controles_session(app):
     from app.services import parametres
     from app.services.journal import enregistrer, Action
 
-    libres = {'static', 'auth.connexion', 'auth.deconnexion', 'auth.mot_de_passe'}
+    libres = {'static', 'auth.connexion', 'auth.deconnexion', 'auth.mot_de_passe', 'auth.mise_en_place',
+              'auth.codes_secours', 'auth.deux_facteurs'}
 
     @app.before_request
     def controles_session():
         if request.endpoint in (None, 'static') or not current_user.is_authenticated:
             return None
         maintenant = time.time()
+        from app.services import securite
+        from app.models.securite import SessionUtilisateur
+        from app import db as _db
+        sid = session.get('sid')
+        enregistree = _db.session.get(SessionUtilisateur, sid) if sid else None
+        if enregistree is not None and enregistree.fermee_le is not None:
+            # Lot 15 : session fermée par l'ADMIN (ou depuis un autre appareil)
+            logout_user()
+            session.clear()
+            flash('Votre session a été fermée. Reconnectez-vous.', 'warning')
+            return redirect(url_for('auth.connexion'))
         derniere = session.get('derniere_activite')
-        duree = parametres.obtenir('securite.duree_session_minutes', 60)
-        if derniere and maintenant - derniere > duree * 60:
+        duree = parametres.obtenir('securite.duree_session_minutes', 30)
+        # Lot 15 : 30 min d'inactivité pour le pilotage ; jamais pour l'éleveur ni l'agent
+        if derniere and securite.expire_par_inactivite(current_user) and maintenant - derniere > duree * 60:
+            securite.fermer(sid, None, 'Inactivité')
             enregistrer(Action.DECONNEXION, detail='Fin de session après inactivité')
             from app import db as _db
             _db.session.commit()
@@ -183,6 +199,10 @@ def _installer_controles_session(app):
             session.clear()
             flash('Votre session a expiré après une période d\'inactivité.', 'warning')
             return redirect(url_for('auth.connexion'))
+        if enregistree is not None and (not derniere or maintenant - derniere > 60):
+            from app.models.base import maintenant as _maintenant
+            enregistree.derniere_activite = _maintenant()
+            _db.session.commit()
         session['derniere_activite'] = maintenant
         if current_user.doit_changer_mdp and request.endpoint not in libres:
             return redirect(url_for('auth.mot_de_passe'))

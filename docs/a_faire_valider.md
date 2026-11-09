@@ -28,7 +28,10 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | Seuil d'affichage des totaux d'argent par province | code (`argent.SEUIL_AGREGAT`) | 3 fermes | 11 |
 | **Recommandations de visite** (provisoire) | Listes → `recommandations_visite` | 6 recommandations | 12 |
 | **Objets de visite** (provisoire) | Listes → `objets_visite` | Suivi, Vaccination, Contrôle, Panne, Autre | 12 |
-| Délai avant qu'un doublon de sortie non tranché passe en rouge et remonte à la DGE | code (`verifications.DELAI_ROUGE_HEURES`) | 48 h | 12 |
+| Délai avant qu'un doublon de sortie non tranché passe en rouge et remonte à la DGE | Paramètres → `verifications.delai_rouge_heures` (quatre yeux) | 48 h | 12, 15 |
+| **Durée d'inactivité avant déconnexion** (pilotage seulement ; éleveur et agent jamais) | Paramètres → `securite.duree_session_minutes` | 30 min (était 60) | 15 |
+| **Profils à double authentification obligatoire** | Paramètres → `securite.profils_2fa` | ADMIN, DGE, MAEDR, BCEG, AUDITEUR | 15 |
+| **Liste des réglages sensibles** soumis aux quatre yeux | code (`approbations.SENSIBLES`) | seuils sanitaires, délais, formules, calendrier vaccinal, profils | 15 |
 | Seuil « à vérifier » de la dernière synchronisation du téléphone | code | 3 jours | 10 |
 
 ## Textes à faire relire (éleveurs, agents, DGE)

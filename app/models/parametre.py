@@ -21,8 +21,9 @@ class TypeParametre(enum.Enum):
 PARAMETRES_DEFAUT = [
     ('securite.mdp_longueur_min', '10', TypeParametre.ENTIER,
      'Nombre minimal de caractères d\'un mot de passe.'),
-    ('securite.duree_session_minutes', '60', TypeParametre.ENTIER,
-     'Durée d\'inactivité, en minutes, au bout de laquelle la session se ferme.'),
+    ('securite.duree_session_minutes', '30', TypeParametre.ENTIER,
+     'Pilotage : durée d\'inactivité, en minutes, au bout de laquelle la session se ferme '
+     '(jamais pour l\'éleveur ni l\'agent).'),
     ('securite.echecs_avant_blocage', '5', TypeParametre.ENTIER,
      'Nombre d\'échecs de connexion consécutifs avant le blocage du compte.'),
     ('securite.blocage_minutes', '15', TypeParametre.ENTIER,
@@ -94,3 +95,12 @@ class Parametre(db.Model):
     modifie_par = db.Column(db.Uuid, db.ForeignKey('utilisateur.id'), nullable=True)
 
     auteur = db.relationship('Utilisateur')
+
+# Lot 15 — socle de sécurité
+PARAMETRES_DEFAUT += [
+    ('securite.profils_2fa', 'ADMIN,DGE,MAEDR,BCEG,AUDITEUR', TypeParametre.TEXTE,
+     'Profils pour lesquels la double authentification est obligatoire (jamais l\'éleveur). Quatre yeux.'),
+    ('verifications.delai_rouge_heures', '48', TypeParametre.ENTIER,
+     'Heures après lesquelles un doublon de sortie non tranché passe en rouge et remonte à la DGE. Quatre yeux.'),
+]
+

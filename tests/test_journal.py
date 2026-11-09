@@ -98,8 +98,11 @@ def test_detail_lisible(client_admin, admin):
         'mot_de_passe': 'Autre-mdp-2026'})
     ligne = lignes('MODIFICATION', 'utilisateur')[-1]
     page = client_admin.get(f'/journal/{ligne.id}').get_data(as_text=True)
-    assert 'Agent technique' in page and 'Services vétérinaires' in page
     assert 'Estuaire' in page and 'Haut-Ogooué' in page
+    # Lot 15 : le profil passe par les quatre yeux (proposition au journal, profil inchangé)
+    assert u.profil.value == 'AGENT'
+    prop = lignes('PROPOSITION', 'proposition')[-1]
+    assert 'Agent technique' in prop.detail and 'Services vétérinaires' in prop.detail
     assert 'Modifié' in page and '***' not in page
     assert '>Oui<' in page and '>Non<' in page   # compte actif → désactivé
     loc = Localite(province=province('NGO'), nom='Mouila')
@@ -107,7 +110,7 @@ def test_detail_lisible(client_admin, admin):
     db.session.commit()
     creation = lignes('CREATION', 'localite')[-1]
     assert 'Ngounié' in client_admin.get(f'/journal/{creation.id}').get_data(as_text=True)
-    p = Parametre.query.first()
+    p = Parametre.query.filter_by(cle='securite.mdp_longueur_min').one()   # réglage non sensible
     client_admin.post(f'/administration/parametres/{p.id}/modifier', data={'valeur': '11'})
     modif = lignes('MODIFICATION', 'parametre')[-1]
     page = client_admin.get(f'/journal/{modif.id}').get_data(as_text=True)

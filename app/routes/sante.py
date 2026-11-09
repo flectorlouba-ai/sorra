@@ -202,11 +202,21 @@ def calendrier_enregistrer():
     if age is None or age < 0 or produit is None or produit.type != 'Vaccin' or not f.get('mode'):
         flash('Indiquez l\'âge, le vaccin et le mode d\'administration.', 'danger')
         return redirect(url_for('sante.vaccins'))
-    entree.age_jours, entree.produit, entree.mode = age, produit, f.get('mode')
-    entree.actif = f.get('actif', 'on') == 'on'
-    db.session.add(entree)
-    db.session.commit()
-    flash('Calendrier vaccinal enregistré.', 'success')
+    # Lot 15 : quatre yeux — le calendrier actuel s'applique jusqu'à l'approbation
+    from app.services import approbations
+    actif = f.get('actif', 'on') == 'on'
+    avant = f'J{entree.age_jours} {entree.produit.nom} ({entree.mode})' if entree.id else 'nouvelle ligne'
+    apres = f'J{age} {produit.nom} ({f.get("mode")})' + ('' if actif else ' · désactivée')
+    try:
+        approbations.proposer('CALENDRIER', f'calendrier.{entree.id or "nouveau"}.{age}.{produit.id}',
+                              'Calendrier vaccinal', avant, apres,
+                              {'id': entree.id, 'age_jours': age, 'produit_id': produit.id, 'mode': f.get('mode'),
+                               'actif': actif}, f.get('motif', '') or 'Mise à jour du calendrier', current_user)
+        db.session.commit()
+        flash('Modification du calendrier proposée : elle s\'appliquera après approbation par une autre personne.', 'info')
+    except approbations.RegleApprobation as e:
+        db.session.rollback()
+        flash(str(e), 'danger')
     return redirect(url_for('sante.vaccins'))
 
 
