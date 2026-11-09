@@ -1,0 +1,13 @@
+{# Éleveur avec plusieurs bandes : changer de bâtiment sur Peser, Sortie, Poulet malade (lot 9).
+   Variables : bande (bande affichée), vers (endpoint : 'bandes.pesee', 'bandes.sortie', 'sante.declarer'). #}
+{% if theme_eleveur and bande %}
+{% set autres = bandes_eleveur() %}
+{% if autres|length > 1 %}
+<nav class="pastilles-bat" aria-label="Changer de bâtiment">
+  {% for b in autres %}
+  {% set lien = url_for(vers, bande=b.numero) if vers == 'sante.declarer' else url_for(vers, numero=b.numero) %}
+  <a class="pastille-bat{{ ' active' if b.id == bande.id }}" href="{{ lien }}">{{ b.batiment.code }} · J{{ (today - b.date_mise_en_place).days }}</a>
+  {% endfor %}
+</nav>
+{% endif %}
+{% endif %}

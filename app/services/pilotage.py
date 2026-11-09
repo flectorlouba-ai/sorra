@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from app import db, indicateurs
 from app.models import Ferme, Province, Profil, Livraison, LivraisonLigne
 from app.models.bande import Bande, StatutBande
-from app.models.intrant import Produit, StatutLivraison, TYPE_POUSSINS
+from app.models.intrant import Produit, StatutLivraison, TYPE_POUSSINS, OrigineLivraison
 from app.services import geo, parametres
 from app.utils.permissions import filtre_perimetre
 
@@ -65,7 +65,7 @@ def mortalite_arrivee(user, f):
     ids = [i for (i,) in fermes_filtrees(user, f).with_entities(Ferme.id)]
     q = (LivraisonLigne.query.join(Livraison).join(Produit, LivraisonLigne.produit_id == Produit.id)
          .filter(Livraison.ferme_id.in_(ids), Livraison.statut.in_(StatutLivraison.CONFIRMEES),
-                 Produit.type == TYPE_POUSSINS))
+                 Produit.type == TYPE_POUSSINS, Livraison.origine == OrigineLivraison.ETAT))
     if f.get('du_date'):
         q = q.filter(Livraison.date_livraison >= f['du_date'])
     if f.get('au_date'):

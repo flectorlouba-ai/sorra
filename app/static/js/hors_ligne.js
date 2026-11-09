@@ -133,6 +133,8 @@
         // Saisie du jour : l'accueil de l'éleveur montre « ◷ Sera envoyé dès que le réseau revient »
         if (form.hasAttribute('data-feu')) {
           try { sessionStorage.setItem('performyl2-garde', JSON.stringify({feu: form.getAttribute('data-feu')})); } catch (e) {}
+          location.href = '/saisie-du-jour';
+          return;
         }
         location.href = '/';
       });
@@ -194,7 +196,7 @@
     var vues = {};
     document.querySelectorAll('a[href]').forEach(function (a) {
       var u = new URL(a.href, location.href);
-      if (u.origin === location.origin && /^\/(bandes\/[^/]+\/(pesee|sortie)|sante\/declarer|livraisons\/[^/]+\/recu-moins)$/.test(u.pathname)) {
+      if (u.origin === location.origin && /^\/(bandes\/[^/]+\/(pesee|sortie)|sante\/declarer|livraisons\/[^/]+\/recu-moins|saisie-du-jour|aller\/[a-z]+|j-ai-achete|mon-stock|bandes\/mes-bandes|livraisons\/mes-livraisons)$/.test(u.pathname)) {
         vues[u.pathname + u.search] = true;
       }
     });

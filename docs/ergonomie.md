@@ -118,6 +118,52 @@ Il n'y a pas de badges, pas de classement et pas de son.
 - **Après l'envoi**, s'il reste une bande à saisir : « Il reste B2 à saisir → ».
 - Les saisies restent toujours séparées par bande. La série se compte par bande ; le record, sur toutes les bandes.
 
+### Accueil de l'éleveur en tuiles (lot 9)
+
+L'accueil de l'éleveur est une **porte d'entrée**, pas un tableau de bord. Une grosse tuile par action, et toute action se fait en **3 clics au plus** depuis l'accueil. Les « + » et « − » des compteurs ne comptent pas.
+
+De haut en bas :
+- **en-tête** ;
+- **bandeau rouge**, seulement si une bande est au feu rouge (« ⚠️ B2 : beaucoup de morts aujourd'hui → Signaler ») ;
+- **ligne d'état** : poulet du pire feu, « 2 bâtiments · tout va bien » ou « B2 demande votre attention », « B1 jour 23 · B2 jour 5 » ; pas de chiffres ;
+- **grande tuile verte « Saisie du jour »**, avec en pastille le nombre de bâtiments restant ; « ✓ Tout est envoyé aujourd'hui » quand tout est fait ;
+- **grille de 2 colonnes** : Livraisons, Nouvelle bande, Peser, Sortie, Vaccins, Poulet malade, J'ai acheté, Mes bandes, Mon stock ;
+- **« 📞 Appeler … , mon agent »**, si l'agent a un téléphone.
+
+**Règles :**
+- Une tuile sans objet disparaît : Nouvelle bande sans poussins en attente ; Saisie, Peser, Sortie et Vaccins sans bande en cours.
+- Les autres tuiles se resserrent ; avec un nombre impair, la dernière prend toute la largeur.
+- Une pastille de couleur en haut à droite signale une action à faire.
+- **La tuile ouvre directement la bande la plus utile** :
+  - Saisie du jour : le premier bâtiment pas encore saisi ;
+  - Peser : la pesée prévue la plus proche ;
+  - Sortie : la bande la plus âgée ;
+  - Poulet malade : la bande au feu rouge ;
+  - Vaccins : le vaccin en retard ou du jour.
+
+  Des pastilles B1 / B2 en haut de l'écran permettent de changer de bâtiment.
+- **« ‹ Accueil »** en haut à gauche de chaque écran de l'éleveur.
+
+| Action | Clics |
+|---|---|
+| Saisie du jour → Envoyer | 2 |
+| Livraisons → Tout reçu | 2 |
+| Nouvelle bande → bâtiment → Commencer | 3 |
+| Peser → Enregistrer | 2 |
+| Sortie → type → Enregistrer | 3 |
+| Vaccins → C'est fait | 2 |
+| Poulet malade → signes → Envoyer | 3 |
+| J'ai acheté → produit → Enregistrer | 3 |
+| Mes bandes, Mon stock, Appeler mon agent | 1 |
+
+### Achats personnels de l'éleveur (« J'ai acheté »)
+
+- **Rangement** : ils sont rangés avec les livraisons, en origine « Achat personnel ». Numéro ACH-AAAA-NNNNNN, non subventionné.
+- **Stock** : le stock de la ferme = livraisons de l'État confirmées + achats − utilisations. « Mon stock » montre ce qui a été reçu de chaque source.
+- **Poussins achetés** : les morts à l'arrivée sont demandés, et les poussins deviennent « en attente de bande ».
+- **Contrôles** : les achats n'entrent **jamais** dans les contrôles des intrants de l'État. Ces contrôles passent tous par une seule fonction, `intrants.livraisons_de_l_etat()` : listes, alertes, mortalité à l'arrivée, exports, et le futur recoupement livraisons / consommations.
+- **Annulation** : « Enregistré ✓ — Annuler (10) » juste après l'enregistrement. Ensuite, seule une correction par l'agent est possible, avec un motif inscrit au journal.
+
 ## Liste de contrôle d'un écran (à cocher dans chaque rapport de lot)
 
 - [ ] Un seul bouton mis en avant ?

@@ -25,6 +25,14 @@ class StatutLivraison:
     CONFIRMEES = (RECUE, RECUE_ECART)
 
 
+class OrigineLivraison:
+    """Livraison de l'État (subventionnée, contrôlée) ou achat personnel de l'éleveur (lot 9).
+    Le futur recoupement livraisons / consommations ne porte que sur l'État."""
+    ETAT = 'ETAT'
+    ACHAT = 'ACHAT'
+    LIBELLES = {ETAT: "Livraison de l'État", ACHAT: 'Achat personnel'}
+
+
 class Produit(HorodatageMixin, db.Model):
     __tablename__ = 'produit'
 
@@ -62,6 +70,11 @@ class Livraison(SaisieTerrainMixin, db.Model):
     annulee_le        = db.Column(db.DateTime(timezone=True), nullable=True)
     annulee_par       = db.Column(db.Uuid, db.ForeignKey('utilisateur.id'), nullable=True)
     motif_annulation  = db.Column(db.Text, nullable=True)
+    # Lot 9 : achats personnels de l'éleveur (même circuit que les livraisons, origine ACHAT)
+    origine           = db.Column(db.String(10), nullable=False, default=OrigineLivraison.ETAT,
+                                  server_default=OrigineLivraison.ETAT, index=True)
+    prix_paye_fcfa    = db.Column(db.Integer, nullable=True)     # futur module Économie (charges)
+    photo_recu        = db.Column(db.String(80), nullable=True)
 
     ferme = db.relationship('Ferme')
     lignes = db.relationship('LivraisonLigne', back_populates='livraison',
@@ -73,6 +86,14 @@ class Livraison(SaisieTerrainMixin, db.Model):
     @property
     def numero(self):
         return self.numero_metier
+
+    @property
+    def est_achat(self):
+        return self.origine == OrigineLivraison.ACHAT
+
+    @property
+    def libelle_origine(self):
+        return OrigineLivraison.LIBELLES.get(self.origine, self.origine)
 
     @property
     def libelle_statut(self):

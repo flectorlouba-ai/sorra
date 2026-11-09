@@ -23,7 +23,7 @@
   <div class="topbar-right">
     {% if current_user.is_authenticated %}
     <span class="topbar-user d-none d-sm-inline"><i class="bi bi-person-circle"></i> {{ current_user.nom_complet }}</span>
-    <a href="{{ url_for('accueil.index') }}" class="btn-top"><i class="bi bi-house-door"></i> Accueil</a>
+    {% if not theme_eleveur %}<a href="{{ url_for('accueil.index') }}" class="btn-top"><i class="bi bi-house-door"></i> Accueil</a>{% endif %}
     <a href="{{ url_for('auth.mot_de_passe') }}" class="btn-top" title="Changer mon mot de passe"><i class="bi bi-key"></i></a>
     <form method="post" action="{{ url_for('auth.deconnexion') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -42,6 +42,7 @@
   </div>{% endif %}
   {% endwith %}
 
+  {% if theme_eleveur %}<a class="retour-accueil" href="{{ url_for('accueil.index') }}">‹ Accueil</a>{% endif %}
   <div class="page-head">
     <div class="page-head-left">
       <div class="page-icon"><i class="bi bi-{% block icone %}grid{% endblock %}"></i></div>

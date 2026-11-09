@@ -2,26 +2,45 @@
 {% from '_macros.html' import etoiles %}
 {% block titre %}Mes bandes{% endblock %}
 {% block icone %}collection{% endblock %}
-{% block page_sous_titre %}Vos bandes, de la plus récente à la plus ancienne{% endblock %}
+{% block page_titre %}📈 Mes bandes{% endblock %}
+{% block page_sous_titre %}Bandes en cours, puis bandes terminées avec leurs étoiles{% endblock %}
 
 {% block contenu %}
 <div class="liste-cartes">
-  {% for l in lignes %}
+  {% for l in en_cours %}
+  {% set b, v = l.bande, l.v %}
+  <div class="carte">
+    <div class="carte-haut">{{ poulet(l.couleur) }}
+      <div><div class="carte-jour">{{ b.numero }} · en cours</div>
+        <div class="carte-phrase">Jour {{ v.age }} · {{ b.batiment.code }}</div>
+        <div class="carte-sous">depuis le {{ b.date_mise_en_place.strftime('%d/%m/%Y') }}</div></div>
+    </div>
+    <div class="chiffres-bilan">
+      <div><span class="num">{{ v.effectif_present|qte }}</span><small>poulets présents</small></div>
+      <div><span class="num">{{ v.mortalite|round(1)|qte if v.mortalite is not none else '—' }} %</span><small>mortalité</small></div>
+      <div><span class="num">{{ (v.poids_moyen_g|round|qte ~ ' g') if v.poids_moyen_g else '—' }}</span><small>dernière pesée</small></div>
+      <div><span class="num">{{ l.attendu|qte }} g</span><small>poids attendu aujourd'hui</small></div>
+    </div>
+    {% set courbe = l.courbe %}
+    <svg class="courbe" viewBox="0 0 {{ courbe.largeur }} {{ courbe.hauteur }}" role="img" aria-label="Courbe de croissance">
+      {% for y, g in courbe.poids %}<line class="courbe-grille" x1="{{ courbe.marge }}" x2="{{ courbe.largeur - courbe.marge }}" y1="{{ y }}" y2="{{ y }}"/><text class="courbe-texte" x="2" y="{{ y + 3 }}">{{ g }}</text>{% endfor %}
+      {% for x, a in courbe.graduations %}<text class="courbe-texte" x="{{ x - 4 }}" y="{{ courbe.hauteur - courbe.marge + 14 }}">J{{ a }}</text>{% endfor %}
+      <polyline class="courbe-attendue" points="{{ courbe.attendue }}"/>
+      <polyline class="courbe-reelle" points="{{ courbe.reelle }}"/>
+      {% for x, y in courbe.points %}<circle class="courbe-point" cx="{{ x }}" cy="{{ y }}" r="3"/>{% endfor %}
+    </svg>
+    <div class="legende"><span class="legende-reelle"></span> vos pesées (g) <span class="legende-attendue"></span> courbe attendue</div>
+  </div>
+  {% endfor %}
+
+  {% for l in passees %}
   {% set b = l.bande %}
-  {% if b.en_cours %}
-  <a class="carte carte-lien" href="{{ url_for('accueil.index') }}#bat-{{ b.ferme.numero }}-{{ b.batiment.code }}">
-    <div class="carte-titre-ligne"><span class="carte-titre">{{ b.numero }}</span><span class="serie">En cours · jour {{ l.age }}</span></div>
-    <div class="carte-sous">Bâtiment {{ b.batiment.code }} · depuis le {{ b.date_mise_en_place.strftime('%d/%m/%Y') }}</div>
-  </a>
-  {% else %}
   <a class="carte carte-lien" href="{{ url_for('bandes.bilan', numero=b.numero) }}">
     <div class="carte-titre-ligne"><span class="carte-titre">{{ b.numero }}</span>{% if l.etoiles %}{{ etoiles(l.etoiles) }}{% endif %}</div>
     <div class="carte-sous">Bâtiment {{ b.batiment.code }} · du {{ b.date_mise_en_place.strftime('%d/%m/%Y') }}{% if b.date_cloture %} au {{ b.date_cloture.strftime('%d/%m/%Y') }}{% endif %}
       {% if b.bilan %} · mortalité {{ b.bilan.mortalite|qte }} %{% endif %}</div>
   </a>
-  {% endif %}
-  {% else %}
-  <div class="empty-note">Pas encore de bande.</div>
   {% endfor %}
+  {% if not en_cours and not passees %}<div class="empty-note">Pas encore de bande.</div>{% endif %}
 </div>
 {% endblock %}

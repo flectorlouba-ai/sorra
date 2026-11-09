@@ -40,13 +40,13 @@ _SIGNATURES = {b'\xff\xd8\xff': ('image/jpeg', '.jpg'), b'\x89PNG': ('image/png'
 _AUDIO = {b'\x1aE\xdf\xa3': ('audio/webm', '.webm'), b'OggS': ('audio/ogg', '.ogg')}
 
 
-def dossier():
-    d = os.path.join(current_app.instance_path, 'televersements', 'sante')
+def dossier(sous_dossier='sante'):
+    d = os.path.join(current_app.instance_path, 'televersements', sous_dossier)
     os.makedirs(d, exist_ok=True)
     return d
 
 
-def _enregistrer(fichier, signatures, mp4_audio=False):
+def _enregistrer(fichier, signatures, mp4_audio=False, sous_dossier='sante'):
     contenu = fichier.read(TAILLE_MAX + 1)
     if not contenu:
         return None
@@ -58,15 +58,15 @@ def _enregistrer(fichier, signatures, mp4_audio=False):
     if genre is None:
         raise RegleSante('Ce fichier n\'est pas reconnu.')
     nom = secrets.token_hex(16) + genre[1]
-    with open(os.path.join(dossier(), nom), 'wb') as f:
+    with open(os.path.join(dossier(sous_dossier), nom), 'wb') as f:
         f.write(contenu)
     return nom, genre[0]
 
 
-def chemin_fichier(nom):
+def chemin_fichier(nom, sous_dossier='sante'):
     if not nom or '/' in nom or '\\' in nom or '..' in nom:
         return None
-    return os.path.join(dossier(), nom)
+    return os.path.join(dossier(sous_dossier), nom)
 
 
 TYPES_AUDIO = {'.webm': 'audio/webm', '.ogg': 'audio/ogg', '.m4a': 'audio/mp4'}

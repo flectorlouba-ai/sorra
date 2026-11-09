@@ -6,7 +6,8 @@
 
 {% block contenu %}
 <div class="ma-ferme-zone">
-  {% for liv in livraisons %}
+  {% for liv in livraisons if liv.a_confirmer %}{% include 'livraisons/_carte_confirmer.html' %}{% endfor %}
+  {% for liv in livraisons if not liv.a_confirmer %}
   <div class="ma-ferme">
     <div class="ma-ferme-tete">
       <div>

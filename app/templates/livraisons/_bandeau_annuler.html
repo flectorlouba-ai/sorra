@@ -1,16 +1,17 @@
 {# Filet de sécurité après « Tout reçu » : bandeau visible 10 secondes avec « Annuler ».
-   Variables : liv, secondes (temps restant). #}
-<div class="bandeau-annuler" id="bandeau-annuler" data-secondes="{{ secondes }}">
-  <span><i class="bi bi-check-circle-fill"></i> Reçue ✓ — {{ liv.numero }}</span>
-  <form method="post" action="{{ url_for('livraisons.annuler_confirmation', numero=liv.numero) }}">
+   Variables : liv, secondes (temps restant) ; bandeau_texte et bandeau_action (facultatifs,
+   pour « Enregistré ✓ — Annuler » d'un achat, lot 9). #}
+<div class="bandeau-annuler" id="bandeau-annuler-{{ liv.numero }}" data-secondes="{{ secondes }}">
+  <span><i class="bi bi-check-circle-fill"></i> {{ bandeau_texte or ('Reçue ✓ — ' ~ liv.numero) }}</span>
+  <form method="post" action="{{ bandeau_action or url_for('livraisons.annuler_confirmation', numero=liv.numero) }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button type="submit" class="bandeau-annuler-btn">Annuler <span id="bandeau-decompte">({{ secondes }})</span></button>
+    <button type="submit" class="bandeau-annuler-btn">Annuler <span class="bandeau-decompte">({{ secondes }})</span></button>
   </form>
 </div>
 <script>
 (function () {
-  var b = document.getElementById('bandeau-annuler'), n = parseInt(b.dataset.secondes, 10);
-  var d = document.getElementById('bandeau-decompte');
+  var b = document.getElementById('bandeau-annuler-{{ liv.numero }}'), n = parseInt(b.dataset.secondes, 10);
+  var d = b.querySelector('.bandeau-decompte');
   var t = setInterval(function () {
     n -= 1;
     if (n <= 0) { clearInterval(t); b.querySelector('form').remove(); b.classList.add('fini'); return; }

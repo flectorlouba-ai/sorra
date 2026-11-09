@@ -39,7 +39,9 @@ def charger_ferme(numero):
 
 def _retour(bande):
     if current_user.profil == Profil.ELEVEUR:
-        return redirect(url_for('accueil.index') + f'#bat-{bande.ferme.numero}-{bande.batiment.code}')
+        if request.endpoint == 'bandes.saisie':
+            return redirect(url_for('eleveur.saisie') + f'#bat-{bande.ferme.numero}-{bande.batiment.code}')
+        return redirect(url_for('accueil.index'))
     return redirect(url_for('bandes.fiche', numero=bande.numero))
 
 
@@ -194,11 +196,16 @@ def bilan(numero):
 def mes_bandes():
     """Historique de l'éleveur : ses bandes, avec les étoiles des bandes terminées."""
     from app.services import ludique
-    lignes = []
+    en_cours, passees = [], []
     for b in filtre_perimetre(Bande.query).order_by(Bande.date_mise_en_place.desc()).all():
-        lignes.append({'bande': b, 'etoiles': ludique.etoiles_du_bilan(b.bilan) if not b.en_cours else None,
-                       'age': indicateurs.age(b) if b.en_cours else None})
-    return render_template('bandes/mes_bandes.html', lignes=lignes)
+        if b.en_cours:
+            v = indicateurs.calculer(b)
+            en_cours.append({'bande': b, 'v': v, 'couleur': indicateurs.feu(b, valeurs=v)[0],
+                             'attendu': round(indicateurs.poids_attendu(v['age'])),
+                             'courbe': courbe_svg(b, largeur=320, hauteur=150, marge=28)})
+        else:
+            passees.append({'bande': b, 'etoiles': ludique.etoiles_du_bilan(b.bilan)})
+    return render_template('bandes/mes_bandes.html', en_cours=en_cours, passees=passees)
 
 
 # ── Ouverture ───────────────────────────────────────────────────────────

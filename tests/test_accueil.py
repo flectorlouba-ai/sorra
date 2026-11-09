@@ -96,9 +96,10 @@ def test_eleveur_ma_ferme_et_appel_agent(client, app):
     db.session.commit()
     connecter(client, 'eleveur')
     page = client.get('/').get_data(as_text=True)
-    assert onglets(page) == [] and 'Ma ferme' in page and 'Ferme Obiang' in page
+    assert onglets(page) == [] and 'href="tel:+24177001122"' in page and 'mon agent' in page
+    page = client.get('/mon-stock').get_data(as_text=True)
+    assert 'Ma ferme' in page and 'Ferme Obiang' in page
     assert 'EST-001' in page and 'Opérationnelle' in page and '2 000' in page
-    assert 'href="tel:+24177001122"' in page and 'Appeler mon agent' in page
 
 
 def test_tuile_bientot_ne_mene_nulle_part(client, app):

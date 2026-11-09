@@ -2,7 +2,7 @@
  * Fichiers de style et scripts : gardés sur le téléphone.
  * Pages : réseau d'abord ; sans réseau, la dernière version vue sur ce téléphone.
  * Les envois (POST) ne passent jamais par ici : hors_ligne.js s'en occupe. */
-var VERSION = 'v3';   // v3 : espace éleveur « illustré doux » (lot 8)
+var VERSION = 'v4';   // v4 : accueil de l'éleveur en tuiles (lot 9)
 var STATIQUES = 'performyl2-statiques-' + VERSION;
 var PAGES = 'performyl2-pages';
 var A_GARDER = [

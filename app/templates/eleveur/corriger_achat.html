@@ -1,0 +1,41 @@
+{% extends '_base.html' %}
+{% block titre %}Corriger l'achat {{ a.numero }}{% endblock %}
+{% block sous_titre %}Fermes{% endblock %}
+{% block icone %}pencil-square{% endblock %}
+{% block page_titre %}Corriger l'achat <span class="mono">{{ a.numero }}</span>{% endblock %}
+{% block page_sous_titre %}{{ a.ferme.nom }} · {{ l.produit.nom }} · achat personnel de l'éleveur{% endblock %}
+
+{% block contenu %}
+<form method="post" class="form-terrain" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  <div class="form-group">
+    <label class="form-label" for="quantite">Quantité ({{ l.produit.unite }})</label>
+    <input class="form-control" id="quantite" name="quantite" inputmode="decimal" value="{{ saisie.get('quantite') or l.quantite_recue|qte|replace(' ', '') }}">
+  </div>
+  {% if l.produit.type == 'Poussins' %}
+  <div class="form-group">
+    <label class="form-label" for="morts">Morts à l'arrivée</label>
+    <input class="form-control" id="morts" name="morts" inputmode="numeric" value="{{ saisie.get('morts') or l.morts_arrivee or 0 }}">
+  </div>
+  {% endif %}
+  <div class="form-group">
+    <label class="form-label" for="prix">Prix payé en tout (FCFA)</label>
+    <input class="form-control" id="prix" name="prix" inputmode="numeric" value="{{ saisie.get('prix') or a.prix_paye_fcfa or '' }}">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="lieu">Où</label>
+    <input class="form-control" id="lieu" name="lieu" maxlength="150" value="{{ saisie.get('lieu') or a.fournisseur or '' }}">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="date">Date</label>
+    <input class="form-control" type="date" id="date" name="date" max="{{ today.isoformat() }}" value="{{ saisie.get('date') or a.date_livraison.isoformat() }}">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="motif">Motif de la correction<span class="req">*</span></label>
+    <textarea class="form-control" id="motif" name="motif" rows="2" required>{{ saisie.get('motif', '') }}</textarea>
+    <div class="form-hint">Inscrit au journal des opérations.</div>
+  </div>
+  <button type="submit" class="btn-gros">Enregistrer la correction</button>
+</form>
+{% endblock %}

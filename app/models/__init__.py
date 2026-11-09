@@ -10,7 +10,7 @@ from app.models.ferme import (Ferme, Batiment, FermeStatutHistorique,  # noqa: F
                               FermeInfrastructure, SourcePosition)
 from app.models.operateur import Operateur  # noqa: F401
 from app.models.intrant import (Produit, Livraison, LivraisonLigne,  # noqa: F401
-                                StatutLivraison)
+                                StatutLivraison, OrigineLivraison)
 from app.models.bande import (Bande, BandePoussins, SaisieJour, SaisieAliment,  # noqa: F401
                               Pesee, Sortie, StatutBande, MotifSortie)
 from app.models.sante import (Declaration, DeclarationPhoto, AlerteSanitaire,  # noqa: F401

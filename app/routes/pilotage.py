@@ -13,7 +13,7 @@ from app.models import Province, Profil, Ferme, Livraison, Parametre, TypeParame
 from app.models.bande import Bande
 from app.models.liste_deroulante import ld_choices
 from app.models.sante import AlerteSanitaire
-from app.services import pilotage, rapports_pdf, sante
+from app.services import pilotage, rapports_pdf, sante, intrants
 from app.services.journal import enregistrer, Action
 from app.utils.nombres import quantite
 from app.utils.permissions import profil_requis, filtre_perimetre
@@ -141,7 +141,7 @@ def _lignes_fermes():
 def _lignes_livraisons():
     yield ['N°', 'Date', 'Ferme', 'Fournisseur', 'Statut', 'Produit', 'Livré', 'Reçu', 'Morts à l\'arrivée',
            'Subvention (%)', 'Valeur unitaire (FCFA)']
-    for liv in filtre_perimetre(Livraison.query).order_by(Livraison.date_livraison.desc()):
+    for liv in intrants.livraisons_de_l_etat(filtre_perimetre(Livraison.query)).order_by(Livraison.date_livraison.desc()):
         for l in liv.lignes:
             yield [liv.numero, liv.date_livraison.strftime('%d/%m/%Y'), liv.ferme.numero, liv.fournisseur or '',
                    liv.libelle_statut, l.produit.nom, l.quantite_livree,

@@ -228,6 +228,6 @@ def test_application_installable(client, monde):
     assert 'manifest.webmanifest' in page and 'js/hors_ligne.js' in page and 'data-utilisateur=' in page
     assert 'data-hors-ligne="Saisie du jour' not in page   # pas de bande ici : pas de formulaire
     b = bande_ouverte(monde)
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/saisie-du-jour').get_data(as_text=True)
     assert 'data-hors-ligne="Saisie du jour · bâtiment B1"' in page
     assert 'data-hors-ligne="Pesée' in client.get(f'/bandes/{b.numero}/pesee').get_data(as_text=True)

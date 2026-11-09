@@ -47,7 +47,7 @@ def _retour_confirmation(liv):
 @livraisons_bp.route('/')
 @profil_requis(*GESTION)
 def liste():
-    base = filtre_perimetre(Livraison.query)
+    base = regles.livraisons_de_l_etat(filtre_perimetre(Livraison.query))
     f = {k: request.args.get(k, '').strip() for k in
          ('province', 'ferme', 'produit', 'statut', 'du', 'au', 'alerte')}
     q = base.join(Ferme, Livraison.ferme_id == Ferme.id)
@@ -388,6 +388,6 @@ def corriger(numero):
 @livraisons_bp.route('/mes-livraisons')
 @profil_requis(Profil.ELEVEUR)
 def mes_livraisons():
-    livraisons = (filtre_perimetre(Livraison.query)
+    livraisons = (regles.livraisons_de_l_etat(filtre_perimetre(Livraison.query))
                   .order_by(Livraison.date_livraison.desc(), Livraison.numero_metier.desc()).all())
     return render_template('livraisons/mes_livraisons.html', livraisons=livraisons)

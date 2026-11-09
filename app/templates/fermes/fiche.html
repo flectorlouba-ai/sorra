@@ -125,6 +125,29 @@
   {% endif %}
 </div>
 
+{% if achats is not none %}
+<div class="card-p" id="achats">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-cart"></i> Achats de l'éleveur</span>
+    <span class="td-sous" style="color:inherit;opacity:.7;">non subventionnés · hors contrôle des livraisons de l'État</span></div>
+  {% if achats %}
+  <div class="table-scroll"><table>
+    <thead><tr><th>N°</th><th>Date</th><th>Produit</th><th>Quantité</th><th>Prix payé</th><th>Où</th><th>Reçu</th><th></th></tr></thead>
+    <tbody>{% for a in achats %}{% set l = a.lignes[0] %}
+      <tr{% if a.statut == 'ANNULEE' %} class="ligne-vue"{% endif %}>
+        <td class="td-num">{{ a.numero }}</td><td>{{ a.date_livraison.strftime('%d/%m/%Y') }}</td>
+        <td>{{ l.produit.nom }}{% if l.morts_arrivee %}<br><span class="td-sous">{{ l.morts_arrivee|qte }} morts à l'arrivée</span>{% endif %}</td>
+        <td>{{ l.quantite_recue|qte }} {{ l.produit.unite }}</td>
+        <td>{{ (a.prix_paye_fcfa|qte ~ ' FCFA') if a.prix_paye_fcfa else '—' }}</td>
+        <td>{{ a.fournisseur or '—' }}</td>
+        <td>{% if a.photo_recu %}<a href="{{ url_for('eleveur.recu', numero=a.numero) }}" target="_blank">photo</a>{% else %}—{% endif %}</td>
+        <td>{% if a.statut == 'ANNULEE' %}<span class="badge badge-off">Annulé</span>
+          {% elif current_user.profil.value in ('AGENT', 'ADMIN') %}<a class="btn-edit" href="{{ url_for('eleveur.corriger_achat', numero=a.numero) }}">Corriger</a>{% endif %}</td>
+      </tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}<div class="card-p-body"><div class="empty-note">Aucun achat personnel enregistré.</div></div>{% endif %}
+</div>
+{% endif %}
+
 <div class="card-p" id="stock">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-box-seam"></i> Stock d'intrants</span></div>
   {% if stock %}

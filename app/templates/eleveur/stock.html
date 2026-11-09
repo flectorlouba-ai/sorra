@@ -1,0 +1,46 @@
+{% extends '_base.html' %}
+{% from '_macros.html' import badge_statut %}
+{% block titre %}Mon stock{% endblock %}
+{% block icone %}basket{% endblock %}
+{% block page_titre %}🧺 Mon stock{% endblock %}
+{% block page_sous_titre %}Livraisons de l'État et achats personnels, moins ce qui a été utilisé{% endblock %}
+
+{% block contenu %}
+{% for f, stock in stocks %}
+{% if stocks|length > 1 %}<div class="carte-jour">{{ f.nom }}</div>{% endif %}
+<div class="carte">
+  {% for s in stock %}
+  <div class="stock-ligne">
+    <span><strong>{{ 'Poussins en attente de bande' if s.produit.type == 'Poussins' else s.produit.nom }}</strong>
+      <small>{% if s.etat and s.achat %}reçu en tout : {{ s.etat|qte }} de l'État · {{ s.achat|qte }} acheté{{ 's' if s.achat > 1 }}{% elif s.achat %}acheté par vous{% else %}livré par l'État{% endif %}</small></span>
+    <span class="stock-quantite">{{ s.stock|qte }}{% if s.produit.type != 'Poussins' %} {{ s.produit.unite }}{% endif %}
+      {% if s.kg is not none %}<small>{{ s.kg|qte }} kg</small>{% endif %}</span>
+  </div>
+  {% else %}
+  <div class="carte-sous">Rien en stock pour l'instant.</div>
+  {% endfor %}
+</div>
+<div class="carte ma-ferme">
+  <div class="ma-ferme-tete">
+    <div><div class="ma-ferme-titre">Ma ferme</div><div class="ma-ferme-nom">{{ f.nom }}</div><div class="ma-ferme-num">{{ f.numero }}</div></div>
+    {{ badge_statut(f.statut) }}
+  </div>
+  <div class="carte-sous">{{ f.batiments|selectattr('actif')|list|length }} bâtiment{{ 's' if f.batiments|selectattr('actif')|list|length > 1 }} · {{ '{:,}'.format(f.capacite).replace(',', ' ') }} places
+    {% if f.agent %} · mon agent : {{ f.agent.nom_complet }}{% endif %}</div>
+</div>
+{% endfor %}
+
+{% if achats %}
+<div class="carte">
+  <div class="carte-titre">🛒 Mes derniers achats</div>
+  <ul class="liste-simple">
+    {% for a in achats %}{% set l = a.lignes[0] %}
+    <li{% if a.statut == 'ANNULEE' %} class="annule"{% endif %}><strong>{{ a.date_livraison.strftime('%d/%m') }}</strong> · {{ l.quantite_recue|qte }} {{ l.produit.unite }} {{ l.produit.nom }}
+      {% if a.prix_paye_fcfa %}<span class="carte-sous">· {{ a.prix_paye_fcfa|qte }} FCFA</span>{% endif %}
+      {% if a.statut == 'ANNULEE' %}<span class="carte-sous">· annulé</span>{% endif %}</li>
+    {% endfor %}
+  </ul>
+  <div class="carte-sous">Une erreur ? Votre agent peut corriger un achat.</div>
+</div>
+{% endif %}
+{% endblock %}

@@ -5,7 +5,7 @@ from app import db
 from app.models import Profil
 from app.models.base import maintenant
 from app.models.intrant import (Livraison, LivraisonLigne, Produit, StatutLivraison as S,
-                                TYPE_POUSSINS)
+                                TYPE_POUSSINS, OrigineLivraison)
 from app.services import parametres
 from app.services.journal import enregistrer, Action
 from app.services.numerotation import generer_numero
@@ -15,6 +15,14 @@ from app.utils.dates import en_utc
 # accepte l'annulation un peu plus longtemps pour couvrir un réseau lent.
 DELAI_ANNULATION_SECONDES = 10
 TOLERANCE_RESEAU_SECONDES = 20
+
+
+def livraisons_de_l_etat(requete):
+    """Seulement les livraisons de l'État (pas les achats personnels de l'éleveur).
+    À utiliser pour tout contrôle des intrants subventionnés : listes, alertes,
+    mortalité à l'arrivée par fournisseur, exports, et le futur recoupement
+    livraisons / consommations."""
+    return requete.filter(Livraison.origine == OrigineLivraison.ETAT)
 
 
 # ── Droits ──────────────────────────────────────────────────────────────
@@ -137,6 +145,104 @@ def annuler(livraison, user, motif):
     livraison.motif_annulation = motif
 
 
+# ── Achats personnels de l'éleveur (lot 9) ─────────────────────────────
+
+class RegleAchat(Exception):
+    pass
+
+
+def jour_le_plus_ancien_achat(user):
+    """Comme les saisies : l'éleveur remonte au plus de N jours (paramètre), l'agent sans limite."""
+    if user.profil in (Profil.AGENT, Profil.ADMIN):
+        return None
+    from app.services import hors_ligne
+    return hors_ligne.jour_de_saisie() - timedelta(days=int(parametres.obtenir('bandes.saisie_passee_jours', 3)))
+
+
+def produits_frequents(ferme, nombre=6):
+    """Produits du catalogue les plus présents dans les livraisons et achats de la ferme."""
+    from sqlalchemy import func
+    rangs = dict(db.session.query(LivraisonLigne.produit_id, func.count(LivraisonLigne.id))
+                 .join(Livraison).filter(Livraison.ferme_id == ferme.id)
+                 .group_by(LivraisonLigne.produit_id).all())
+    actifs = Produit.query.filter_by(actif=True).all()
+    actifs.sort(key=lambda p: (-rangs.get(p.id, 0), p.type != 'Aliment', p.nom))
+    return actifs[:nombre]
+
+
+def enregistrer_achat(ferme, produit, quantite, morts, prix, lieu, jour, user, photo=None):
+    """Achat personnel : une « livraison » d'origine ACHAT, reçue d'emblée, non subventionnée."""
+    if produit is None or not produit.actif:
+        raise RegleAchat('Choisissez le produit acheté.')
+    if not quantite or quantite <= 0:
+        raise RegleAchat('Indiquez la quantité achetée.')
+    if jour > date.today():
+        raise RegleAchat('La date ne peut pas être dans le futur.')
+    limite = jour_le_plus_ancien_achat(user)
+    if limite and jour < limite:
+        raise RegleAchat('Cet achat est trop ancien : demandez à votre agent de le saisir.')
+    poussins = produit.type == TYPE_POUSSINS
+    morts = int(morts or 0) if poussins else None
+    if poussins and (morts < 0 or morts > quantite):
+        raise RegleAchat("Le nombre de poussins morts à l'arrivée est impossible.")
+    if prix is not None and prix < 0:
+        raise RegleAchat('Le prix payé ne peut pas être négatif.')
+    achat = Livraison(numero_metier=generer_numero('ACHAT', 'ACH', annuel=True), ferme=ferme,
+                      date_livraison=jour, fournisseur=(lieu or '').strip()[:150] or None,
+                      origine=OrigineLivraison.ACHAT, statut=S.RECUE, prix_paye_fcfa=prix,
+                      confirmee_le=maintenant(), confirmee_par=user.id,
+                      confirmee_par_agent=user.profil == Profil.AGENT, photo_recu=photo)
+    achat.lignes.append(LivraisonLigne(produit=produit, quantite_livree=quantite, quantite_recue=quantite,
+                                       morts_arrivee=morts, subventionne=False, part_subventionnee=None,
+                                       valeur_unitaire=round(prix / quantite, 2) if prix else None))
+    db.session.add(achat)
+    db.session.flush()
+    return achat
+
+
+def achat_annulable(achat, user):
+    """« Enregistré ✓ — Annuler (10) » : par la même personne, juste après, et tant que
+    rien n'a été pris dans cet achat (poussins mis en bande)."""
+    if not achat.est_achat or achat.statut != S.RECUE or achat.confirmee_par != user.id or not achat.confirmee_le:
+        return False
+    from app.services.bandes import utilises_par_ligne
+    if any(utilises_par_ligne([l.id for l in achat.lignes]).values()):
+        return False
+    ecoule = (maintenant() - en_utc(achat.confirmee_le)).total_seconds()
+    return ecoule <= DELAI_ANNULATION_SECONDES + TOLERANCE_RESEAU_SECONDES
+
+
+def annuler_achat(achat, user):
+    """Statut annulé (inscrit au journal), l'achat sort du stock."""
+    achat.statut = S.ANNULEE
+    achat.annulee_le = maintenant()
+    achat.annulee_par = user.id
+    achat.motif_annulation = "Annulé aussitôt par l'éleveur"
+
+
+def corriger_achat(achat, user, quantite, morts, prix, lieu, jour, motif):
+    """Correction par l'agent (ou l'ADMIN), avec motif inscrit au journal."""
+    if not motif:
+        raise RegleAchat('Indiquez le motif de la correction.')
+    if not quantite or quantite <= 0:
+        raise RegleAchat('Indiquez la quantité achetée.')
+    if jour > date.today():
+        raise RegleAchat('La date ne peut pas être dans le futur.')
+    l = achat.lignes[0]
+    if l.produit.type == TYPE_POUSSINS:
+        morts = int(morts or 0)
+        if morts < 0 or morts > quantite:
+            raise RegleAchat("Le nombre de poussins morts à l'arrivée est impossible.")
+        l.morts_arrivee = morts
+    l.quantite_livree = l.quantite_recue = quantite
+    achat.prix_paye_fcfa = prix
+    l.valeur_unitaire = round(prix / quantite, 2) if prix else None
+    achat.fournisseur = (lieu or '').strip()[:150] or None
+    achat.date_livraison = jour
+    enregistrer(Action.CORRECTION, table='livraison', enregistrement_id=achat.id,
+                detail=f'Achat {achat.numero} corrigé par {user.nom_complet} : {motif}')
+
+
 # ── Stock ───────────────────────────────────────────────────────────────
 
 def quantites_utilisees(ferme):
@@ -168,17 +274,21 @@ def stock_ferme(ferme):
     l'arrivée sont retirés : il reste les poussins « en attente de bande »."""
     lignes = (LivraisonLigne.query.join(Livraison)
               .filter(Livraison.ferme_id == ferme.id, Livraison.statut.in_(S.CONFIRMEES)).all())
-    recus = {}
+    recus, sources = {}, {}
     for l in lignes:
         net = (l.quantite_recue or 0) - (l.morts_arrivee or 0)
         recus[l.produit_id] = recus.get(l.produit_id, 0) + net
+        s = sources.setdefault(l.produit_id, {OrigineLivraison.ETAT: 0, OrigineLivraison.ACHAT: 0})
+        s[l.livraison.origine] = s.get(l.livraison.origine, 0) + net
     utilises = quantites_utilisees(ferme)
     resultat = []
     for pid, quantite in recus.items():
         produit = db.session.get(Produit, pid)
         stock = quantite - utilises.get(pid, 0)
         resultat.append({'produit': produit, 'stock': stock,
-                         'kg': stock * produit.poids_sac_kg if produit.en_sacs else None})
+                         'kg': stock * produit.poids_sac_kg if produit.en_sacs else None,
+                         # entrées par source (lot 9) : livraisons de l'État, achats personnels
+                         'etat': sources[pid][OrigineLivraison.ETAT], 'achat': sources[pid][OrigineLivraison.ACHAT]})
     ordre = {t: i for i, t in enumerate(['Poussins', 'Aliment', 'Vaccin', 'Médicament', 'Autre'])}
     return sorted(resultat, key=lambda r: (ordre.get(r['produit'].type, 9), r['produit'].nom))
 
@@ -199,6 +309,7 @@ def requete_ecart(base):
 
 def alertes(base):
     """Alertes des livraisons visibles (requête déjà filtrée par le périmètre)."""
+    base = livraisons_de_l_etat(base)
     jours = parametres.obtenir('intrants.delai_confirmation_jours', 3)
     resultat = []
     n = requete_retard(base).count()

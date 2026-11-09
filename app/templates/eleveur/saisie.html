@@ -1,0 +1,11 @@
+{% extends '_base.html' %}
+{% block titre %}Saisie du jour{% endblock %}
+{% block icone %}pencil{% endblock %}
+{% block page_titre %}✏️ Saisie du jour{% endblock %}
+{% block page_sous_titre %}Morts et aliment, bâtiment par bâtiment{% endblock %}
+
+{% block contenu %}
+{% include 'eleveur/_espace.html' %}
+{% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/compteurs.js') }}"></script>{% endblock %}

@@ -1,23 +1,15 @@
-{# « Ma bande aujourd'hui » de l'éleveur (lot 8). Variables : espace, a_confirmer, bandeau, bien_recu.
-   Plusieurs bâtiments : une pastille par bâtiment ; un toucher affiche sa bande (eleveur.js). #}
-{% from '_macros.html' import badge_statut %}
+{# Écran « Saisie du jour » de l'éleveur : « Ma bande aujourd'hui » du lot 8, ouvert par la grande
+   tuile verte de l'accueil (lot 9). Variables : espace, bien_recu.
+   Plusieurs bâtiments : une pastille par bâtiment ; un toucher affiche sa bande (eleveur.js).
+   Les bâtiments à saisir viennent d'abord : l'écran s'ouvre sur le premier pas encore saisi. #}
 <div class="ma-ferme-zone">
   {# Poulets pour l'écran « ◷ Sera envoyé… » affiché sans réseau (eleveur.js) #}
   {% for feu in ('vert', 'orange', 'rouge', 'gris') %}<template id="modele-poulet-{{ feu }}">{{ poulet(feu, 'bien-recu-poulet') }}</template>{% endfor %}
   {% if bien_recu %}{% with r=bien_recu %}{% include 'eleveur/_bien_recu.html' %}{% endwith %}{% endif %}
-  {% if bandeau %}{% with liv=bandeau.livraison, secondes=bandeau.secondes %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
-  {% for liv in a_confirmer %}{% include 'livraisons/_carte_confirmer.html' %}{% endfor %}
   {% for e in espace %}
   {% set f = e.ferme %}
   <div class="espace-ferme{% if e.plusieurs %} plusieurs{% endif %}">
-    {% if e.attente %}
-    <div class="carte carte-poussins">
-      <div class="carte-titre">🐣 Nouveaux poussins</div>
-      <div class="carte-sous"><span class="num">{{ e.attente|qte }}</span> poussins en attente de bande</div>
-      <a class="btn-gros btn-vert" href="{{ url_for('bandes.ouvrir', ferme=f.numero) }}">Commencer une bande</a>
-    </div>
-    {% endif %}
-
+    {% if espace|length > 1 %}<div class="carte-jour">{{ f.nom }}</div>{% endif %}
     {% if e.plusieurs %}
     <nav class="pastilles-bat" aria-label="Mes bâtiments">
       {% for x in e.blocs %}
@@ -42,33 +34,6 @@
       {% if x.type == 'bande' %}{% include 'eleveur/_bande.html' %}{% else %}{% include 'eleveur/_vide.html' %}{% endif %}
     </section>
     {% endfor %}
-
-    <div class="carte ma-ferme">
-      <div class="ma-ferme-tete">
-        <div>
-          <div class="ma-ferme-titre">Ma ferme</div>
-          <div class="ma-ferme-nom">{{ f.nom }}</div>
-          <div class="ma-ferme-num">{{ f.numero }}</div>
-        </div>
-        {{ badge_statut(f.statut) }}
-      </div>
-      <div class="ma-ferme-chiffres">
-        <div><span class="num">{{ f.batiments|selectattr('actif')|list|length }}</span> bâtiment{{ 's' if f.batiments|selectattr('actif')|list|length > 1 }}</div>
-        <div><span class="num">{{ '{:,}'.format(f.capacite).replace(',', ' ') }}</span> places</div>
-      </div>
-      {% if f.agent %}
-      <div class="ma-ferme-agent">
-        <i class="bi bi-person-badge"></i>
-        <div>Mon agent : <strong>{{ f.agent.nom_complet }}</strong>{% if f.agent.telephone %}<br>{{ f.agent.telephone }}{% endif %}</div>
-      </div>
-      {% if f.agent.telephone %}
-      <a class="btn-gros-secondaire" href="tel:{{ f.agent.telephone|replace(' ', '') }}">📞 Appeler mon agent</a>
-      {% endif %}
-      {% endif %}
-      {% if loop.last %}<div class="lien-discret"><a href="{{ url_for('livraisons.mes_livraisons') }}">📦 Mes livraisons</a>
-        · <a href="{{ url_for('sante.mes_declarations') }}">🩺 Mes déclarations</a>
-        · <a href="{{ url_for('bandes.mes_bandes') }}">⭐ Mes bandes</a></div>{% endif %}
-    </div>
   </div>
   {% else %}
   <div class="empty-note">Aucune ferme ne vous est encore rattachée. Contactez votre agent technique.</div>

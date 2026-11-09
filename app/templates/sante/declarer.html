@@ -5,6 +5,7 @@
 {% block page_sous_titre %}{{ ferme.nom }}{% if bande %} · Bâtiment {{ bande.batiment.code }}{% endif %} · envoyé aux services vétérinaires de la province{% endblock %}
 
 {% block contenu %}
+{% with vers='sante.declarer' %}{% include 'eleveur/_autres_batiments.html' %}{% endwith %}
 <form method="post" enctype="multipart/form-data" class="form-terrain" id="form-declaration" novalidate data-hors-ligne="Poulet malade{% if bande %} · bâtiment {{ bande.batiment.code }}{% endif %}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   {% if bande %}<input type="hidden" name="bande" value="{{ bande.numero }}">{% else %}<input type="hidden" name="ferme" value="{{ ferme.numero }}">{% endif %}

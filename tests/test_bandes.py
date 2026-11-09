@@ -69,7 +69,7 @@ def test_ouverture_par_l_eleveur_depuis_les_poussins(client, monde):
     liv = recevoir(monde['f'], [(monde['poussins'], 1000, 3), (monde['aliment'], 40, 0)])
     connecter(client, 'eleveur1')
     page = client.get('/').get_data(as_text=True)
-    assert 'Nouveaux poussins' in page and '997' in page and 'Commencer une bande' in page
+    assert 'Nouvelle bande' in page and '997' in page and '/bandes/ouvrir' in page   # tuile et sa pastille
     page = client.get(f'/bandes/ouvrir?ferme={monde["f"].numero}').get_data(as_text=True)
     assert '997' in page and '1 000 reçus − 3 morts' in page and 'Dans quel bâtiment' in page
     ligne = next(l for l in liv.lignes if l.produit.type == 'Poussins')
@@ -81,7 +81,9 @@ def test_ouverture_par_l_eleveur_depuis_les_poussins(client, monde):
     stock = {s['produit'].nom: s['stock'] for s in intrants.stock_ferme(monde['f'])}
     assert stock['Poussins chair'] == 0   # quittent l'attente de bande
     page = client.get('/').get_data(as_text=True)
-    assert 'Nouveaux poussins' not in page and 'Jour 0' in page and '997' in page
+    assert 'Nouvelle bande' not in page and 'B1 jour 0' in page
+    page = client.get('/saisie-du-jour').get_data(as_text=True)
+    assert 'Jour 0' in page and '997' in page
 
 
 def test_repartition_sur_deux_batiments_et_une_bande_par_batiment(monde):
@@ -233,7 +235,7 @@ def test_sorties(client, monde):
     assert 'entre 1 et 482' in r.get_data(as_text=True)
     client.post(f'/bandes/{b.numero}/sortie', data={'motif': 'Vente', 'nombre': '482', 'poids_total': '960',
                                                     'destinataire_libre': 'Marché de Ntoum'})
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/saisie-du-jour').get_data(as_text=True)
     assert 'Tous les poulets sont sortis' in page   # clôture proposée
     assert Sortie.query.count() == 2
 
@@ -297,7 +299,7 @@ def test_feu_orange_puis_rouge_et_alertes(client, monde):
     db.session.commit()
     assert indicateurs.feu(b) == ('orange', 'mortalite')
     connecter(client, 'eleveur1')
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/saisie-du-jour').get_data(as_text=True)
     assert 'Plus de morts que d&#39;habitude' in page and '6 morts' in page and 'Votre agent Paul a été prévenu' in page
     assert 'Signaler un poulet malade' in page
     SaisieJour.query.filter_by(date=AUJ).one().morts = 15                       # 1,5 % > 1 %
@@ -347,7 +349,7 @@ def test_cloture_par_l_eleveur_a_zero_et_lecture_seule(client, monde):
     client.post(f'/bandes/{b.numero}/cloturer')
     db.session.refresh(b)
     assert b.statut == StatutBande.CLOTUREE and b.bilan['sortis'] == 10
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/saisie-du-jour').get_data(as_text=True)
     assert 'vide depuis 0 jour' in page and 'Dernière bande' in page and 'poulet-dort' in page
     assert client.post(f'/bandes/{b.numero}/saisie', data={'morts': 1}).status_code == 403
     assert client.get(f'/bandes/{b.numero}/bilan').status_code == 200

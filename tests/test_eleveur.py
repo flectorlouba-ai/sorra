@@ -110,13 +110,13 @@ def test_expression_du_poulet_selon_le_feu(client, monde):
         assert f'poulet-{visage}' in poulet(feu)
     b = bande_ouverte(monde, jour=AUJ - timedelta(days=3))
     connecter(client, 'eleveur1')
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/saisie-du-jour').get_data(as_text=True)
     assert indicateurs.feu(b)[0] == 'orange' and 'poulet-inquiet' in page        # rien envoyé hier
     assert 'poulet-dort' in page                                                   # bâtiment vide
     jours(b, 2, 1)
-    assert 'poulet-content' in client.get('/').get_data(as_text=True)
+    assert 'poulet-content' in client.get('/saisie-du-jour').get_data(as_text=True)
     jours(b, 0, morts=20)                                                          # 2 % > 1 %
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/saisie-du-jour').get_data(as_text=True)
     assert 'poulet-malade' in page and "Beaucoup de morts aujourd'hui" in page
     assert 'Votre agent et le vétérinaire sont prévenus' in page and 'Signaler un poulet malade' in page
     assert 'Isolez les poulets malades' in page                                   # conseil
@@ -132,7 +132,7 @@ def test_conseil_du_feu_rouge_parametrable(client, monde):
     client.post('/sante/conseil', data={'conseil': 'Appelez le vétérinaire avant toute vente.'})
     assert Parametre.query.filter_by(cle='sante.conseil_feu_rouge').one().valeur == 'Appelez le vétérinaire avant toute vente.'
     changer(client, 'eleveur1')
-    assert 'Appelez le vétérinaire avant toute vente.' in client.get('/').get_data(as_text=True)
+    assert 'Appelez le vétérinaire avant toute vente.' in client.get('/saisie-du-jour').get_data(as_text=True)
     assert client.post('/sante/conseil', data={'conseil': 'x'}).status_code == 403
     changer(client, 'agent1')
     assert client.post('/sante/conseil', data={'conseil': 'x'}).status_code == 403
@@ -181,7 +181,7 @@ def test_un_seul_batiment_sans_pastilles(client, monde):
     regles.ouvrir(monde['f2'], monde['f2'].batiments[0], liv.lignes[0], 500, AUJ, None, el2)
     db.session.commit()
     connecter(client, 'eleveur2')
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/saisie-du-jour').get_data(as_text=True)
     assert 'pastilles-bat' not in page and 'Envoyer ✓' in page and 'poulet-content' in page
 
 
@@ -189,7 +189,7 @@ def test_deux_batiments_point_orange_et_il_reste_b2(client, monde):
     b1 = bande_ouverte(monde)
     b2 = bande_ouverte(monde, effectif=800, bat=1)
     connecter(client, 'eleveur1')
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/saisie-du-jour').get_data(as_text=True)
     assert page.count('class="pastille-bat') == 2 and page.count('class="point-a-saisir"') == 2
     assert 'B1 · J0' in page and 'B2 · J0' in page
     page = client.post(f'/bandes/{b1.numero}/saisie', data={'morts': '1'}, follow_redirects=True).get_data(as_text=True)
@@ -214,7 +214,7 @@ def test_quatre_batiments_ordre_et_a_faire_commun(client, monde):
     bande_ouverte(monde, effectif=600, bat=2)
     jours(b1, 0)                                   # B1 déjà saisie aujourd'hui
     connecter(client, 'eleveur1')
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/saisie-du-jour').get_data(as_text=True)
     ordre = [page.index(f'{code} · ') for code in ('B2', 'B3', 'B1', 'B4')]
     assert ordre == sorted(ordre)                   # à saisir d'abord, puis saisie, puis vide
     assert 'B4 · vide' in page and page.count('class="point-a-saisir"') == 2
@@ -229,7 +229,7 @@ def test_batiment_vide_etoiles_et_ouvrir_ici(client, monde):
     db.session.commit()
     recevoir(monde['f'], [(monde['poussins'], 500, 0)])   # poussins en attente
     connecter(client, 'eleveur1')
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/saisie-du-jour').get_data(as_text=True)
     assert 'Dernière bande · ' + b.numero in page and 'class="etoiles"' in page
     assert '🐣 Ouvrir une bande ici' in page and f'batiment={monde["f"].batiments[0].id}' in page
     page = client.get(f'/bandes/ouvrir?ferme={monde["f"].numero}&batiment={monde["f"].batiments[0].id}').get_data(as_text=True)
@@ -248,14 +248,14 @@ def test_vaccin_pas_encore_fait_puis_en_retard(client, monde):
     b = bande_ouverte(monde, jour=AUJ - timedelta(days=14))
     jours(b, *range(1, 14))
     connecter(client, 'eleveur1')
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/saisie-du-jour').get_data(as_text=True)
     assert 'Vaccin du jour' in page and '/sante/vacciner/' in page
     entree = CalendrierVaccinal.query.one()
     page = client.get(f'/sante/vacciner/{b.numero}?calendrier={entree.id}').get_data(as_text=True)
     assert 'Vaccin Gumboro' in page and "✓ C'est fait" in page and 'Pas encore fait' in page
     assert 'Stock à la ferme : 2 000 doses' in page
     assert Vaccination.query.count() == 0           # « Pas encore fait » : rien d'enregistré
-    assert 'Vaccin du jour' in client.get('/').get_data(as_text=True)   # toujours à faire
+    assert 'Vaccin du jour' in client.get('/saisie-du-jour').get_data(as_text=True)   # toujours à faire
     # Passé la date prévue + 2 jours : « en retard », l'agent est prévenu
     b.date_mise_en_place = AUJ - timedelta(days=17)
     db.session.commit()

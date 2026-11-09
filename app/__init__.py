@@ -62,6 +62,7 @@ def create_app(env='default'):
     from app.routes.pilotage import pilotage_bp
     from app.routes.tracabilite import tracabilite_bp, public_bp
     from app.routes.hors_ligne import hors_ligne_bp
+    from app.routes.eleveur import eleveur_bp
 
     app.register_blueprint(auth_bp,          url_prefix='/auth')
     app.register_blueprint(accueil_bp)
@@ -83,6 +84,8 @@ def create_app(env='default'):
     app.register_blueprint(public_bp)
     # Hors connexion (service worker à la racine, envois après coup)
     app.register_blueprint(hors_ligne_bp)
+    # Espace de l'éleveur : accueil en tuiles, saisie du jour, achats, stock (lot 9)
+    app.register_blueprint(eleveur_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
@@ -113,7 +116,12 @@ def create_app(env='default'):
         from flask_login import current_user
         from app.models import Profil
         eleveur = bool(current_user and current_user.is_authenticated and current_user.profil == Profil.ELEVEUR)
-        return {'theme_eleveur': eleveur}
+
+        def bandes_eleveur():
+            # Pastilles « autres bâtiments » sur Peser, Sortie, Poulet malade (calculées à la demande)
+            from app.routes.eleveur import bandes_en_cours
+            return bandes_en_cours() if eleveur else []
+        return {'theme_eleveur': eleveur, 'bandes_eleveur': bandes_eleveur}
 
     _installer_controles_session(app)
     _installer_erreurs(app)

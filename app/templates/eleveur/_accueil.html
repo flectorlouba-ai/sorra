@@ -1,0 +1,49 @@
+{# Accueil de l'éleveur (lot 9) : une porte d'entrée, une grosse tuile par action.
+   Variables : e (routes/eleveur.accueil), bandeau, bandeau_achat. #}
+<div class="accueil-eleveur">
+  {% if bandeau %}{% with liv=bandeau.livraison, secondes=bandeau.secondes %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
+  {% if bandeau_achat %}{% with liv=bandeau_achat.achat, secondes=bandeau_achat.secondes,
+       bandeau_texte='Enregistré ✓ — ' ~ bandeau_achat.achat.lignes[0].produit.nom,
+       bandeau_action=url_for('eleveur.annuler_achat', numero=bandeau_achat.achat.numero) %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
+
+  {% for s in e.rouges %}
+  <a class="bandeau-rouge" href="{{ url_for('sante.declarer', bande=s.bande.numero) }}">⚠️ {{ s.code }} : beaucoup de morts aujourd'hui → Signaler</a>
+  {% endfor %}
+
+  {% if e.fermes %}
+  <div class="ligne-etat">
+    {{ poulet(e.pire) }}
+    <div><strong>{{ e.etat }}</strong>
+      {% if e.situation %}<small>{% for s in e.situation %}{{ s.code }} jour {{ s.age }}{{ ' · ' if not loop.last }}{% endfor %}</small>{% endif %}</div>
+  </div>
+
+  {% if e.saisie.visible %}
+  {% set reste = e.saisie.a_saisir %}
+  <a class="tuile tuile-saisie{{ ' tuile-calme' if not reste }}" href="{{ url_for('eleveur.saisie') }}">
+    {% if reste %}<span class="pastille" aria-label="{{ reste|length }} bâtiment(s) à saisir">{{ reste|length }}</span>
+    <span class="tuile-ico">✏️</span><span class="tuile-nom">Saisie du jour</span>
+    <span class="tuile-sous">{{ reste|join(', ') }} à faire · morts et aliment</span>
+    {% else %}
+    <span class="tuile-ico">✓</span><span class="tuile-nom">Tout est envoyé aujourd'hui</span>
+    <span class="tuile-sous">toucher pour ajouter</span>
+    {% endif %}
+  </a>
+  {% endif %}
+
+  <div class="tuiles{{ ' impair' if e.tuiles|length is odd }}">
+    {% for t in e.tuiles %}
+    <a class="tuile {{ t.classe or '' }}" href="{{ t.lien }}" data-tuile="{{ t.cle }}">
+      {% if t.pastille %}<span class="pastille {{ t.pastille_classe or '' }}">{{ t.pastille|qte if t.pastille is number else t.pastille }}</span>{% endif %}
+      <span class="tuile-ico">{{ t.ico }}</span><span class="tuile-nom">{{ t.nom }}</span>
+      {% if t.sous %}<span class="tuile-sous">{{ t.sous }}</span>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+
+  {% if e.agent %}
+  <a class="tuile tuile-agent" href="tel:{{ e.agent.telephone|replace(' ', '') }}">📞 Appeler {{ e.agent.prenom or e.agent.nom }}, mon agent</a>
+  {% endif %}
+  {% else %}
+  <div class="empty-note">Aucune ferme ne vous est encore rattachée. Contactez votre agent technique.</div>
+  {% endif %}
+</div>

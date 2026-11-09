@@ -26,7 +26,7 @@ def _bande(numero):
 
 def _retour(bande):
     if current_user.profil == Profil.ELEVEUR:
-        return redirect(url_for('accueil.index') + f'#bat-{bande.ferme.numero}-{bande.batiment.code}')
+        return redirect(url_for('accueil.index'))
     return redirect(url_for('bandes.fiche', numero=bande.numero))
 
 

@@ -152,7 +152,7 @@ def test_calendrier_a_faire_vaccination_et_stock(client, monde):
     assert 'Vaccin du jour : Vaccin Gumboro (eau de boisson)' in taches
     assert 'Demain : vaccin Vaccin Gumboro (eau de boisson)' in taches
     connecter(client, 'eleveur1')
-    page = client.get('/').get_data(as_text=True)
+    page = client.get('/saisie-du-jour').get_data(as_text=True)
     assert 'Vaccin du jour' in page and '/sante/vacciner/' in page
     entree = CalendrierVaccinal.query.filter_by(age_jours=7).one()
     client.post(f'/sante/vacciner/{b.numero}', data={'calendrier': entree.id, 'produit_id': monde['vaccin'].id,

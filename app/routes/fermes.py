@@ -5,7 +5,8 @@ from flask import (Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user
 
 from app import db
-from app.models import Ferme, Province, Localite, Utilisateur, Profil, FermeInfrastructure, Batiment
+from app.models import Ferme, Province, Localite, Utilisateur, Profil, FermeInfrastructure, Batiment, Livraison
+from app.models.intrant import OrigineLivraison
 from app.models.base import maintenant
 from app.models.ferme import SourcePosition
 from app.models.liste_deroulante import ld_choices
@@ -89,6 +90,9 @@ def fiche(numero):
     return render_template('fermes/fiche.html', ferme=ferme, controle=controle, dessin=dessin,
                            peut_modifier=regles.peut_modifier(current_user, ferme),
                            stock=intrants.stock_ferme(ferme),
+                           achats=(Livraison.query.filter_by(ferme_id=ferme.id, origine=OrigineLivraison.ACHAT)
+                                   .order_by(Livraison.date_livraison.desc(), Livraison.numero_metier.desc()).all()
+                                   if current_user.profil in (Profil.AGENT, Profil.DGE, Profil.ADMIN) else None),
                            etats={b.id: regles_bandes.etat_batiment(b) for b in ferme.batiments},
                            bandes=Bande.query.filter_by(ferme_id=ferme.id)
                            .order_by(Bande.date_mise_en_place.desc()).all())
