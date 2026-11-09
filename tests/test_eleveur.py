@@ -262,6 +262,7 @@ def test_vaccin_pas_encore_fait_puis_en_retard(client, monde):
     db.session.commit()
     assert sante.vaccins_en_retard(type(b).query)
     changer(client, 'agent1')
+    client.get('/terrain/bureau')                   # lot 19 ter : alertes du pilotage dans la « Version bureau »
     assert 'vaccin en retard' in client.get('/').get_data(as_text=True)
 
 
@@ -287,7 +288,7 @@ def test_pesee_plus_n_grammes_seulement_en_vert(client, monde):
 
 def test_feuille_eleveur_seulement_pour_l_eleveur_et_la_page_publique(client, monde):
     b = bande_ouverte(monde)
-    css = 'css/eleveur.css'
+    css = 'css/terrain.css'                         # lot 19 ter : eleveur.css devient terrain.css
     assert css in client.get('/auth/connexion').get_data(as_text=True)    # connexion : pour tous (écart 1)
     connecter(client, 'eleveur1')
     for url in ('/', f'/bandes/{b.numero}/pesee', f'/bandes/{b.numero}/sortie', '/bandes/mes-bandes'):
@@ -296,7 +297,11 @@ def test_feuille_eleveur_seulement_pour_l_eleveur_et_la_page_publique(client, mo
     changer(client, 'agent1')
     for url in ('/', f'/bandes/{b.numero}/pesee', f'/bandes/{b}'.replace(str(b), b.numero)):
         page = client.get(url).get_data(as_text=True)
-        assert css not in page and 'theme-eleveur' not in page, url
+        assert 'theme-eleveur' not in page, url     # lot 19 ter : l'agent a le style terrain, sans les fêtes
+    client.get('/terrain/bureau')                   # « Version bureau » : plus de terrain.css
+    for url in ('/', f'/bandes/{b.numero}/pesee'):
+        page = client.get(url).get_data(as_text=True)
+        assert css not in page and 'theme-terrain' not in page, url
     lot = regles.sortir(b, AUJ, 'Vente', None, 'Marché', 10, 20, monde['el']).lot
     db.session.commit()
     client.post('/auth/deconnexion')

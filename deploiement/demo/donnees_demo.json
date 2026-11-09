@@ -217,6 +217,222 @@
 "modifie_le": "2026-11-09T08:32:28.933127",
 "ordre": 8,
 "titre": "Lire « Mon argent »"
+},
+{
+"actif": true,
+"cle": "ag_tournee",
+"cree_le": "2026-11-09T19:28:41.871262",
+"etapes": [
+{
+"capture": "",
+"texte": "Ouvrez « Ma tournée » le matin, avec du réseau : elle reste lisible sans réseau."
+},
+{
+"capture": "",
+"texte": "Les fermes sont dans l'ordre : la plus urgente d'abord, avec la raison."
+},
+{
+"capture": "",
+"texte": "Touchez « 🧭 Y aller » pour avoir la route."
+}
+],
+"groupe": "Agent : ma journée",
+"id": 10,
+"modifie_le": "2026-11-09T19:28:41.871269",
+"ordre": 100,
+"titre": "Préparer ma tournée"
+},
+{
+"actif": true,
+"cle": "ag_saisir",
+"cree_le": "2026-11-09T19:28:41.876060",
+"etapes": [
+{
+"capture": "",
+"texte": "Choisissez la ferme, puis le bâtiment."
+},
+{
+"capture": "",
+"texte": "Touchez Jour, Pesée, Vaccin ou Sortie : ce sont les écrans de l'éleveur."
+},
+{
+"capture": "envoyer",
+"texte": "Envoyez : c'est marqué « saisi par vous »."
+}
+],
+"groupe": "Agent : ma journée",
+"id": 11,
+"modifie_le": "2026-11-09T19:28:41.876067",
+"ordre": 101,
+"titre": "Saisir pour un éleveur"
+},
+{
+"actif": true,
+"cle": "ag_visite",
+"cree_le": "2026-11-09T19:28:41.881840",
+"etapes": [
+{
+"capture": "",
+"texte": "Choisissez la ferme en haut de l'écran."
+},
+{
+"capture": "",
+"texte": "Dites pourquoi vous venez, ce que vous avez vu, et touchez vos conseils."
+},
+{
+"capture": "",
+"texte": "Touchez « Envoyer le compte rendu » : l'éleveur voit vos conseils."
+}
+],
+"groupe": "Agent : ma journée",
+"id": 12,
+"modifie_le": "2026-11-09T19:28:41.881850",
+"ordre": 102,
+"titre": "Faire une visite"
+},
+{
+"actif": true,
+"cle": "ag_verifier",
+"cree_le": "2026-11-09T19:28:41.889208",
+"etapes": [
+{
+"capture": "",
+"texte": "Comparez les deux chiffres : celui de l'éleveur compte en attendant."
+},
+{
+"capture": "",
+"texte": "Touchez la version à garder, puis la raison."
+},
+{
+"capture": "",
+"texte": "Touchez « Valider » : c'est inscrit au journal."
+}
+],
+"groupe": "Agent : ma journée",
+"id": 13,
+"modifie_le": "2026-11-09T19:28:41.889217",
+"ordre": 103,
+"titre": "Vérifier deux versions"
+},
+{
+"actif": true,
+"cle": "ag_stock",
+"cree_le": "2026-11-09T19:28:41.893444",
+"etapes": [
+{
+"capture": "",
+"texte": "Choisissez la ferme."
+},
+{
+"capture": "",
+"texte": "Touchez « Compter » sur un produit et tapez ce qui reste."
+},
+{
+"capture": "enregistrer",
+"texte": "« Enregistrer » : SORRA dit s'il manque des sacs."
+}
+],
+"groupe": "Agent : les fermes",
+"id": 14,
+"modifie_le": "2026-11-09T19:28:41.893449",
+"ordre": 104,
+"titre": "Compter le stock"
+},
+{
+"actif": true,
+"cle": "ag_nouvel",
+"cree_le": "2026-11-09T19:28:41.897509",
+"etapes": [
+{
+"capture": "",
+"texte": "Choisissez sa ferme (une nouvelle ferme : avec du réseau seulement)."
+},
+{
+"capture": "",
+"texte": "La personne, la ferme, le compte : touchez « Suivant »."
+},
+{
+"capture": "",
+"texte": "Notez l'identifiant et le mot de passe provisoire : ils ne s'affichent qu'une fois."
+}
+],
+"groupe": "Agent : les fermes",
+"id": 15,
+"modifie_le": "2026-11-09T19:28:41.897515",
+"ordre": 105,
+"titre": "Inscrire un nouvel éleveur"
+},
+{
+"actif": true,
+"cle": "op_recevoir",
+"cree_le": "2026-11-09T19:28:41.902390",
+"etapes": [
+{
+"capture": "",
+"texte": "Touchez « Recevoir un lot » et mettez le QR dans le cadre jaune."
+},
+{
+"capture": "",
+"texte": "Tapez les vivants, les morts (« 0 » s'il n'y en a pas) et le poids total."
+},
+{
+"capture": "",
+"texte": "Touchez « Valider la réception »."
+}
+],
+"groupe": "Recevoir les poulets",
+"id": 16,
+"modifie_le": "2026-11-09T19:28:41.902399",
+"ordre": 106,
+"titre": "Recevoir un lot"
+},
+{
+"actif": true,
+"cle": "op_ecart",
+"cree_le": "2026-11-09T19:28:41.911124",
+"etapes": [
+{
+"capture": "",
+"texte": "Tapez ce que vous avez vraiment compté."
+},
+{
+"capture": "",
+"texte": "Touchez la raison : erreur de comptage, morts au transport, poulets échappés…"
+},
+{
+"capture": "",
+"texte": "« Valider avec cet écart » : l'agent de la ferme est prévenu."
+}
+],
+"groupe": "Recevoir les poulets",
+"id": 17,
+"modifie_le": "2026-11-09T19:28:41.911135",
+"ordre": 107,
+"titre": "Il manque des poulets"
+},
+{
+"actif": true,
+"cle": "op_arrivent",
+"cree_le": "2026-11-09T19:28:41.916570",
+"etapes": [
+{
+"capture": "",
+"texte": "La liste montre les lots envoyés chez vous par les fermes."
+},
+{
+"capture": "",
+"texte": "Elle reste sur le téléphone, même sans réseau."
+},
+{
+"capture": "",
+"texte": "Quand le camion arrive, touchez « Recevoir »."
+}
+],
+"groupe": "Recevoir les poulets",
+"id": 18,
+"modifie_le": "2026-11-09T19:28:41.916578",
+"ordre": 108,
+"titre": "Les lots qui arrivent"
 }
 ],
 "alerte_historique": [
@@ -2079,6 +2295,27 @@
 "id": 87,
 "ordre": 9,
 "valeur": "Marché"
+},
+{
+"actif": true,
+"categorie": "motifs_verification",
+"id": 88,
+"ordre": 0,
+"valeur": "Recompté ensemble"
+},
+{
+"actif": true,
+"categorie": "motifs_verification",
+"id": 89,
+"ordre": 1,
+"valeur": "Erreur de saisie"
+},
+{
+"actif": true,
+"categorie": "motifs_verification",
+"id": 90,
+"ordre": 2,
+"valeur": "Autre"
 }
 ],
 "livraison": [
@@ -3126,6 +3363,15 @@
 "modifie_par": null,
 "type": "ENTIER",
 "valeur": "24"
+},
+{
+"cle": "contact.telephone_dge",
+"description": "Téléphone de contact de la DGE affiché aux agents (« 📞 Appeler la DGE »). Vide : celui du premier compte DGE actif qui a un téléphone ; aucun : rien ne s'affiche.",
+"id": 48,
+"modifie_le": null,
+"modifie_par": null,
+"type": "TEXTE",
+"valeur": ""
 }
 ],
 "pesee": [

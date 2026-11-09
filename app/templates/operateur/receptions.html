@@ -1,22 +1,19 @@
 {% extends '_base.html' %}
 {% block titre %}Mes réceptions{% endblock %}
-{% block sous_titre %}{{ operateur.nom }}{% endblock %}
-{% block icone %}clipboard-check{% endblock %}
-{% block page_sous_titre %}Les 100 dernières réceptions{% endblock %}
+{% block page_titre %}📦 Mes réceptions{% endblock %}
+{% block page_sous_titre %}Les 100 dernières{% endblock %}
 {% block contenu %}
-{% if receptions %}
-<ul class="op-liste op-liste-cartes">
-  {% for r in receptions %}
-  <li data-reception="{{ r.lot_saisi }}"><a href="{{ url_for('operateur.reception', ident=r.id) }}">
-    <span class="mono">{{ r.lot_saisi }}</span>
-    <span class="op-etat {{ {'VALIDEE': 'ok', 'SOUS_RESERVE': 'attente', 'REFUSEE': 'refuse'}[r.etat] }}">{{ r.libelle_etat }}</span>
-    {% if r.vivants is not none %}<span>{{ r.vivants|qte }} vivants · {{ r.morts|qte }} morts · {{ r.poids_kg|qte }} kg
-      {% if r.annonce is not none %}<span class="td-sous">(annoncé {{ r.annonce|qte }})</span>{% endif %}</span>{% endif %}
-    <span class="td-sous">{{ r.recu_le|date_locale('%d/%m/%Y %H:%M') }}{% if r.hors_ligne %} · sans réseau{% endif %}</span>
-  </a></li>
-  {% endfor %}
-</ul>
+<div class="liste-cartes">
+{% for r in receptions %}
+  {% set etat = etat_en_mots(r) %}
+  <a class="carte carte-lien carte-reception" href="{{ url_for('operateur.reception', ident=r.id) }}" data-reception="{{ r.lot_saisi }}">
+    <div class="carte-titre-ligne"><span class="carte-titre">{{ r.lot_saisi }}</span></div>
+    <div class="op-etat {{ etat[1] }}">{{ etat[0] }}</div>
+    {% if r.vivants is not none %}<div class="carte-sous">🐔 {{ r.vivants|qte }} vivants · 💀 {{ r.morts|qte }} morts · ⚖️ {{ r.poids_kg|qte }} kg{% if r.annonce is not none %} (annoncés {{ r.annonce|qte }}){% endif %}</div>{% endif %}
+    <div class="carte-sous">{{ r.recu_le|date_locale('%d/%m/%Y à %H h %M') }}</div>
+  </a>
 {% else %}
-<div class="empty-note"><i class="bi bi-inbox"></i> Aucune réception pour l'instant.</div>
-{% endif %}
+  <div class="carte"><div class="carte-sous">Aucune réception pour l'instant.</div></div>
+{% endfor %}
+</div>
 {% endblock %}

@@ -49,6 +49,9 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | **Motifs d'écart à la réception** (touchés au quai ; seul « Autre » demande un texte). Tout écart de nombre, ou des morts au-delà du seuil, demande un motif | Listes → `motifs_ecart_quai` | Erreur de comptage · Morts au transport · Poulets échappés · Autre | 19 |
 | **Refus répétés du même QR** qui alertent la DGE (tous opérateurs confondus) | Paramètres → `reception.refus_alerte_nombre`, `reception.refus_alerte_heures` (quatre yeux) | 3 refus en 24 h | 19 |
 | Type d'opérateur « Marché » (le type « Abattoir » seul applique tous les contrôles) | Listes → `types_operateurs` | ajouté au lot 19 | 19 |
+| **Raisons d'un choix entre deux versions** (« À vérifier » de l'agent ; « Autre » demande un texte) | Listes → `motifs_verification` | Recompté ensemble · Erreur de saisie · Autre | 19 ter |
+| **Téléphone de contact de la DGE** affiché aux agents (Moi) ; vide : premier compte DGE actif avec un téléphone ; aucun : rien | Paramètres → `contact.telephone_dge` | vide | 19 ter |
+| **Contraste des boutons pleins** vert (3,2) et bleu (4,1), texte blanc gras de 17 px : communs à l'éleveur, à l'agent et à l'opérateur ; les foncer changerait l'écran de l'éleveur | `terrain.css` (`--e-prairie`, `--e-bleu`) | inchangés | 13, 19 ter |
 | Seuil « à vérifier » de la dernière synchronisation du téléphone | code | 3 jours | 10 |
 
 ## Textes à faire relire (éleveurs, agents, DGE)
@@ -60,6 +63,10 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | **Les 9 aides « Comment faire ? »** (titres et 3 étapes chacune) | Configuration → Aides (ADMIN) | 13 |
 | **Messages de l'éleveur sur ses sorties** : « ✓ Partis › ✓ Reçus par l'abattoir — L'abattoir a compté N vivants et M morts au transport », « ◷ En attente du vétérinaire », « ✗ Le vétérinaire n'a pas accepté ces poulets — appelez votre agent » | `services/receptions.etat_pour_eleveur` | 19 |
 | **Messages de refus au quai** (QR inconnu, lot annulé, déjà reçu, destiné à un autre opérateur, ventes bloquées) | `services/receptions.motif_refus` | 19 |
+| **Présentation de l'agent** (4 écrans) : « Chaque matin, ouvrez « Ma tournée » : les fermes à voir, la plus urgente d'abord. » · « Une ferme en rouge ? Allez-y, notez ce que vous voyez et conseillez l'éleveur. » · « Vous pouvez saisir pour un éleveur : c'est marqué « saisi par vous ». » · « Pas de réseau ? Continuez : tout part quand le réseau revient. » | `templates/terrain/presentation.html` | 19 ter |
+| **Présentation de l'opérateur** (4 écrans) : « Un camion arrive ? Touchez « Recevoir un lot » et visez le QR code. » · « Comptez les poulets vivants, les morts et pesez. Tapez « 0 » s'il n'y a pas de mort. » · « Un écran orange ? Gardez les poulets à part : le vétérinaire doit donner son accord. » · « Pas de réseau ? Recevez quand même : la vérification se fait quand le réseau revient. » | `templates/terrain/presentation.html` | 19 ter |
+| **Les 6 aides de l'agent** (Préparer ma tournée, Saisir pour un éleveur, Faire une visite, Vérifier deux versions, Compter le stock, Inscrire un nouvel éleveur) et **les 3 de l'opérateur** (Recevoir un lot, Il manque des poulets, Les lots qui arrivent) | Configuration → Aides (ADMIN) ; textes de départ dans la migration 0022 | 19 ter |
+| **Phrases de l'opérateur** : contrôles (« Bien envoyé à votre abattoir », « Poulets vaccinés », « Pas de médicament récent », « Pesés il y a 3 jours »…), refus (« Ce lot n'existe pas. », « Ce lot est pour … », « Le vétérinaire a bloqué la vente de ces poulets. »…), « Gardez ces poulets à part » | `routes/operateur.py` (`phrases_controles`, `phrase_refus`, `etat_en_mots`) | 19 ter |
 | **Le texte de « Ma banque »** (ce que la BCEG verra et ne verra pas) — à faire valider aussi par la BCEG | `templates/eleveur/ma_banque.html` | 13 |
 
 ## Test terrain

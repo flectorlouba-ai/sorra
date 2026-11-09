@@ -1,6 +1,7 @@
 {# Accueil de l'éleveur (lot 11) : 8 tuiles dans un ordre FIXE qui ne disparaissent plus.
    Saisie du jour en tête (pleine largeur), 6 tuiles, Entretien (pleine largeur).
-   Variables : e (routes/eleveur.accueil), bandeau_vaccin. #}
+   Variables : e (routes/eleveur.accueil), bandeau_vaccin. Tuiles : macro commune de l'espace terrain (lot 19 ter). #}
+{% from 'terrain/_macros.html' import tuile %}
 <div class="accueil-eleveur">
   {% if bandeau_vaccin %}{% with liv={'numero': 'vaccin'}, secondes=bandeau_vaccin.secondes,
        bandeau_texte='Fait ✓ — ' ~ bandeau_vaccin.vaccination.produit.nom ~ ' · ' ~ bandeau_vaccin.vaccination.bande.batiment.code,
@@ -50,11 +51,7 @@
 
   <div class="tuiles">
     {% for t in e.tuiles %}
-    <a class="tuile {{ t.classe or '' }}" href="{{ t.lien }}" data-tuile="{{ t.cle }}">
-      {% if t.pastille %}<span class="pastille {{ t.pastille_classe or '' }}">{{ t.pastille|qte if t.pastille is number else t.pastille }}</span>{% endif %}
-      <span class="tuile-ico">{{ t.ico }}</span><span class="tuile-nom">{{ t.nom }}</span>
-      {% if t.sous %}<span class="tuile-sous">{{ t.sous }}</span>{% endif %}
-    </a>
+    {{ tuile(t) }}
     {% endfor %}
     {% set t = e.entretien %}
     <a class="tuile tuile-large" href="{{ t.lien }}" data-tuile="{{ t.cle }}">

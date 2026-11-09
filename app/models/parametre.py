@@ -150,3 +150,10 @@ PARAMETRES_RECEPTION = [
 ]
 PARAMETRES_DEFAUT += PARAMETRES_RECEPTION
 
+# Lot 19 ter — téléphone de contact de la DGE (Moi de l'agent)
+PARAMETRES_DEFAUT += [
+    ('contact.telephone_dge', '', TypeParametre.TEXTE,
+     "Téléphone de contact de la DGE affiché aux agents (« 📞 Appeler la DGE »). Vide : celui du premier compte DGE "
+     "actif qui a un téléphone ; aucun : rien ne s'affiche."),
+]
+

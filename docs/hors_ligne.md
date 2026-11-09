@@ -153,6 +153,21 @@ Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple pl
 - Un écart sans raison (lot inconnu du téléphone) n'est pas refusé : la réception est gardée, les alertes partent, et l'opérateur complète la raison depuis « À traiter ».
 - En ligne, un réseau qui tombe entre le scan et « Valider la réception » ne perd rien : le formulaire du résultat est aussi gardé sur le téléphone.
 
+### Espace terrain de l'agent et de l'opérateur (lot 19 ter)
+- **Toutes les pages terrain** de l'agent et de l'opérateur sont dans la liste unique (`routes/hors_ligne.pages_a_garder`) :
+  - accueil, tournée, mes fermes, fiche de chaque ferme ;
+  - saisir pour (par ferme), stock (par ferme), à vérifier, nouvel éleveur ;
+  - Moi, présentation, aides « Comment faire ? » de leur profil ;
+  - les écrans de saisie de l'éleveur déjà gardés depuis le lot 16.
+
+  Un test parcourt toutes les adresses de l'application et vérifie qu'aucune page terrain ne manque (`tests/test_lot19ter.py`).
+- **Pas gardées, et c'est voulu** (`EN_LIGNE_SEULEMENT`, `VERSION_BUREAU_AGENT`) :
+  - la sécurité du compte, en ligne par nature ;
+  - la création d'une ferme : **avec du réseau seulement**, et le téléphone le dit (« 📶 Avec du réseau seulement ») ;
+  - les écrans de la « Version bureau » de l'agent.
+- **Prévu au lot 19 bis (GPS)** : créer une **nouvelle ferme sans réseau** (gardée sur le téléphone, numéro attribué à l'arrivée). Aujourd'hui, sans réseau, l'agent inscrit un éleveur seulement sur une ferme déjà enregistrée.
+- L'accueil de l'agent et de l'opérateur affiche « 📶 Tout est envoyé ✓ » ou « ◷ N saisies en attente » : c'est le nombre lu sur le téléphone (`window.sorraEnAttente`).
+
 ### Session (lot 15)
 - L'éleveur et l'agent ne sont **jamais déconnectés par inactivité** : des jours sans réseau ne doivent pas faire perdre la session.
 - Si l'ADMIN ferme la session (téléphone perdu), l'envoi suivant reçoit la réponse « connexion ». Les saisies restent sur le téléphone et partent après la reconnexion, au nom de leur auteur (lot 13).

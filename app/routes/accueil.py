@@ -316,8 +316,14 @@ def index():
         return render_template('accueil.html', eleveur=True, onglets=[], e=accueil_eleveur(current_user),
                                bandeau_vaccin=bandeau_vaccin(current_user),
                                blocages=veto.blocages_visibles(current_user).filter_by(leve_le=None).all())
-    if current_user.profil == Profil.OPERATEUR:                # lot 19 : accueil de l'opérateur, téléphone d'abord
-        from app.routes.operateur import accueil as accueil_operateur
-        return render_template('accueil.html', eleveur=False, onglets=[], o=accueil_operateur(current_user))
+    from app.utils import terrain
+    profil = terrain.profil_terrain(current_user)
+    if profil in ('agent', 'operateur'):                      # lot 19 ter : espace terrain, téléphone d'abord
+        if current_user.presentation_vue_le is None:          # présentation au premier lancement, une fois par compte
+            return redirect(url_for('terrain.presentation'))
+        from app.routes import terrain as ecrans
+        if profil == 'agent':
+            return render_template('terrain/agent/accueil.html', a=ecrans.accueil_agent(current_user))
+        return render_template('terrain/operateur/accueil.html', o=ecrans.accueil_operateur(current_user))
     return render_template('accueil.html', eleveur=False, onglets=onglets_pour(current_user),
                            alertes=_alertes(current_user), perimetre=perimetre(current_user))

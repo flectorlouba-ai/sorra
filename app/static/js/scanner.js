@@ -31,14 +31,16 @@
       var phrases = [];
       if (ecart > 0) phrases.push('Il manque ' + ecart + ' poulet' + (ecart > 1 ? 's' : ''));
       if (ecart < 0) phrases.push(-ecart + ' poulet' + (ecart < -1 ? 's' : '') + ' en trop');
-      if (pct > seuil) phrases.push('morts au-delà de ' + seuil.toLocaleString('fr-FR') + ' %');
+      if (pct > seuil) phrases.push('beaucoup de morts (plus de ' + seuil.toLocaleString('fr-FR') + ' %)');
       aExpliquer = phrases.length > 0;
-      document.getElementById('ec-texte').textContent = aExpliquer ? '⚠ ' + phrases.join(', ') + ' : touchez la raison (obligatoire).' : '✓ Conforme à l\'annoncé';
+      document.getElementById('ec-texte').textContent = aExpliquer ? phrases.join(', ') : '✓ Comme annoncé';
       bloc.hidden = false;
       bloc.classList.toggle('ecart', aExpliquer);
     } else if (bloc) {
       bloc.hidden = true;
     }
+    var valider = document.querySelector('[data-valider]');   // lot 19 ter : « Valider avec cet écart »
+    if (valider) valider.textContent = aExpliquer ? 'Valider avec cet écart' : '✓ Valider la réception';
     if (motifs) {
       var sansAnnonce = chiffres.getAttribute('data-annonce') === '';
       motifs.hidden = !(aExpliquer || (sansAnnonce && document.querySelector('input[name=motif_ecart]:checked')));
@@ -158,7 +160,7 @@
     video.srcObject = f;
     return video.play();
   }).then(function () {
-    message.textContent = 'Visez le QR code';
+    message.textContent = 'Mettez le QR dans le cadre jaune';
     if ('BarcodeDetector' in window) {
       var detecteur = new window.BarcodeDetector({formats: ['qr_code']});
       boucle(function () {

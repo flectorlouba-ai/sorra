@@ -1,0 +1,59 @@
+{% extends '_base.html' %}
+{% block aide %}ag_visite{% endblock %}
+{% block titre %}Visite{% endblock %}
+{% block page_titre %}📋 Visite{% endblock %}
+{% block page_sous_titre %}{{ ferme.numero }} · {{ ferme.nom }}{% if visite %} · prévue le {{ visite.date_prevue.strftime('%d/%m') }}{% endif %}{% endblock %}
+{% block contenu %}
+{# Compte rendu de visite, une seule page de haut en bas (lot 19 ter). Même enregistrement qu'au lot 12 ; sans réseau aussi. #}
+<div class="pastilles-bat pastilles-choix" data-choix-ferme>
+  {% for f in tournee + autres %}<a class="pastille-bat{{ ' active' if f.id == ferme.id }}" href="{{ url_for('visites.compte_rendu', numero=f.numero) }}">{{ '🚗 ' if f in tournee }}{{ f.numero }}</a>{% endfor %}
+</div>
+<form method="post" action="{{ url_for('visites.compte_rendu', numero=ferme.numero) }}" enctype="multipart/form-data" class="form-terrain" novalidate data-hors-ligne="Compte rendu de visite · {{ ferme.nom }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if visite %}<input type="hidden" name="visite" value="{{ visite.id }}">{% endif %}
+  <input type="hidden" name="latitude" id="latitude" value="{{ saisie.get('latitude', '') }}">
+  <input type="hidden" name="longitude" id="longitude" value="{{ saisie.get('longitude', '') }}">
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  <div class="carte position-visite" id="position-etat">📍 Position : recherche…</div>
+  {% if not visite %}
+  <div class="form-label">Pourquoi cette visite ?</div>
+  <div class="choix-cases">
+    {% for o in objets %}<label class="case-choix"><input type="radio" name="objet" value="{{ o }}" {% if (saisie.get('objet') or objets[0]) == o %}checked{% endif %}><span>{{ o }}</span></label>{% endfor %}
+  </div>
+  {% endif %}
+  <div class="form-group">
+    <label class="form-label" for="constats">Ce que vous avez vu</label>
+    <textarea class="form-control" id="constats" name="constats" rows="3" maxlength="500">{{ saisie.get('constats', '') }}</textarea>
+  </div>
+  <div class="form-label">Vos conseils à l'éleveur</div>
+  <div class="choix-cases choix-multiples">
+    {% for r in recommandations %}<label class="case-choix"><input type="checkbox" name="recommandations" value="{{ r }}" {% if r in saisie.getlist('recommandations') %}checked{% endif %}><span>{{ r }}</span></label>{% endfor %}
+  </div>
+  <input class="form-control" id="recommandation_libre" name="recommandation_libre" maxlength="300" placeholder="Autre conseil (facultatif)" value="{{ saisie.get('recommandation_libre', '') }}" aria-label="Autre conseil">
+  <a class="carte carte-lien carte-biosecurite" href="{{ url_for('agent.biosecurite', numero=ferme.numero) }}" data-biosecurite>
+    <span class="carte-titre">🛡️ Biosécurité</span>
+    <span class="carte-sous">{{ n_questions }} questions oui / non · 2 min</span>
+    <span class="raccourci-action">Faire →</span>
+  </a>
+  <label class="btn-gros-secondaire" for="photo-visite">📷 Photo <span class="form-hint">&nbsp;facultatif</span></label>
+  <input type="file" id="photo-visite" name="photo" accept="image/*" capture="environment" hidden>
+  <div class="form-hint" id="photo-nom"></div>
+  <button type="submit" class="btn-gros btn-vert">Envoyer le compte rendu</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  // Position relevée automatiquement si le téléphone l'accepte ; sinon, sans blocage
+  var etat = document.getElementById('position-etat');
+  if (!navigator.geolocation) { etat.textContent = '📍 Position non relevée'; return; }
+  navigator.geolocation.getCurrentPosition(function (p) {
+    document.getElementById('latitude').value = p.coords.latitude.toFixed(6);
+    document.getElementById('longitude').value = p.coords.longitude.toFixed(6);
+    etat.textContent = '📍 Position relevée ✓';
+  }, function () { etat.textContent = '📍 Position non relevée'; }, {timeout: 10000, maximumAge: 300000});
+  var f = document.getElementById('photo-visite');
+  f.addEventListener('change', function () { document.getElementById('photo-nom').textContent = f.files[0] ? '✓ Photo prête' : ''; });
+})();
+</script>
+{% endblock %}

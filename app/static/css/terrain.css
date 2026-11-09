@@ -1,0 +1,700 @@
+/* ══════════════════════════════════════════════════════════════════════
+   SORRA — charte « illustrée douce » de l'espace TERRAIN (lot 8, étendue au lot 19 ter) :
+   éleveur, agent, opérateur, page publique du QR code et écran de connexion. Les profils
+   « bureau » gardent perform.css seul. Classe du corps : theme-terrain + terrain-eleveur,
+   terrain-agent ou terrain-operateur (theme-eleveur reste posée pour l'éleveur : ses fêtes).
+   Couleurs uniquement dans :root ci-dessous.
+   Police Nunito (licence OFL), servie en local. Animations : transform et opacity,
+   coupées si l'appareil demande de réduire les animations.
+   ══════════════════════════════════════════════════════════════════════ */
+
+@font-face{font-family:'Nunito';font-style:normal;font-weight:400;font-display:swap;src:url(../polices/nunito-latin-ext-400-normal.woff2) format('woff2');unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:400;font-display:swap;src:url(../polices/nunito-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:500 600;font-display:swap;src:url(../polices/nunito-latin-ext-600-normal.woff2) format('woff2');unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:500 600;font-display:swap;src:url(../polices/nunito-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:700;font-display:swap;src:url(../polices/nunito-latin-ext-700-normal.woff2) format('woff2');unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:700;font-display:swap;src:url(../polices/nunito-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:800 900;font-display:swap;src:url(../polices/nunito-latin-ext-800-normal.woff2) format('woff2');unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:800 900;font-display:swap;src:url(../polices/nunito-latin-800-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+
+:root{
+  --e-nuit:#1b2a5e;      /* textes */
+  --e-bleu:#2a7de1;      /* actions */
+  --e-bleu-fonce:#1b4fae;/* fin du dégradé de l'en-tête */
+  --e-soleil:#f7c948;
+  --e-prairie:#2fa36b;   /* tout va bien, bouton Envoyer */
+  --e-prairie-fonce:#17734a;   /* texte vert : 5,2 sur vert pâle (lot 13) */
+  --e-orange:#f08a24;    /* attention (fonds, pastilles avec texte bleu nuit : 5,4) */
+  --e-orange-fonce:#a8520f; /* texte « attention » : 5,4 sur blanc, 4,9 sur orange pâle (lot 13) */
+  --e-rouge:#e5484d;     /* alerte */
+  --e-creme:#fbf8f2;     /* fond de page */
+  --e-gris:#5c6683;      /* textes secondaires : 5,4 sur crème (lot 13) */
+  --e-trait:#edf0f6;     /* bordure très fine des cartes */
+  --e-blanc:#fff;
+  --e-gris-clair:#eef1f7;
+  --e-bleu-pale:#e8f1fd;
+  --e-bleu-bord:#d6e2f5;
+  --e-jaune-pale:#fff8dc;
+  --e-jaune-bord:#f6e3a1;
+  --e-orange-pale:#fff1e3;
+  --e-orange-bord:#f9d4ad;
+  --e-rose:#fdeced;
+  --e-rose-bord:#f8d3d5;
+  --e-rose-corps:#fde3e6;
+  --e-vert-pale:#e7f6ee;
+  --e-aile:#dbe9fb;
+  --e-goutte:#9fd0f7;
+  --e-ombre:rgba(27,42,94,.08);
+  --e-ombre-bleue:rgba(42,125,225,.32);
+  --e-ombre-verte:rgba(47,163,107,.32);
+  --e-ombre-rouge:rgba(229,72,77,.32);
+  --e-voile:rgba(27,42,94,.45);
+  --e-sombre:#1f2937;
+  --e-prairie-sombre:#1f7a4f;  /* fin du dégradé vert de l'en-tête de l'opérateur (lot 19 ter) */
+  /* En-tête : bleu pour l'éleveur et l'agent, vert pour l'opérateur (.terrain-operateur) */
+  --t-entete-debut:var(--e-bleu);
+  --t-entete-fin:var(--e-bleu-fonce);
+}
+.terrain-operateur{--t-entete-debut:var(--e-prairie);--t-entete-fin:var(--e-prairie-sombre);}
+
+/* ── Base ─────────────────────────────────────────────────────────────── */
+.theme-terrain{background:var(--e-creme);color:var(--e-nuit);
+  font-family:'Nunito','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;}
+.theme-terrain .kente-band,.theme-terrain .kente-top,.theme-terrain .greeting-bar{display:none;}
+.theme-terrain .num,.theme-terrain .mono{font-family:inherit;}
+.theme-terrain .page-body,.theme-terrain .content{width:100%;max-width:560px;min-width:0;box-sizing:border-box;margin:0 auto;padding:14px 14px 32px;}
+.theme-terrain .table-wrap{border-radius:16px;border:1px solid var(--e-trait);box-shadow:0 2px 10px var(--e-ombre);}
+.theme-terrain .table-wrap thead tr{background:var(--e-nuit);}
+.theme-terrain .table-wrap table{font-size:.85rem;}
+
+/* En-tête : dégradé bleu, poulet + SORRA en blanc, « Bonjour {Prénom} ! 👋 » */
+.theme-terrain .topbar{background:linear-gradient(135deg,var(--t-entete-debut),var(--t-entete-fin));border:0;box-shadow:none;
+  padding:12px 14px 14px;min-height:0;}
+.theme-terrain .topbar-name,.theme-terrain .topbar-brand-name{font-family:inherit;font-weight:900;font-size:1.15rem;
+  letter-spacing:.02em;color:var(--e-blanc);}
+.theme-terrain .topbar-sub,.theme-terrain .topbar-brand-sub{font-size:.88rem;color:var(--e-blanc);opacity:.95;}
+.theme-terrain .bonjour{font-weight:700;}
+.theme-terrain .logo-texte{width:34px;height:34px;filter:none;}
+.theme-terrain .btn-top{border-color:rgba(255,255,255,.45);color:var(--e-blanc);border-radius:12px;}
+.theme-terrain .topbar-user{display:none!important;}
+
+/* Titre de page */
+.theme-terrain .page-head{margin:4px 0 12px;}
+.theme-terrain .page-icon{display:none;}
+.theme-terrain .page-title{font-family:inherit;font-weight:900;font-size:1.35rem;color:var(--e-nuit);letter-spacing:0;text-transform:none;}
+.theme-terrain .page-sub{color:var(--e-gris);font-size:.88rem;font-weight:600;}
+
+/* Messages */
+.theme-terrain .flash-item{border-radius:16px;border:1px solid var(--e-trait);background:var(--e-blanc);color:var(--e-nuit);
+  box-shadow:0 2px 10px var(--e-ombre);font-weight:700;font-size:.92rem;}
+.theme-terrain .flash-item.success{background:var(--e-vert-pale);border-color:var(--e-vert-pale);}
+.theme-terrain .flash-item.warning,.theme-terrain .flash-item.info{background:var(--e-jaune-pale);border-color:var(--e-jaune-bord);}
+.theme-terrain .flash-item.danger{background:var(--e-rose);border-color:var(--e-rose-bord);}
+
+/* ── Cartes ───────────────────────────────────────────────────────────── */
+.theme-terrain .carte,.theme-terrain .carte-ligne,.theme-terrain .carte-livraison,.theme-terrain .ma-ferme,
+.theme-terrain .carte-choix-livraison > span,.theme-terrain .empty-note{
+  background:var(--e-blanc);border:1px solid var(--e-trait);border-radius:18px;box-shadow:0 2px 10px var(--e-ombre);}
+.theme-terrain .carte{display:block;padding:14px;margin-bottom:12px;color:var(--e-nuit);text-decoration:none;}
+.theme-terrain .carte-lien:active{transform:scale(.99);}
+.theme-terrain .carte-ligne{padding:12px 14px;}
+.theme-terrain .carte-titre,.theme-terrain .carte-ligne-titre,.theme-terrain .carte-livraison-titre{font-weight:900;font-size:1rem;color:var(--e-nuit);text-transform:none;letter-spacing:0;}
+.theme-terrain .carte-titre-ligne{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;}
+.theme-terrain .carte-jour{font-weight:800;font-size:.76rem;color:var(--e-gris);text-transform:uppercase;letter-spacing:.05em;}
+.theme-terrain .carte-phrase{font-weight:900;font-size:1.15rem;line-height:1.2;}
+.theme-terrain .carte-sous{color:var(--e-gris);font-weight:700;font-size:.9rem;}
+.theme-terrain .carte-haut{display:flex;align-items:center;gap:12px;}
+.theme-terrain .carte-haut .poulet{width:78px;height:78px;flex-shrink:0;}
+.theme-terrain .carte-alerte{background:var(--e-rose);border-color:var(--e-rose-bord);display:flex;flex-direction:column;gap:10px;}
+.theme-terrain .conseil{background:var(--e-jaune-pale);border-radius:14px;padding:10px 12px;font-weight:700;font-size:.92rem;}
+.theme-terrain .carte-poussins{display:flex;flex-direction:column;gap:8px;}
+.theme-terrain .carte-vaccin .vaccin-nom{font-weight:900;font-size:1.5rem;line-height:1.15;}
+
+/* ── Boutons : plats, arrondis ; vert = Envoyer, bleu = actions, rouge = vétérinaire ── */
+.theme-terrain .btn-gros,.theme-terrain .btn-login{border:0;border-radius:16px;min-height:54px;font-family:inherit;font-weight:900;
+  font-size:1.08rem;letter-spacing:0;text-transform:none;background:var(--e-bleu);color:var(--e-blanc);
+  box-shadow:0 6px 14px var(--e-ombre-bleue);transition:transform .08s ease;}
+.theme-terrain .btn-gros:hover{background:var(--e-bleu);color:var(--e-blanc);}
+.theme-terrain .btn-gros.btn-vert,.theme-terrain .btn-envoyer,.theme-terrain .btn-login{background:var(--e-prairie);
+  box-shadow:0 6px 14px var(--e-ombre-verte);}
+.theme-terrain .btn-gros.btn-vert:hover,.theme-terrain .btn-envoyer:hover,.theme-terrain .btn-login:hover{background:var(--e-prairie);}
+.theme-terrain .btn-gros-rouge{border:0;border-radius:16px;min-height:54px;font-weight:900;font-size:1.08rem;
+  background:var(--e-rouge);color:var(--e-blanc);box-shadow:0 6px 14px var(--e-ombre-rouge);}
+.theme-terrain .btn-gros-secondaire{border:1px solid var(--e-bleu-bord);border-radius:16px;min-height:52px;background:var(--e-blanc);
+  color:var(--e-bleu-fonce);font-weight:800;font-size:1rem;box-shadow:none;text-transform:none;letter-spacing:0;}
+.theme-terrain .btn-gros-secondaire:hover{background:var(--e-bleu-pale);color:var(--e-bleu-fonce);}
+.theme-terrain .btn-gros-secondaire.lien-rouge{color:var(--e-rouge);border-color:var(--e-rose-bord);margin-bottom:12px;}
+.theme-terrain .btn-gros:active,.theme-terrain .btn-gros-rouge:active,.theme-terrain .btn-gros-secondaire:active,
+.theme-terrain .btn-login:active{transform:translateY(2px) scale(.99);}
+.theme-terrain .boutons-secondaires{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+.theme-terrain .liens-discrets{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:10px 0;font-weight:700;}
+.theme-terrain .liens-discrets a,.theme-terrain .lien-discret a{color:var(--e-bleu-fonce);}
+.theme-terrain .lien-discret{text-align:center;font-weight:700;margin-top:10px;}
+
+/* ── Formulaires ──────────────────────────────────────────────────────── */
+.theme-terrain .form-terrain{gap:12px;}
+.theme-terrain .form-label{font-family:inherit;font-weight:800;font-size:.95rem;text-transform:none;letter-spacing:0;color:var(--e-nuit);}
+.theme-terrain .form-control{border:1px solid var(--e-trait);border-radius:14px;font-family:inherit;font-weight:700;color:var(--e-nuit);
+  background:var(--e-blanc);min-height:48px;}
+.theme-terrain .form-control:focus{border-color:var(--e-bleu-fonce);box-shadow:0 0 0 3px var(--e-bleu-pale);}
+.theme-terrain .form-hint,.theme-terrain .note-numero{color:var(--e-gris);font-weight:600;font-size:.85rem;}
+.theme-terrain .texte-aide{color:var(--e-gris);font-weight:600;}
+
+/* Compteurs + / − ronds 44 px : « − » gris clair, « + » bleu plein */
+.theme-terrain .compteur{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:4px 0;}
+.theme-terrain .compteur-libelle{font-size:1rem;font-weight:800;text-transform:none;letter-spacing:0;color:var(--e-nuit);flex:1 1 120px;}
+.theme-terrain .compteur-libelle small{display:block;color:var(--e-gris);font-weight:700;font-size:.82rem;}
+.theme-terrain .compteur-boutons{align-items:center;gap:8px;flex:0 0 auto;}
+.theme-terrain .compteur-moins,.theme-terrain .compteur-plus{width:44px;min-height:44px;height:44px;border-radius:50%;border:0;
+  font-size:1.45rem;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;}
+.theme-terrain .compteur-moins{background:var(--e-gris-clair);color:var(--e-nuit);}
+.theme-terrain .compteur-plus{background:var(--e-bleu);color:var(--e-blanc);box-shadow:0 3px 8px var(--e-ombre-bleue);}
+.theme-terrain .compteur-moins:active,.theme-terrain .compteur-plus:active{transform:scale(.92);}
+.theme-terrain .compteur-valeur{width:72px;flex:0 0 72px;border:0;background:transparent;font-family:inherit;font-size:1.7rem;font-weight:900;
+  color:var(--e-nuit);padding:0;min-height:44px;}
+.theme-eleveur .compteur-valeur.rebond{animation:e-rebond .22s ease-out;}
+.theme-terrain .compteur .form-hint{flex-basis:100%;}
+
+/* Grosses cases (Pour qui ?, bâtiments, raisons, signes) */
+.theme-terrain .case-choix span{border:1px solid var(--e-trait);border-radius:16px;background:var(--e-blanc);color:var(--e-nuit);
+  font-weight:800;box-shadow:0 2px 8px var(--e-ombre);}
+.theme-terrain .case-choix input:checked + span{border-color:var(--e-bleu-fonce);background:var(--e-bleu-pale);box-shadow:0 0 0 2px var(--e-bleu);}
+.theme-terrain .case-choix span i{color:var(--e-bleu-fonce);}
+.theme-terrain .pictos .case-choix input:checked + span{border-color:var(--e-rouge);background:var(--e-rose);box-shadow:0 0 0 2px var(--e-rouge);}
+.theme-terrain .pictos .case-choix input:checked + span i{color:var(--e-rouge);}
+.theme-terrain .case-choix.indisponible span{background:var(--e-gris-clair);box-shadow:none;}
+.theme-terrain .carte-choix-livraison > span{padding:12px 14px;}
+
+/* Saisie du jour déjà envoyée */
+.theme-terrain .saisie-envoyee{background:var(--e-vert-pale);color:var(--e-prairie-fonce);border-radius:14px;padding:10px 12px;
+  font-weight:900;text-align:center;margin:6px 0 8px;}
+.theme-terrain .saisie-envoyee span{display:block;font-weight:700;color:var(--e-gris);font-size:.85rem;}
+
+/* ── Le poulet (même dessin que le logo, au trait fin) ───────────────── */
+.poulet{display:block;overflow:visible;}
+.poulet .p-corps{fill:var(--e-blanc);stroke:var(--e-nuit);stroke-width:1.3;stroke-linejoin:round;}
+.poulet-malade .p-corps{fill:var(--e-rose-corps);}
+.poulet .p-crete{fill:var(--e-rouge);stroke:var(--e-nuit);stroke-width:1.1;stroke-linejoin:round;}
+.poulet .p-bec{fill:var(--e-orange);stroke:var(--e-nuit);stroke-width:1.1;stroke-linejoin:round;}
+.poulet .p-aile{fill:var(--e-aile);stroke:var(--e-nuit);stroke-width:1.1;}
+.poulet .p-pattes{stroke:var(--e-orange);stroke-width:2.6;stroke-linecap:round;}
+.poulet .p-trait{fill:none;stroke:var(--e-nuit);stroke-width:1.6;stroke-linecap:round;}
+.poulet .p-joue{fill:var(--e-rouge);opacity:.35;}
+.poulet .p-blanc{fill:var(--e-blanc);stroke:var(--e-nuit);stroke-width:1.1;}
+.poulet .p-pupille{fill:var(--e-nuit);}
+.poulet .p-goutte{fill:var(--e-goutte);stroke:var(--e-nuit);stroke-width:.9;}
+.poulet .p-thermo{stroke:var(--e-nuit);stroke-width:3;stroke-linecap:round;}
+.poulet .p-thermo-bout{fill:var(--e-rouge);stroke:var(--e-nuit);stroke-width:.9;}
+.poulet .p-zzz{font:900 7px 'Nunito',sans-serif;fill:var(--e-gris);}
+.poulet .p-zzz.petit{font-size:5px;}
+/* Logo de l'en-tête en blanc sur le dégradé */
+.theme-terrain .logo-corps{fill:var(--e-blanc);}
+
+/* ── Pastilles des bâtiments (plusieurs bandes) ──────────────────────── */
+.pastilles-bat{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px;}
+.pastille-bat{display:inline-flex;align-items:center;gap:6px;position:relative;padding:8px 14px;border-radius:999px;
+  background:var(--e-blanc);border:1px solid var(--e-trait);box-shadow:0 2px 8px var(--e-ombre);color:var(--e-nuit);
+  font-weight:800;text-decoration:none;font-size:.95rem;}
+.pastille-bat.active{background:var(--e-nuit);color:var(--e-blanc);border-color:var(--e-nuit);}
+.pastille-feu{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.pastille-feu.feu-vert{background:var(--e-prairie);}
+.pastille-feu.feu-orange{background:var(--e-orange);}
+.pastille-feu.feu-rouge{background:var(--e-rouge);}
+.pastille-feu.feu-gris{background:var(--e-gris-clair);border:1px solid var(--e-gris);}
+.point-a-saisir{position:absolute;top:-3px;right:-3px;width:12px;height:12px;border-radius:50%;background:var(--e-orange);
+  border:2px solid var(--e-blanc);}
+/* Un seul bâtiment visible à la fois (eleveur.js ajoute « choisi ») */
+.espace-ferme.plusieurs.choisi .bloc-bat{display:none;}
+.espace-ferme.plusieurs.choisi .bloc-bat.active{display:block;}
+
+/* « À faire aujourd'hui » commun à la ferme */
+.theme-terrain .a-faire{background:var(--e-jaune-pale);border:1px solid var(--e-jaune-bord);border-radius:16px;padding:10px 14px;
+  margin-bottom:12px;color:var(--e-nuit);}
+.theme-terrain .a-faire-titre{font-weight:900;font-size:.98rem;text-transform:none;letter-spacing:0;color:var(--e-nuit);}
+.theme-terrain .a-faire ul{margin:6px 0 0;padding-left:0;list-style:none;}
+.theme-terrain .a-faire li{padding:4px 0;font-weight:700;}
+.theme-terrain .a-faire a{color:var(--e-nuit);text-decoration:none;}
+.theme-terrain .a-faire a::after{content:' ›';color:var(--e-bleu-fonce);font-weight:900;}
+
+/* ── Série et « La bande grandit » ───────────────────────────────────── */
+.serie{display:inline-flex;align-items:center;gap:4px;background:var(--e-orange-pale);color:var(--e-orange-fonce);border-radius:999px;
+  padding:3px 10px;font-weight:900;font-size:.85rem;}
+.serie-zero{background:var(--e-gris-clair);color:var(--e-gris);}
+.progression{position:relative;margin:34px 6px 8px;}
+.progression-barre{height:12px;border-radius:999px;background:var(--e-gris-clair);overflow:hidden;}
+.progression-barre span{display:block;height:100%;border-radius:999px;background:var(--e-soleil);}
+.progression-poussin{position:absolute;top:-30px;transform:translateX(-50%);width:28px;height:28px;}
+.poussin{width:100%;height:100%;display:block;overflow:visible;}
+.poussin-corps{fill:var(--e-soleil);stroke:var(--e-nuit);stroke-width:1.2;}
+.poussin-bec{fill:var(--e-orange);stroke:var(--e-nuit);stroke-width:.8;}
+.poussin-oeil{fill:var(--e-nuit);}
+.poussin-aile{fill:var(--e-jaune-bord);stroke:var(--e-nuit);stroke-width:.9;}
+.poussin-patte{stroke:var(--e-orange);stroke-width:1.8;stroke-linecap:round;}
+.progression-etiquettes{display:flex;justify-content:space-between;gap:6px;font-weight:800;font-size:.8rem;color:var(--e-gris);}
+.progression-etiquettes span:nth-child(2){color:var(--e-nuit);text-align:center;}
+
+/* Historique et encouragement */
+.theme-terrain .historique-saisies{list-style:none;margin:8px 0;padding:0;font-weight:700;}
+.theme-terrain .historique-saisies li{display:flex;gap:8px;padding:6px 2px;border-top:1px solid var(--e-trait);color:var(--e-nuit);}
+.theme-terrain .historique-date{font-family:inherit;font-weight:900;}
+.theme-terrain .coche-envoye{margin-left:auto;color:var(--e-prairie);font-weight:900;}
+.theme-terrain .encouragement{background:var(--e-vert-pale);color:var(--e-prairie-fonce);border-radius:14px;padding:10px 12px;font-weight:800;}
+
+/* ── Étoiles ──────────────────────────────────────────────────────────── */
+.etoiles{display:inline-flex;gap:2px;font-size:1.25rem;line-height:1;}
+.etoile{color:var(--e-soleil);}
+.etoile.eteinte{color:var(--e-gris-clair);}
+.etoiles-grandes{font-size:2.6rem;gap:6px;}
+.carte-bilan{text-align:center;display:flex!important;flex-direction:column;align-items:center;gap:8px;}
+.carte-bilan .poulet{width:110px;height:110px;}
+.chiffres-bilan{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin:6px 0;}
+.chiffres-bilan div{background:var(--e-gris-clair);border-radius:14px;padding:10px 6px;font-weight:900;font-size:1.15rem;}
+.chiffres-bilan small{display:block;color:var(--e-gris);font-weight:700;font-size:.8rem;}
+
+/* ── « Bien reçu ! » ──────────────────────────────────────────────────── */
+.bien-recu{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;
+  background:var(--e-voile);animation:e-apparait .2s ease-out;}
+.bien-recu.ferme{opacity:0;transition:opacity .25s ease;pointer-events:none;}
+.bien-recu-carte{position:relative;overflow:hidden;width:100%;max-width:340px;background:var(--e-blanc);border-radius:22px;
+  padding:22px 18px 18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;
+  box-shadow:0 10px 30px var(--e-ombre);}
+.bien-recu-poulet{width:130px;height:130px;}
+.bien-recu.joie .bien-recu-poulet{animation:e-saut .32s ease-in-out 4 alternate;}
+.bien-recu-titre{font-weight:900;font-size:1.7rem;color:var(--e-nuit);}
+.bien-recu-sous{font-weight:800;color:var(--e-gris);}
+.record{display:inline-block;background:var(--e-jaune-pale);color:var(--e-nuit);border-radius:999px;padding:3px 12px;font-weight:900;font-size:.88rem;}
+.bien-recu-liste{list-style:none;margin:4px 0 0;padding:0;width:100%;font-weight:700;text-align:left;}
+.bien-recu-liste li{display:flex;justify-content:space-between;padding:6px 2px;border-top:1px solid var(--e-trait);}
+.bien-recu-liste .coche-envoye{color:var(--e-prairie);font-weight:900;}
+.bien-recu .btn-gros{width:100%;margin-top:6px;}
+.bien-recu-fermer{background:none;border:0;color:var(--e-gris);font:inherit;font-weight:800;padding:6px;}
+.etincelles i{position:absolute;width:9px;height:9px;border-radius:50%;opacity:0;animation:e-etincelle 1s ease-out 2;}
+.etincelles i:nth-child(1){left:16%;top:14%;background:var(--e-soleil);}
+.etincelles i:nth-child(2){left:82%;top:18%;background:var(--e-prairie);animation-delay:.2s;}
+.etincelles i:nth-child(3){left:24%;top:44%;background:var(--e-bleu);animation-delay:.4s;}
+.etincelles i:nth-child(4){left:76%;top:48%;background:var(--e-orange);animation-delay:.1s;}
+.etincelles i:nth-child(5){left:50%;top:6%;background:var(--e-rouge);animation-delay:.3s;}
+.etincelles i:nth-child(6){left:62%;top:30%;background:var(--e-soleil);animation-delay:.5s;}
+
+/* Bandeau « Pas de réseau » et file ◷ / ✓ (hors_ligne.js) */
+.theme-terrain .bandeau-envoi{border-radius:16px;font-weight:800;}
+.theme-terrain .bandeau-envoi.attente{background:var(--e-orange-pale);border:1px solid var(--e-orange-bord);color:var(--e-nuit);}
+.theme-terrain .bandeau-envoi.fait{background:var(--e-vert-pale);border:1px solid var(--e-vert-pale);color:var(--e-prairie-fonce);}
+.theme-terrain .coche-attente{color:var(--e-orange-fonce);}
+
+/* Livraison à confirmer et bandeau « Reçue — merci ! » */
+.theme-terrain .carte-livraison{padding:14px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px;}
+.theme-terrain .carte-livraison-meta{color:var(--e-gris);font-weight:700;}
+.theme-terrain .carte-livraison-lignes .num{font-size:1.4rem;font-weight:900;}
+.theme-terrain .bandeau-annuler{background:var(--e-sombre);color:var(--e-blanc);border:0;border-radius:16px;font-weight:800;}
+.theme-terrain .bandeau-annuler-btn{border-radius:12px;}
+
+/* Ma ferme */
+.theme-terrain .ma-ferme{padding:14px;display:flex;flex-direction:column;gap:10px;}
+.theme-terrain .ma-ferme-titre{color:var(--e-gris);font-weight:800;text-transform:uppercase;font-size:.76rem;letter-spacing:.05em;}
+.theme-terrain .ma-ferme-nom{font-weight:900;font-size:1.2rem;}
+.theme-terrain .ma-ferme-agent{background:var(--e-bleu-pale);border-radius:14px;}
+
+/* ── Connexion (pour tous) ────────────────────────────────────────────── */
+.page-connexion.theme-terrain{background:linear-gradient(160deg,var(--e-bleu),var(--e-bleu-fonce));}
+.page-connexion.theme-terrain .login-card{background:transparent;box-shadow:none;border:0;}
+.page-connexion.theme-terrain .login-head{background:transparent;border:0;}
+.page-connexion.theme-terrain .login-head-logo{width:104px;height:104px;filter:none;}
+.page-connexion.theme-terrain .login-head-logo .poulet{width:100%;height:100%;}
+.page-connexion.theme-terrain .login-head h1{font-family:inherit;font-weight:900;font-size:1.9rem;letter-spacing:.02em;}
+.page-connexion.theme-terrain .login-head p{color:var(--e-blanc);opacity:.9;font-weight:700;font-size:.9rem;}
+.page-connexion.theme-terrain .login-body{background:var(--e-blanc);border-radius:20px;box-shadow:0 10px 30px var(--e-ombre);}
+.page-connexion.theme-terrain .login-foot{background:transparent;color:var(--e-blanc);opacity:.8;border:0;}
+.page-connexion.theme-terrain .input-group .btn-oeil{border-radius:0 14px 14px 0;border-color:var(--e-trait);}
+.page-connexion.theme-terrain .input-group .form-control{border-radius:14px 0 0 14px;}
+.login-aide{margin:12px 0 0;text-align:center;color:var(--e-gris);font-weight:700;font-size:.88rem;}
+
+/* ── Page publique du QR code ─────────────────────────────────────────── */
+.page-publique{min-height:100vh;}
+.public-tete{background:linear-gradient(135deg,var(--e-prairie),var(--e-prairie-fonce));color:var(--e-blanc);text-align:center;
+  padding:22px 16px 26px;border-radius:0 0 24px 24px;}
+.public-tete.public-inconnu{background:linear-gradient(135deg,var(--e-gris),var(--e-nuit));}
+.public-tete .poulet{width:100px;height:100px;margin:0 auto 6px;}
+.public-tete h1{margin:0;font-family:inherit;font-weight:900;font-size:1.6rem;}
+.public-tete p{margin:2px 0 0;font-weight:800;font-size:1.05rem;}
+.public-corps{max-width:480px;margin:0 auto;padding:16px;}
+.public-lignes{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0;font-weight:700;}
+.public-lignes dt{color:var(--e-gris);font-weight:700;}
+.public-lignes dd{margin:0;}
+.public-mention{text-align:center;color:var(--e-gris);font-weight:700;font-size:.88rem;margin:8px 0 2px;}
+.public-marque{text-align:center;color:var(--e-gris);font-weight:900;font-size:.75rem;letter-spacing:.08em;}
+
+/* Pesée : message vivant */
+.theme-terrain .gain{margin-top:4px;font-weight:900;color:var(--e-prairie-fonce);}
+
+/* Mes bandes */
+.liste-cartes .carte{margin-bottom:10px;}
+
+/* ── Lot 9 : accueil en tuiles ────────────────────────────────────────── */
+.retour-accueil{display:inline-block;font-weight:800;color:var(--e-bleu-fonce);text-decoration:none;margin:0 0 6px;padding:4px 0;}
+.accueil-eleveur{max-width:560px;margin:0 auto;}
+.bandeau-rouge{display:block;background:var(--e-rouge);color:var(--e-blanc);border-radius:16px;padding:12px 14px;font-weight:900;
+  text-decoration:none;margin-bottom:10px;box-shadow:0 6px 14px var(--e-ombre-rouge);}
+.bandeau-rouge:hover{color:var(--e-blanc);}
+.ligne-etat{display:flex;align-items:center;gap:10px;background:var(--e-blanc);border:1px solid var(--e-trait);border-radius:16px;
+  padding:8px 12px;box-shadow:0 2px 10px var(--e-ombre);margin-bottom:10px;}
+.ligne-etat .poulet{width:44px;height:44px;flex-shrink:0;}
+.ligne-etat strong{display:block;font-weight:900;}
+.ligne-etat small{color:var(--e-gris);font-weight:700;}
+.tuiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.tuiles.impair .tuile:last-child{grid-column:1 / -1;}
+.tuile{position:relative;display:flex;flex-direction:column;gap:2px;background:var(--e-blanc);border:1px solid var(--e-trait);
+  border-radius:18px;padding:14px;box-shadow:0 2px 10px var(--e-ombre);color:var(--e-nuit);text-decoration:none;min-height:104px;
+  transition:transform .08s ease;}
+.tuile:hover{color:var(--e-nuit);}
+.tuile:active{transform:scale(.98);}
+.tuile-ico{font-size:1.9rem;line-height:1.1;}
+.tuile-nom{font-weight:900;font-size:1.02rem;}
+.tuile-sous{color:var(--e-gris);font-weight:700;font-size:.82rem;line-height:1.25;}
+.tuile .pastille{position:absolute;top:10px;right:10px;border-radius:999px;padding:2px 9px;font-weight:900;font-size:.8rem;
+  color:var(--e-nuit);background:var(--e-orange);}
+.tuile .pastille.rouge{background:var(--e-rouge);color:var(--e-blanc);}
+.tuile .pastille.bleue{background:var(--e-bleu);color:var(--e-blanc);}
+.tuile-saisie{background:var(--e-prairie);color:var(--e-blanc);min-height:92px;margin-bottom:10px;border:0;
+  box-shadow:0 6px 14px var(--e-ombre-verte);}
+.tuile-saisie:hover{color:var(--e-blanc);}
+.tuile-saisie .tuile-nom{font-size:1.2rem;}
+.tuile-saisie .tuile-sous{color:var(--e-blanc);opacity:.92;}
+.tuile-saisie .pastille{background:var(--e-blanc);color:var(--e-prairie-fonce);}
+.tuile-saisie.tuile-calme{background:var(--e-vert-pale);color:var(--e-prairie-fonce);box-shadow:none;}
+.tuile-saisie.tuile-calme .tuile-sous{color:var(--e-prairie-fonce);}
+.tuile-malade{background:var(--e-rose);border-color:var(--e-rose-bord);}
+.tuile-large{grid-column:1 / -1;}
+
+/* Mon stock, listes simples */
+.stock-ligne{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 2px;border-top:1px solid var(--e-trait);}
+.stock-ligne:first-child{border-top:0;}
+.stock-ligne small{display:block;color:var(--e-gris);font-weight:700;font-size:.8rem;}
+.stock-quantite{font-size:1.15rem;font-weight:900;text-align:right;white-space:nowrap;}
+.liste-simple{list-style:none;margin:6px 0;padding:0;font-weight:700;}
+.liste-simple li{padding:6px 0;border-top:1px solid var(--e-trait);}
+.liste-simple li:first-child{border-top:0;}
+.liste-simple li.annule{text-decoration:line-through;color:var(--e-gris);}
+
+/* J'ai acheté */
+.autres-produits{margin:0;}
+.autres-produits summary{list-style:none;cursor:pointer;}
+.autres-produits summary::-webkit-details-marker{display:none;}
+.autres-produits[open] summary{margin-bottom:10px;}
+.theme-terrain .courbe{width:100%;height:auto;margin-top:8px;}
+
+/* ── Lot 10 : entretien ───────────────────────────────────────────────── */
+.theme-terrain .carte.carte-panne{background:var(--e-rose);border-color:var(--e-rose-bord);display:flex;flex-direction:column;gap:8px;}
+.theme-terrain .panne-titre{font-weight:900;font-size:1.05rem;}
+.theme-terrain .tache-entretien{display:flex;align-items:center;gap:10px;background:var(--e-blanc);border:1px solid var(--e-trait);
+  border-radius:18px;padding:12px;box-shadow:0 2px 10px var(--e-ombre);margin-bottom:10px;}
+.theme-terrain .tache-entretien form{margin:0;}
+.theme-terrain .tache-ico{font-size:1.8rem;line-height:1;flex-shrink:0;}
+.theme-terrain .tache-texte{flex:1;min-width:0;}
+.theme-terrain .tache-texte strong{font-weight:900;}
+.theme-terrain .tache-texte small{display:block;color:var(--e-gris);font-weight:700;font-size:.85rem;}
+.theme-terrain .tache-retard{display:inline-block;background:var(--e-orange-pale);color:var(--e-orange-fonce);border-radius:999px;
+  padding:1px 8px;font-weight:900;font-size:.75rem;}
+.theme-terrain .tache-bouton{border:0;border-radius:14px;padding:10px 14px;font:inherit;font-weight:900;color:var(--e-blanc);
+  background:var(--e-prairie);box-shadow:0 4px 10px var(--e-ombre-verte);white-space:nowrap;min-height:44px;}
+.theme-terrain .tache-bouton:active{transform:scale(.96);}
+.theme-terrain .tache-entretien.faite{opacity:.6;box-shadow:none;}
+.theme-terrain .tache-fait{font-weight:900;color:var(--e-prairie-fonce);white-space:nowrap;}
+.theme-terrain .btn-panne{display:block;text-align:center;background:var(--e-rose);color:var(--e-rouge);border:1px solid var(--e-rose-bord);
+  border-radius:16px;padding:14px;font-weight:900;text-decoration:none;margin-top:6px;}
+.theme-terrain .btn-panne:hover{color:var(--e-rouge);}
+.theme-terrain .pictos .case-choix span i.picto-panne{font-style:normal;font-size:2.2rem;line-height:1.2;}
+.theme-terrain .types-panne{grid-template-columns:repeat(3,1fr);}
+.theme-terrain .case-large{grid-column:1 / -1;}
+.theme-terrain .avertissement-desinfection{background:var(--e-jaune-pale);border:1px solid var(--e-jaune-bord);border-radius:16px;padding:12px 14px;}
+.theme-terrain .avertissement-desinfection span{display:block;color:var(--e-gris);font-weight:700;}
+.theme-terrain .bandeau-attente-longue{background:var(--e-orange-pale);border:1px solid var(--e-orange-bord);color:var(--e-nuit);
+  border-radius:14px;padding:8px 12px;font-weight:800;font-size:.85rem;margin-bottom:10px;}
+
+/* ── Lot 11 : 8 tuiles, regroupements, Mon argent, Moi ───────────────── */
+.theme-terrain .btn-entete{font-weight:900;border-radius:999px;padding:6px 11px;white-space:nowrap;text-decoration:none;font-size:.9rem;}
+.theme-terrain .btn-entete:hover{color:var(--e-blanc);background:rgba(255,255,255,.12);}
+.theme-terrain .btn-entete{position:relative;}
+.theme-terrain .btn-entete .pastille-nouveau{position:absolute;top:-10px;right:-8px;font-size:.75rem;padding:0 5px;}
+.theme-terrain .raccourci{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--e-blanc);
+  border:1px solid var(--e-trait);border-radius:14px;padding:8px 10px 8px 12px;font-weight:800;margin:-2px 0 10px;
+  color:var(--e-nuit);text-decoration:none;font-size:.92rem;}
+.theme-terrain .raccourci form{margin:0;}
+.theme-terrain .raccourci-action{color:var(--e-prairie-fonce);font-weight:900;white-space:nowrap;}
+.theme-terrain .raccourci-bouton{border:0;background:var(--e-vert-pale);color:var(--e-prairie-fonce);font:inherit;font-weight:900;
+  border-radius:12px;padding:8px 10px;white-space:nowrap;min-height:40px;}
+.theme-terrain .grosses-cases{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+.theme-terrain .grosse-case{position:relative;display:flex;flex-direction:column;gap:2px;background:var(--e-blanc);
+  border:1px solid var(--e-trait);border-radius:18px;padding:14px;box-shadow:0 2px 10px var(--e-ombre);color:var(--e-nuit);
+  text-decoration:none;min-height:100px;}
+.theme-terrain .grosse-case.large{grid-column:1 / -1;}
+.theme-terrain .grosse-case:active{transform:scale(.98);}
+.theme-terrain .grosse-case small{color:var(--e-gris);font-weight:700;}
+.theme-terrain .grosse-case .pastille{position:absolute;top:10px;right:10px;border-radius:999px;padding:2px 9px;font-weight:900;
+  font-size:.8rem;color:var(--e-nuit);background:var(--e-orange);}
+.theme-terrain .gc-ico{font-size:1.9rem;line-height:1.1;}
+.theme-terrain .gc-nom{font-weight:900;font-size:1.02rem;}
+.theme-terrain .vaccin-a-faire a{color:var(--e-nuit);text-decoration:none;}
+.theme-terrain .carte-calme{box-shadow:none;}
+.theme-terrain .centre{text-align:center;}
+.theme-terrain .centre svg{margin:0 auto;display:block;}
+.theme-terrain .choix-periode{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.theme-terrain .periode{text-align:center;background:var(--e-blanc);border:1px solid var(--e-trait);border-radius:14px;padding:10px 4px;
+  font-weight:800;color:var(--e-nuit);text-decoration:none;}
+.theme-terrain .periode.active{border-color:var(--e-bleu-fonce);background:var(--e-bleu-pale);box-shadow:0 0 0 2px var(--e-bleu);}
+.theme-terrain .chiffres-argent{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 2px;}
+.theme-terrain .chiffre-argent{background:var(--e-blanc);border:1px solid var(--e-trait);border-radius:16px;padding:12px 4px;text-align:center;
+  box-shadow:0 2px 10px var(--e-ombre);}
+.theme-terrain .chiffre-argent small{display:block;color:var(--e-gris);font-weight:800;font-size:.8rem;}
+.theme-terrain .chiffre-argent .num{font-weight:900;font-size:1.05rem;}
+.theme-terrain .chiffre-argent.gagne .num{color:var(--e-prairie-fonce);}
+.theme-terrain .chiffre-argent.depense .num{color:var(--e-orange-fonce);}
+.theme-terrain .negatif,.theme-terrain .chiffre-argent.negatif .num{color:var(--e-rouge);}
+.theme-terrain .mon-argent .btn-gros{margin-top:10px;}
+.theme-terrain .aide-etat{background:var(--e-jaune-pale);border:1px solid var(--e-jaune-bord);border-radius:14px;padding:10px 12px;
+  font-weight:800;font-size:.9rem;margin-top:10px;}
+.theme-terrain .mouvements{list-style:none;margin:0;padding:0;background:var(--e-blanc);border:1px solid var(--e-trait);border-radius:16px;}
+.theme-terrain .mouvements li{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--e-trait);}
+.theme-terrain .mouvements li:first-child{border-top:0;}
+.theme-terrain .mvt-ico{font-size:1.3rem;flex-shrink:0;}
+.theme-terrain .mvt-texte{flex:1;min-width:0;font-weight:800;font-size:.92rem;}
+.theme-terrain .mvt-texte small{display:block;color:var(--e-gris);font-weight:700;font-size:.8rem;}
+.theme-terrain .mvt-montant{font-weight:900;white-space:nowrap;}
+.theme-terrain .mvt-montant.plus{color:var(--e-prairie-fonce);}
+.theme-terrain .mvt-montant.moins{color:var(--e-orange-fonce);}
+.theme-terrain .mvt-completer{font-weight:900;color:var(--e-bleu-fonce);white-space:nowrap;text-decoration:none;}
+.theme-terrain .categories-depense{grid-template-columns:repeat(4,1fr);}
+.theme-terrain .categories-depense .case-choix span{min-height:0;font-size:.78rem;padding:8px 2px;}
+.theme-terrain .categories-depense .case-choix input:checked + span{border-color:var(--e-bleu-fonce);background:var(--e-bleu-pale);box-shadow:0 0 0 2px var(--e-bleu);}
+.theme-terrain .argent-bilan{margin-top:8px;}
+.theme-terrain .liens-moi{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.theme-terrain .liens-moi form{margin:0;}
+.theme-terrain .lien-moi{display:block;width:100%;text-align:left;background:var(--e-blanc);border:1px solid var(--e-trait);border-radius:16px;
+  padding:14px;font:inherit;font-weight:900;color:var(--e-nuit);text-decoration:none;}
+.theme-terrain .lien-moi small{color:var(--e-gris);font-weight:700;margin-left:4px;}
+.theme-terrain .lien-quitter{color:var(--e-rouge);}
+
+/* ── Lot 12 : case vide ≠ zéro, réponses, visites ─────────────────────── */
+.theme-terrain .compteur-valeur::placeholder{color:var(--e-gris);opacity:1;}
+.theme-terrain .cases-rapides{display:flex;flex-wrap:wrap;gap:8px;flex-basis:100%;margin-top:4px;}
+.theme-terrain .case-rapide{flex:1;min-height:46px;border:1px solid var(--e-trait);background:var(--e-blanc);border-radius:14px;
+  font:inherit;font-weight:900;color:var(--e-nuit);padding:8px 10px;}
+.theme-terrain .case-rapide.choisie{border-color:var(--e-prairie);background:var(--e-vert-pale);color:var(--e-prairie-fonce);
+  box-shadow:0 0 0 2px var(--e-prairie);}
+.theme-terrain .message-vide{background:var(--e-jaune-pale);border:1px solid var(--e-jaune-bord);border-radius:14px;padding:10px 12px;
+  font-weight:800;margin-bottom:10px;}
+.theme-terrain .a-verifier{display:inline-block;background:var(--e-jaune-pale);color:var(--e-nuit);border-radius:999px;
+  padding:2px 10px;font-weight:900;font-size:.8rem;}
+
+.theme-terrain .ligne-info{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--e-blanc);
+  border:1px solid var(--e-trait);border-radius:14px;padding:9px 12px;font-weight:800;margin:-2px 0 10px;color:var(--e-nuit);
+  text-decoration:none;font-size:.92rem;}
+.theme-terrain .ligne-reponse{background:var(--e-vert-pale);border-color:var(--e-vert-pale);color:var(--e-prairie-fonce);}
+.theme-terrain .ligne-info-sous{color:var(--e-gris);font-weight:700;}
+.theme-terrain .pastille-nouveau{display:inline-block;background:var(--e-orange);color:var(--e-nuit);border-radius:999px;
+  padding:1px 7px;font-weight:900;font-size:.75rem;vertical-align:middle;}
+.theme-terrain .etat-signalement{border-radius:999px;padding:2px 10px;font-weight:900;font-size:.78rem;white-space:nowrap;}
+.theme-terrain .etat-envoye{background:var(--e-bleu-pale);color:var(--e-bleu-fonce);}
+.theme-terrain .etat-regarde{background:var(--e-jaune-pale);color:var(--e-nuit);}
+.theme-terrain .etat-reponse{background:var(--e-vert-pale);color:var(--e-prairie-fonce);}
+.theme-terrain .etat-termine{background:var(--e-gris-clair);color:var(--e-gris);}
+.theme-terrain .reponse-veto{background:var(--e-vert-pale);border-radius:16px;padding:12px;margin-top:10px;}
+.theme-terrain .reponse-veto.nouvelle{box-shadow:0 0 0 2px var(--e-prairie);}
+.theme-terrain .reponse-qui{color:var(--e-gris);font-weight:800;font-size:.85rem;}
+.theme-terrain .conseils-veto{margin:6px 0;padding-left:20px;}
+.theme-terrain .conseils-veto li{font-weight:900;font-size:1.08rem;margin:4px 0;}
+.theme-terrain .reponse-texte{font-weight:800;}
+.theme-terrain .carte-titre-ligne{gap:8px;}
+
+/* ── Lot 13 : présentation, aides, Mon compte, Ma banque ─────────────── */
+.theme-terrain .btn-aide{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;
+  background:var(--e-bleu);color:var(--e-blanc);font-weight:900;font-size:1.3rem;text-decoration:none;flex-shrink:0;
+  box-shadow:0 4px 10px var(--e-ombre-bleue);}
+.theme-terrain .btn-aide:hover{color:var(--e-blanc);}
+.theme-terrain .page-head{align-items:flex-start;}
+.theme-terrain .presentation{text-align:center;}
+.theme-terrain .pres-ecran{display:flex;flex-direction:column;gap:16px;align-items:stretch;padding:8px 4px 0;}
+.theme-terrain .pres-ecran[hidden]{display:none;}
+.theme-terrain .pres-points{display:flex;justify-content:center;gap:6px;}
+.theme-terrain .pres-points span{width:10px;height:10px;border-radius:5px;background:var(--e-trait);}
+.theme-terrain .pres-points span.on{width:24px;background:var(--e-bleu);}
+.theme-terrain .pres-mascotte svg{margin:0 auto;display:block;}
+.theme-terrain .pres-phrase{font-weight:900;font-size:1.35rem;line-height:1.25;}
+.theme-terrain .pres-illu{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;font-weight:900;}
+.theme-terrain .pres-illu small{flex-basis:100%;color:var(--e-gris);font-weight:800;}
+.theme-terrain .pres-passer{margin:0;}
+.theme-terrain .lien-discret{border:0;background:none;color:var(--e-gris);font:inherit;font-weight:800;min-height:44px;padding:8px 16px;}
+.theme-terrain .mini-bouton{display:inline-block;border-radius:12px;padding:8px 12px;font-weight:900;font-size:.9rem;
+  border:1px solid var(--e-trait);background:var(--e-blanc);color:var(--e-nuit);text-decoration:none;}
+.theme-terrain .mini-bouton.vert{background:var(--e-prairie);border-color:var(--e-prairie);color:var(--e-blanc);}
+.theme-terrain .mini-bouton.bleu{background:var(--e-bleu);border-color:var(--e-bleu-fonce);color:var(--e-blanc);}
+.theme-terrain .mini-bouton.rouge{background:var(--e-rouge);border-color:var(--e-rouge);color:var(--e-blanc);}
+.theme-terrain .mini-bouton.rose{background:var(--e-rose);border-color:var(--e-rose-bord);}
+.theme-terrain .mini-bouton.jaune{background:var(--e-jaune-pale);border-color:var(--e-jaune-bord);}
+.theme-terrain .mini-bouton.sombre{background:var(--e-sombre);border-color:var(--e-sombre);color:var(--e-blanc);}
+.theme-terrain .mini-bouton.rond{border-radius:50%;width:40px;height:40px;padding:0;line-height:38px;text-align:center;
+  background:var(--e-bleu);color:var(--e-blanc);}
+.theme-terrain .mini-bouton.appel{color:var(--e-bleu-fonce);}
+.theme-terrain .etape-aide{display:flex;gap:12px;align-items:flex-start;background:var(--e-blanc);border:1px solid var(--e-trait);
+  border-radius:16px;padding:14px;margin-bottom:10px;font-size:1.05rem;}
+.theme-terrain .etape-numero{width:32px;height:32px;border-radius:50%;background:var(--e-bleu-pale);color:var(--e-bleu-fonce);
+  font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.theme-terrain .retour-ecran{display:inline-block;color:var(--e-bleu-fonce);font-weight:800;margin-bottom:8px;text-decoration:none;}
+.theme-terrain .info-compte{background:var(--e-blanc);border:1px solid var(--e-trait);border-radius:16px;padding:12px 14px;
+  margin-bottom:10px;font-size:1.05rem;}
+.theme-terrain .info-compte small{display:block;color:var(--e-gris);font-weight:800;font-size:.8rem;text-transform:uppercase;
+  letter-spacing:.04em;}
+.theme-terrain .appel{color:var(--e-bleu-fonce);font-weight:900;text-decoration:none;}
+.theme-terrain .autres-vetos summary{color:var(--e-bleu-fonce);font-weight:800;cursor:pointer;min-height:44px;line-height:44px;}
+.theme-terrain .alerte-attente{background:var(--e-jaune-pale);border:1px solid var(--e-jaune-bord);border-radius:14px;
+  padding:10px 12px;font-weight:800;margin-bottom:8px;}
+.theme-terrain .form-quitter{margin:0;}
+.theme-terrain .banque-voit{line-height:1.55;}
+.theme-terrain .liste-voit{list-style:none;padding:0;margin:6px 0 0;font-weight:900;font-size:1.05rem;}
+.theme-terrain .etat-banque{background:var(--e-gris-clair);border-radius:14px;padding:10px 12px;font-weight:800;margin-bottom:10px;}
+.theme-terrain .etat-banque.ok{background:var(--e-vert-pale);color:var(--e-prairie-fonce);}
+
+/* Contrôle du lot 13 : boutons ≥ 44 px, textes ≥ 12 px sur les écrans de l'éleveur */
+.theme-terrain .raccourci-bouton{min-height:44px;}
+.theme-terrain .badge{font-size:.75rem;}
+.theme-terrain .td-sous{font-size:.8rem;}
+.theme-terrain .bloc-jour{font-size:.8rem;}
+.theme-terrain .courbe-texte{font-size:12px;}
+.theme-terrain .legende{font-size:.8rem;}
+.theme-terrain .empty-note{font-size:.9rem;}
+.theme-terrain .card-p-title{font-size:.85rem;}
+.theme-terrain .btn-enregistrer{width:100%;min-height:52px;font-size:1rem;border-radius:16px;}
+.theme-terrain .regles-mdp{font-weight:800;padding-left:20px;}
+
+/* ── Animations (transform, opacity) ──────────────────────────────────── */
+@keyframes e-rebond{0%{transform:scale(1);}45%{transform:scale(1.25);}100%{transform:scale(1);}}
+@keyframes e-saut{from{transform:translateY(0);}to{transform:translateY(-14px);}}
+@keyframes e-etincelle{0%{opacity:0;transform:scale(.3);}40%{opacity:1;}100%{opacity:0;transform:scale(1.5);}}
+@keyframes e-apparait{from{opacity:0;}to{opacity:1;}}
+@media (prefers-reduced-motion: reduce){
+  .theme-terrain *,.bien-recu,.bien-recu *{animation:none!important;transition:none!important;}
+}
+
+/* Lot 17 — blocage des ventes par le vétérinaire */
+.bandeau-blocage{display:flex;flex-direction:column;gap:8px;}
+.bouton-appel-veto{display:block;background:var(--e-blanc);color:var(--e-rouge);border-radius:12px;padding:10px 12px;
+  text-align:center;font-weight:900;min-height:44px;text-decoration:none;}
+
+/* Lot 19 : sorties de la bande et leur réception par l'abattoir (Ventes et sorties) */
+.theme-terrain .sorties-titre{color:var(--e-nuit);}
+.theme-terrain .sorties-liste li{border:1px solid var(--e-trait);border-radius:16px;box-shadow:0 2px 8px var(--e-ombre);color:var(--e-nuit);}
+.theme-terrain .etape-faite{color:var(--e-prairie-fonce);}
+.theme-terrain .etape-attente{color:var(--e-orange-fonce);}
+.theme-terrain .etape-refus{color:var(--e-nuit);}   /* rouge vif : contraste insuffisant pour du texte */
+.theme-terrain .etape-fleche,.theme-terrain .sortie-compte{color:var(--e-gris);}
+
+/* ── Lot 19 ter : espace terrain de l'agent et de l'opérateur ─────────── */
+/* Pas de fête pour l'agent ni pour l'opérateur (outil de travail) : seuls l'éleveur a sauts et étincelles */
+.terrain-agent .bien-recu,.terrain-operateur .bien-recu,.terrain-agent .etincelles,.terrain-operateur .etincelles{display:none!important;}
+.tuile-grande{background:var(--e-bleu);color:var(--e-blanc);min-height:92px;margin-bottom:10px;border:0;
+  box-shadow:0 6px 14px var(--e-ombre-bleue);}
+.tuile-grande:hover{color:var(--e-blanc);}
+.tuile-grande .tuile-nom{font-size:1.2rem;}
+.tuile-grande .tuile-sous{color:var(--e-blanc);opacity:.92;}
+.tuile-grande .pastille{background:var(--e-blanc);color:var(--e-bleu-fonce);}
+.tuile-recevoir{min-height:110px;}
+.tuile-recevoir .tuile-ico{font-size:2.4rem;}
+.ligne-etat-terrain{align-items:flex-start;}
+.etat-lignes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-weight:800;font-size:.92rem;}
+.etat-lignes a{color:var(--e-nuit);text-decoration:none;}
+.etat-lignes [data-etat-envoi]{color:var(--e-gris);font-weight:700;}
+.etat-lignes [data-etat-envoi].attente{color:var(--e-orange-fonce);}
+.mini-carte{width:100%;height:auto;background:var(--e-bleu-pale);border-radius:16px;margin-bottom:12px;}
+.mini-carte-province{fill:var(--e-blanc);stroke:var(--e-bleu-bord);stroke-width:1;}
+.mini-carte-point circle{stroke:var(--e-blanc);stroke-width:2;fill:var(--e-prairie);}
+.mini-carte-point.feu-rouge circle{fill:var(--e-rouge);}
+.mini-carte-point.feu-orange circle{fill:var(--e-orange);}
+.mini-carte-point text{font:900 10px 'Nunito',sans-serif;fill:var(--e-blanc);}
+.mini-carte-point.feu-orange text{fill:var(--e-nuit);}
+.phrases-ferme{list-style:none;margin:6px 0 0;padding:0;font-weight:800;font-size:.92rem;display:flex;flex-direction:column;gap:2px;}
+.phrase-rouge{color:var(--e-nuit);}
+.phrase-orange{color:var(--e-orange-fonce);}
+.phrase-gris,.phrase-vert{color:var(--e-gris);}
+.a-faire-ligne{margin-top:6px;font-size:.9rem;color:var(--e-nuit);}
+.carte-tournee .boutons-secondaires{margin-bottom:0;}
+.carte-ferme.ferme-rouge{border-left:6px solid var(--e-rouge);}
+.carte-ferme.ferme-orange{border-left:6px solid var(--e-orange);}
+.carte-situation{display:flex;flex-direction:column;gap:8px;}
+.situation-ligne{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.98rem;}
+.situation-blocage{flex-basis:100%;background:var(--e-rose);border-radius:12px;padding:8px 10px;font-weight:800;}
+.carte-infos{display:flex;flex-direction:column;gap:6px;margin-top:12px;font-weight:700;}
+.pastilles-choix{margin-bottom:12px;}
+.autre-ferme{display:inline-block;}
+.autre-ferme summary{list-style:none;cursor:pointer;}
+.autre-ferme summary::-webkit-details-marker{display:none;}
+.stock-chiffres{font-weight:800;font-size:.98rem;margin:4px 0;}
+.stock-constat{font-weight:900;}
+.stock-manque{color:var(--e-orange-fonce);}
+.stock-ok{color:var(--e-prairie-fonce);}
+.compter summary,.carte-commande summary{list-style:none;cursor:pointer;display:inline-flex;min-height:44px;align-items:center;}
+.compter summary::-webkit-details-marker,.carte-commande summary::-webkit-details-marker{display:none;}
+.reseau-requis{background:var(--e-jaune-pale);border:1px solid var(--e-jaune-bord);border-radius:14px;padding:10px 12px;font-weight:700;margin:8px 0;}
+.hors-reseau-garde{background:var(--e-orange-pale);border:1px solid var(--e-orange-bord);border-radius:14px;padding:8px 12px;
+  font-weight:800;color:var(--e-orange-fonce);margin-bottom:10px;}
+a.desactive{opacity:.45;pointer-events:none;}
+.versions-terrain{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
+.version-terrain{border:1px solid var(--e-trait);border-radius:14px;padding:10px;text-align:center;background:var(--e-gris-clair);}
+.version-terrain.comptee{background:var(--e-bleu-pale);border-color:var(--e-bleu-bord);}
+.version-qui{font-weight:800;font-size:.85rem;color:var(--e-gris);}
+.version-valeur{font-weight:900;font-size:1.6rem;line-height:1.2;color:var(--e-nuit);}
+.version-etat{font-weight:700;font-size:.8rem;color:var(--e-gris);}
+.carte-biosecurite{display:flex;flex-direction:column;gap:2px;}
+.choix-multiples .case-choix span{text-align:left;}
+.position-visite{font-weight:800;padding:10px 14px;margin-bottom:0;}
+.etapes-barre{display:flex;flex-wrap:wrap;gap:6px 10px;font-weight:800;font-size:.85rem;color:var(--e-gris);margin-bottom:8px;}
+.etapes-barre .progression-barre{flex-basis:100%;}
+.etape-point.actif{color:var(--e-nuit);}
+.etape{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:12px;}
+.carte-ferme-recap{display:flex;flex-direction:column;gap:4px;font-weight:700;}
+@media (max-width:899px){.lien-bureau{display:none!important;}}
+/* Opérateur : les écrans du lot 19 au style terrain */
+.theme-terrain .op-scanner,.theme-terrain .op-controles,.theme-terrain .op-refus{max-width:none;}
+.theme-terrain .op-cadre{border-color:var(--e-soleil);}
+.theme-terrain .op-controles li{border:1px solid var(--e-trait);border-radius:14px;background:var(--e-blanc);font-weight:700;color:var(--e-nuit);}
+.theme-terrain .op-controles li.manque{background:var(--e-rose);border-color:var(--e-rose-bord);}
+.theme-terrain .op-controles li.info{background:var(--e-jaune-pale);border-color:var(--e-jaune-bord);}
+.op-carte-lot.op-vert{background:var(--e-vert-pale);border-color:var(--e-vert-pale);}
+.op-carte-lot.op-vert .carte-phrase{color:var(--e-prairie-fonce);}
+.op-carte-lot.op-orange{background:var(--e-orange-pale);border-color:var(--e-orange-bord);}
+.op-carte-lot.op-orange .carte-phrase{color:var(--e-orange-fonce);}
+.op-garde-a-part{background:var(--e-orange-pale);border:1px solid var(--e-orange-bord);border-radius:16px;padding:12px 14px;
+  margin-bottom:12px;color:var(--e-nuit);display:flex;flex-direction:column;gap:2px;}
+.op-garde-a-part strong{color:var(--e-orange-fonce);font-size:1.05rem;}
+.theme-terrain .op-ecart{border-radius:16px;background:var(--e-blanc);border:1px solid var(--e-trait);}
+.theme-terrain .op-ecart.ecart{background:var(--e-orange-pale);border-color:var(--e-orange-bord);}
+.theme-terrain .op-ecart-texte{font-size:1.05rem;color:var(--e-nuit);}
+.theme-terrain .op-ecart.ecart .op-ecart-texte{color:var(--e-orange-fonce);}
+.theme-terrain .op-comparaison td{color:var(--e-nuit);font-size:1.4rem;}
+.theme-terrain .op-comparaison th{color:var(--e-gris);}
+.theme-terrain .op-refus{background:var(--e-rouge);border-radius:18px;}
+.theme-terrain .btn-gros-orange{background:var(--e-orange);color:var(--e-nuit);border:0;border-radius:16px;min-height:54px;font-weight:900;}
+.theme-terrain .btn-gros-blanc{background:var(--e-blanc);color:var(--e-nuit);border-radius:16px;font-weight:900;}
+.theme-terrain .op-etat.ok{color:var(--e-prairie-fonce);}
+.theme-terrain .op-etat.attente{color:var(--e-orange-fonce);}
+.theme-terrain .op-etat.refuse{color:var(--e-nuit);}
+.theme-terrain .op-garde{background:var(--e-orange-pale);border-color:var(--e-orange-bord);color:var(--e-orange-fonce);border-radius:16px;}
+.theme-terrain .op-resultat{border-radius:16px;}
+/* Lot 19 ter : contrôle des tailles et contrastes (agent, opérateur ; l'éleveur n'est pas touché) */
+.pastilles-choix .pastille-bat,.terrain-agent .pastille-bat,.terrain-operateur .pastille-bat{min-height:44px;}
+.tuile-grande{background:var(--e-bleu-fonce);}
+.tuile-recevoir{background:var(--e-prairie-sombre);}
+.tuile-recevoir .pastille{color:var(--e-prairie-sombre);}
+.btn-appel-eleveur{background:var(--e-bleu-fonce);color:var(--e-blanc);border:0;min-height:44px;display:inline-flex;align-items:center;}
+.btn-appel-eleveur:hover{color:var(--e-blanc);}
+.terrain-agent .bloc-jour{color:var(--e-gris);}
+.terrain-agent .case-choix small{font-size:.8rem;}
+.terrain-agent .sorties-titre{font-size:.8rem;}
+.theme-terrain .op-comparaison thead tr,.theme-terrain .op-comparaison th{background:transparent;border:0;}
+.version-terrain{display:flex;flex-direction:column;gap:2px;cursor:pointer;position:relative;}
+.version-choix{position:absolute;opacity:0;}
+.version-retenir{margin-top:6px;font-weight:800;font-size:.85rem;color:var(--e-bleu-fonce);border:1px solid var(--e-bleu-bord);
+  border-radius:999px;padding:8px 6px;min-height:44px;display:flex;align-items:center;justify-content:center;background:var(--e-blanc);}
+.version-terrain:has(.version-choix:checked){box-shadow:0 0 0 3px var(--e-bleu);}
+.version-terrain:has(.version-choix:checked) .version-retenir{background:var(--e-bleu-fonce);color:var(--e-blanc);}
+.alertes-terrain{margin-top:12px;}
+.alertes-terrain a{color:inherit;text-decoration:none;}

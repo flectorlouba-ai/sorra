@@ -90,10 +90,21 @@ def compte_rendu(numero):
                                 hors_ligne.jour_de_saisie())
             db.session.commit()
             flash('Compte rendu enregistré ✓ : l\'éleveur voit vos recommandations.', 'success')
+            from app.utils import terrain
+            if terrain.profil_terrain(current_user) == 'agent':      # lot 19 ter : retour à la fiche terrain
+                return redirect(url_for('terrain.fiche', numero=ferme.numero))
             return redirect(url_for('fermes.fiche', numero=ferme.numero) + '#visites')
         except regles.RegleVisite as e:
             db.session.rollback()
             erreur = str(e)
+    from app.utils import terrain
+    if terrain.profil_terrain(current_user) == 'agent':              # lot 19 ter : une page de haut en bas
+        from app.routes.terrain import _fermes_en_pastilles
+        from app.services import agent
+        tournee, autres = _fermes_en_pastilles()
+        return render_template('terrain/agent/visite.html', ferme=ferme, visite=visite, objets=regles.objets(),
+                               recommandations=regles.recommandations_types(), erreur=erreur, saisie=request.form,
+                               tournee=tournee, autres=autres, n_questions=len(agent.grille()))
     return render_template('visites/compte_rendu.html', ferme=ferme, visite=visite, objets=regles.objets(),
                            recommandations=regles.recommandations_types(), erreur=erreur, saisie=request.form)
 

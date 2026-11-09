@@ -1,0 +1,77 @@
+{% extends '_base.html' %}
+{% from 'terrain/_macros.html' import tuile %}
+{% block aide %}ag_stock{% endblock %}
+{% block titre %}Stock et commandes{% endblock %}
+{% block page_titre %}📦 Stock et commandes{% endblock %}
+{% block page_sous_titre %}{{ ferme.numero }} · {{ ferme.nom }}{% endblock %}
+{% block contenu %}
+<div class="pastilles-bat pastilles-choix">
+  {% for f in tournee + autres %}<a class="pastille-bat{{ ' active' if f.id == ferme.id }}" href="{{ url_for('terrain.stock', ferme=f.numero) }}">{{ '🚗 ' if f in tournee }}{{ f.numero }}</a>{% endfor %}
+</div>
+<div class="liste-cartes" id="intrants">
+{% for c in cartes %}
+  <div class="carte carte-stock" data-intrant="{{ c.produit.id }}">
+    <div class="carte-titre">{{ c.produit.nom }}</div>
+    <div class="stock-chiffres">Reçu {{ c.recu|qte }} {{ c.unite }} · Utilisé {{ c.utilise|qte }} · Reste {{ c.reste|qte }}</div>
+    {% if c.constat %}<div class="stock-constat stock-{{ c.constat[1] }}">{{ c.constat[0] }}</div>
+    {% elif c.produit.type != 'Poussins' %}<div class="carte-sous">Pas encore compté</div>{% endif %}
+    {% if c.produit.type != 'Poussins' %}
+    <details class="compter">
+      <summary class="mini-bouton">🔢 Compter</summary>
+      <form method="post" action="{{ url_for('agent.compter', numero=ferme.numero) }}" class="form-terrain mt-2" data-hors-ligne="Stock compté · {{ c.produit.nom }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="produit_id" value="{{ c.produit.id }}">
+        <input type="hidden" name="retour" value="{{ url_for('terrain.stock', ferme=ferme.numero) }}">
+        <label class="form-label" for="compte-{{ c.produit.id }}">Combien en reste-t-il ? ({{ c.unite }})</label>
+        <input class="form-control" id="compte-{{ c.produit.id }}" name="compte" inputmode="decimal" required>
+        <button type="submit" class="btn-gros">Enregistrer</button>
+      </form>
+    </details>
+    {% endif %}
+  </div>
+{% else %}
+  <div class="carte"><div class="carte-sous">Aucun intrant reçu pour l'instant.</div></div>
+{% endfor %}
+</div>
+
+<div class="tuiles">
+  {{ tuile({'cle': 'livraison', 'ico': '📥', 'nom': 'Livraison reçue', 'pastille': livraisons|length, 'lien': '#livraisons'}) }}
+  {{ tuile({'cle': 'compter', 'ico': '🔢', 'nom': 'Compter le stock', 'sous': 'touchez « Compter » sur un intrant', 'lien': '#intrants'}) }}
+</div>
+
+<div id="livraisons" class="liste-cartes mt-2">
+{% for liv in livraisons %}
+  <div class="carte carte-livraison-terrain">
+    <div class="carte-titre">📥 {{ liv.numero }} · livrée le {{ liv.date_livraison.strftime('%d/%m') }}</div>
+    <ul class="liste-simple">{% for l in liv.lignes %}<li>{{ l.produit.nom }} : {{ l.quantite_livree|qte }} {{ l.produit.unite }}</li>{% endfor %}</ul>
+    <div class="boutons-secondaires">
+      <form method="post" action="{{ url_for('livraisons.confirmer', numero=liv.numero) }}" data-hors-ligne="Livraison {{ liv.numero }} : tout reçu">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn-gros btn-vert">✓ Tout reçu</button>
+      </form>
+      <a class="btn-gros-secondaire" href="{{ url_for('livraisons.recu_moins', numero=liv.numero) }}">J'ai reçu moins</a>
+    </div>
+  </div>
+{% endfor %}
+</div>
+
+<div class="carte carte-commande" data-commande>
+  <div class="carte-titre">🛒 Commande pour la bande suivante</div>
+  {% if commande %}<div class="carte-phrase">{{ etat_commande }}</div>
+  <div class="carte-sous">{{ commande.produit.nom }} · {{ commande.quantite|qte }} {{ commande.produit.unite }} · le {{ commande.cree_le|date_locale('%d/%m') }}</div>{% endif %}
+  <details class="mt-2">
+    <summary class="mini-bouton">🛒 Commander</summary>
+    <form method="post" action="{{ url_for('agent.commander') }}" class="form-terrain mt-2">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="ferme" value="{{ ferme.numero }}">
+      <input type="hidden" name="retour" value="{{ url_for('terrain.stock', ferme=ferme.numero) }}">
+      <label class="form-label" for="produit_id">Quoi ?</label>
+      <select class="form-control" id="produit_id" name="produit_id">{% for p in produits %}<option value="{{ p.id }}">{{ p.nom }}</option>{% endfor %}</select>
+      <label class="form-label" for="quantite">Combien ?</label>
+      <input class="form-control" id="quantite" name="quantite" inputmode="decimal" required>
+      <label class="form-label" for="motif">Pourquoi ?</label>
+      <input class="form-control" id="motif" name="motif" maxlength="300" required>
+      <button type="submit" class="btn-gros">Envoyer à la DGE</button>
+    </form>
+  </details>
+</div>
+{% endblock %}

@@ -343,6 +343,63 @@ La saisie du jour reste à **2 clics**.
 - **Tailles** : textes de 12 px (0,75 rem) au moins, boutons et cases de 44 px de haut au moins. C'est vérifié par un contrôle automatique au navigateur sur toutes les pages de l'éleveur (rapport du lot 13).
 - **Sans réseau** : toutes les pages de l'éleveur viennent d'**une seule liste** (`routes/hors_ligne.PAGES_ELEVEUR`, servie par `/hors-ligne/pages`). Le téléphone la garde à chaque ouverture de l'accueil. Un test vérifie qu'aucune page de l'éleveur n'y manque.
 
+## G. Deux styles : TERRAIN et BUREAU (lot 19 ter)
+
+| Style | Qui | Charte |
+|---|---|---|
+| **TERRAIN** | **éleveur**, **agent technique**, **opérateur** (abattoir, marché, acheteur, distributeur) | « illustrée douce » de la section F : grandes tuiles, mascotte, 3 clics au plus, aucun mot technique |
+| **BUREAU** | DGE, ADMIN, AUDITEUR, MAEDR, BCEG, **vétérinaire** (lisible au téléphone) | YL.1 (`perform.css`) |
+
+- **Une seule base commune** (pas de copie) :
+  - la feuille `app/static/css/terrain.css` (ex-`eleveur.css`) ;
+  - les macros `templates/terrain/_macros.html` (tuile, ligne d'état) ;
+  - l'en-tête `templates/terrain/_entete.html` ;
+  - la présentation au premier lancement et « Comment faire ? » (mécanisme du lot 13, textes propres à chaque profil, clés `ag_…` et `op_…`).
+- **Classes du corps** : `theme-terrain` + `terrain-eleveur`, `terrain-agent` ou `terrain-operateur`. `theme-eleveur` reste posée pour l'éleveur seul : ses fêtes (sauts, étincelles, « Bien reçu ! », chiffre qui rebondit) et `eleveur.js`. **L'agent et l'opérateur n'ont aucune fête.**
+- **En-tête** : dégradé **bleu** pour l'éleveur et l'agent, **vert** (prairie `#2fa36b` → `#1f7a4f`) pour l'opérateur. C'est la même règle, avec deux variables (`--t-entete-debut`, `--t-entete-fin`).
+- **L'éleveur ne voit aucun changement** : ses 20 écrans de référence à 360 px sont identiques au pixel avant et après le lot 19 ter.
+- **Agent, « Version bureau »** (👤 Moi, sur un écran large seulement) : son accueil de pilotage et ses écrans détaillés (tableaux, carte, fiches). Ses écrans de pilotage ouverts depuis le terrain (« Ses chiffres »…) gardent toujours le style bureau. Retour : « Version terrain ».
+
+### Agent : accueil et clics
+
+En-tête : « Bonjour Paul · Estuaire · 14 fermes », 🔔 (fermes en rouge + saisies à vérifier), 👤 Moi. Ligne d'état : 2 lignes au plus, la plus urgente d'abord, puis « 📶 Tout est envoyé ✓ » ou « ◷ N saisies en attente ». Tuiles, ordre fixe : 🚗 Ma tournée (grande) · 🏠 Mes fermes · ✍️ Saisir pour un éleveur · 📋 Visite · ⚖️ À vérifier · 📦 Stock et commandes · ➕ Nouvel éleveur · 👤 Moi.
+
+| Action | Clics |
+|---|---|
+| Ma tournée → 🧭 Y aller | 2 |
+| Saisir pour un éleveur → (ferme, bâtiment) → 📝 Jour → Envoyer | 3 |
+| Saisir pour → ⚖️ Pesée / 💉 Vaccin / 🚚 Sortie → Enregistrer | 3 |
+| Visite → (ferme) → Envoyer le compte rendu | 2 |
+| Visite → Biosécurité « Faire » → Enregistrer | 3 |
+| À vérifier → (version, raison) → Valider | 2 |
+| Stock → (ferme) → Compter → Enregistrer | 3 |
+| Stock → Commander → Envoyer à la DGE | 3 |
+| Nouvel éleveur → ferme → Créer le compte (« Suivant » reste dans l'écran) | 3 |
+| Moi → Version bureau | 2 |
+
+Le chemin par la fiche ferme (Mes fermes → ferme → Saisir pour → Jour → Envoyer, 5 clics) est secondaire. La tuile « Saisir pour un éleveur » reste à 3.
+
+### Opérateur : accueil et clics
+
+En-tête vert, avec le nom de l'établissement. Ligne d'état : lots à revoir, écarts à expliquer, accord du vétérinaire, « N lots arrivent cette semaine », « N lots attendent le vétérinaire », envoi. Tuiles : 📷 Recevoir un lot (grande, « scanner le QR ») · 🚚 Lots qui arrivent · 📦 Mes réceptions · 👤 Moi · aide · mon compte.
+
+| Action | Clics |
+|---|---|
+| Recevoir un lot → (lecture du QR) → Valider la réception | 2 |
+| Recevoir un lot → Chercher le numéro → Valider | 3 |
+| Écart : … → Valider avec cet écart | 2 |
+| Lot à garder à part → Je les reçois et je les garde à part | 2 |
+| Lots qui arrivent, Mes réceptions | 1 |
+
+**Mots** : jamais « sous réserve », « bloquant » ni « événement » à l'écran de l'opérateur (un test les cherche). On écrit : « Gardez ces poulets à part — Le vétérinaire doit donner son accord avant l'abattage ».
+
+### Contrôle (lot 19 ter)
+
+Tailles et contrastes sont vérifiés au navigateur sur toutes les pages gardées sans réseau : 81 pour l'agent, 11 pour l'opérateur.
+- Plus aucune case ni pastille de moins de 44 px.
+- Plus aucun texte de moins de 12 px sur les écrans terrain.
+- Les boutons pleins verts (`--e-prairie`, 3,2) et bleus (`--e-bleu`, 4,1), avec un texte blanc gras de 17 px, sont ceux de l'éleveur depuis le lot 13. Ils sont gardés tels quels : les changer changerait l'écran de l'éleveur. **C'est un point à décider** (`docs/a_faire_valider.md`).
+
 ## Liste de contrôle d'un écran (à cocher dans chaque rapport de lot)
 
 - [ ] Un seul bouton mis en avant ?

@@ -1,0 +1,9 @@
+{# En-tête de l'espace terrain (lot 19 ter). Éleveur : inchangé (lot 11). Agent : 🔔 (fermes en rouge + saisies
+   à vérifier, un toucher ouvre la tournée) et 👤 Moi. Opérateur : 👤 Moi. #}
+{% if profil_terrain == 'eleveur' %}{% include 'eleveur/_entete.html' %}
+{% elif profil_terrain == 'agent' %}{% set n = cloche_agent() %}
+<a href="{{ url_for('accueil.index') }}#alertes" class="btn-top btn-entete" data-entete="cloche" aria-label="{{ n }} chose(s) à voir">🔔{% if n %} <span class="pastille-nouveau">{{ n }}</span>{% endif %}</a>
+<a href="{{ url_for('terrain.moi') }}" class="btn-top btn-entete" data-entete="moi">👤 Moi</a>
+{% elif profil_terrain == 'operateur' %}
+<a href="{{ url_for('terrain.moi') }}" class="btn-top btn-entete" data-entete="moi">👤 Moi</a>
+{% endif %}

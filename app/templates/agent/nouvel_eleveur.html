@@ -7,12 +7,32 @@
 <form method="post" class="form-terrain" novalidate data-hors-ligne="Nouvel éleveur · {{ ferme.nom }}" id="form-eleveur">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  {% if theme_terrain %}{# Lot 19 ter : 3 étapes dans le même écran (« Suivant » ne quitte pas l'écran) #}
+  <div class="etapes-barre" data-etapes><span class="etape-point actif">1. La personne</span><span class="etape-point">2. La ferme</span><span class="etape-point">3. Le compte</span>
+    <div class="progression-barre"><span id="etapes-avance" style="width:33%"></span></div></div>
+  {% endif %}
+  <fieldset class="etape" data-etape="1">
   <div class="form-group"><label class="form-label" for="nom">Nom</label>
     <input class="form-control" id="nom" name="nom" maxlength="100" value="{{ saisie.get('nom', '') }}" required></div>
   <div class="form-group"><label class="form-label" for="prenom">Prénom</label>
     <input class="form-control" id="prenom" name="prenom" maxlength="100" value="{{ saisie.get('prenom', '') }}"></div>
   <div class="form-group"><label class="form-label" for="telephone">Téléphone</label>
     <input class="form-control" id="telephone" name="telephone" type="tel" inputmode="tel" maxlength="30" value="{{ saisie.get('telephone', '') }}" required></div>
+  {% if theme_terrain %}<button type="button" class="btn-gros" data-suivant="2">Suivant →</button>{% endif %}
+  </fieldset>
+  {% if theme_terrain %}
+  <fieldset class="etape" data-etape="2" hidden>
+    <div class="carte carte-ferme-recap">
+      <div class="carte-titre">{{ ferme.numero }} · {{ ferme.nom }}</div>
+      <div>✓ Province : {{ ferme.province.nom }} · {{ ferme.localite.nom }}</div>
+      <div>{% if ferme.a_une_position %}✓ Position relevée{% else %}📍 Position à relever (fiche de la ferme){% endif %}</div>
+      <div>🏠 {{ ferme.batiments|length }} bâtiment{{ 's' if ferme.batiments|length != 1 }} · {{ ferme.batiments|sum(attribute='capacite')|qte }} places</div>
+      <div>🏦 Financée par la BCEG : {{ 'oui' if ferme.financee_bceg else 'non' }}</div>
+    </div>
+    <button type="button" class="btn-gros" data-suivant="3">Suivant →</button>
+  </fieldset>
+  {% endif %}
+  <fieldset class="etape" data-etape="3"{% if theme_terrain %} hidden{% endif %}>
   <input type="hidden" name="identifiant" id="identifiant">
   <input type="hidden" name="provisoire" id="provisoire">
   <div class="carte-provisoire" data-a-noter>
@@ -21,7 +41,8 @@
     <div>Mot de passe provisoire : <strong class="mono mdp-provisoire" id="voir-provisoire"></strong></div>
     <div class="td-sous">Il ne sera plus affiché après. L'éleveur le changera à sa première connexion. Si l'identifiant est déjà pris, un chiffre sera ajouté et vous serez prévenu.</div>
   </div>
-  <button type="submit" class="btn-gros">Créer le compte</button>
+  <button type="submit" class="btn-gros{{ ' btn-vert' if theme_terrain }}">Créer le compte</button>
+  </fieldset>
 </form>
 <script>
 (function () {
@@ -41,6 +62,21 @@
   document.getElementById('nom').addEventListener('input', maj);
   document.getElementById('prenom').addEventListener('input', maj);
   maj();
+  // Espace terrain : une étape à la fois ; « Suivant » vérifie la personne avant de continuer
+  document.querySelectorAll('[data-suivant]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var n = b.getAttribute('data-suivant');
+      if (n === '2' && (!document.getElementById('nom').value.trim() || !document.getElementById('telephone').value.trim())) {
+        document.getElementById(!document.getElementById('nom').value.trim() ? 'nom' : 'telephone').focus();
+        return;
+      }
+      document.querySelectorAll('.etape').forEach(function (e) { e.hidden = e.getAttribute('data-etape') !== n; });
+      document.querySelectorAll('.etape-point').forEach(function (p, i) { p.classList.toggle('actif', i < +n); });
+      var avance = document.getElementById('etapes-avance');
+      if (avance) avance.style.width = (+n * 33.4) + '%';
+      window.scrollTo(0, 0);
+    });
+  });
 })();
 </script>
 {% endblock %}

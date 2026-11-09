@@ -1,0 +1,35 @@
+{% extends '_base.html' %}
+{% set accueil_terrain = True %}
+{% from 'terrain/_macros.html' import tuile, ligne_etat with context %}
+{% block titre %}Accueil{% endblock %}
+{% block contenu %}
+{# Opérateur, espace terrain (lot 19 ter) : en-tête vert, ligne d'état, grande tuile « Recevoir un lot ». #}
+{% if not o.operateur %}
+<div class="empty-note">Votre compte n'est rattaché à aucun établissement. Demandez à l'administrateur de le rattacher.</div>
+{% else %}
+<div class="accueil-terrain accueil-operateur" data-operateur="{{ o.operateur.numero }}">
+  <div class="op-garde" id="op-garde" hidden>◷ Réception enregistrée, en attente de vérification.
+    <span class="op-garde-sous">Elle sera vérifiée dès que le réseau revient. Le résultat s'affichera dans « Mes réceptions ».</span></div>
+  {{ ligne_etat(o.etat, 'inquiet' if o.etat and o.etat[-1].ico == '◷' else 'content') }}
+  <a class="tuile tuile-saisie tuile-recevoir" href="{{ url_for('operateur.scanner') }}" data-tuile="recevoir">
+    <span class="tuile-ico">📷</span><span class="tuile-nom">Recevoir un lot</span><span class="tuile-sous">scanner le QR</span>
+  </a>
+  <div class="tuiles">
+    {% for t in o.tuiles %}
+    {{ tuile(t) }}
+    {% endfor %}
+    {{ tuile(o.moi, 'tuile-large') }}
+  </div>
+</div>
+<script>
+(function () {
+  try {
+    if (sessionStorage.getItem('performyl2-reception-gardee')) {
+      sessionStorage.removeItem('performyl2-reception-gardee');
+      document.getElementById('op-garde').hidden = false;
+    }
+  } catch (e) {}
+})();
+</script>
+{% endif %}
+{% endblock %}

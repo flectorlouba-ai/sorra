@@ -1,0 +1,42 @@
+{# Espace terrain (lot 19 ter) : briques communes à l'éleveur, à l'agent et à l'opérateur.
+   Le HTML produit pour l'éleveur est celui du lot 11 (captures avant / après identiques). #}
+
+{# Une tuile : {cle, ico, nom, sous, lien, pastille, pastille_classe, classe} #}
+{% macro tuile(t, classe='') -%}
+    <a class="tuile {{ classe or t.classe or '' }}" href="{{ t.lien }}" data-tuile="{{ t.cle }}">
+      {% if t.pastille %}<span class="pastille {{ t.pastille_classe or '' }}">{{ t.pastille|qte if t.pastille is number else t.pastille }}</span>{% endif %}
+      <span class="tuile-ico">{{ t.ico }}</span><span class="tuile-nom">{{ t.nom }}</span>
+      {% if t.sous %}<span class="tuile-sous">{{ t.sous }}</span>{% endif %}
+    </a>
+{%- endmacro %}
+
+{# Ligne d'état de l'agent et de l'opérateur : 3 lignes au plus, la plus urgente d'abord ; la dernière dit
+   si tout est envoyé (hors_ligne.js la met à jour : « ◷ N saisies en attente »). #}
+{% macro ligne_etat(lignes, expression='content') -%}
+<div class="ligne-etat ligne-etat-terrain" data-ligne-etat>
+  {{ poulet(expression, taille=44) }}
+  <ul class="etat-lignes">
+    {% for l in lignes[:2] %}<li>{% if l.lien %}<a href="{{ l.lien }}">{{ l.ico }} {{ l.texte }}</a>{% else %}{{ l.ico }} {{ l.texte }}{% endif %}</li>{% endfor %}
+    <li data-etat-envoi>📶 Tout est envoyé ✓</li>
+  </ul>
+</div>
+<script>
+window.addEventListener('load', function () {
+  // Saisies gardées sur le téléphone (hors_ligne.js) : « ◷ 3 saisies en attente » au lieu de « Tout est envoyé »
+  if (!window.sorraEnAttente) return;
+  window.sorraEnAttente().then(function (n) {
+    var li = document.querySelector('[data-etat-envoi]');
+    if (!li || !n) return;
+    li.textContent = '◷ ' + n + ' saisie' + (n > 1 ? 's' : '') + ' en attente';
+    li.classList.add('attente');
+  }).catch(function () {});
+});
+</script>
+{%- endmacro %}
+
+{# Choix en pastilles (ferme, bâtiment, motif…) : un choix dans l'écran, jamais un clic compté. #}
+{% macro pastilles_lien(elements, actif, lien, libelle, cle) -%}
+<div class="pastilles-bat pastilles-choix">
+  {% for e in elements %}<a class="pastille-bat{{ ' active' if cle(e) == actif }}" href="{{ lien(e) }}">{{ libelle(e) }}</a>{% endfor %}
+</div>
+{%- endmacro %}

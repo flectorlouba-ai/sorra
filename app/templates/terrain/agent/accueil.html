@@ -1,0 +1,30 @@
+{% extends '_base.html' %}
+{% set accueil_terrain = True %}
+{% from 'terrain/_macros.html' import tuile, ligne_etat with context %}
+{% block titre %}Accueil{% endblock %}
+{% block page_titre %}{% endblock %}
+{% block contenu %}
+{# Agent, espace terrain (lot 19 ter) : ligne d'état, grande tuile « Ma tournée », 6 tuiles, « Moi ». #}
+<div class="accueil-terrain accueil-agent">
+  {{ ligne_etat(a.etat, 'inquiet' if a.etat and a.etat[0].ico == '🔴' else 'content') }}
+  <a class="tuile tuile-grande" href="{{ a.tournee.lien }}" data-tuile="tournee">
+    {% if a.tournee.n %}<span class="pastille">{{ a.tournee.n }}</span>{% endif %}
+    <span class="tuile-ico">🚗</span><span class="tuile-nom">Ma tournée</span>
+    <span class="tuile-sous">{% if a.tournee.n %}{{ a.tournee.n }} ferme{{ 's' if a.tournee.n > 1 }} aujourd'hui{% else %}rien de prévu aujourd'hui{% endif %}</span>
+  </a>
+  <div class="tuiles">
+    {% for t in a.tuiles %}
+    {{ tuile(t) }}
+    {% endfor %}
+    {{ tuile(a.moi, 'tuile-large') }}
+  </div>
+  {% if a.alertes %}
+  <section class="carte alertes-terrain" id="alertes" data-alertes>
+    <div class="carte-titre">🔔 Alertes ({{ a.alertes|length }})</div>
+    <ul class="phrases-ferme">
+      {% for x in a.alertes %}<li class="phrase-{{ 'rouge' if x.niveau in ('rouge', 'urgence') else 'orange' }}"><a href="{{ x.lien }}">{{ x.texte }}</a></li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

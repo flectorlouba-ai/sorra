@@ -1,0 +1,52 @@
+{% extends '_base.html' %}
+{% from 'terrain/_macros.html' import tuile %}
+{% block aide %}ag_saisir{% endblock %}
+{% block titre %}Saisir pour un éleveur{% endblock %}
+{% block page_titre %}✍️ Saisir pour un éleveur{% endblock %}
+{% block page_sous_titre %}Choisissez la ferme et le bâtiment, puis ce que vous notez{% endblock %}
+{% block contenu %}
+{# Choix de la ferme (tournée d'abord) et du bâtiment : des choix dans l'écran, pas des clics comptés. #}
+<div class="form-label">Quelle ferme ?</div>
+<div class="pastilles-bat pastilles-choix" data-choix-ferme>
+  {% for f in tournee %}<a class="pastille-bat{{ ' active' if ferme and f.id == ferme.id }}" href="{{ url_for('terrain.saisir', ferme=f.numero) }}">🚗 {{ f.numero }}</a>{% endfor %}
+  {% if autres %}<details class="autre-ferme"{% if ferme and ferme in autres %} open{% endif %}>
+    <summary class="pastille-bat">Autre…</summary>
+    <input class="form-control mt-2" type="search" placeholder="Chercher une ferme" data-filtre-fermes aria-label="Chercher une ferme">
+    <div class="pastilles-bat mt-2">
+      {% for f in autres %}<a class="pastille-bat{{ ' active' if ferme and f.id == ferme.id }}" data-nom="{{ (f.numero ~ ' ' ~ f.nom ~ ' ' ~ (f.exploitant_nom or ''))|lower }}" href="{{ url_for('terrain.saisir', ferme=f.numero) }}">{{ f.numero }} · {{ f.nom }}</a>{% endfor %}
+    </div>
+  </details>{% endif %}
+</div>
+{% if ferme %}
+<div class="carte-sous mb-2">{{ ferme.nom }} · {{ ferme.exploitant_nom }}</div>
+{% if bandes %}
+{% if bandes|length > 1 %}
+<div class="form-label">Quel bâtiment ?</div>
+<div class="pastilles-bat">
+  {% for b in bandes %}<a class="pastille-bat{{ ' active' if b.id == bande.id }}" href="{{ url_for('terrain.saisir', ferme=ferme.numero, bat=b.batiment_id) }}">{{ b.batiment.code }}</a>{% endfor %}
+</div>
+{% endif %}
+<div class="tuiles" data-saisir-pour="{{ bande.numero }}">
+  {{ tuile({'cle': 'jour', 'ico': '📝', 'nom': 'Jour', 'sous': 'morts, aliment', 'lien': url_for('bandes.saisir', numero=bande.numero)}) }}
+  {{ tuile({'cle': 'pesee', 'ico': '⚖️', 'nom': 'Pesée', 'lien': url_for('bandes.pesee', numero=bande.numero)}) }}
+  {{ tuile({'cle': 'vaccin', 'ico': '💉', 'nom': 'Vaccin, soin', 'lien': url_for('sante.vacciner', numero=bande.numero)}) }}
+  {{ tuile({'cle': 'sortie', 'ico': '🚚', 'nom': 'Sortie', 'lien': url_for('bandes.sortie', numero=bande.numero)}) }}
+</div>
+<p class="texte-aide mt-2">Ce que vous notez est marqué « saisi par {{ current_user.prenom or current_user.nom }} pour {{ prenom_eleveur(ferme) }} ».</p>
+{% else %}
+<div class="carte"><div class="carte-phrase">Aucune bande en cours dans cette ferme</div></div>
+{% endif %}
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var champ = document.querySelector('[data-filtre-fermes]');
+  if (!champ) return;
+  champ.addEventListener('input', function () {
+    var q = champ.value.trim().toLowerCase();
+    document.querySelectorAll('[data-nom]').forEach(function (a) { a.hidden = q && a.dataset.nom.indexOf(q) === -1; });
+  });
+})();
+</script>
+{% endblock %}

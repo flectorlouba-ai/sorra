@@ -26,6 +26,8 @@ def liens(page):
 def accueil(client, identifiant, profil, provinces=('EST',)):
     creer_utilisateur(identifiant, profil, list(provinces))
     connecter(client, identifiant)
+    if profil == Profil.AGENT:            # lot 19 ter : ses tuiles de pilotage sont dans sa « Version bureau »
+        client.get('/terrain/bureau')
     return client.get('/').get_data(as_text=True)
 
 

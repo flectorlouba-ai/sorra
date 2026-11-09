@@ -1,0 +1,30 @@
+{% extends '_base.html' %}
+{% from 'terrain/_macros.html' import tuile %}
+{% block titre %}{{ ferme.nom }}{% endblock %}
+{% block page_titre %}🏠 {{ ferme.numero }} · {{ ferme.nom }}{% endblock %}
+{% block page_sous_titre %}{{ ferme.exploitant_nom }} · {{ ferme.localite.nom }}, {{ ferme.province.nom }}{% endblock %}
+{% block actions %}{% if ferme.exploitant_telephone %}<a class="btn-top btn-entete btn-appel-eleveur" href="tel:{{ ferme.exploitant_telephone|replace(' ', '') }}" data-appel-eleveur>📞 {{ prenom }}</a>{% endif %}{% endblock %}
+{% block contenu %}
+<div class="carte carte-situation" data-situation>
+  {% for s in situation %}
+  <div class="situation-ligne">
+    <span class="pastille-feu feu-{{ s.couleur }}"></span>
+    <strong>{% if s.morts_hier is not none %}{{ {'rouge': '🔴', 'orange': '🟠'}.get(s.couleur, '🟢') }} {{ s.morts_hier|round(1)|qte }} % de morts hier · {% endif %}Bâtiment {{ s.bande.batiment.code[1:] if s.bande.batiment.code.startswith('B') else s.bande.batiment.code }} · jour {{ s.age }} · {{ s.present|qte }} poulets</strong>
+    {% if s.blocage %}<div class="situation-blocage">⛔ Le vétérinaire a bloqué les ventes : {{ s.blocage.motif }}</div>{% endif %}
+  </div>
+  {% else %}
+  <div class="carte-phrase">Aucune bande en cours</div>
+  {% endfor %}
+</div>
+<div class="tuiles">
+  {{ tuile({'cle': 'saisir', 'ico': '✍️', 'nom': 'Saisir pour ' ~ prenom, 'lien': url_for('terrain.saisir', ferme=ferme.numero)}) }}
+  {{ tuile({'cle': 'visite', 'ico': '📋', 'nom': 'Faire la visite', 'lien': url_for('visites.compte_rendu', numero=ferme.numero)}) }}
+  {{ tuile({'cle': 'stock', 'ico': '📦', 'nom': 'Stock', 'lien': url_for('terrain.stock', ferme=ferme.numero)}) }}
+  {{ tuile({'cle': 'chiffres', 'ico': '📈', 'nom': 'Ses chiffres', 'lien': url_for('bandes.fiche', numero=bande.numero) if bande else url_for('bandes.liste')}) }}
+</div>
+<div class="carte carte-infos">
+  <div class="info-ligne" data-position>📍 Position : {% if ferme.a_une_position %}relevée ✓{% if ferme.gps_precision_m %} ± {{ ferme.gps_precision_m|round|int }} m{% endif %}{% else %}<strong>à relever</strong>{% endif %}</div>
+  <div class="info-ligne">🏦 BCEG : {{ 'financée' if ferme.financee_bceg else 'non financée' }}</div>
+  <div class="info-ligne">📋 Dernière visite : {% if derniere %}le {{ derniere.faite_le.strftime('%d/%m/%Y') }} · {{ derniere.objet|lower }}{% else %}aucune{% endif %}</div>
+</div>
+{% endblock %}

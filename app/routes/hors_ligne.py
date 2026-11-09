@@ -16,7 +16,7 @@ hors_ligne_bp = Blueprint('hors_ligne', __name__)
 
 
 # Fichiers gardés dès l'installation (adresses versionnées par url_for : ?v=<empreinte>)
-A_GARDER = ['css/perform.css', 'css/eleveur.css', 'polices/polices.css',
+A_GARDER = ['css/perform.css', 'css/terrain.css', 'polices/polices.css',
             'vendor/bootstrap-5.3.3/css/bootstrap.min.css', 'vendor/bootstrap-icons-1.11.3/bootstrap-icons.min.css',
             'vendor/bootstrap-5.3.3/js/bootstrap.bundle.min.js', 'js/compteurs.js', 'js/hors_ligne.js',
             'js/eleveur.js', 'manifest.webmanifest', 'icones/icone-192.png',
@@ -79,9 +79,13 @@ def pages_agent(user):
     from app.models.intrant import StatutLivraison
     from app.models.visite import Visite, StatutVisite
     pages = [url_for('accueil.index'), url_for('agent.tournee'), url_for('fermes.liste'), url_for('auth.mot_de_passe')]
+    # Lot 19 ter : les écrans terrain de l'agent, ses aides et sa présentation
+    pages += [url_for(e) for e in PAGES_AGENT_TERRAIN] + _aides_du_profil('ag_')
     fermes = Ferme.query.filter_by(agent_id=user.id).order_by(Ferme.numero_metier).all()
     for f in fermes:
         n = f.numero
+        pages += [url_for('terrain.fiche', numero=n), url_for('terrain.saisir', ferme=n),
+                  url_for('terrain.stock', ferme=n)]
         pages += [url_for('fermes.fiche', numero=n), url_for('visites.compte_rendu', numero=n),
                   url_for('agent.biosecurite', numero=n), url_for('agent.nouvel_eleveur', numero=n),
                   url_for('argent.payer', ferme=n), url_for('entretien.ecran', ferme=n),
@@ -104,7 +108,22 @@ def pages_agent(user):
 # Lot 19 : l'opérateur garde son accueil, le scanner (avec les lots attendus) et ses listes ; la réception
 # faite sans réseau part dans la file d'attente et le serveur fait les contrôles à l'arrivée.
 PAGES_OPERATEUR = ['accueil.index', 'operateur.scanner', 'operateur.attendus', 'operateur.receptions',
-                   'auth.mot_de_passe']
+                   'auth.mot_de_passe', 'terrain.moi', 'terrain.presentation', 'aides.liste']
+PAGES_AGENT_TERRAIN = ['terrain.tournee', 'terrain.fermes', 'terrain.saisir', 'terrain.stock', 'terrain.nouvel_eleveur',
+                       'terrain.moi', 'terrain.presentation', 'hors_ligne.conflits', 'aides.liste',
+                       'eleveur.achat', 'argent.payer', 'entretien.ecran', 'entretien.panne', 'bandes.ouvrir',
+                       'bandes.rattrapage']
+# Pages que l'agent et l'opérateur peuvent ouvrir mais qui ne sont PAS gardées sur le téléphone : la sécurité du
+# compte (en ligne par nature), la création d'une ferme (avec du réseau seulement, jusqu'au lot 19 bis), et les
+# écrans de la « Version bureau » de l'agent (pilotage, sur ordinateur). Vérifié par tests/test_lot19ter.py.
+EN_LIGNE_SEULEMENT = {'auth.securite', 'auth.mise_en_place', 'fermes.nouvelle'}
+VERSION_BUREAU_AGENT = {'operateurs.liste', 'livraisons.liste', 'livraisons.nouvelle', 'bandes.liste', 'sante.vaccins',
+                        'pilotage.tableau', 'tracabilite.lots', 'agent.commandes', 'fermes.liste'}
+
+
+def _aides_du_profil(prefixe):
+    from app.models.aide import Aide
+    return [url_for('aides.aide', cle=a.cle) for a in Aide.query.filter_by(actif=True) if a.cle.startswith(prefixe)]
 
 
 def pages_a_garder(user):
@@ -112,7 +131,7 @@ def pages_a_garder(user):
     if user.profil == Profil.AGENT:
         return pages_agent(user)
     if user.profil == Profil.OPERATEUR:
-        return [url_for(e) for e in PAGES_OPERATEUR]
+        return [url_for(e) for e in PAGES_OPERATEUR] + _aides_du_profil('op_')
     from app.models import Livraison
     from app.models.aide import Aide
     from app.models.intrant import StatutLivraison
@@ -166,6 +185,14 @@ def conflits():
     from app.models.hors_ligne import StatutVerification as SV
     autres = (tous.filter(or_(ConflitHorsLigne.statut.is_(None), ConflitHorsLigne.statut != SV.A_VERIFIER))
               .order_by(ConflitHorsLigne.cree_le.desc()).limit(100).all())
+    if current_user.profil == Profil.AGENT:
+        from app.utils import terrain
+        if terrain.profil_terrain(current_user) == 'agent':      # lot 19 ter : même règle, écran terrain
+            from app.models.liste_deroulante import ld_choices
+            a_voir = [c for c in autres if c.genre == G.MESSAGE and c.vu_le is None]
+            return render_template('terrain/agent/a_verifier.html', a_trancher=a_trancher, a_voir=a_voir, G=G,
+                                   en_retard=verifications.en_retard, choix_sortie=verifications.CHOIX_SORTIE,
+                                   motifs=[v for v, _ in ld_choices('motifs_verification')])
     return render_template('hors_ligne/conflits.html', a_trancher=a_trancher, conflits=autres, G=G,
                            par_province=par_province, province=province,
                            en_retard=verifications.en_retard, choix_sortie=verifications.CHOIX_SORTIE)
@@ -177,7 +204,10 @@ def trancher(ident):
     from app.services import verifications
     c = filtre_perimetre(ConflitHorsLigne.query.filter_by(id=ident)).first_or_404()
     try:
-        verifications.trancher(c, request.form.get('choix'), request.form.get('motif', ''), current_user)
+        motif = request.form.get('motif', '')
+        if motif == 'Autre' or (not motif and request.form.get('motif_autre')):   # lot 19 ter : « Autre… » → texte
+            motif = request.form.get('motif_autre', '')
+        verifications.trancher(c, request.form.get('choix'), motif, current_user)
         db.session.commit()
         flash('Décision enregistrée (inscrite au journal) : les chiffres sont recalculés.', 'success')
     except verifications.RegleVerification as e:

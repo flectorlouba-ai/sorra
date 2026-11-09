@@ -58,8 +58,10 @@ def test_tournee_du_jour_et_pages_gardees(client, monde):
     assert f'data-ferme-tournee="{monde["f"].numero}"' in page and 'Visite : vaccination' in page
     assert 'data-garder' in page and f'/fermes/{monde["f"].numero}' in page      # fiches gardées sans réseau
     assert monde['f2'].numero not in page                                       # pas sa ferme
+    client.get('/terrain/bureau')                   # lot 19 ter : tuiles de pilotage dans la « Version bureau »
     accueil = client.get('/').get_data(as_text=True)
     assert 'data-tuile-pilotage="tournee"' in accueil and 'data-tuile-pilotage="commandes"' in accueil
+    client.get('/terrain/version-terrain')
     changer(client, 'eleveur1')
     assert client.get('/tournee').status_code == 403
 
