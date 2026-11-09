@@ -498,6 +498,9 @@ def sortie(numero):
                       f"(jusqu'au {fin}). C'est inscrit au journal.", 'danger')
             db.session.commit()
             reste = indicateurs.calculer(bande)['effectif_present']
+            if s.blocage_id is not None:
+                flash('Sortie reçue après le blocage du vétérinaire : gardée de côté, il va la vérifier.', 'warning')
+                return _retour(bande)
             flash(f'Sortie enregistrée. Il reste {reste} poulets dans la bande.', 'success')
             if s.lot and current_user.profil != Profil.ELEVEUR:
                 flash(f'Lot {s.lot.numero} créé : ses étiquettes QR s\'impriment depuis la fiche de la bande.', 'info')
@@ -505,7 +508,9 @@ def sortie(numero):
         except regles.RegleBande as e:
             db.session.rollback()
             erreur = str(e)
+    from app.services import veto
     return render_template('bandes/sortie.html', bande=bande, erreur=erreur, saisie=request.form,
+                           blocage=veto.blocage_actif(bande),
                            operateurs=operateurs, motifs=MotifSortie.TOUS,
                            delai=sante.fin_delai_attente(bande),
                            present=indicateurs.calculer(bande)['effectif_present'])

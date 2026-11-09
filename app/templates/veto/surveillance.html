@@ -1,0 +1,69 @@
+{% extends '_base.html' %}
+{% block titre %}Surveillance{% endblock %}
+{% block icone %}sign-stop{% endblock %}
+{% block page_sous_titre %}Bandes dont les sorties sont bloquées · seul un vétérinaire lève un blocage{% endblock %}
+
+{% block contenu %}
+{% if a_verifier %}
+<div class="card-p mb-3" id="a-verifier">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-exclamation-diamond"></i> Sorties reçues après le blocage · à vérifier</span></div>
+  <div class="card-p-body">
+    <div class="td-sous mb-2">Faites sans réseau avant que l'éleveur ne voie le blocage. Elles sont gardées de côté, sans lot ni QR.</div>
+    {% for s in a_verifier %}
+    <div class="ligne-verif" data-sortie-a-verifier="{{ s.id }}">
+      <div><strong>{{ s.bande.numero }}</strong> · {{ s.date.strftime('%d/%m') }} · {{ s.nombre|qte }} poulets vers {{ s.destinataire }} · {{ s.poids_total_kg|qte }} kg</div>
+      {% if peut_agir %}
+      <form method="post" action="{{ url_for('veto.verifier_sortie', ident=s.id) }}" class="d-flex gap-2 flex-wrap mt-1">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn-edit" name="choix" value="sortis">Les poulets sont bien sortis</button>
+        <button class="btn-annuler" name="choix" value="pas_sortis">Pas sortis</button>
+      </form>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="card-p mb-3" id="bloquees">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-sign-stop"></i> Sorties bloquées</span></div>
+  <div class="card-p-body">
+    {% for b in actifs %}
+    <div class="ligne-verif" data-blocage="{{ b.bande.numero }}">
+      <div><span class="badge badge-danger">⛔ bloquée</span> <a href="{{ url_for('bandes.fiche', numero=b.bande.numero) }}"><strong>{{ b.bande.numero }}</strong></a> · {{ b.ferme.nom }}
+        <div class="td-sous">Depuis le {{ b.cree_le|date_locale('%d/%m/%Y %H:%M') }} par {{ b.poseur.nom_complet }} · {{ b.motif }}{% if b.alerte %} · signalement <a href="{{ url_for('sante.alerte', numero=b.alerte.numero) }}">{{ b.alerte.numero }}</a>{% endif %}</div></div>
+      {% if peut_agir %}
+      <form method="post" action="{{ url_for('veto.lever', ident=b.id) }}" class="d-flex gap-2 flex-wrap mt-1">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input class="form-control" name="motif" maxlength="300" placeholder="Motif de la levée" aria-label="Motif de la levée" style="max-width:320px">
+        <button class="btn-edit" type="submit">Lever le blocage</button>
+      </form>{% endif %}
+    </div>
+    {% else %}
+    <div class="empty-note">Aucune bande bloquée.</div>
+    {% endfor %}
+  </div>
+</div>
+
+{% if peut_agir and not bandes %}
+<div class="card-p mb-3"><div class="card-p-body"><div class="empty-note">Aucune autre bande en cours à bloquer dans votre province.</div></div></div>
+{% elif peut_agir %}
+<form method="post" action="{{ url_for('veto.bloquer') }}" class="card-p mb-3" novalidate id="bloquer">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-plus-lg"></i> Bloquer les sorties d'une bande</span></div>
+  <div class="card-p-body form-commande">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <select class="form-control" name="bande" aria-label="Bande">{% for b in bandes %}<option value="{{ b.numero }}">{{ b.numero }} · {{ b.ferme.nom }}</option>{% endfor %}</select>
+    <input class="form-control" name="motif" maxlength="300" placeholder="Motif (obligatoire)" aria-label="Motif du blocage">
+    <button type="submit" class="btn-del">⛔ Bloquer</button>
+  </div>
+</form>
+{% endif %}
+
+{% if leves %}
+<div class="card-p">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-clock-history"></i> Derniers blocages levés</span></div>
+  <div class="card-p-body">
+    {% for b in leves %}<div class="td-sous">{{ b.bande.numero }} · bloquée le {{ b.cree_le|date_locale('%d/%m') }} ({{ b.motif }}) · levée le {{ b.leve_le|date_locale('%d/%m') }} par {{ b.leveur.nom_complet }} : {{ b.motif_levee }}</div>{% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

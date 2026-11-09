@@ -70,6 +70,12 @@ def _n_commandes(user):
     return q.filter(CommandeIntrant.statut == SC.ENVOYEE).count()
 
 
+def _n_surveillance(user):
+    """Sorties reçues après un blocage, à vérifier."""
+    from app.services import veto
+    return len(veto.sorties_a_verifier(veto.blocages_visibles(user).all()))
+
+
 TUILES = {
     'mes_fermes':      ('Mes fermes', "Triées par urgence", 'house-door', 'fermes.liste', _n_fermes_rouges),
     'tournee':         ('Tournée du jour', 'Visites et fermes en rouge', 'signpost-split', 'agent.tournee', _n_tournee),
@@ -96,17 +102,20 @@ TUILES = {
     'sessions':        ('Sessions', 'Appareils connectés', 'pc-display', 'controle.sessions', None),
     'journal':         ('Journal', 'Qui a fait quoi, et quand', 'journal-text', 'journal.index', None),
     'integrite':       ('Intégrité', 'Journal chaîné', 'shield-check', 'controle.integrite', None),
+    'surveillance':    ('Surveillance', 'Sorties bloquées', 'sign-stop', 'veto.surveillance', _n_surveillance),
+    'parametres_sanitaires': ('Paramètres sanitaires', 'Seuils, quatre yeux', 'sliders', 'veto.parametres', None),
+    'recherche_lots':  ('Recherche de lots', 'Amont et aval', 'diagram-3', 'veto.recherche', None),
 }
 
 # Tuiles visées d'abord (dans l'ordre demandé), puis les écrans existants qui restent utiles.
 TUILES_PROFIL = {
     Profil.AGENT:    ['mes_fermes', 'tournee', 'a_verifier', 'livraisons', 'commandes', 'bandes', 'indicateurs', 'vaccins', 'lots', 'operateurs'],
-    Profil.VETO:     ['signalements', 'vaccins', 'a_approuver', 'fermes', 'bandes', 'declarations', 'indicateurs', 'lots'],
+    Profil.VETO:     ['signalements', 'surveillance', 'recherche_lots', 'parametres_sanitaires', 'vaccins', 'a_approuver', 'fermes', 'bandes', 'declarations', 'indicateurs', 'lots'],
     Profil.DGE:      ['tableau', 'carte', 'livraisons_etat', 'arbitrages', 'rapports', 'a_approuver', 'commandes', 'fermes', 'bandes',
-                      'alertes_sanitaires', 'lots', 'operateurs'],
+                      'alertes_sanitaires', 'lots', 'operateurs', 'recherche_lots'],
     Profil.ADMIN:    ['utilisateurs', 'configuration', 'a_approuver', 'sessions', 'journal', 'integrite', 'arbitrages',
                       'tableau', 'fermes', 'bandes', 'livraisons_etat', 'signalements', 'declarations', 'vaccins', 'lots',
-                      'operateurs', 'carte', 'rapports', 'commandes'],
+                      'operateurs', 'carte', 'rapports', 'commandes', 'surveillance', 'recherche_lots'],
     Profil.AUDITEUR: ['journal', 'integrite'],
 }
 
@@ -291,7 +300,9 @@ def index():
         if current_user.presentation_vue_le is None:          # lot 13 : une fois par compte
             return redirect(url_for('eleveur.presentation'))
         from app.routes.eleveur import accueil as accueil_eleveur, bandeau_vaccin
+        from app.services import veto
         return render_template('accueil.html', eleveur=True, onglets=[], e=accueil_eleveur(current_user),
-                               bandeau_vaccin=bandeau_vaccin(current_user))
+                               bandeau_vaccin=bandeau_vaccin(current_user),
+                               blocages=veto.blocages_visibles(current_user).filter_by(leve_le=None).all())
     return render_template('accueil.html', eleveur=False, onglets=onglets_pour(current_user),
                            alertes=_alertes(current_user), perimetre=perimetre(current_user))

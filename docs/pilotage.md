@@ -14,10 +14,10 @@ L'éleveur garde son accueil à lui (phase 1, lots 9 à 13).
 
 | Profil | Tuiles, dans l'ordre |
 |---|---|
-| ADMIN | Utilisateurs · Configuration · Paramètres à approuver · Sessions · Journal · Intégrité · Arbitrages · Tableau de bord · Fermes · Bandes · Livraisons de l'État · Signalements · Déclarations · Vaccins · Lots · Opérateurs · Carte · Rapports · Commandes d'intrants |
-| DGE | Tableau de bord · Carte · Livraisons de l'État · Arbitrages · Rapports · Paramètres à approuver · Commandes d'intrants · Fermes · Bandes · Alertes sanitaires · Lots · Opérateurs |
+| ADMIN | Utilisateurs · Configuration · Paramètres à approuver · Sessions · Journal · Intégrité · Arbitrages · Tableau de bord · Fermes · Bandes · Livraisons de l'État · Signalements · Déclarations · Vaccins · Lots · Opérateurs · Carte · Rapports · Commandes d'intrants · Surveillance · Recherche de lots |
+| DGE | Tableau de bord · Carte · Livraisons de l'État · Arbitrages · Rapports · Paramètres à approuver · Commandes d'intrants · Fermes · Bandes · Alertes sanitaires · Lots · Opérateurs · Recherche de lots |
 | AGENT | Mes fermes · Tournée du jour · Saisies à vérifier · Livraisons et stock · Commandes d'intrants · Bandes · Indicateurs · Vaccins · Lots · Opérateurs |
-| VETO | Signalements · Vaccins et calendrier · Paramètres à approuver · Fermes · Bandes · Déclarations · Indicateurs · Lots |
+| VETO | Signalements · Surveillance · Recherche de lots · Paramètres sanitaires · Vaccins et calendrier · Paramètres à approuver · Fermes · Bandes · Déclarations · Indicateurs · Lots |
 | AUDITEUR | Journal · Intégrité |
 | BCEG, MAEDR, OPERATEUR | aucune tuile pour l'instant : « Vos écrans arrivent bientôt » |
 
@@ -27,6 +27,9 @@ L'éleveur garde son accueil à lui (phase 1, lots 9 à 13).
 |---|---|---|---|
 | Mes fermes / Fermes | `fermes.liste` (agent : triée par urgence) | fermes en rouge (agent) | 1 (15 : tuile, 16 : urgence) |
 | Tournée du jour | `agent.tournee` | lignes de la tournée | 16 |
+| Surveillance | `veto.surveillance` (sorties bloquées ; ADMIN en lecture) | sorties à vérifier | 17 |
+| Paramètres sanitaires | `veto.parametres` (quatre yeux) | — | 17 |
+| Recherche de lots | `veto.recherche` (amont, aval, export CSV) | — | 17 |
 | Commandes d'intrants | `agent.commandes` | refus non lus (agent) · à décider (DGE, ADMIN) | 16 |
 | Saisies à vérifier / Arbitrages | `hors_ligne.conflits` | saisies à trancher | 12 |
 | Livraisons et stock / Livraisons de l'État | `livraisons.liste` | — | 2 |
@@ -34,7 +37,7 @@ L'éleveur garde son accueil à lui (phase 1, lots 9 à 13).
 | Indicateurs / Tableau de bord | `pilotage.tableau` | — | 5 |
 | Carte | `pilotage.carte` | — | 5 |
 | Rapports | `pilotage.rapports` | — | 5 |
-| Signalements / Alertes sanitaires | `sante.alertes` | à qualifier / confirmées | 4 |
+| Signalements / Alertes sanitaires | `sante.alertes` (vétérinaire : triés par gravité ; fiche : diagnostic, blocage) | à qualifier / confirmées | 4 (17 : gravité, diagnostic) |
 | Déclarations | `sante.declarations` | — | 4 |
 | Vaccins et calendrier | `sante.vaccins` | — | 4 |
 | Lots et QR codes | `tracabilite.lots` | — | 6 |

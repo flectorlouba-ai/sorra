@@ -25,6 +25,7 @@ CATEGORIES = {
     'recommandations_visite': "Recommandations de visite (provisoire)",
     'objets_visite':         "Objets de visite (provisoire)",
     'grille_biosecurite':    "Grille de biosécurité de l'agent (provisoire, à valider par les vétérinaires)",
+    'maladies_suspectees':   "Maladies suspectées du diagnostic vétérinaire (provisoire)",
 }
 
 

@@ -718,3 +718,8 @@ i.picto-panne{font-style:normal;font-size:2rem;display:block;}
 .score-bio.score-rouge{color:var(--danger-encre);}
 .score-bio.score-orange{color:var(--att-encre);}
 .score-bio.score-vert{color:var(--ok-encre);}
+
+/* Lot 17 — vétérinaire : sorties bloquées */
+.ligne-verif{padding:.5rem 0;border-bottom:1px solid var(--bord);}
+.ligne-verif:last-child{border-bottom:0;}
+.blocage-sorties{display:flex;flex-direction:column;gap:.4rem;}

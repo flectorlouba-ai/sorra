@@ -31,3 +31,16 @@ Chaque décision : la question, le choix fait, l'autre option, et comment reveni
 | 16-7 ★ | Qui décide des commandes ? | **DGE et ADMIN** (valider, ou refuser avec motif). « Livrée » arrive quand la livraison liée est créée (« Créer la livraison », lot 18 B ; fonction `marquer_livree` prête). | Le vétérinaire pour les vaccins. | `agent.peut_decider_commande`. |
 | 16-8 | Nouvel éleveur : identifiant | `prenom.nom` sans accents (chiffre ajouté si pris), mot de passe provisoire de 10 caractères sans lettres ambiguës, montré **une fois** à l'écran, jamais gardé en clair. | Identifiant = téléphone. | `agent.identifiant_propose`. |
 | 16-9 | Tuile Commandes chez la DGE | Ajoutée **dès le lot 16** (elle doit décider) ; le lot 18 B y ajoutera « Créer la livraison ». | Attendre le lot 18. | Retirer `commandes` de `TUILES_PROFIL[DGE]`. |
+
+## Lot 17
+
+| # | Question | Choix fait | Autre option | Revenir en arrière |
+|---|---|---|---|---|
+| 17-1 | Comment mesurer la « gravité » d'un signalement ? | 1 à 4 points : mortalité anormale (feu rouge) 3 ; déclaration de 10 poulets ou plus 2, sinon 1 ; +1 sans réponse depuis 24 h. Tri : gravité, puis le plus ancien d'abord. | Gravité choisie par le vétérinaire. | `veto.gravite`. |
+| 17-2 ★ | Qui lit le diagnostic ? | **Vétérinaires et ADMIN.** Ni l'agent (il voit « diagnostic posé le … »), ni la DGE (elle voit l'alerte confirmée, pas le diagnostic). | Ouvrir à la DGE. | `veto.peut_lire_diagnostic`. |
+| 17-3 ★ | Sortie faite sans réseau avant de connaître le blocage | **Gardée, mise de côté, à vérifier**, sans lot ni QR. Le vétérinaire dit « bien sortis » (comptée, sans QR) ou « pas sortis » (reste de côté). | La refuser (l'éleveur perdrait sa saisie). | `veto.sortie_bloquee`. |
+| 17-4 ★ | Qui lève un blocage ? | **Un vétérinaire seulement** (n'importe lequel de la province), avec motif. Ni l'agent, ni la DGE, ni l'ADMIN. | Le vétérinaire qui a posé le blocage seulement : bloquant en cas d'absence. | `veto.lever`. |
+| 17-5 | Paramètres sanitaires du vétérinaire | Écran à lui, avec les seuils « sanitaires » de la liste du lot 15 (`approbations.SANITAIRES`) ; toujours une proposition (quatre yeux), approuvée par un **autre** vétérinaire, la DGE ou l'ADMIN. | Lui ouvrir l'écran Paramètres de l'ADMIN. | `veto.parametres_sanitaires`. |
+| 17-6 | Recherche de lots : périmètre | Vétérinaire : sa province ; DGE et ADMIN : national. Les bandes hors périmètre sont comptées, pas montrées. Chaque recherche et chaque export sont au journal (action `RECHERCHE`). | Recherche nationale pour tous les vétérinaires. | `veto.rechercher`. |
+| 17-7 | Recherche : « aliments » en amont | Les livraisons d'intrants confirmées de la ferme à partir de 7 jours avant la mise en place (l'aliment n'est pas rattaché à une bande précise). | Rien sur l'aliment. | `veto._amont`. |
+| 17-8 | Surveillance pour l'ADMIN | En **lecture** (tuile ajoutée), sans pouvoir bloquer ni lever. | Pas de tuile. | `TUILES_PROFIL[ADMIN]`. |

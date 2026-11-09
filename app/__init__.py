@@ -69,6 +69,7 @@ def create_app(env='default'):
     from app.routes.aides import aides_bp
     from app.routes.controle import controle_bp
     from app.routes.agent import agent_bp
+    from app.routes.veto import veto_bp
 
     app.register_blueprint(auth_bp,          url_prefix='/auth')
     app.register_blueprint(accueil_bp)
@@ -99,6 +100,7 @@ def create_app(env='default'):
     app.register_blueprint(aides_bp)
     app.register_blueprint(controle_bp)
     app.register_blueprint(agent_bp)
+    app.register_blueprint(veto_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 

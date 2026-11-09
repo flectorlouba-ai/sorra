@@ -129,6 +129,11 @@ Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple pl
 - Les saisies de l'agent (compte rendu, biosécurité, comptage, commande) **demandent le réseau** : elles ne sont pas gardées sur le téléphone. Une page gardée montre l'état au dernier passage avec réseau (« Préparée le … »).
 - Vérifié au navigateur : la tournée et une fiche s'ouvrent sans réseau (`docs/captures/lot16/360_tournee_sans_reseau.png`).
 
+### Blocage des ventes par le vétérinaire (lot 17)
+- Dès que la page de l'éleveur est relue avec du réseau, l'écran Sortie gardé sur le téléphone montre « ⛔ Le vétérinaire a bloqué les ventes de cette bande » **sans formulaire** : aucune sortie ne peut être saisie, même sans réseau. Vérifié au navigateur (`docs/captures/lot17/360_eleveur_sortie_bloquee_sans_reseau.png`).
+- En ligne, le serveur **refuse** la sortie (pas de lot, pas de QR).
+- Une sortie saisie sans réseau **avant** que le téléphone ne connaisse le blocage, et reçue **après**, n'est pas perdue : elle est enregistrée **mise de côté, à vérifier**, sans lot ni QR. Elle apparaît dans « Surveillance » chez le vétérinaire, qui dit si les poulets sont bien sortis (comptée, toujours sans QR) ou non.
+
 ### Session (lot 15)
 - L'éleveur et l'agent ne sont **jamais déconnectés par inactivité** : des jours sans réseau ne doivent pas faire perdre la session.
 - Si l'ADMIN ferme la session (téléphone perdu), l'envoi suivant reçoit la réponse « connexion ». Les saisies restent sur le téléphone et partent après la reconnexion, au nom de leur auteur (lot 13).

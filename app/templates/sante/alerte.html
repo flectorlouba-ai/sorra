@@ -24,9 +24,38 @@
     </div>
     {% endif %}
     {% if a.bande %}
-    <div class="card-p">
-      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-collection"></i> Bande {{ a.bande.numero }}</span></div>
-      <div class="card-p-body"><a href="{{ url_for('bandes.fiche', numero=a.bande.numero) }}">Voir la fiche de la bande (mortalité, courbe, vaccins, traitements)</a></div>
+    <div class="card-p" id="blocage">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-collection"></i> Bande {{ a.bande.numero }}</span>
+        {% if blocage %}<span class="badge badge-danger">⛔ sorties bloquées</span>{% endif %}</div>
+      <div class="card-p-body"><a href="{{ url_for('bandes.fiche', numero=a.bande.numero) }}">Voir la fiche de la bande (mortalité, courbe, vaccins, traitements)</a>
+        {% if current_user.profil.value == 'VETO' and not blocage and a.bande.statut == 'EN_COURS' %}
+        <form method="post" action="{{ url_for('veto.bloquer') }}" class="form-commande mt-2">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="bande" value="{{ a.bande.numero }}"><input type="hidden" name="alerte" value="{{ a.numero }}">
+          <input class="form-control" name="motif" maxlength="300" placeholder="Motif du blocage (obligatoire)" aria-label="Motif du blocage">
+          <button type="submit" class="btn-del">⛔ Bloquer les sorties de cette bande</button>
+        </form>
+        {% elif blocage %}<div class="td-sous mt-1">Bloquée le {{ blocage.cree_le|date_locale('%d/%m/%Y') }} par {{ blocage.poseur.nom_complet }} : {{ blocage.motif }} · <a href="{{ url_for('veto.surveillance') }}">Surveillance</a></div>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+    {% if diagnostic %}
+    <div class="card-p" id="diagnostic">
+      <div class="card-p-head"><span class="card-p-title"><i class="bi bi-clipboard2-pulse"></i> Diagnostic</span><span class="td-sous">réservé aux vétérinaires</span></div>
+      <div class="card-p-body">
+        {% for d in a.diagnostics %}<div class="mb-2" data-diagnostic><strong>{{ d.maladie }}</strong>{% if d.prelevement %} · <span class="badge badge-warn">prélèvement envoyé</span>{% endif %}
+          <div class="td-sous">{{ d.cree_le|date_locale('%d/%m/%Y %H:%M') }} · {{ d.veto.nom_complet }}</div>{% if d.observations %}<div>{{ d.observations }}</div>{% endif %}</div>
+        {% else %}<div class="empty-note mb-2">Pas encore de diagnostic.</div>{% endfor %}
+        {% if current_user.profil.value == 'VETO' %}
+        <form method="post" action="{{ url_for('veto.diagnostic', numero=a.numero) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label class="form-label" for="maladie">Maladie suspectée</label>
+          <select class="form-control mb-2" id="maladie" name="maladie">{% for m in maladies %}<option>{{ m }}</option>{% endfor %}</select>
+          <input class="form-control mb-2" name="autre_maladie" maxlength="150" placeholder="Si « Autre » : laquelle ?" aria-label="Autre maladie">
+          <label class="d-flex gap-2 align-items-center mb-2"><input type="checkbox" name="prelevement"> Prélèvement envoyé au laboratoire</label>
+          <textarea class="form-control mb-2" name="observations" rows="2" maxlength="1000" placeholder="Observations" aria-label="Observations"></textarea>
+          <button type="submit" class="btn-new">Enregistrer le diagnostic</button>
+        </form>{% endif %}
+      </div>
     </div>
     {% endif %}
   </div>

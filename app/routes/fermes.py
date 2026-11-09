@@ -181,7 +181,8 @@ def _visites(ferme):
 def _signalements(ferme):
     """L'agent voit qu'une réponse a été donnée, jamais le contenu (déclarations réservées aux vétérinaires)."""
     from app.models.sante import AlerteSanitaire
-    return [{'date': a.cree_le, 'origine': a.origine, 'repondu_le': a.reponses[-1].cree_le if a.reponses else None}
+    return [{'date': a.cree_le, 'origine': a.origine, 'repondu_le': a.reponses[-1].cree_le if a.reponses else None,
+             'diagnostic_le': a.diagnostics[0].cree_le if a.diagnostics else None}
             for a in AlerteSanitaire.query.filter_by(ferme_id=ferme.id).order_by(AlerteSanitaire.cree_le.desc()).limit(10)]
 
 

@@ -1,0 +1,42 @@
+{% extends '_base.html' %}
+{% block titre %}Recherche de lots{% endblock %}
+{% block icone %}diagram-3{% endblock %}
+{% block page_sous_titre %}D'où viennent les poulets (amont) et où sont-ils partis (aval) · chaque recherche est inscrite au journal{% endblock %}
+
+{% block contenu %}
+<form class="filters-bar" method="get">
+  <input type="search" name="q" class="filter-search" value="{{ q }}" placeholder="N° de lot, de bande, de livraison, ou fournisseur" aria-label="Rechercher" style="flex:1 1 240px">
+  <button type="submit" class="btn-filter"><i class="bi bi-search"></i></button>
+</form>
+{% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+{% if r %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+  <div><strong>{{ r.quoi or 'Rien trouvé' }}</strong> · {{ r.fiches|length }} bande{{ 's' if r.fiches|length != 1 }}{% if r.hors_perimetre %} <span class="td-sous">(+ {{ r.hors_perimetre }} hors de votre province)</span>{% endif %}</div>
+  {% if r.fiches %}<a class="btn-new" href="{{ url_for('veto.recherche_csv', q=q) }}"><i class="bi bi-download"></i> Export CSV</a>{% endif %}
+</div>
+{% for f in r.fiches %}
+<div class="card-p mb-3" data-fiche-bande="{{ f.bande.numero }}">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-collection"></i> {{ f.bande.numero }} · {{ f.ferme.nom }}</span>
+    {% if f.blocage %}<span class="badge badge-danger">⛔ sorties bloquées</span>{% endif %}</div>
+  <div class="card-p-body">
+    <div class="row g-3">
+      <div class="col-md-6" data-amont>
+        <div class="form-label">⬆ Amont</div>
+        {% for p in f.amont.poussins %}<div>🐣 {{ p.date.strftime('%d/%m/%Y') }} · {{ p.quantite|qte }} {{ p.produit }} · <strong>{{ p.fournisseur }}</strong> <span class="mono td-sous">{{ p.livraison }}</span></div>{% endfor %}
+        {% for a in f.amont.aliments %}<div class="td-sous">📦 {{ a.date.strftime('%d/%m') }} · {{ a.produit }} · {{ a.quantite|qte }} <span class="mono">{{ a.livraison }}</span></div>{% endfor %}
+        {% for s in f.amont.soins %}<div class="td-sous">💉 {{ s.date.strftime('%d/%m') }} · {{ s.quoi }}</div>{% endfor %}
+        {% if not (f.amont.poussins or f.amont.aliments or f.amont.soins) %}<div class="empty-note">Rien en amont.</div>{% endif %}
+      </div>
+      <div class="col-md-6" data-aval>
+        <div class="form-label">⬇ Aval</div>
+        {% for s in f.aval %}<div>🚚 {{ s.date.strftime('%d/%m/%Y') }} · {{ s.nombre|qte }} poulets → <strong>{{ s.destinataire }}</strong>
+          {% if s.lot %}<span class="mono td-sous">{{ s.lot }}</span>{% if s.lot_annule %} <span class="badge badge-off">lot annulé</span>{% endif %} · {{ s.lectures }} lecture{{ 's' if s.lectures != 1 }} du QR{% endif %}
+          {% if s.mise_de_cote %}<span class="badge badge-warn">mise de côté</span>{% endif %}</div>
+        {% else %}<div class="empty-note">Aucune sortie.</div>{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

@@ -132,8 +132,13 @@ def alertes():
             q = q.filter(AlerteSanitaire.statut == SA.CONFIRMEE)
         else:
             q = q.filter(AlerteSanitaire.statut.in_(SA.OUVERTES + (SA.CONFIRMEE,)))
-    return render_template('sante/alertes.html', alertes=q.order_by(AlerteSanitaire.cree_le.desc()).all(),
-                           statut=statut, statuts=SA.LIBELLES)
+    from app.services import veto
+    alertes = q.order_by(AlerteSanitaire.cree_le.desc()).all()
+    if current_user.profil == Profil.VETO:            # lot 17 : la plus grave d'abord
+        alertes = veto.trier_par_gravite(alertes)
+    return render_template('sante/alertes.html', alertes=alertes, statut=statut, statuts=SA.LIBELLES,
+                           gravite=veto.gravite if current_user.profil == Profil.VETO else None,
+                           libelle_gravite=veto.libelle_gravite)
 
 
 @sante_bp.route('/alertes/<numero>', methods=['GET', 'POST'])
@@ -154,7 +159,10 @@ def alerte(numero):
             db.session.rollback()
             erreur = str(e)
     from app.models.liste_deroulante import ld_choices as _ld
+    from app.services import veto
     return render_template('sante/alerte.html', a=a, erreur=erreur, icone=regles.icone_signe,
+                           diagnostic=veto.peut_lire_diagnostic(current_user), maladies=veto.maladies(),
+                           blocage=veto.blocage_actif(a.bande) if a.bande else None,
                            conseils=[v for v, _ in _ld('conseils_veterinaire')],
                            suivants=[(s, SA.LIBELLES[s]) for s in SA.SUIVANTS.get(a.statut, [])]
                            if current_user.profil == Profil.VETO else [])

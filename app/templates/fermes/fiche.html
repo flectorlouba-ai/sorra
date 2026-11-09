@@ -205,7 +205,7 @@
   {% if signalements %}
   <div class="card-p-body" style="border-top:1px solid var(--bord)"><strong>Signalements</strong> <span class="td-sous">(contenu réservé aux vétérinaires)</span>
     {% for s in signalements %}<div class="td-sous">{{ s.date|date_locale('%d/%m') }} · {{ 'beaucoup de morts' if s.origine == 'FEU_ROUGE' else "déclaration de l'éleveur" }} ·
-      {% if s.repondu_le %}le vétérinaire a répondu le {{ s.repondu_le|date_locale('%d/%m') }}{% else %}pas encore de réponse{% endif %}</div>{% endfor %}
+      {% if s.repondu_le %}le vétérinaire a répondu le {{ s.repondu_le|date_locale('%d/%m') }}{% else %}pas encore de réponse{% endif %}{% if s.diagnostic_le %} · diagnostic posé le {{ s.diagnostic_le|date_locale('%d/%m') }}{% endif %}</div>{% endfor %}
   </div>{% endif %}
 </div>
 {% endif %}
