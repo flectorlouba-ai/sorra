@@ -1,0 +1,18 @@
+{% extends '_base.html' %}
+{% block titre %}Nouvel éleveur{% endblock %}
+{% block icone %}person-plus{% endblock %}
+{% block page_sous_titre %}{{ ferme.nom }} ({{ ferme.numero }}) · un mot de passe provisoire sera affiché une seule fois{% endblock %}
+
+{% block contenu %}
+<form method="post" class="form-terrain" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  <div class="form-group"><label class="form-label" for="nom">Nom</label>
+    <input class="form-control" id="nom" name="nom" maxlength="100" value="{{ saisie.get('nom', '') }}" required></div>
+  <div class="form-group"><label class="form-label" for="prenom">Prénom</label>
+    <input class="form-control" id="prenom" name="prenom" maxlength="100" value="{{ saisie.get('prenom', '') }}"></div>
+  <div class="form-group"><label class="form-label" for="telephone">Téléphone</label>
+    <input class="form-control" id="telephone" name="telephone" type="tel" inputmode="tel" maxlength="30" value="{{ saisie.get('telephone', '') }}" required></div>
+  <button type="submit" class="btn-gros">Créer le compte</button>
+</form>
+{% endblock %}

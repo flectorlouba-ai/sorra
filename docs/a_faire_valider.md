@@ -19,6 +19,7 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | Texte du conseil du feu rouge | Santé → conseil | texte de départ | 8 |
 | Tâches d'entretien de départ (noms, fréquences, installations) | Configuration → Tâches d'entretien | 7 tâches | 10 |
 | **Conseils du vétérinaire à l'éleveur** (provisoire) | Listes → `conseils_veterinaire` | 6 conseils | 12 |
+| **Grille de biosécurité** (10 points) et seuils du score (rouge < 50 %, orange < 80 %) | Listes → `grille_biosecurite` ; seuils : code (`agent.couleur_score`) | 10 points | 16 |
 
 ## Par la DGE (et les vétérinaires pour les visites)
 
@@ -31,6 +32,8 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | Délai avant qu'un doublon de sortie non tranché passe en rouge et remonte à la DGE | Paramètres → `verifications.delai_rouge_heures` (quatre yeux) | 48 h | 12, 15 |
 | **Durée d'inactivité avant déconnexion** (pilotage seulement ; éleveur et agent jamais) | Paramètres → `securite.duree_session_minutes` | 30 min (était 60) | 15 |
 | **Profils à double authentification obligatoire** | Paramètres → `securite.profils_2fa` | ADMIN, DGE, MAEDR, BCEG, AUDITEUR | 15 |
+| **Seuil d'écart de stock** (livré − utilisé − compté) | Paramètres → `intrants.seuil_ecart_stock_pct` (quatre yeux) | 10 % du livré | 16 |
+| **Poids de l'urgence** des fermes de l'agent | code (`agent.ROUGE`, `agent.ORANGE`) | rouge 10, orange 3 | 16 |
 | **Liste des réglages sensibles** soumis aux quatre yeux | code (`approbations.SENSIBLES`) | seuils sanitaires, délais, formules, calendrier vaccinal, profils | 15 |
 | Seuil « à vérifier » de la dernière synchronisation du téléphone | code | 3 jours | 10 |
 

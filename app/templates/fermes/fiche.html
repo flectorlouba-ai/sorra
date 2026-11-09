@@ -13,6 +13,13 @@
 {% endblock %}
 
 {% block contenu %}
+{% from 'agent/_urgence.html' import pastille %}
+{% if agent and agent.urgence.raisons %}
+<div class="card-p mb-3" id="a-faire" data-a-faire>
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-list-check"></i> À faire</span>{{ pastille(agent.urgence) }}</div>
+  <div class="card-p-body">{% for c, t in agent.urgence.raisons %}<div>{{ '🔴' if c == 'rouge' else '🟠' }} {{ t }}</div>{% endfor %}</div>
+</div>
+{% endif %}
 <div class="row g-3">
   <div class="col-lg-6">
     <div class="card-p h-100">
@@ -203,6 +210,38 @@
 </div>
 {% endif %}
 
+{% if agent %}
+<div class="card-p" id="biosecurite">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-shield-check"></i> Biosécurité</span>
+    {% if agent.gerer and current_user.profil.value == 'AGENT' %}<a class="btn-top" href="{{ url_for('agent.biosecurite', numero=ferme.numero) }}"><i class="bi bi-clipboard-check"></i> Évaluer</a>{% endif %}</div>
+  <div class="card-p-body">
+    {% if agent.biosecurite %}{% set bv = agent.biosecurite %}
+    <div><span class="badge {{ {'rouge': 'badge-danger', 'orange': 'badge-warn'}.get(agent.couleur_bio, 'badge-ok') }}" data-score-bio>{{ bv.score_biosecurite }} %</span> le {{ bv.faite_le.strftime('%d/%m/%Y') }}{% if bv.vue_par_eleveur_le %} <span class="td-sous">· lu par l'éleveur</span>{% endif %}</div>
+    {% for m in bv.mesures_correctives or [] %}<div class="td-sous">✗ {{ m.point }} → {{ m.mesure }}</div>{% endfor %}
+    {% else %}<div class="empty-note">Pas encore évaluée.</div>{% endif %}
+  </div>
+</div>
+
+<div class="card-p" id="commandes">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-cart-check"></i> Commandes d'intrants</span>
+    <a class="btn-top" href="{{ url_for('agent.commandes') }}"><i class="bi bi-list"></i> Toutes</a></div>
+  <div class="card-p-body">
+    {% for c in agent.commandes %}<div>{{ c.cree_le|date_locale('%d/%m') }} · {{ c.produit.nom }} · {{ c.quantite|qte }} {{ c.produit.unite }} · <strong>{{ c.libelle_statut }}</strong>{% if c.motif_refus %} <span class="td-sous">({{ c.motif_refus }})</span>{% endif %}</div>
+    {% else %}<div class="empty-note">Aucune commande.</div>{% endfor %}
+  </div>
+</div>
+
+<div class="card-p" id="eleveurs">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-people"></i> Comptes des éleveurs</span>
+    {% if agent.gerer %}<a class="btn-top" href="{{ url_for('agent.nouvel_eleveur', numero=ferme.numero) }}"><i class="bi bi-person-plus"></i> Nouvel éleveur</a>{% endif %}</div>
+  <div class="card-p-body">
+    {% for u in agent.eleveurs %}<div>{{ u.nom_complet }} <span class="mono td-sous">{{ u.identifiant }}</span>{% if u.telephone %} · <a href="tel:{{ u.telephone|replace(' ', '') }}">{{ u.telephone }}</a>{% endif %}
+      {% if u.doit_changer_mdp %}<span class="badge badge-warn">mot de passe provisoire</span>{% endif %}{% if not u.actif %}<span class="badge badge-off">inactif</span>{% endif %}</div>
+    {% else %}<div class="empty-note">Aucun compte d'éleveur rattaché.</div>{% endfor %}
+  </div>
+</div>
+{% endif %}
+
 {% if bceg is not none %}
 <div class="card-p" id="bceg">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-bank"></i> Banque (BCEG)</span></div>
@@ -262,13 +301,22 @@
   {% if stock %}
   <div class="table-scroll">
     <table>
-      <thead><tr><th>Produit</th><th>Stock</th><th>Unité</th></tr></thead>
+      <thead><tr><th>Produit</th><th>Stock</th><th>Unité</th>{% if agent %}<th>Dernier comptage</th>{% endif %}</tr></thead>
       <tbody>
       {% for s in stock %}
         <tr>
           <td><strong>{{ s.produit.nom }}</strong>{% if s.produit.type == 'Poussins' %}<br><span class="td-sous">en attente de bande</span>{% endif %}</td>
           <td>{{ s.stock|qte }}{% if s.kg is not none %} <span class="td-sous">· {{ s.kg|qte }} kg</span>{% endif %}</td>
           <td>{{ s.produit.unite }}</td>
+          {% if agent %}{% set inv = agent.inventaires.get(s.produit.id) %}
+          <td data-inventaire="{{ s.produit.id }}">{% if inv %}{{ inv.compte|qte }} le {{ inv.jour.strftime('%d/%m') }}
+              · écart <span class="{{ 'badge badge-danger' if inv.livre and inv.ecart_pct > agent.seuil else '' }}">{{ inv.ecart|qte }} ({{ inv.ecart_pct|qte }} %)</span>{% else %}<span class="td-sous">jamais compté</span>{% endif %}
+            {% if agent.gerer and s.produit.type != 'Poussins' %}
+            <form method="post" action="{{ url_for('agent.compter', numero=ferme.numero) }}" class="d-flex gap-1 mt-1">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="produit_id" value="{{ s.produit.id }}">
+              <input class="form-control" name="compte" inputmode="decimal" placeholder="Compté" aria-label="Quantité comptée : {{ s.produit.nom }}" style="max-width:110px">
+              <button class="btn-edit" type="submit">Compter</button>
+            </form>{% endif %}</td>{% endif %}
         </tr>
       {% endfor %}
       </tbody>

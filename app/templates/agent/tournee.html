@@ -1,0 +1,34 @@
+{% extends '_base.html' %}
+{% from 'agent/_urgence.html' import pastille, raisons %}
+{% block titre %}Tournée du jour{% endblock %}
+{% block icone %}signpost-split{% endblock %}
+{% block page_sous_titre %}Visites prévues aujourd'hui ou en retard, puis fermes en rouge · gardée sur le téléphone{% endblock %}
+
+{% block contenu %}
+<div class="td-sous mb-2" data-tournee-du>Préparée le {{ maintenant|date_locale('%d/%m/%Y à %H:%M') }}. Ouvrez-la avec du réseau avant de partir : elle reste lisible sans réseau, avec les fiches des fermes.</div>
+{% for l in lignes %}
+<div class="card-p mb-2" data-ferme-tournee="{{ l.ferme.numero }}">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-house-door"></i> {{ l.ferme.nom }}</span>{{ pastille(l.urgence) }}</div>
+  <div class="card-p-body">
+    <div><span class="mono">{{ l.ferme.numero }}</span> · {{ l.ferme.localite.nom }} · {{ l.ferme.exploitant_nom }}
+      {% if l.ferme.exploitant_telephone %} · <a href="tel:{{ l.ferme.exploitant_telephone|replace(' ', '') }}">📞 {{ l.ferme.exploitant_telephone }}</a>{% endif %}</div>
+    {% if l.visite %}<div><strong>Visite : {{ l.visite.objet|lower }}</strong>
+      {% if l.visite.date_prevue < today %}<span class="badge badge-danger">en retard · prévue le {{ l.visite.date_prevue.strftime('%d/%m') }}</span>{% else %}<span class="badge badge-ok">aujourd'hui</span>{% endif %}</div>{% endif %}
+    {{ raisons(l.urgence) }}
+    <div class="d-flex gap-2 flex-wrap mt-2">
+      <a class="btn-edit" href="{{ url_for('visites.compte_rendu', numero=l.ferme.numero, visite=l.visite.id if l.visite else None) }}"><i class="bi bi-clipboard-plus"></i> Compte rendu</a>
+      <a class="btn-edit" href="{{ url_for('agent.biosecurite', numero=l.ferme.numero) }}"><i class="bi bi-shield-check"></i> Biosécurité</a>
+      <a class="btn-edit" href="{{ url_for('fermes.fiche', numero=l.ferme.numero) }}" data-garder><i class="bi bi-house-door"></i> Fiche</a>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="card-p"><div class="card-p-body"><div class="empty-note">Rien de prévu aujourd'hui, et aucune ferme en rouge.</div></div></div>
+{% endfor %}
+<script>
+// Sans réseau (lot 16) : ouverte avec du réseau, la tournée fait garder les fiches de ses fermes
+if (navigator.onLine) {
+  document.querySelectorAll('a[data-garder]').forEach(function (a) { fetch(a.href, {credentials: 'same-origin'}).catch(function () {}); });
+}
+</script>
+{% endblock %}

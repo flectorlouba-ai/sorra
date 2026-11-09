@@ -124,6 +124,11 @@ Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple pl
 - Pour la même personne, les saisies s'additionnent sans question. En ligne, l'écran « Déjà envoyé » propose d'ajouter ; une erreur se corrige ensuite par l'agent depuis la fiche de la bande.
 - Les pages gardées montrent l'état au dernier passage avec réseau (chiffres, « À faire aujourd'hui »).
 
+### Tournée de l'agent (lot 16)
+- **Tournée du jour** : ouverte avec du réseau, elle est gardée sur le téléphone et fait garder les **fiches des fermes** de la tournée. Sans réseau, l'agent les relit (téléphone de l'éleveur, raisons d'urgence, mesures de biosécurité).
+- Les saisies de l'agent (compte rendu, biosécurité, comptage, commande) **demandent le réseau** : elles ne sont pas gardées sur le téléphone. Une page gardée montre l'état au dernier passage avec réseau (« Préparée le … »).
+- Vérifié au navigateur : la tournée et une fiche s'ouvrent sans réseau (`docs/captures/lot16/360_tournee_sans_reseau.png`).
+
 ### Session (lot 15)
 - L'éleveur et l'agent ne sont **jamais déconnectés par inactivité** : des jours sans réseau ne doivent pas faire perdre la session.
 - Si l'ADMIN ferme la session (téléphone perdu), l'envoi suivant reçoit la réponse « connexion ». Les saisies restent sur le téléphone et partent après la reconnexion, au nom de leur auteur (lot 13).

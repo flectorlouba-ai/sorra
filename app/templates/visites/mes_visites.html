@@ -13,6 +13,11 @@
     {% if v.id in nouvelles %}<span class="pastille-nouveau">nouveau</span>{% endif %}
   </div>
   <div class="carte-sous">{{ v.objet|lower }}</div>
+  {% if v.score_biosecurite is not none %}
+  <div class="score-bio score-{{ 'rouge' if v.score_biosecurite < 50 else 'orange' if v.score_biosecurite < 80 else 'vert' }}" data-score-bio>🛡️ Biosécurité : {{ v.score_biosecurite }} %</div>
+  {% if v.mesures_correctives %}<div class="carte-sous">À corriger :</div>
+  <ul class="conseils-veto">{% for m in v.mesures_correctives %}<li>{{ m.mesure }}</li>{% endfor %}</ul>{% endif %}
+  {% endif %}
   {% if v.toutes_recommandations %}
   <ul class="conseils-veto">{% for r in v.toutes_recommandations %}<li>{{ r }}</li>{% endfor %}</ul>
   {% endif %}

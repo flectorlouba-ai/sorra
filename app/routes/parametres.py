@@ -27,7 +27,7 @@ def modifier(param_id):
     try:
         valeur = normaliser(p.type, request.form.get('valeur', ''))
         # Les réglages de sécurité à 0 désactiveraient la protection
-        if p.cle.startswith('securite.') and int(valeur) < 1:
+        if p.cle.startswith('securite.') and p.type.value in ('ENTIER', 'JOURS') and int(valeur) < 1:
             raise ValueError('La valeur doit être au moins 1.')
         if p.cle == 'bandes.courbe_poids':
             from app.indicateurs import lire_courbe

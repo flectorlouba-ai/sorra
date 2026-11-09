@@ -70,13 +70,17 @@ def liste():
         q = q.filter(db.or_(Ferme.nom.ilike(motif), Ferme.numero_metier.ilike(motif),
                             Ferme.exploitant_nom.ilike(motif), Ferme.reference_ami.ilike(motif)))
     fermes = q.order_by(Ferme.numero_metier).all()
+    urgences = None
+    if current_user.profil == Profil.AGENT:                 # lot 16 : la plus urgente d'abord
+        from app.services import agent
+        fermes, urgences = agent.trier_par_urgence(fermes)
     provinces = filtre_perimetre(Province.query).order_by(Province.ordre).all() \
         if not current_user.est_national else Province.query.order_by(Province.ordre).all()
     if current_user.profil == Profil.AGENT:
         # L'agent filtre parmi les provinces où il a des fermes ou peut en créer
         ids = {fe.province_id for fe in base} | set(current_user.province_ids)
         provinces = [p for p in Province.query.order_by(Province.ordre) if p.id in ids]
-    return render_template('fermes/liste.html', fermes=fermes, total=total,
+    return render_template('fermes/liste.html', fermes=fermes, total=total, urgences=urgences,
                            operationnelles=operationnelles, filtre=f, provinces=provinces,
                            statuts=[v for v, _ in ld_choices('statuts_ferme')],
                            peut_creer=regles.peut_creer(current_user))
@@ -103,8 +107,30 @@ def fiche(numero):
                            visites=_visites(ferme) if current_user.profil in (Profil.AGENT, Profil.DGE, Profil.ADMIN) else None,
                            signalements=_signalements(ferme) if current_user.profil in (Profil.AGENT, Profil.ADMIN) else None,
                            etats={b.id: regles_bandes.etat_batiment(b) for b in ferme.batiments},
+                           agent=_agent(ferme),
                            bandes=Bande.query.filter_by(ferme_id=ferme.id)
                            .order_by(Bande.date_mise_en_place.desc()).all())
+
+
+def _agent(ferme):
+    """Lot 16 : À faire, éleveurs, biosécurité, commandes et inventaires (agent de la ferme, ADMIN, DGE en lecture)."""
+    if current_user.profil not in (Profil.AGENT, Profil.DGE, Profil.ADMIN):
+        return None
+    from app.models.agent import CommandeIntrant
+    from app.models.visite import Visite, StatutVisite
+    from app.services import agent
+    ids = [uf.utilisateur_id for uf in UtilisateurFerme.query.filter_by(ferme_id=ferme.id)]
+    bio = (Visite.query.filter(Visite.ferme_id == ferme.id, Visite.statut == StatutVisite.FAITE,
+                               Visite.score_biosecurite.isnot(None))
+           .order_by(Visite.faite_le.desc(), Visite.cree_le.desc()).first())
+    return {'urgence': agent.urgences([ferme])[ferme.id], 'gerer': agent.peut_gerer(current_user, ferme),
+            'eleveurs': sorted(Utilisateur.query.filter(Utilisateur.id.in_(ids)).all(), key=lambda u: u.nom_complet)
+            if ids else [],
+            'biosecurite': bio, 'couleur_bio': agent.couleur_score(bio.score_biosecurite if bio else None),
+            'commandes': CommandeIntrant.query.filter_by(ferme_id=ferme.id)
+            .order_by(CommandeIntrant.cree_le.desc()).limit(5).all(),
+            'inventaires': {i.produit_id: i for i in agent.derniers_inventaires([ferme.id])},
+            'seuil': agent.seuil_ecart()}
 
 
 def _bceg(ferme):

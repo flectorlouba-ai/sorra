@@ -1,0 +1,3 @@
+{# Lot 16 : pastille et raisons d'urgence d'une ferme (même calcul partout : services/agent.urgences) #}
+{% macro pastille(u) %}{% if u %}<span class="badge {{ {'rouge': 'badge-danger', 'orange': 'badge-warn'}.get(u.couleur, 'badge-ok') }}" data-urgence="{{ u.couleur }}">{{ {'rouge': '● urgent', 'orange': '● à voir'}.get(u.couleur, '● rien à faire') }}</span>{% endif %}{% endmacro %}
+{% macro raisons(u) %}{% if u and u.raisons %}<div class="td-sous">{% for c, t in u.raisons %}{{ '🔴' if c == 'rouge' else '🟠' }} {{ t }}{{ ' · ' if not loop.last }}{% endfor %}</div>{% endif %}{% endmacro %}

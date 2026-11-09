@@ -66,6 +66,11 @@ PARAMETRES_DEFAUT = [
     ('intrants.seuil_mortalite_arrivee_pct', '2', TypeParametre.DECIMAL,
      'Alerte DGE : poussins morts à l\'arrivée au-delà de ce % d\'une livraison, à valider par les vétérinaires.'),
 ] + [
+    # Lot 16 — écart de stock (quatre yeux)
+    ('intrants.seuil_ecart_stock_pct', '10', TypeParametre.ENTIER,
+     "Écart de stock (livré − utilisé − compté) au-delà duquel la ferme passe en orange chez l'agent, en % du livré. "
+     'Quatre yeux.'),
+] + [
     # Lot 6 — traçabilité
     ('tracabilite.adresse_publique', 'http://187.124.217.218:5021', TypeParametre.TEXTE,
      'Adresse du site imprimée dans les QR codes (à remplacer par le nom de domaine en HTTPS).'),

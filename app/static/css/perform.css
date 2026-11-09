@@ -709,3 +709,12 @@ i.picto-panne{font-style:normal;font-size:2rem;display:block;}
 .codes-secours code{font-size:1.05rem;padding:.4rem;border:1px solid var(--bord);border-radius:6px;text-align:center;}
 .etapes-2fa li{margin-bottom:.6rem;}
 
+
+/* Lot 16 — agent : mot de passe provisoire, nouvelle commande, score de biosécurité chez l'éleveur */
+.mdp-provisoire{font-size:1.4rem;letter-spacing:.08em;}
+.form-commande{display:flex;flex-wrap:wrap;gap:.5rem;align-items:flex-end;}
+.form-commande .form-control{flex:1 1 200px;min-width:0;}
+.score-bio{font-weight:800;font-size:1.1rem;margin:.35rem 0;}
+.score-bio.score-rouge{color:var(--danger-encre);}
+.score-bio.score-orange{color:var(--att-encre);}
+.score-bio.score-vert{color:var(--ok-encre);}

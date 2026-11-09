@@ -50,8 +50,30 @@ def _n_alertes_confirmees(user):
     return sante.alertes_visibles(user).filter(AlerteSanitaire.statut == StatutAlerte.CONFIRMEE).count()
 
 
+def _n_fermes_rouges(user):
+    from app.services import agent
+    u = agent.urgences(Ferme.query.filter_by(agent_id=user.id).all())
+    return sum(1 for x in u.values() if x['couleur'] == 'rouge')
+
+
+def _n_tournee(user):
+    from app.services import agent
+    return len(agent.tournee(user))
+
+
+def _n_commandes(user):
+    """Agent : refus pas encore lus ; DGE et ADMIN : commandes à décider."""
+    from app.models.agent import CommandeIntrant, StatutCommande as SC
+    q = filtre_perimetre(CommandeIntrant.query, utilisateur=user)
+    if user.profil == Profil.AGENT:
+        return q.filter(CommandeIntrant.statut == SC.REFUSEE, CommandeIntrant.refus_lu_le.is_(None)).count()
+    return q.filter(CommandeIntrant.statut == SC.ENVOYEE).count()
+
+
 TUILES = {
-    'mes_fermes':      ('Mes fermes', 'Fiches, bâtiments, GPS', 'house-door', 'fermes.liste', None),
+    'mes_fermes':      ('Mes fermes', "Triées par urgence", 'house-door', 'fermes.liste', _n_fermes_rouges),
+    'tournee':         ('Tournée du jour', 'Visites et fermes en rouge', 'signpost-split', 'agent.tournee', _n_tournee),
+    'commandes':       ("Commandes d'intrants", 'Envoyée, validée, livrée', 'cart-check', 'agent.commandes', _n_commandes),
     'fermes':          ('Fermes', 'Fiches, bâtiments, GPS', 'house-door', 'fermes.liste', None),
     'a_verifier':      ('Saisies à vérifier', 'Deux versions à trancher', 'check2-square', 'hors_ligne.conflits', _n_a_verifier),
     'arbitrages':      ('Arbitrages', 'Saisies et livraisons à trancher', 'check2-square', 'hors_ligne.conflits', _n_arbitrages),
@@ -78,13 +100,13 @@ TUILES = {
 
 # Tuiles visées d'abord (dans l'ordre demandé), puis les écrans existants qui restent utiles.
 TUILES_PROFIL = {
-    Profil.AGENT:    ['mes_fermes', 'a_verifier', 'livraisons', 'bandes', 'indicateurs', 'vaccins', 'lots', 'operateurs'],
+    Profil.AGENT:    ['mes_fermes', 'tournee', 'a_verifier', 'livraisons', 'commandes', 'bandes', 'indicateurs', 'vaccins', 'lots', 'operateurs'],
     Profil.VETO:     ['signalements', 'vaccins', 'a_approuver', 'fermes', 'bandes', 'declarations', 'indicateurs', 'lots'],
-    Profil.DGE:      ['tableau', 'carte', 'livraisons_etat', 'arbitrages', 'rapports', 'a_approuver', 'fermes', 'bandes',
+    Profil.DGE:      ['tableau', 'carte', 'livraisons_etat', 'arbitrages', 'rapports', 'a_approuver', 'commandes', 'fermes', 'bandes',
                       'alertes_sanitaires', 'lots', 'operateurs'],
     Profil.ADMIN:    ['utilisateurs', 'configuration', 'a_approuver', 'sessions', 'journal', 'integrite', 'arbitrages',
                       'tableau', 'fermes', 'bandes', 'livraisons_etat', 'signalements', 'declarations', 'vaccins', 'lots',
-                      'operateurs', 'carte', 'rapports'],
+                      'operateurs', 'carte', 'rapports', 'commandes'],
     Profil.AUDITEUR: ['journal', 'integrite'],
 }
 

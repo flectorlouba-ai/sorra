@@ -14,9 +14,9 @@ L'éleveur garde son accueil à lui (phase 1, lots 9 à 13).
 
 | Profil | Tuiles, dans l'ordre |
 |---|---|
-| ADMIN | Utilisateurs · Configuration · Paramètres à approuver · Sessions · Journal · Intégrité · Arbitrages · Tableau de bord · Fermes · Bandes · Livraisons de l'État · Signalements · Déclarations · Vaccins · Lots · Opérateurs · Carte · Rapports |
-| DGE | Tableau de bord · Carte · Livraisons de l'État · Arbitrages · Rapports · Paramètres à approuver · Fermes · Bandes · Alertes sanitaires · Lots · Opérateurs |
-| AGENT | Mes fermes · Saisies à vérifier · Livraisons et stock · Bandes · Indicateurs · Vaccins · Lots · Opérateurs |
+| ADMIN | Utilisateurs · Configuration · Paramètres à approuver · Sessions · Journal · Intégrité · Arbitrages · Tableau de bord · Fermes · Bandes · Livraisons de l'État · Signalements · Déclarations · Vaccins · Lots · Opérateurs · Carte · Rapports · Commandes d'intrants |
+| DGE | Tableau de bord · Carte · Livraisons de l'État · Arbitrages · Rapports · Paramètres à approuver · Commandes d'intrants · Fermes · Bandes · Alertes sanitaires · Lots · Opérateurs |
+| AGENT | Mes fermes · Tournée du jour · Saisies à vérifier · Livraisons et stock · Commandes d'intrants · Bandes · Indicateurs · Vaccins · Lots · Opérateurs |
 | VETO | Signalements · Vaccins et calendrier · Paramètres à approuver · Fermes · Bandes · Déclarations · Indicateurs · Lots |
 | AUDITEUR | Journal · Intégrité |
 | BCEG, MAEDR, OPERATEUR | aucune tuile pour l'instant : « Vos écrans arrivent bientôt » |
@@ -25,7 +25,9 @@ L'éleveur garde son accueil à lui (phase 1, lots 9 à 13).
 
 | Tuile | Écran (route) | Compteur | Lot |
 |---|---|---|---|
-| Mes fermes / Fermes | `fermes.liste` | — | 1 (15 : tuile) |
+| Mes fermes / Fermes | `fermes.liste` (agent : triée par urgence) | fermes en rouge (agent) | 1 (15 : tuile, 16 : urgence) |
+| Tournée du jour | `agent.tournee` | lignes de la tournée | 16 |
+| Commandes d'intrants | `agent.commandes` | refus non lus (agent) · à décider (DGE, ADMIN) | 16 |
 | Saisies à vérifier / Arbitrages | `hors_ligne.conflits` | saisies à trancher | 12 |
 | Livraisons et stock / Livraisons de l'État | `livraisons.liste` | — | 2 |
 | Bandes | `bandes.liste` | — | 3 |
@@ -51,3 +53,7 @@ Provinces et localités · Listes · Paramètres · Catalogue des intrants · Fo
 ### Hors tuiles
 
 - **Ma sécurité** (`auth.securite`, clé en haut à droite) : double authentification, codes de secours, sessions ouvertes. Lot 15.
+
+### Depuis la fiche ferme (2ᵉ clic, lot 16)
+
+À faire (raisons d'urgence) · Stock avec « Compter » et écart · Biosécurité → « Évaluer » · Commandes · Comptes des éleveurs → « Nouvel éleveur ».
