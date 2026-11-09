@@ -136,7 +136,10 @@ def alertes():
     alertes = q.order_by(AlerteSanitaire.cree_le.desc()).all()
     if current_user.profil == Profil.VETO:            # lot 17 : la plus grave d'abord
         alertes = veto.trier_par_gravite(alertes)
-    return render_template('sante/alertes.html', alertes=alertes, statut=statut, statuts=SA.LIBELLES,
+    from app.services import receptions
+    retenus = (receptions.sous_reserve_visibles(current_user).all()
+               if current_user.profil in (Profil.VETO, Profil.ADMIN) else [])   # lot 19 : lots reçus sous réserve
+    return render_template('sante/alertes.html', alertes=alertes, statut=statut, statuts=SA.LIBELLES, retenus=retenus,
                            gravite=veto.gravite if current_user.profil == Profil.VETO else None,
                            libelle_gravite=veto.libelle_gravite)
 

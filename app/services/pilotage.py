@@ -56,7 +56,40 @@ def tableau(user, f):
         s = indicateurs.synthese(bp, f.get('du_date'), f.get('au_date'))
         s.update({'province': p, 'fermes': len(fp), 'fermes_actives': sum(1 for fe in fp if fe.statut == 'Opérationnelle')})
         par_province.append(s)
-    return {'total': total, 'par_province': par_province, 'arrivee': mortalite_arrivee(user, f)}
+    trace = tracabilite(user, f, fermes, bandes)
+    for s in par_province:
+        s['tracabilite'] = trace['par_province'].get(s['province'].id)
+    return {'total': total, 'par_province': par_province, 'arrivee': mortalite_arrivee(user, f),
+            'tracabilite': trace['total']}
+
+
+def tracabilite(user, f, fermes, bandes):
+    """Lot 19 (fonction 66) : traçabilité aval du périmètre et de la période (sorties à leur date, réceptions et
+    scans à leur jour). Les refus d'un QR inconnu n'ont pas de province : comptés au total national seulement."""
+    from app.models.tracabilite import Reception, Scan, LotTrace, ResultatScan
+    from app.utils.dates import en_utc
+    du, au = f.get('du_date'), f.get('au_date')
+
+    def dans(jour):
+        return (du is None or jour >= du) and (au is None or jour <= au)
+    ids = {fe.id for fe in fermes}
+    province_de = {fe.id: fe.province_id for fe in fermes}
+    sorties = [s for b in bandes for s in b.sorties if dans(s.date)]
+    receptions = [r for r in Reception.query.filter(Reception.ferme_id.in_(ids)) if dans(en_utc(r.recu_le).astimezone().date())] \
+        if ids else []
+    scans = [(sc, lot_ferme) for sc, lot_ferme in
+             db.session.query(Scan, LotTrace.ferme_id).outerjoin(LotTrace, Scan.lot_id == LotTrace.id)
+             .filter(Scan.resultat == ResultatScan.ROUGE)
+             if dans(en_utc(sc.horodatage).astimezone().date()) and (lot_ferme in ids or (lot_ferme is None and user.est_national))]
+    seuil = float(parametres.obtenir('reception.seuil_morts_pct', 2))
+    total = indicateurs.tracabilite(sorties, receptions, len(scans), seuil)
+    par_province = {}
+    for pid in set(province_de.values()):
+        fp = {i for i, p in province_de.items() if p == pid}
+        par_province[pid] = indicateurs.tracabilite(
+            [s for s in sorties if s.bande.ferme_id in fp], [r for r in receptions if r.ferme_id in fp],
+            sum(1 for _, lf in scans if lf in fp), seuil)
+    return {'total': total, 'par_province': par_province}
 
 
 def mortalite_arrivee(user, f):

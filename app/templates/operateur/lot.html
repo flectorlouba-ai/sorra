@@ -1,0 +1,51 @@
+{% extends '_base.html' %}
+{% block titre %}{{ 'Lot refusé' if examen.couleur == R.ROUGE else 'Lot ' ~ lot.numero }}{% endblock %}
+{% block sous_titre %}{{ operateur.nom }}{% endblock %}
+{% block icone %}qr-code-scan{% endblock %}
+{% block page_sous_titre %}{% if lot and examen.couleur != R.ROUGE %}{{ lot.ferme.nom }} · parti le {{ lot.sortie.date.strftime('%d/%m/%Y') }}{% endif %}{% endblock %}
+{% block contenu %}
+{% if examen.couleur == R.ROUGE %}
+{# ── Refus (fonction 65) : gros écran rouge, le pourquoi en clair ── #}
+<div class="op-refus" data-resultat="ROUGE">
+  <div class="op-refus-icone" aria-hidden="true">⛔</div>
+  <div class="op-refus-titre">Ne recevez pas ce lot</div>
+  <div class="op-refus-motif" data-motif-refus>{{ examen.refus }}</div>
+  <div class="op-boutons">
+    {% if lot and lot.ferme.agent and lot.ferme.agent.telephone %}
+    <a class="btn-gros btn-gros-blanc" href="tel:{{ lot.ferme.agent.telephone|replace(' ', '') }}">📞 Appeler l'agent de la ferme</a>
+    {% endif %}
+    <a class="btn-gros btn-gros-blanc" href="{{ url_for('operateur.scanner') }}"><i class="bi bi-qr-code-scan"></i> Scanner un autre lot</a>
+  </div>
+</div>
+{% else %}
+<div class="op-resultat {{ 'vert' if examen.couleur == R.VERT else 'orange' }}" data-resultat="{{ examen.couleur }}">
+  {% if examen.couleur == R.VERT %}✓ Ce lot peut être reçu{% else %}⚠ Contrôle manquant : réception sous réserve seulement{% endif %}
+</div>
+<ul class="op-controles">
+  {% for c in examen.controles %}
+  <li class="{{ 'ok' if c.ok else ('manque' if c.bloquant else 'info') }}" data-controle="{{ c.cle }}">
+    <span class="op-coche">{{ '✓' if c.ok else '✗' }}</span>
+    <span>{{ c.libelle }}{% if not c.ok and not c.bloquant %} <span class="td-sous">(pour information)</span>{% endif %}
+      {% if c.detail %}<br><span class="td-sous">{{ c.detail }}</span>{% endif %}</span>
+  </li>
+  {% endfor %}
+</ul>
+<div class="op-annonce">Annoncé par la ferme : <strong>{{ lot.sortie.nombre|qte }} poulets</strong>, {{ lot.sortie.poids_total_kg|qte }} kg</div>
+
+<form method="post" action="{{ url_for('operateur.recevoir') }}" class="form-terrain" id="op-form-reception"
+      data-hors-ligne="Réception du lot {{ lot.numero }}" data-memo-garde="performyl2-reception-gardee">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="numero" value="{{ lot.numero }}">
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  {% include 'operateur/_comptage.html' %}
+  {% if examen.couleur == R.VERT %}
+  <button type="submit" class="btn-gros" name="choix" value="valider"><i class="bi bi-check-lg"></i> Valider la réception</button>
+  {% else %}
+  <p class="texte-aide">Sous réserve : le lot reste « ne pas abattre, ne pas vendre » jusqu'à la décision du vétérinaire.</p>
+  <button type="submit" class="btn-gros btn-gros-orange" name="choix" value="reserve"><i class="bi bi-hourglass-split"></i> Recevoir sous réserve</button>
+  <button type="submit" class="btn-gros-secondaire" name="choix" value="refuser" formnovalidate data-refuser><i class="bi bi-x-lg"></i> Refuser le lot</button>
+  {% endif %}
+</form>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/scanner.js') }}"></script>{% endblock %}

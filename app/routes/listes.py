@@ -26,6 +26,7 @@ CATEGORIES = {
     'objets_visite':         "Objets de visite (provisoire)",
     'grille_biosecurite':    "Grille de biosécurité de l'agent (provisoire, à valider par les vétérinaires)",
     'maladies_suspectees':   "Maladies suspectées du diagnostic vétérinaire (provisoire)",
+    'motifs_ecart_quai':     "Motifs d'écart à la réception des poulets (abattoir, marché) ; « Autre » demande un texte",
 }
 
 

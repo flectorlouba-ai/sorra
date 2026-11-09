@@ -1,0 +1,39 @@
+{# Lot 19 — les 3 chiffres de la réception : cases vides au départ (« — »), « 0 » doit être tapé.
+   Variables : saisie (valeurs déjà tapées), annonce (nombre annoncé, ou None sans réseau), motifs, motif_autre. #}
+<div class="op-chiffres" data-annonce="{{ annonce if annonce is not none else '' }}" data-seuil="{{ seuil_morts }}">
+  <div class="form-group">
+    <label class="form-label" for="vivants">Poulets vivants reçus</label>
+    <input class="form-control champ-gros" id="vivants" name="vivants" inputmode="numeric" pattern="[0-9]*"
+           placeholder="—" required value="{{ saisie.get('vivants', '') }}">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="morts">Morts à l'arrivée</label>
+    <input class="form-control champ-gros" id="morts" name="morts" inputmode="numeric" pattern="[0-9]*"
+           placeholder="—" required value="{{ saisie.get('morts', '') }}">
+    <div class="form-hint">Tapez « 0 » s'il n'y a pas de mort.</div>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="poids">Poids total (kg)</label>
+    <input class="form-control champ-gros" id="poids" name="poids" inputmode="decimal"
+           placeholder="—" required value="{{ saisie.get('poids', '') }}">
+  </div>
+</div>
+<div class="op-ecart" id="op-ecart" hidden>
+  <table class="op-comparaison">
+    <thead><tr><th>Annoncé</th><th>Reçus vivants</th><th>Morts</th></tr></thead>
+    <tbody><tr><td id="ec-annonce">—</td><td id="ec-vivants">—</td><td id="ec-morts">—</td></tr></tbody>
+  </table>
+  <div class="op-ecart-texte" id="ec-texte"></div>
+</div>
+<fieldset class="op-motifs" id="op-motifs" {% if not saisie.get('motif_ecart') %}hidden{% endif %}>
+  <legend class="form-label">Pourquoi cet écart ?</legend>
+  <div class="choix-cases">
+    {% for m in motifs %}
+    <label class="case-choix"><input type="radio" name="motif_ecart" value="{{ m }}" {% if saisie.get('motif_ecart') == m %}checked{% endif %}><span>{{ m }}</span></label>
+    {% endfor %}
+  </div>
+  <div class="form-group" id="op-explication" {% if saisie.get('motif_ecart') != motif_autre %}hidden{% endif %}>
+    <label class="form-label" for="explication">Expliquez en quelques mots</label>
+    <input class="form-control" id="explication" name="explication" maxlength="300" value="{{ saisie.get('explication', '') }}">
+  </div>
+</fieldset>

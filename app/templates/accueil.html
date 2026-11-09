@@ -5,7 +5,7 @@
 {% include '_tete.html' %}
   <title>Accueil — SORRA</title>
 </head>
-<body class="page-accueil{% if theme_eleveur %} theme-eleveur{% endif %}"{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% if current_user.profil.value in ('ELEVEUR', 'AGENT') %} data-pages-hors-ligne{% endif %}{% endif %}>
+<body class="page-accueil{% if theme_eleveur %} theme-eleveur{% endif %}"{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR') %} data-pages-hors-ligne{% endif %}{% endif %}>
 
 {% include '_bandeau_demo.html' %}
 <div class="kente-band"></div>
@@ -64,6 +64,10 @@
   {% if eleveur %}
   <!-- ══ ÉLEVEUR : accueil en tuiles (lot 9) ══ -->
   {% include 'eleveur/_accueil.html' %}
+
+  {% elif o %}
+  <!-- == OPERATEUR : abattoir, marche (lot 19) == -->
+  {% include 'operateur/_accueil.html' %}
 
   {% elif onglets %}
   {% for m in onglets %}

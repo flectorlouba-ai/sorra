@@ -93,9 +93,11 @@ class Utilisateur(UserMixin, HorodatageMixin, db.Model):
     totp_secret        = db.Column(db.String(64), nullable=True)
     totp_active        = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
     codes_secours      = db.Column(db.JSON, nullable=True)
+    operateur_id       = db.Column(db.Integer, db.ForeignKey('operateur.id'), nullable=True)   # lot 19 : profil OPÉRATEUR
 
     provinces = db.relationship('Province', secondary=utilisateur_province,
                                 order_by='Province.ordre', lazy='selectin')
+    operateur = db.relationship('Operateur')
     fermes    = db.relationship(UtilisateurFerme, cascade='all, delete-orphan', lazy='selectin')
 
     def get_id(self):

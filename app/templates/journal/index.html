@@ -4,6 +4,7 @@
 {% block page_sous_titre %}Qui a fait quoi, et quand — {{ pagination.total }} ligne{{ 's' if pagination.total != 1 }}{% endblock %}
 
 {% block actions %}
+<a href="{{ url_for('journal.scans') }}" class="btn-ghost"><i class="bi bi-qr-code-scan"></i> Journal des scans</a>
 <a href="{{ url_for('journal.export', **filtres) }}" class="btn-new"><i class="bi bi-download"></i> Exporter (CSV)</a>
 {% endblock %}
 

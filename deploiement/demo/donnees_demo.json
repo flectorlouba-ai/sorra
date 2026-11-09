@@ -235,6 +235,14 @@
 "id": 2,
 "statut": "EN_ANALYSE",
 "utilisateur_id": "85ccc67c-77ba-4e8c-8d6d-6ac031ea445a"
+},
+{
+"alerte_id": 2,
+"commentaire": "Lot EST-002-B1-01-S2 : Annoncé 120, reçus vivants 114, 4 morts à l'arrivée (3,3 %) ; 2 poulets en moins. Raison : Morts au transport. Reçu par Abattoir d'Owendo le 09/11/2026 à 18 h 10.",
+"date": "2026-11-09T17:10:18.872309",
+"id": 3,
+"statut": "NOUVELLE",
+"utilisateur_id": null
 }
 ],
 "alerte_sanitaire": [
@@ -249,6 +257,18 @@
 "numero": "ALS-2026-0001",
 "origine": "DECLARATION",
 "statut": "EN_ANALYSE"
+},
+{
+"bande_id": "2630b1f8-f124-42b5-9aea-b54f4427f9cf",
+"confirmee": false,
+"cree_le": "2026-11-09T17:10:18.868813",
+"declaration_id": null,
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"id": 2,
+"modifie_le": "2026-11-09T17:10:18.868819",
+"numero": "ALS-2026-0002",
+"origine": "RECEPTION",
+"statut": "NOUVELLE"
 }
 ],
 "bande": [
@@ -589,6 +609,58 @@
 "rattrapage": false,
 "statut": "CLOTUREE",
 "statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": null,
+"batiment_id": 3,
+"bilan": null,
+"cloturee_par": null,
+"cree_le": "2026-11-01T09:00:00",
+"cree_par": null,
+"date_cloture": null,
+"date_fin_prevue": "2026-11-16",
+"date_mise_en_place": "2026-10-02",
+"effectif_initial": 1500,
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"id": "2630b1f8-f124-42b5-9aea-b54f4427f9cf",
+"modifie_le": "2026-11-09T17:10:18.280814",
+"modifie_par": null,
+"morts_avant_suivi": 20,
+"motif_cloture": null,
+"numero_metier": "EST-002-B1-01",
+"numero_provisoire": false,
+"ouverte_sans_desinfection": false,
+"poids_initial_g": 40,
+"rang": 1,
+"rattrapage": true,
+"statut": "EN_COURS",
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": null,
+"batiment_id": 4,
+"bilan": null,
+"cloturee_par": null,
+"cree_le": "2026-11-01T09:00:00",
+"cree_par": null,
+"date_cloture": null,
+"date_fin_prevue": "2026-11-18",
+"date_mise_en_place": "2026-10-04",
+"effectif_initial": 1200,
+"ferme_id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"id": "bfcdd47e-924a-4587-8993-485994cb69d6",
+"modifie_le": "2026-11-09T17:10:18.327149",
+"modifie_par": null,
+"morts_avant_suivi": 15,
+"motif_cloture": null,
+"numero_metier": "EST-003-B1-01",
+"numero_provisoire": false,
+"ouverte_sans_desinfection": false,
+"poids_initial_g": 40,
+"rang": 1,
+"rattrapage": true,
+"statut": "EN_COURS",
+"statut_synchro": "SYNCHRONISE"
 }
 ],
 "bande_poussins": [
@@ -855,7 +927,7 @@
 },
 {
 "annee": 0,
-"dernier_numero": 3,
+"dernier_numero": 5,
 "id": 8,
 "prefixe": "OPE",
 "type": "OPERATEUR"
@@ -883,7 +955,7 @@
 },
 {
 "annee": 2026,
-"dernier_numero": 1,
+"dernier_numero": 2,
 "id": 12,
 "prefixe": "ALS",
 "type": "ALERTE"
@@ -893,6 +965,34 @@
 "dernier_numero": 1,
 "id": 13,
 "prefixe": "EST-001-B2-01",
+"type": "LOT"
+},
+{
+"annee": 0,
+"dernier_numero": 1,
+"id": 14,
+"prefixe": "EST-002-B1",
+"type": "BANDE"
+},
+{
+"annee": 0,
+"dernier_numero": 1,
+"id": 15,
+"prefixe": "EST-003-B1",
+"type": "BANDE"
+},
+{
+"annee": 0,
+"dernier_numero": 1,
+"id": 16,
+"prefixe": "EST-003-B1-01",
+"type": "LOT"
+},
+{
+"annee": 0,
+"dernier_numero": 5,
+"id": 17,
+"prefixe": "EST-002-B1-01",
 "type": "LOT"
 }
 ],
@@ -1053,6 +1153,26 @@
 "retenue": null,
 "statut": null,
 "utilisateur_id": "e791e9f1-4b79-4c3d-8f52-c164dd1d31e1",
+"versions": null,
+"vu_le": null,
+"vu_par": null
+},
+{
+"bande_id": "2630b1f8-f124-42b5-9aea-b54f4427f9cf",
+"cree_le": "2026-11-09T17:10:18.854837",
+"decide_le": null,
+"decide_par": null,
+"detail": "Annoncé 120, reçus vivants 114, 4 morts à l'arrivée (3,3 %) ; 2 poulets en moins. Raison : Morts au transport. Reçu par Abattoir d'Owendo le 09/11/2026 à 18 h 10.",
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"genre": "MESSAGE",
+"id": 9,
+"motif": null,
+"objet_id": "e0abb208-0806-44d7-94d9-db8c08e63566",
+"objet_table": "reception",
+"quoi": "Écart à la réception du lot EST-002-B1-01-S2",
+"retenue": null,
+"statut": null,
+"utilisateur_id": null,
 "versions": null,
 "vu_le": null,
 "vu_par": null
@@ -1924,6 +2044,41 @@
 "id": 82,
 "ordre": 9,
 "valeur": "Autre"
+},
+{
+"actif": true,
+"categorie": "motifs_ecart_quai",
+"id": 83,
+"ordre": 0,
+"valeur": "Erreur de comptage"
+},
+{
+"actif": true,
+"categorie": "motifs_ecart_quai",
+"id": 84,
+"ordre": 1,
+"valeur": "Morts au transport"
+},
+{
+"actif": true,
+"categorie": "motifs_ecart_quai",
+"id": 85,
+"ordre": 2,
+"valeur": "Poulets échappés"
+},
+{
+"actif": true,
+"categorie": "motifs_ecart_quai",
+"id": 86,
+"ordre": 3,
+"valeur": "Autre"
+},
+{
+"actif": true,
+"categorie": "types_operateurs",
+"id": 87,
+"ordre": 9,
+"valeur": "Marché"
 }
 ],
 "livraison": [
@@ -2374,6 +2529,78 @@
 "motif_annulation": null,
 "numero": "EST-001-B2-01-S1",
 "sortie_id": "7dac762b-1e0f-4e4e-a10a-1a5646d5cb58"
+},
+{
+"annule": false,
+"code": "9SxN0pg_58GmyarTKpL9jw",
+"cree_le": "2026-11-09T17:10:18.451568",
+"cree_par": "ecb76119-548f-460b-a403-176a71cc2f19",
+"ferme_id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"id": 2,
+"modifie_le": "2026-11-09T17:10:18.451577",
+"motif_annulation": null,
+"numero": "EST-003-B1-01-S1",
+"sortie_id": "9c10c1e9-5c2e-46ab-863e-7242c48fd46d"
+},
+{
+"annule": false,
+"code": "GbxjLraf8J8iF8JEc0H_sg",
+"cree_le": "2026-11-09T17:10:18.657400",
+"cree_par": "ecb76119-548f-460b-a403-176a71cc2f19",
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"id": 3,
+"modifie_le": "2026-11-09T17:10:18.657406",
+"motif_annulation": null,
+"numero": "EST-002-B1-01-S1",
+"sortie_id": "1d314d2e-35ce-4b00-bf2f-87b9a07ab450"
+},
+{
+"annule": false,
+"code": "JF99JUc2sDimSEA5xgDncQ",
+"cree_le": "2026-11-09T17:10:18.810337",
+"cree_par": "ecb76119-548f-460b-a403-176a71cc2f19",
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"id": 4,
+"modifie_le": "2026-11-09T17:10:18.810343",
+"motif_annulation": null,
+"numero": "EST-002-B1-01-S2",
+"sortie_id": "708d4e3b-f013-4c08-8ea3-1de8af124d08"
+},
+{
+"annule": false,
+"code": "JMjhXg31VsSqWFkLNtsOdw",
+"cree_le": "2026-11-09T17:10:18.906034",
+"cree_par": "ecb76119-548f-460b-a403-176a71cc2f19",
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"id": 5,
+"modifie_le": "2026-11-09T17:10:18.906039",
+"motif_annulation": null,
+"numero": "EST-002-B1-01-S3",
+"sortie_id": "52348c88-d493-407d-8a1f-608d45d71a1d"
+},
+{
+"annule": false,
+"code": "cGutBKHIQ4Ksp3JGwtLgow",
+"cree_le": "2026-11-09T17:10:18.976540",
+"cree_par": "ecb76119-548f-460b-a403-176a71cc2f19",
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"id": 6,
+"modifie_le": "2026-11-09T17:10:18.976557",
+"motif_annulation": null,
+"numero": "EST-002-B1-01-S4",
+"sortie_id": "bc8d6eb5-0dd9-47fe-8ad0-85c0f81e19d5"
+},
+{
+"annule": false,
+"code": "2pOVr__bXGL1Iiy-NUHE7w",
+"cree_le": "2026-11-09T17:10:19.018918",
+"cree_par": "ecb76119-548f-460b-a403-176a71cc2f19",
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"id": 7,
+"modifie_le": "2026-11-09T17:10:19.018923",
+"motif_annulation": null,
+"numero": "EST-002-B1-01-S5",
+"sortie_id": "45a53daa-9472-4870-a29f-92b40ffed023"
 }
 ],
 "operateur": [
@@ -2421,6 +2648,36 @@
 "province_id": 2,
 "telephone": "066 00 00 00",
 "type": "Acheteur"
+},
+{
+"actif": true,
+"contact": "Responsable du quai",
+"convention": true,
+"convention_date": "2026-10-01",
+"cree_le": "2026-11-09T17:10:18.207633",
+"id": 4,
+"localite_id": null,
+"modifie_le": "2026-11-09T17:10:18.207639",
+"nom": "Abattoir d'Owendo",
+"numero": "OPE-0004",
+"province_id": 1,
+"telephone": null,
+"type": "Abattoir"
+},
+{
+"actif": true,
+"contact": "Responsable du quai",
+"convention": true,
+"convention_date": "2026-10-01",
+"cree_le": "2026-11-09T17:10:18.217589",
+"id": 5,
+"localite_id": null,
+"modifie_le": "2026-11-09T17:10:18.217596",
+"nom": "Marché de Mont-Bouët",
+"numero": "OPE-0005",
+"province_id": 1,
+"telephone": null,
+"type": "Marché"
 }
 ],
 "panne": [
@@ -2797,6 +3054,78 @@
 "modifie_par": null,
 "type": "DECIMAL",
 "valeur": "70"
+},
+{
+"cle": "reception.controle_delai_attente",
+"description": "Réception : aucun traitement en délai d'attente. TOUS, ABATTOIR, INFO ou NON. Quatre yeux.",
+"id": 40,
+"modifie_le": null,
+"modifie_par": null,
+"type": "TEXTE",
+"valeur": "TOUS"
+},
+{
+"cle": "reception.controle_vaccins",
+"description": "Réception : vaccins obligatoires faits. TOUS, ABATTOIR, INFO ou NON. Quatre yeux.",
+"id": 41,
+"modifie_le": null,
+"modifie_par": null,
+"type": "TEXTE",
+"valeur": "ABATTOIR"
+},
+{
+"cle": "reception.controle_pesee",
+"description": "Réception : pesée récente. TOUS, ABATTOIR, INFO ou NON. Quatre yeux.",
+"id": 42,
+"modifie_le": null,
+"modifie_par": null,
+"type": "TEXTE",
+"valeur": "ABATTOIR"
+},
+{
+"cle": "reception.pesee_max_jours",
+"description": "Réception : la dernière pesée doit dater de moins de ce nombre de jours avant la sortie. Quatre yeux.",
+"id": 43,
+"modifie_le": null,
+"modifie_par": null,
+"type": "JOURS",
+"valeur": "7"
+},
+{
+"cle": "reception.vaccin_tolerance_jours",
+"description": "Réception : un vaccin en retard de moins de ce nombre de jours ne met pas le lot en réserve. Quatre yeux.",
+"id": 44,
+"modifie_le": null,
+"modifie_par": null,
+"type": "JOURS",
+"valeur": "2"
+},
+{
+"cle": "reception.seuil_morts_pct",
+"description": "Réception : morts à l'arrivée (% de l'annoncé) au-delà desquels le vétérinaire de la zone est alerté. Quatre yeux.",
+"id": 45,
+"modifie_le": null,
+"modifie_par": null,
+"type": "DECIMAL",
+"valeur": "2"
+},
+{
+"cle": "reception.refus_alerte_nombre",
+"description": "Réception : nombre de refus du même QR (tous opérateurs) qui alerte la DGE. Quatre yeux.",
+"id": 46,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "3"
+},
+{
+"cle": "reception.refus_alerte_heures",
+"description": "Réception : période (heures) sur laquelle les refus du même QR sont comptés. Quatre yeux.",
+"id": 47,
+"modifie_le": null,
+"modifie_par": null,
+"type": "ENTIER",
+"valeur": "24"
 }
 ],
 "pesee": [
@@ -2923,6 +3252,24 @@
 "poids_attendu_g": "514.3",
 "poids_moyen_g": 410,
 "poids_total_kg": "4.1",
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"appareil_id": null,
+"bande_id": "2630b1f8-f124-42b5-9aea-b54f4427f9cf",
+"cree_le": "2026-11-09T17:10:18.382564",
+"cree_par": null,
+"date": "2026-11-08",
+"id": "37bc953f-d553-421e-b412-de9656c8d0cc",
+"modifie_le": "2026-11-09T17:10:18.382569",
+"modifie_par": null,
+"nombre_pesees": 10,
+"numero_metier": null,
+"numero_provisoire": false,
+"poids_attendu_g": "2221.4",
+"poids_moyen_g": 2400,
+"poids_total_kg": 24,
 "saisi_par_agent": false,
 "statut_synchro": "SYNCHRONISE"
 }
@@ -3114,6 +3461,304 @@
 "ordre": 9
 }
 ],
+"reception": [
+{
+"annonce": 150,
+"annonce_kg": 270,
+"appareil_id": null,
+"controles": [
+{
+"bloquant": true,
+"cle": "qr",
+"detail": null,
+"libelle": "QR connu et jamais reçu",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "destinataire",
+"detail": null,
+"libelle": "Destiné à votre établissement",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "vaccins",
+"detail": "Pas fait : Vaccin Gumboro (rappel) (prévu le 01/11)",
+"libelle": "Vaccins obligatoires faits",
+"ok": false
+},
+{
+"bloquant": true,
+"cle": "delai_attente",
+"detail": null,
+"libelle": "Aucun traitement en délai d'attente",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "blocage",
+"detail": null,
+"libelle": "Bande non bloquée par le vétérinaire",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "pesee",
+"detail": "Aucune pesée",
+"libelle": "Pesée récente",
+"ok": false
+}
+],
+"cree_le": "2026-11-09T17:10:18.604951",
+"cree_par": null,
+"decision_le": null,
+"decision_motif": null,
+"decision_par": null,
+"etat": "SOUS_RESERVE",
+"explication": null,
+"ferme_id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"hors_ligne": false,
+"id": "97e4a202-9a9b-4a1c-ad10-d957b7358892",
+"lot_id": 2,
+"lot_saisi": "EST-003-B1-01-S1",
+"modifie_le": "2026-11-09T17:10:18.612341",
+"modifie_par": null,
+"morts": 0,
+"motif_ecart": null,
+"motif_refus": null,
+"numero_metier": null,
+"numero_provisoire": false,
+"operateur_id": 4,
+"poids_kg": 268,
+"recu_le": "2026-11-08T07:00:00",
+"statut_synchro": "SYNCHRONISE",
+"vivants": 150,
+"vu_le": null
+},
+{
+"annonce": 200,
+"annonce_kg": 380,
+"appareil_id": null,
+"controles": [
+{
+"bloquant": true,
+"cle": "qr",
+"detail": null,
+"libelle": "QR connu et jamais reçu",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "destinataire",
+"detail": null,
+"libelle": "Destiné à votre établissement",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "vaccins",
+"detail": null,
+"libelle": "Vaccins obligatoires faits",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "delai_attente",
+"detail": null,
+"libelle": "Aucun traitement en délai d'attente",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "blocage",
+"detail": null,
+"libelle": "Bande non bloquée par le vétérinaire",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "pesee",
+"detail": null,
+"libelle": "Pesée récente",
+"ok": true
+}
+],
+"cree_le": "2026-11-09T17:10:18.773769",
+"cree_par": null,
+"decision_le": null,
+"decision_motif": null,
+"decision_par": null,
+"etat": "VALIDEE",
+"explication": null,
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"hors_ligne": false,
+"id": "6d43a6b1-3c87-4851-a155-f77aa8e5ea7b",
+"lot_id": 3,
+"lot_saisi": "EST-002-B1-01-S1",
+"modifie_le": "2026-11-09T17:10:18.777187",
+"modifie_par": null,
+"morts": 0,
+"motif_ecart": null,
+"motif_refus": null,
+"numero_metier": null,
+"numero_provisoire": false,
+"operateur_id": 4,
+"poids_kg": "379.5",
+"recu_le": "2026-11-09T08:00:00",
+"statut_synchro": "SYNCHRONISE",
+"vivants": 200,
+"vu_le": null
+},
+{
+"annonce": 120,
+"annonce_kg": 228,
+"appareil_id": null,
+"controles": [
+{
+"bloquant": true,
+"cle": "qr",
+"detail": null,
+"libelle": "QR connu et jamais reçu",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "destinataire",
+"detail": null,
+"libelle": "Destiné à votre établissement",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "vaccins",
+"detail": null,
+"libelle": "Vaccins obligatoires faits",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "delai_attente",
+"detail": null,
+"libelle": "Aucun traitement en délai d'attente",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "blocage",
+"detail": null,
+"libelle": "Bande non bloquée par le vétérinaire",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "pesee",
+"detail": null,
+"libelle": "Pesée récente",
+"ok": true
+}
+],
+"cree_le": "2026-11-09T17:10:18.848048",
+"cree_par": null,
+"decision_le": null,
+"decision_motif": null,
+"decision_par": null,
+"etat": "VALIDEE",
+"explication": null,
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"hors_ligne": false,
+"id": "e0abb208-0806-44d7-94d9-db8c08e63566",
+"lot_id": 4,
+"lot_saisi": "EST-002-B1-01-S2",
+"modifie_le": "2026-11-09T17:10:18.870182",
+"modifie_par": null,
+"morts": 4,
+"motif_ecart": "Morts au transport",
+"motif_refus": null,
+"numero_metier": null,
+"numero_provisoire": false,
+"operateur_id": 4,
+"poids_kg": 214,
+"recu_le": "2026-11-09T09:00:00",
+"statut_synchro": "SYNCHRONISE",
+"vivants": 114,
+"vu_le": null
+},
+{
+"annonce": 60,
+"annonce_kg": 112,
+"appareil_id": null,
+"controles": [
+{
+"bloquant": true,
+"cle": "qr",
+"detail": null,
+"libelle": "QR connu et jamais reçu",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "destinataire",
+"detail": null,
+"libelle": "Destiné à votre établissement",
+"ok": true
+},
+{
+"bloquant": false,
+"cle": "vaccins",
+"detail": null,
+"libelle": "Vaccins obligatoires faits",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "delai_attente",
+"detail": null,
+"libelle": "Aucun traitement en délai d'attente",
+"ok": true
+},
+{
+"bloquant": true,
+"cle": "blocage",
+"detail": null,
+"libelle": "Bande non bloquée par le vétérinaire",
+"ok": true
+},
+{
+"bloquant": false,
+"cle": "pesee",
+"detail": null,
+"libelle": "Pesée récente",
+"ok": true
+}
+],
+"cree_le": "2026-11-09T17:10:18.939850",
+"cree_par": null,
+"decision_le": null,
+"decision_motif": null,
+"decision_par": null,
+"etat": "VALIDEE",
+"explication": null,
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
+"hors_ligne": false,
+"id": "246ec453-b5bd-4114-836d-159f70995c03",
+"lot_id": 5,
+"lot_saisi": "EST-002-B1-01-S3",
+"modifie_le": "2026-11-09T17:10:18.944498",
+"modifie_par": null,
+"morts": 0,
+"motif_ecart": null,
+"motif_refus": null,
+"numero_metier": null,
+"numero_provisoire": false,
+"operateur_id": 5,
+"poids_kg": 111,
+"recu_le": "2026-11-09T10:00:00",
+"statut_synchro": "SYNCHRONISE",
+"vivants": 60,
+"vu_le": null
+}
+],
 "reponse_veterinaire": [],
 "saisie_aliment": [
 {
@@ -3156,6 +3801,44 @@
 "numero_provisoire": false,
 "saisi_par_agent": false,
 "statut_synchro": "SYNCHRONISE"
+}
+],
+"scan": [
+{
+"empreinte": "0b6f2150e4841e8f",
+"horodatage": "2026-11-09T17:10:19.027488",
+"id": 1,
+"lot_id": 6,
+"motif": "Ce lot est destiné à Abattoir d'Owendo, pas à vous.",
+"operateur_id": 5,
+"resultat": "ROUGE",
+"saisie": null,
+"source": "CAMERA",
+"utilisateur_id": "630d8c2b-f1f2-4377-84de-db7c12fb1ac0"
+},
+{
+"empreinte": "2fd3b678e9a5a60d",
+"horodatage": "2026-11-09T17:10:19.058092",
+"id": 2,
+"lot_id": null,
+"motif": "QR inconnu : ce code ne correspond à aucun lot suivi par le programme.",
+"operateur_id": 4,
+"resultat": "ROUGE",
+"saisie": null,
+"source": "CAMERA",
+"utilisateur_id": "1341b51a-77e2-45d1-bc1c-72cf2f08219f"
+},
+{
+"empreinte": "a69b611fecd03996",
+"horodatage": "2026-11-09T17:10:19.069854",
+"id": 3,
+"lot_id": 3,
+"motif": "Déjà reçu le 09/11/2026 à 09 h 00 par Abattoir d'Owendo.",
+"operateur_id": 4,
+"resultat": "ROUGE",
+"saisie": "EST-002-B1-01-S1",
+"source": "NUMERO",
+"utilisateur_id": "1341b51a-77e2-45d1-bc1c-72cf2f08219f"
 }
 ],
 "sortie": [
@@ -3225,6 +3908,144 @@
 "numero_provisoire": false,
 "operateur_id": 1,
 "poids_total_kg": 63,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"a_verifier": false,
+"appareil_id": null,
+"bande_id": "bfcdd47e-924a-4587-8993-485994cb69d6",
+"blocage_id": null,
+"cree_le": "2026-11-09T17:10:18.421990",
+"cree_par": null,
+"date": "2026-11-08",
+"destinataire_libre": null,
+"id": "9c10c1e9-5c2e-46ab-863e-7242c48fd46d",
+"mise_de_cote": false,
+"modifie_le": "2026-11-09T17:10:18.421995",
+"modifie_par": null,
+"montant_fcfa": null,
+"motif": "Abattoir",
+"nombre": 150,
+"numero_metier": null,
+"numero_provisoire": false,
+"operateur_id": 4,
+"poids_total_kg": 270,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"a_verifier": false,
+"appareil_id": null,
+"bande_id": "2630b1f8-f124-42b5-9aea-b54f4427f9cf",
+"blocage_id": null,
+"cree_le": "2026-11-09T17:10:18.636364",
+"cree_par": null,
+"date": "2026-11-09",
+"destinataire_libre": null,
+"id": "1d314d2e-35ce-4b00-bf2f-87b9a07ab450",
+"mise_de_cote": false,
+"modifie_le": "2026-11-09T17:10:18.636369",
+"modifie_par": null,
+"montant_fcfa": null,
+"motif": "Abattoir",
+"nombre": 200,
+"numero_metier": null,
+"numero_provisoire": false,
+"operateur_id": 4,
+"poids_total_kg": 380,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"a_verifier": false,
+"appareil_id": null,
+"bande_id": "2630b1f8-f124-42b5-9aea-b54f4427f9cf",
+"blocage_id": null,
+"cree_le": "2026-11-09T17:10:18.801013",
+"cree_par": null,
+"date": "2026-11-09",
+"destinataire_libre": null,
+"id": "708d4e3b-f013-4c08-8ea3-1de8af124d08",
+"mise_de_cote": false,
+"modifie_le": "2026-11-09T17:10:18.801017",
+"modifie_par": null,
+"montant_fcfa": null,
+"motif": "Abattoir",
+"nombre": 120,
+"numero_metier": null,
+"numero_provisoire": false,
+"operateur_id": 4,
+"poids_total_kg": 228,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"a_verifier": false,
+"appareil_id": null,
+"bande_id": "2630b1f8-f124-42b5-9aea-b54f4427f9cf",
+"blocage_id": null,
+"cree_le": "2026-11-09T17:10:18.894545",
+"cree_par": null,
+"date": "2026-11-09",
+"destinataire_libre": null,
+"id": "52348c88-d493-407d-8a1f-608d45d71a1d",
+"mise_de_cote": false,
+"modifie_le": "2026-11-09T17:10:18.894549",
+"modifie_par": null,
+"montant_fcfa": null,
+"motif": "Vente",
+"nombre": 60,
+"numero_metier": null,
+"numero_provisoire": false,
+"operateur_id": 5,
+"poids_total_kg": 112,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"a_verifier": false,
+"appareil_id": null,
+"bande_id": "2630b1f8-f124-42b5-9aea-b54f4427f9cf",
+"blocage_id": null,
+"cree_le": "2026-11-09T17:10:18.968400",
+"cree_par": null,
+"date": "2026-11-09",
+"destinataire_libre": null,
+"id": "bc8d6eb5-0dd9-47fe-8ad0-85c0f81e19d5",
+"mise_de_cote": false,
+"modifie_le": "2026-11-09T17:10:18.968404",
+"modifie_par": null,
+"montant_fcfa": null,
+"motif": "Abattoir",
+"nombre": 100,
+"numero_metier": null,
+"numero_provisoire": false,
+"operateur_id": 4,
+"poids_total_kg": 190,
+"saisi_par_agent": false,
+"statut_synchro": "SYNCHRONISE"
+},
+{
+"a_verifier": false,
+"appareil_id": null,
+"bande_id": "2630b1f8-f124-42b5-9aea-b54f4427f9cf",
+"blocage_id": null,
+"cree_le": "2026-11-09T17:10:19.007994",
+"cree_par": null,
+"date": "2026-11-09",
+"destinataire_libre": null,
+"id": "45a53daa-9472-4870-a29f-92b40ffed023",
+"mise_de_cote": false,
+"modifie_le": "2026-11-09T17:10:19.007998",
+"modifie_par": null,
+"montant_fcfa": null,
+"motif": "Vente",
+"nombre": 80,
+"numero_metier": null,
+"numero_provisoire": false,
+"operateur_id": 5,
+"poids_total_kg": 150,
 "saisi_par_agent": false,
 "statut_synchro": "SYNCHRONISE"
 }
@@ -3351,6 +4172,7 @@
 "modifie_le": "2026-11-09T09:31:21.004748",
 "mot_de_passe_hash": "scrypt:32768:8:1$I6U72XrXYMml3kKm$5c777e246fbcf0bcc9f43e24f41e9596c8b13bb7a22a2b7b23a11cf8b44625374842ab3bb3a3a134ac482e10223e8058189cd8fbe1bb03631ae9e93208e2988b",
 "nom": "Nguema",
+"operateur_id": null,
 "prenom": "Hervé",
 "presentation_vue_le": null,
 "profil": "ADMIN",
@@ -3372,6 +4194,7 @@
 "modifie_le": "2026-11-09T09:31:16.578276",
 "mot_de_passe_hash": "scrypt:32768:8:1$Y0uBfzQXFJlugE5c$99ad48c72a0f71954386575d8b1030ba78f98e0f4c358575eb6511d15a29c9ba64fe7818f5e135eb5077b3d95c9818546b0c08d994e181b1c9f4a722fd8d4f41",
 "nom": "Nzé",
+"operateur_id": null,
 "prenom": "Alice",
 "presentation_vue_le": null,
 "profil": "DGE",
@@ -3393,6 +4216,7 @@
 "modifie_le": "2026-11-09T09:31:06.631124",
 "mot_de_passe_hash": "scrypt:32768:8:1$J5aBHlBe84ISeSOT$8858a8adb2d292ac90836bb17e6534f2c38134fa5113cf741577d48f4632a5c739e36c28df0b4d126acb35136676298fb8e6a7f4ca117617a67eb82f80ee6103",
 "nom": "Ndong",
+"operateur_id": null,
 "prenom": "Paul",
 "presentation_vue_le": null,
 "profil": "AGENT",
@@ -3414,6 +4238,7 @@
 "modifie_le": "2026-11-08T19:20:04.486908",
 "mot_de_passe_hash": "scrypt:32768:8:1$weEeGfvRgxx02jqY$688896ad1ff653f31bcb1ea74cf28eaa9da640d6369018971b4d3138f3dce06f27b141fb999c245c37e32335cedd0167427d330220f260fb4cd2865b2b54bfc7",
 "nom": "Okouyi",
+"operateur_id": null,
 "prenom": "Marie",
 "presentation_vue_le": null,
 "profil": "AGENT",
@@ -3435,6 +4260,7 @@
 "modifie_le": "2026-11-09T10:26:16.303301",
 "mot_de_passe_hash": "scrypt:32768:8:1$gTzpGKKQ8CGO41nM$7ef783fa16ef2f1ff16b30a3d2956c1ac57b9b6a88b2bdc588f483460d08963b3a535e02741c48945235eb2e251a9d40f263b1ca01832de95d12d538f03237e1",
 "nom": "Moussavou",
+"operateur_id": null,
 "prenom": "Dr Jean",
 "presentation_vue_le": null,
 "profil": "VETO",
@@ -3456,6 +4282,7 @@
 "modifie_le": "2026-11-08T19:21:22.454010",
 "mot_de_passe_hash": "scrypt:32768:8:1$kioFc6eSqbgfAXpm$b9a450001a59262b98c546e49f68872a2234c38a036adf8e33d340f03d10c1c795c46b3fb90a67d37cb47ead01cc016768cf77ecdc8509be624490149f2d71cf",
 "nom": "ANINF",
+"operateur_id": null,
 "prenom": null,
 "presentation_vue_le": null,
 "profil": "AUDITEUR",
@@ -3477,6 +4304,7 @@
 "modifie_le": "2026-11-08T19:21:26.002051",
 "mot_de_passe_hash": "scrypt:32768:8:1$FK0hs67bnLldnC7O$990edfa6017e9812dbab35d0a029ec10527424be0a6646ef003a42ac8253877d15aa709648a996e39abc3830f35b43f4289d608f2c7f90dc5b860826ec9600c8",
 "nom": "BCEG",
+"operateur_id": null,
 "prenom": null,
 "presentation_vue_le": null,
 "profil": "BCEG",
@@ -3498,6 +4326,7 @@
 "modifie_le": "2026-11-09T08:53:47.617896",
 "mot_de_passe_hash": "scrypt:32768:8:1$5FkPRU4YkBjMLvBf$d89351fcc16978098b9d3a51b1e0c465ae20e9113cfd800ce2d39812007f0fd4cce8a10c7dcdb7c4378d4585c383d05b51e6b6d6954f345377fa39f40ada2623",
 "nom": "Mba",
+"operateur_id": null,
 "prenom": "Jean",
 "presentation_vue_le": "2026-11-09T08:53:47.613111",
 "profil": "ELEVEUR",
@@ -3519,6 +4348,7 @@
 "modifie_le": "2026-11-09T09:31:13.443223",
 "mot_de_passe_hash": "scrypt:32768:8:1$Y0uBfzQXFJlugE5c$99ad48c72a0f71954386575d8b1030ba78f98e0f4c358575eb6511d15a29c9ba64fe7818f5e135eb5077b3d95c9818546b0c08d994e181b1c9f4a722fd8d4f41",
 "nom": "Mintsa",
+"operateur_id": null,
 "prenom": "Claire",
 "presentation_vue_le": null,
 "profil": "AUDITEUR",
@@ -3540,6 +4370,7 @@
 "modifie_le": "2026-11-09T10:11:24.821062",
 "mot_de_passe_hash": "scrypt:32768:8:1$5FkPRU4YkBjMLvBf$d89351fcc16978098b9d3a51b1e0c465ae20e9113cfd800ce2d39812007f0fd4cce8a10c7dcdb7c4378d4585c383d05b51e6b6d6954f345377fa39f40ada2623",
 "nom": "Nzé",
+"operateur_id": null,
 "prenom": "Marie",
 "presentation_vue_le": null,
 "profil": "ELEVEUR",
@@ -3561,10 +4392,55 @@
 "modifie_le": "2026-11-09T10:37:41.037722",
 "mot_de_passe_hash": "scrypt:32768:8:1$J5aBHlBe84ISeSOT$8858a8adb2d292ac90836bb17e6534f2c38134fa5113cf741577d48f4632a5c739e36c28df0b4d126acb35136676298fb8e6a7f4ca117617a67eb82f80ee6103",
 "nom": "Ondo",
+"operateur_id": null,
 "prenom": "Sylvie",
 "presentation_vue_le": null,
 "profil": "AGENT",
 "telephone": "+241 77 88 99 00",
+"totp_active": false,
+"totp_secret": null
+},
+{
+"actif": true,
+"bloque_jusqu_a": null,
+"codes_secours": null,
+"cree_le": "2026-11-09T17:10:18.224573",
+"derniere_connexion": null,
+"doit_changer_mdp": false,
+"echecs_connexion": 0,
+"email": null,
+"id": "1341b51a-77e2-45d1-bc1c-72cf2f08219f",
+"identifiant": "abattoir.owendo",
+"modifie_le": "2026-11-09T17:10:18.224579",
+"mot_de_passe_hash": "scrypt:32768:8:1$Y0uBfzQXFJlugE5c$99ad48c72a0f71954386575d8b1030ba78f98e0f4c358575eb6511d15a29c9ba64fe7818f5e135eb5077b3d95c9818546b0c08d994e181b1c9f4a722fd8d4f41",
+"nom": "Ondo",
+"operateur_id": 4,
+"prenom": "Marc",
+"presentation_vue_le": null,
+"profil": "OPERATEUR",
+"telephone": null,
+"totp_active": false,
+"totp_secret": null
+},
+{
+"actif": true,
+"bloque_jusqu_a": null,
+"codes_secours": null,
+"cree_le": "2026-11-09T17:10:18.224595",
+"derniere_connexion": null,
+"doit_changer_mdp": false,
+"echecs_connexion": 0,
+"email": null,
+"id": "630d8c2b-f1f2-4377-84de-db7c12fb1ac0",
+"identifiant": "marche.montbouet",
+"modifie_le": "2026-11-09T17:10:18.224597",
+"mot_de_passe_hash": "scrypt:32768:8:1$Y0uBfzQXFJlugE5c$99ad48c72a0f71954386575d8b1030ba78f98e0f4c358575eb6511d15a29c9ba64fe7818f5e135eb5077b3d95c9818546b0c08d994e181b1c9f4a722fd8d4f41",
+"nom": "Mintsa",
+"operateur_id": 5,
+"prenom": "Clarisse",
+"presentation_vue_le": null,
+"profil": "OPERATEUR",
+"telephone": null,
 "totp_active": false,
 "totp_secret": null
 }
@@ -3576,6 +4452,10 @@
 },
 {
 "ferme_id": "5adb2b75-a0d6-46a9-8b1b-f68e94c8038a",
+"utilisateur_id": "a9fa875b-6e0f-4e19-a360-add112032d4f"
+},
+{
+"ferme_id": "ad67c213-71e0-4cd0-9dd4-e0dc6fff499a",
 "utilisateur_id": "a9fa875b-6e0f-4e19-a360-add112032d4f"
 }
 ],
@@ -3599,6 +4479,14 @@
 {
 "province_id": 1,
 "utilisateur_id": "67e64d4d-fd32-401f-8f34-7a7de28d87c2"
+},
+{
+"province_id": 1,
+"utilisateur_id": "630d8c2b-f1f2-4377-84de-db7c12fb1ac0"
+},
+{
+"province_id": 1,
+"utilisateur_id": "1341b51a-77e2-45d1-bc1c-72cf2f08219f"
 }
 ],
 "vaccination": [

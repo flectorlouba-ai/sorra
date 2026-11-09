@@ -1,0 +1,20 @@
+{% extends '_base.html' %}
+{% block titre %}Lots attendus{% endblock %}
+{% block sous_titre %}{{ operateur.nom }}{% endblock %}
+{% block icone %}truck{% endblock %}
+{% block page_sous_titre %}Sorties déclarées par les fermes pour {{ operateur.nom }}, pas encore reçues{% endblock %}
+{% block contenu %}
+<a class="btn-gros mb-3" href="{{ url_for('operateur.scanner') }}"><i class="bi bi-qr-code-scan"></i> Scanner un lot</a>
+{% if lots %}
+<ul class="op-liste op-liste-cartes">
+  {% for lot in lots %}
+  <li data-lot="{{ lot.numero }}"><span class="mono">{{ lot.numero }}</span>
+    <span><strong>{{ lot.sortie.nombre|qte }} poulets</strong> · {{ lot.sortie.poids_total_kg|qte }} kg</span>
+    <span>{{ lot.ferme.nom }} · {{ lot.ferme.province.nom }}</span>
+    <span class="td-sous">parti le {{ lot.sortie.date.strftime('%d/%m/%Y') }} · en route</span></li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="empty-note"><i class="bi bi-check-circle"></i> Aucun lot attendu.</div>
+{% endif %}
+{% endblock %}

@@ -103,6 +103,9 @@ def create_app(env='default'):
     app.register_blueprint(agent_bp)
     app.register_blueprint(veto_bp)
     app.register_blueprint(dge_bp)
+    # Opérateur (abattoir, marché) : scan et réception des lots (lot 19)
+    from app.routes.operateur import operateur_bp
+    app.register_blueprint(operateur_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 

@@ -1,0 +1,60 @@
+{% extends '_base.html' %}
+{% block titre %}Réception du lot {{ r.lot_saisi }}{% endblock %}
+{% block sous_titre %}{{ r.operateur.nom }}{% endblock %}
+{% block icone %}clipboard-check{% endblock %}
+{% block page_sous_titre %}{{ r.recu_le|date_locale('%d/%m/%Y %H:%M') }}{% if r.hors_ligne %} · enregistrée sans réseau{% endif %}{% endblock %}
+{% block contenu %}
+<div class="op-resultat {{ {'VALIDEE': 'vert', 'SOUS_RESERVE': 'orange', 'REFUSEE': 'rouge'}[r.etat] }}" data-etat="{{ r.etat }}">
+  {% if r.etat == 'VALIDEE' %}✓ Réception validée{% if r.decision_par %} — libéré par le vétérinaire{% endif %}
+  {% elif r.etat == 'SOUS_RESERVE' %}◷ En attente du vétérinaire : ne pas abattre, ne pas vendre
+  {% else %}✗ {{ r.motif_refus or 'Refusée' }}{% endif %}
+</div>
+{% if r.decision_par %}
+<div class="card-p mt-2"><div class="card-p-body">
+  <strong>Décision du vétérinaire</strong> ({{ r.veterinaire.nom_complet }}, {{ r.decision_le|date_locale('%d/%m/%Y %H:%M') }}) : {{ r.decision_motif }}
+</div></div>
+{% endif %}
+
+{% if r.vivants is not none %}
+<table class="op-comparaison mt-3">
+  <thead><tr><th>Annoncé</th><th>Reçus vivants</th><th>Morts</th><th>Poids</th></tr></thead>
+  <tbody><tr><td>{{ r.annonce|qte if r.annonce is not none else '—' }}</td><td>{{ r.vivants|qte }}</td>
+    <td>{{ r.morts|qte }}{% if r.morts_pct is not none %} ({{ r.morts_pct|round(1)|qte }} %){% endif %}</td><td>{{ r.poids_kg|qte }} kg</td></tr></tbody>
+</table>
+{% endif %}
+{% if r.motif_ecart %}<p class="mt-2"><strong>Raison de l'écart :</strong> {{ r.motif_ecart }}{% if r.explication %} — {{ r.explication }}{% endif %}</p>{% endif %}
+
+{% if r.controles %}
+<ul class="op-controles mt-3">
+  {% for c in r.controles %}
+  <li class="{{ 'ok' if c.ok else ('manque' if c.bloquant else 'info') }}"><span class="op-coche">{{ '✓' if c.ok else '✗' }}</span>
+    <span>{{ c.libelle }}{% if c.detail %}<br><span class="td-sous">{{ c.detail }}</span>{% endif %}</span></li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% if a_completer and current_user.profil.value == 'OPERATEUR' %}
+<form method="post" action="{{ url_for('operateur.expliquer', ident=r.id) }}" class="form-terrain mt-3" data-expliquer>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="op-ecart ecart"><div class="op-ecart-texte">⚠ Il y a un écart avec l'annoncé : touchez la raison.</div></div>
+  <fieldset class="op-motifs">
+    <div class="choix-cases">
+      {% for m in motifs %}<label class="case-choix"><input type="radio" name="motif_ecart" value="{{ m }}" required><span>{{ m }}</span></label>{% endfor %}
+    </div>
+    <div class="form-group"><label class="form-label" for="explication">Si « {{ motif_autre }} » : expliquez en quelques mots</label>
+      <input class="form-control" id="explication" name="explication" maxlength="300"></div>
+  </fieldset>
+  <button type="submit" class="btn-gros"><i class="bi bi-send"></i> Envoyer la raison</button>
+</form>
+{% endif %}
+
+{% if peut_decider %}
+<form method="post" action="{{ url_for('operateur.decider', ident=r.id) }}" class="form-terrain mt-3" data-decider>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="form-group"><label class="form-label" for="motif">Motif de la décision<span class="req">*</span></label>
+    <input class="form-control" id="motif" name="motif" maxlength="500" required></div>
+  <button type="submit" class="btn-gros" name="choix" value="liberer"><i class="bi bi-unlock"></i> Libérer le lot</button>
+  <button type="submit" class="btn-gros-secondaire" name="choix" value="refuser"><i class="bi bi-x-lg"></i> Refuser le lot</button>
+</form>
+{% endif %}
+{% endblock %}

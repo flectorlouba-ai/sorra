@@ -41,7 +41,9 @@ def _n_a_approuver(user):
 def _n_signalements(user):
     from app.models.sante import AlerteSanitaire, StatutAlerte
     from app.services import sante
-    return sante.alertes_visibles(user).filter(AlerteSanitaire.statut.in_(StatutAlerte.OUVERTES)).count()
+    from app.services import receptions
+    retenus = receptions.sous_reserve_visibles(user).count() if user.profil == Profil.VETO else 0   # lot 19
+    return sante.alertes_visibles(user).filter(AlerteSanitaire.statut.in_(StatutAlerte.OUVERTES)).count() + retenus
 
 
 def _n_alertes_confirmees(user):
@@ -314,5 +316,8 @@ def index():
         return render_template('accueil.html', eleveur=True, onglets=[], e=accueil_eleveur(current_user),
                                bandeau_vaccin=bandeau_vaccin(current_user),
                                blocages=veto.blocages_visibles(current_user).filter_by(leve_le=None).all())
+    if current_user.profil == Profil.OPERATEUR:                # lot 19 : accueil de l'opérateur, téléphone d'abord
+        from app.routes.operateur import accueil as accueil_operateur
+        return render_template('accueil.html', eleveur=False, onglets=[], o=accueil_operateur(current_user))
     return render_template('accueil.html', eleveur=False, onglets=onglets_pour(current_user),
                            alertes=_alertes(current_user), perimetre=perimetre(current_user))

@@ -146,6 +146,13 @@ Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple pl
 - En ligne, le serveur **refuse** la sortie (pas de lot, pas de QR).
 - Une sortie saisie sans réseau **avant** que le téléphone ne connaisse le blocage, et reçue **après**, n'est pas perdue : elle est enregistrée **mise de côté, à vérifier**, sans lot ni QR. Elle apparaît dans « Surveillance » chez le vétérinaire, qui dit si les poulets sont bien sortis (comptée, toujours sans QR) ou non.
 
+### Réception par l'opérateur, abattoir ou marché (lot 19)
+- Le téléphone de l'opérateur garde son accueil, le scanner, « Lots attendus » et « Mes réceptions » (`routes/hors_ligne.PAGES_OPERATEUR`). La page du scanner contient les lots attendus de l'opérateur : sans réseau, un QR lu (ou un numéro tapé) est reconnu sur le téléphone, qui affiche l'annoncé et l'écart dès que les chiffres sont tapés.
+- La caméra lit le QR sans réseau. La réception (3 chiffres, raison de l'écart si elle est connue) part dans la file d'attente habituelle (identifiant unique, aucun doublon). L'accueil affiche « ◷ Réception enregistrée, en attente de vérification ».
+- **Le serveur fait tous les contrôles à l'arrivée**, comme pour un scan en ligne, et inscrit le scan au journal (« Sans réseau »). Si un contrôle de refus échoue (QR inconnu, lot annulé, déjà reçu, autre destinataire, ventes bloquées), la réception est gardée **refusée** avec le motif ; si un contrôle bloquant manque, elle est **sous réserve**. L'opérateur le voit dans « À traiter ». Rien n'est perdu.
+- Un écart sans raison (lot inconnu du téléphone) n'est pas refusé : la réception est gardée, les alertes partent, et l'opérateur complète la raison depuis « À traiter ».
+- En ligne, un réseau qui tombe entre le scan et « Valider la réception » ne perd rien : le formulaire du résultat est aussi gardé sur le téléphone.
+
 ### Session (lot 15)
 - L'éleveur et l'agent ne sont **jamais déconnectés par inactivité** : des jours sans réseau ne doivent pas faire perdre la session.
 - Si l'ADMIN ferme la session (téléphone perdu), l'envoi suivant reçoit la réponse « connexion ». Les saisies restent sur le téléphone et partent après la reconnexion, au nom de leur auteur (lot 13).
@@ -167,5 +174,6 @@ Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple pl
   - décision avec motif, journal et recalcul ;
   - doublon possible de sortie (mise de côté, décisions, rouge à 48 h, DGE) ;
   - écart de confirmation de livraison visible de la DGE.
+- `tests/test_lot19.py::test_reception_sans_reseau_controlee_a_l_arrivee` (lot 19) couvre la réception faite sans réseau : validée, refusée d'elle-même (autre destinataire), sous réserve d'elle-même (pesée manquante), raison de l'écart complétée ensuite, pages de l'opérateur gardées.
 
 Le parcours complet (saisie et pesée sans réseau, puis retour du réseau) a été vérifié dans Chromium au format téléphone.

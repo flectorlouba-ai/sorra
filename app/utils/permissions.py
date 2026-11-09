@@ -12,6 +12,7 @@ Un modèle rattaché à une ferme déclare `__perimetre_ferme__` (`'id'` pour la
 ferme, `'ferme_id'` ailleurs) : la règle des fermes s'applique alors (agent
 référent, éleveur rattaché, vétérinaire de la province).
 """
+import inspect
 from functools import wraps
 
 from flask import abort
@@ -65,6 +66,16 @@ def _condition_fermes(colonne, user):
     return false()
 
 
+def _condition_operateur(modele, user):
+    """Lot 19 : un compte OPÉRATEUR ne voit que ce qui concerne SA fiche du registre (lots qui lui sont
+    destinés, ses réceptions, ses scans), rien d'autre."""
+    attr = getattr(modele, '__perimetre_operateur__', None)
+    if attr is None or user.operateur_id is None:
+        return false()
+    colonne = getattr(modele, attr)
+    return colonne(user.operateur_id) if inspect.ismethod(colonne) else colonne == user.operateur_id
+
+
 def filtre_perimetre(requete, modele=None, utilisateur=None):
     user = utilisateur or current_user
     if not user or not user.is_authenticated:
@@ -72,6 +83,8 @@ def filtre_perimetre(requete, modele=None, utilisateur=None):
     if user.est_national:
         return requete
     modele = modele or _modele(requete)
+    if user.profil == Profil.OPERATEUR:
+        return _restreindre(requete, _condition_operateur(modele, user))
     attr_ferme = getattr(modele, '__perimetre_ferme__', None)
     if attr_ferme:
         return _restreindre(requete, _condition_fermes(getattr(modele, attr_ferme), user))

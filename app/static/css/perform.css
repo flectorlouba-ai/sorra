@@ -730,3 +730,85 @@ i.picto-panne{font-style:normal;font-size:2rem;display:block;}
 /* Démonstration publique (YL2_DEMO=1) : bandeau sur toutes les pages */
 .bandeau-demo{position:sticky;top:0;z-index:2000;background:var(--att-encre);color:var(--blanc);text-align:center;
   font-weight:800;font-size:.8rem;letter-spacing:.06em;padding:.3rem .5rem;}
+
+/* ══ Lot 19 — opérateur (abattoir, marché) : scan et réception, téléphone d'abord ══ */
+.op-accueil{display:flex;flex-direction:column;gap:.9rem;max-width:560px;}
+.op-etablissement{font-size:.9rem;font-weight:800;color:var(--noir);}
+.op-tuile-scanner{display:flex;align-items:center;justify-content:center;gap:.7rem;min-height:96px;border-radius:16px;
+  background:linear-gradient(135deg,var(--ambre-vif),var(--ambre));color:var(--ambre-encre);text-decoration:none;
+  font-size:1.25rem;font-weight:900;box-shadow:0 4px 14px rgba(12,36,97,.15);}
+.op-tuile-scanner i{font-size:2.2rem;}
+.op-tuiles{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+.op-tuile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;min-height:84px;
+  border-radius:14px;background:linear-gradient(135deg,var(--noir),var(--noir3));color:var(--blanc);text-decoration:none;
+  font-weight:800;font-size:.9rem;text-align:center;padding:.6rem;}
+.op-tuile i{font-size:1.5rem;}
+.op-encadre{background:var(--blanc);border:1.5px solid var(--bord);border-radius:12px;padding:.75rem .85rem;}
+.op-encadre h2{font-size:.72rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--noir);margin-bottom:.5rem;}
+.op-a-traiter{border-color:var(--att-bord);background:var(--att-fond);}
+.op-liste{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.5rem;font-size:.85rem;}
+.op-liste li, .op-liste li a{display:flex;flex-direction:column;gap:.1rem;color:var(--noir);text-decoration:none;}
+.op-liste-cartes li{background:var(--blanc);border:1.5px solid var(--bord);border-radius:12px;padding:.65rem .8rem;}
+.op-etat{font-weight:800;font-size:.8rem;}
+.op-etat.ok{color:var(--vert);}
+.op-etat.attente{color:var(--att-encre);}
+.op-etat.refuse{color:var(--danger-encre);}
+.op-garde{background:var(--att-fond);border:1.5px solid var(--att-bord);color:var(--att-encre);border-radius:12px;
+  padding:.7rem .85rem;font-weight:800;}
+.op-garde-sous{display:block;font-weight:600;font-size:.8rem;margin-top:.2rem;}
+.op-scanner{display:flex;flex-direction:column;gap:1rem;max-width:560px;}
+.op-camera{position:relative;width:100%;aspect-ratio:1/1;max-height:70vh;background:var(--b-nuit);border-radius:16px;overflow:hidden;}
+.op-camera video{width:100%;height:100%;object-fit:cover;display:block;}
+.op-cadre{position:absolute;inset:18%;border:4px solid var(--blanc);border-radius:14px;box-shadow:0 0 0 999px rgba(7,22,64,.35);}
+.op-camera-message{position:absolute;left:0;right:0;bottom:.6rem;text-align:center;color:var(--blanc);font-weight:800;font-size:.9rem;}
+.op-hors-ligne-tete{font-weight:900;color:var(--att-encre);}
+.op-lot-lu{font-weight:800;color:var(--noir);font-size:1rem;}
+.op-resultat{border-radius:14px;padding:.85rem 1rem;font-size:1.05rem;font-weight:900;margin-bottom:.8rem;}
+.op-resultat.vert{background:var(--ok-fond);border:2px solid var(--ok-bord);color:var(--ok-encre);}
+.op-resultat.orange{background:var(--att-fond);border:2px solid var(--att-bord);color:var(--att-encre);}
+.op-resultat.rouge{background:var(--alerte-fond);border:2px solid var(--alerte-bord);color:var(--danger-encre);}
+.op-controles{list-style:none;margin:0 0 .8rem;padding:0;display:flex;flex-direction:column;gap:.35rem;font-size:.88rem;max-width:560px;}
+.op-controles li{display:flex;gap:.55rem;align-items:flex-start;background:var(--blanc);border:1px solid var(--bord);border-radius:10px;padding:.45rem .6rem;}
+.op-coche{font-weight:900;width:1.2rem;flex-shrink:0;text-align:center;}
+.op-controles li.ok .op-coche{color:var(--vert);}
+.op-controles li.manque{border-color:var(--alerte-bord);background:var(--alerte-fond);}
+.op-controles li.manque .op-coche{color:var(--rouge);}
+.op-controles li.info .op-coche{color:var(--ambre);}
+.op-annonce{font-size:.9rem;color:var(--noir);margin-bottom:.8rem;}
+.op-chiffres{display:flex;flex-direction:column;gap:.7rem;}
+.op-chiffres .champ-gros{font-size:1.3rem;font-weight:800;text-align:center;}
+.op-ecart{background:var(--b050);border:1.5px solid var(--b200);border-radius:12px;padding:.6rem .7rem;}
+.op-ecart.ecart{background:var(--att-fond);border-color:var(--att-bord);}
+.op-ecart-texte{font-weight:800;font-size:.85rem;margin-top:.35rem;color:var(--noir);}
+.op-ecart.ecart .op-ecart-texte{color:var(--att-encre);}
+.op-comparaison{width:100%;border-collapse:collapse;text-align:center;font-size:.85rem;}
+.op-comparaison th{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--gris5);padding:.2rem;background:transparent;border:none;}
+.op-comparaison td{font-size:1.15rem;font-weight:900;color:var(--noir);padding:.2rem;}
+.op-motifs{border:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.6rem;}
+.btn-gros-orange{background:var(--ambre);color:var(--ambre-encre);}
+.btn-gros-orange:hover{background:var(--ambre-vif);color:var(--ambre-encre);}
+.op-refus{background:var(--rouge);color:var(--blanc);border-radius:18px;padding:1.4rem 1.1rem;display:flex;flex-direction:column;
+  align-items:center;gap:.7rem;text-align:center;max-width:560px;}
+.op-refus-icone{font-size:3.2rem;line-height:1;}
+.op-refus-titre{font-size:1.4rem;font-weight:900;}
+.op-refus-motif{font-size:1.05rem;font-weight:700;line-height:1.35;}
+.op-boutons{display:flex;flex-direction:column;gap:.6rem;width:100%;margin-top:.4rem;}
+.btn-gros-blanc{background:var(--blanc);color:var(--rouge);}
+.btn-gros-blanc:hover{background:var(--rouge-pale);color:var(--rouge);}
+.lots-retenus{border:1.5px solid var(--att-bord);background:var(--att-fond);border-radius:10px;padding:.75rem .9rem;margin-bottom:1rem;}
+.lots-retenus h2{font-size:.72rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--att-encre);margin-bottom:.5rem;}
+.lots-retenus form{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:.35rem;}
+.lots-retenus input[name=motif]{flex:1;min-width:180px;}
+/* Lot 19 : sorties de la bande et leur réception (écran Ventes et sorties) */
+.sorties-faites{margin-top:1.2rem;max-width:560px;}
+.sorties-titre{font-size:.72rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--noir);margin-bottom:.5rem;}
+.sorties-liste{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.5rem;}
+.sorties-liste li{background:var(--blanc);border:1.5px solid var(--bord);border-radius:12px;padding:.6rem .75rem;font-size:.88rem;}
+.sortie-etapes{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin-top:.25rem;font-weight:800;}
+.etape-faite{color:var(--vert);}
+.etape-attente{color:var(--att-encre);}
+.etape-refus{color:var(--danger-encre);}
+.etape-fleche{color:var(--gris8);}
+.sortie-compte{font-size:.82rem;color:var(--gris5);margin-top:.2rem;}
+.card-p-head .btn-ghost{color:var(--blanc);border-color:var(--b-attenue);}
+.card-p-head .btn-ghost:hover{background:var(--noir3);color:var(--blanc);}

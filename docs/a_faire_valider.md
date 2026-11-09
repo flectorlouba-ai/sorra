@@ -22,6 +22,11 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | **Maladies suspectées** du diagnostic | Listes → `maladies_suspectees` | 9 maladies + Autre | 17 |
 | **Gravité des signalements** (feu rouge 3, déclaration de 10 poulets ou plus 2, sinon 1 ; +1 sans réponse depuis 24 h) | code (`veto.gravite`) | — | 17 |
 | **Grille de biosécurité** (10 points) et seuils du score (rouge < 50 %, orange < 80 %) | Listes → `grille_biosecurite` ; seuils : code (`agent.couleur_score`) | 10 points | 16 |
+| **Contrôles à la réception et leur caractère bloquant** (TOUS : bloquant partout ; ABATTOIR : bloquant à l'abattoir, pour information au marché, chez l'acheteur et le distributeur ; INFO ; NON) | Paramètres → `reception.controle_delai_attente`, `reception.controle_vaccins`, `reception.controle_pesee` (quatre yeux) | délai d'attente TOUS · vaccins ABATTOIR · pesée ABATTOIR | 19 |
+| Contrôles de **refus** à la réception (QR inconnu, lot annulé, déjà reçu ou refusé par le vétérinaire, destiné à un autre opérateur, ventes bloquées) | code (`receptions.motif_refus`) | toujours un refus | 19 |
+| **Vaccins obligatoires** à la réception : tous les vaccins actifs du calendrier dont la date (au plus tard le jour de la sortie) est passée, sauf ceux d'avant le début du suivi. **Tolérance** : un vaccin en retard de moins de N jours ne met pas le lot en réserve | Santé → Calendrier vaccinal ; tolérance : Paramètres → `reception.vaccin_tolerance_jours` (quatre yeux) | 2 jours | 19 |
+| Pesée « récente » à la réception (avant la sortie) | Paramètres → `reception.pesee_max_jours` (quatre yeux) | moins de 7 jours | 19 |
+| **Seuil des morts à la réception** (abattoir, marché) : au-delà, le vétérinaire de la zone est alerté quel que soit le motif. Distinct du seuil des poussins morts à l'arrivée à la ferme (`intrants.seuil_mortalite_arrivee_pct`) | Paramètres → `reception.seuil_morts_pct` (quatre yeux) | 2 % de l'annoncé | 19 |
 
 ## Par la DGE (et les vétérinaires pour les visites)
 
@@ -40,7 +45,10 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | **Barème des notes du classement** (mortalité 0 % → 100, 10 % → 0 ; IC 1,4 → 100, 2,6 → 0 ; GMQ 30 → 0, 70 g/j → 100) et seuil « bande incomplète » (80 % des jours saisis) | Paramètres → `classement.*` (quatre yeux) | voir ci-contre | 18 |
 | **Charge d'un agent** (orange au-delà de 15 fermes, rouge au-delà de 25) | code (`dge.CHARGE_ORANGE`, `CHARGE_ROUGE`) | 15 / 25 | 18 |
 | **Destinataires du rapport mensuel** et interrupteur d'envoi | Paramètres → `rapports.email_destinataires`, `rapports.email_actif` | aucun · coupé | 18 |
-| **Liste des réglages sensibles** soumis aux quatre yeux | code (`approbations.SENSIBLES`) | seuils sanitaires, délais, formules, calendrier vaccinal, profils | 15 |
+| **Liste des réglages sensibles** soumis aux quatre yeux | code (`approbations.SENSIBLES`) | seuils sanitaires, délais, formules, calendrier vaccinal, profils ; réglages `reception.*` depuis le lot 19 | 15, 19 |
+| **Motifs d'écart à la réception** (touchés au quai ; seul « Autre » demande un texte). Tout écart de nombre, ou des morts au-delà du seuil, demande un motif | Listes → `motifs_ecart_quai` | Erreur de comptage · Morts au transport · Poulets échappés · Autre | 19 |
+| **Refus répétés du même QR** qui alertent la DGE (tous opérateurs confondus) | Paramètres → `reception.refus_alerte_nombre`, `reception.refus_alerte_heures` (quatre yeux) | 3 refus en 24 h | 19 |
+| Type d'opérateur « Marché » (le type « Abattoir » seul applique tous les contrôles) | Listes → `types_operateurs` | ajouté au lot 19 | 19 |
 | Seuil « à vérifier » de la dernière synchronisation du téléphone | code | 3 jours | 10 |
 
 ## Textes à faire relire (éleveurs, agents, DGE)
@@ -50,6 +58,8 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | **Message du blocage à l'éleveur** : « ⛔ Le vétérinaire a bloqué les ventes de cette bande » + « 📞 Appeler le vétérinaire » | `templates/eleveur/_accueil.html`, `templates/bandes/sortie.html` | 17 |
 | **Les 4 phrases du tutoriel** : « Chaque jour, notez vos morts et votre aliment. » · « Un problème avec vos poulets ? Prévenez le vétérinaire. » · « Pas de réseau ? Saisissez quand même : tout part quand le réseau revient. » · « Votre agent Paul est là pour vous aider. » | `templates/eleveur/presentation.html` | 13 |
 | **Les 9 aides « Comment faire ? »** (titres et 3 étapes chacune) | Configuration → Aides (ADMIN) | 13 |
+| **Messages de l'éleveur sur ses sorties** : « ✓ Partis › ✓ Reçus par l'abattoir — L'abattoir a compté N vivants et M morts au transport », « ◷ En attente du vétérinaire », « ✗ Le vétérinaire n'a pas accepté ces poulets — appelez votre agent » | `services/receptions.etat_pour_eleveur` | 19 |
+| **Messages de refus au quai** (QR inconnu, lot annulé, déjà reçu, destiné à un autre opérateur, ventes bloquées) | `services/receptions.motif_refus` | 19 |
 | **Le texte de « Ma banque »** (ce que la BCEG verra et ne verra pas) — à faire valider aussi par la BCEG | `templates/eleveur/ma_banque.html` | 13 |
 
 ## Test terrain

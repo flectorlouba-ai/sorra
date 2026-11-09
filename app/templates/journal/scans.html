@@ -1,0 +1,51 @@
+{% extends '_base.html' %}
+{% block titre %}Journal des scans{% endblock %}
+{% block icone %}qr-code-scan{% endblock %}
+{% block page_sous_titre %}Chaque lot lu à la réception, accepté ou refusé — {{ pagination.total }} ligne{{ 's' if pagination.total != 1 }}{% endblock %}
+
+{% block actions %}
+<a href="{{ url_for('journal.scans_export', **filtres) }}" class="btn-new"><i class="bi bi-download"></i> Exporter (CSV)</a>
+{% endblock %}
+
+{% block contenu %}
+<form class="filters-bar" method="get">
+  <select name="operateur" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Tous les opérateurs</option>
+    {% for o in operateurs %}<option value="{{ o.id }}" {% if filtres.get('operateur') == o.id|string %}selected{% endif %}>{{ o.nom }}</option>{% endfor %}
+  </select>
+  <select name="resultat" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Tous les résultats</option>
+    {% for code, libelle in resultats.items() %}<option value="{{ code }}" {% if filtres.get('resultat') == code %}selected{% endif %}>{{ libelle }}</option>{% endfor %}
+  </select>
+  <span class="filter-label">Du</span><input type="date" name="du" class="filter-date" value="{{ filtres.get('du', '') }}">
+  <span class="filter-label">Au</span><input type="date" name="au" class="filter-date" value="{{ filtres.get('au', '') }}">
+  <button type="submit" class="btn-filter"><i class="bi bi-funnel"></i></button>
+</form>
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>Date</th><th>Personne</th><th>Opérateur</th><th>Lot</th><th>Lu par</th><th>Résultat</th><th>Motif</th></tr></thead>
+    <tbody>
+    {% for s in pagination.items %}
+      <tr data-scan="{{ s.resultat }}">
+        <td>{{ s.horodatage|date_locale('%d/%m/%Y %H:%M') }}</td>
+        <td>{{ s.utilisateur.identifiant if s.utilisateur else '—' }}</td>
+        <td>{{ s.operateur.nom if s.operateur else '—' }}</td>
+        <td class="td-num">{{ s.lot.numero if s.lot else (s.saisie or 'QR inconnu') }}</td>
+        <td>{{ {'CAMERA': 'Caméra', 'NUMERO': 'Numéro tapé', 'HORS_LIGNE': 'Sans réseau'}.get(s.source, s.source) }}</td>
+        <td><span class="badge {{ {'VERT': 'badge-ok', 'ORANGE': 'badge-warn', 'ROUGE': 'badge-danger'}[s.resultat] }}">{{ s.libelle_resultat }}</span></td>
+        <td>{{ s.motif or '' }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="7" class="table-vide"><i class="bi bi-inbox"></i>Aucun scan.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% if pagination.pages > 1 %}
+<div class="pagination-zone">
+  {% if pagination.has_prev %}<a class="btn-ghost" href="{{ url_for('journal.scans', page=pagination.prev_num, **filtres) }}">‹ Précédents</a>{% endif %}
+  <span class="td-sous">Page {{ pagination.page }} / {{ pagination.pages }}</span>
+  {% if pagination.has_next %}<a class="btn-ghost" href="{{ url_for('journal.scans', page=pagination.next_num, **filtres) }}">Suivants ›</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

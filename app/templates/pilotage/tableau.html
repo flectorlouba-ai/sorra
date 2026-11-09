@@ -78,6 +78,29 @@
 </div>
 {% endif %}
 
+{% if national and d.tracabilite %}{% set tr = d.tracabilite %}
+<div class="card-p mt-3" id="tracabilite">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-qr-code-scan"></i> Traçabilité aval</span>
+    <a class="btn-ghost" href="{{ url_for('journal.scans') }}"><i class="bi bi-list-check"></i> Journal des scans</a></div>
+  <div class="card-p-body">
+    <div class="cartes-chiffres">
+      <div class="carte-chiffre"><div class="cc-libelle">Lots sortis avec QR</div><div class="cc-valeur">{{ tr.lots_qr_pct|round|qte if tr.lots_qr_pct is not none else '—' }} %</div><div class="cc-sous">{{ tr.lots_qr }} sur {{ tr.lots_sortis }} sorties abattoir ou vente</div></div>
+      <div class="carte-chiffre"><div class="cc-libelle">Ventes rattachées à un lot</div><div class="cc-valeur">{{ tr.ventes_lot_pct|round|qte if tr.ventes_lot_pct is not none else '—' }} %</div><div class="cc-sous">{{ tr.ventes_lot }} sur {{ tr.ventes }} ventes</div></div>
+      <div class="carte-chiffre"><div class="cc-libelle">Lots reçus et scannés</div><div class="cc-valeur">{{ tr.recus_pct|round|qte if tr.recus_pct is not none else '—' }} %</div><div class="cc-sous">{{ tr.recus }} sur {{ tr.destines }} lots destinés à un opérateur</div></div>
+      <div class="carte-chiffre"><div class="cc-libelle">Écart moyen à la réception</div><div class="cc-valeur">{{ tr.ecart_moyen_pct|round(1)|qte if tr.ecart_moyen_pct is not none else '—' }} %</div><div class="cc-sous">{{ tr.ecarts_hors_seuil }} écart{{ 's' if tr.ecarts_hors_seuil != 1 }} au-delà du seuil · {{ tr.refus }} refus de scan</div></div>
+    </div>
+    {% if d.par_province %}
+    <div class="table-scroll mt-2"><table>
+      <thead><tr><th>Province</th><th>Lots sortis</th><th>Avec QR</th><th>Reçus et scannés</th><th>Écarts au-delà du seuil</th><th>Refus de scan</th></tr></thead>
+      <tbody>{% for p in d.par_province %}{% set x = p.tracabilite %}{% if x %}
+        <tr><td>{{ p.province.nom }}</td><td>{{ x.lots_sortis }}</td><td>{{ x.lots_qr }}</td><td>{{ x.recus }} / {{ x.destines }}</td><td>{{ x.ecarts_hors_seuil }}</td><td>{{ x.refus }}</td></tr>
+      {% endif %}{% endfor %}</tbody>
+    </table></div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
 <div class="card-p mt-3" id="arrivee">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-egg"></i> Mortalité à l'arrivée des poussins (seuil {{ d.arrivee.seuil|qte }} %)</span></div>
   <div class="row g-0">

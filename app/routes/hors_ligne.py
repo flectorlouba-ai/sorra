@@ -101,10 +101,18 @@ def pages_agent(user):
     return list(dict.fromkeys(pages))
 
 
+# Lot 19 : l'opérateur garde son accueil, le scanner (avec les lots attendus) et ses listes ; la réception
+# faite sans réseau part dans la file d'attente et le serveur fait les contrôles à l'arrivée.
+PAGES_OPERATEUR = ['accueil.index', 'operateur.scanner', 'operateur.attendus', 'operateur.receptions',
+                   'auth.mot_de_passe']
+
+
 def pages_a_garder(user):
     """Adresses des pages de l'éleveur : fixes, puis celles de ses bandes, livraisons et aides."""
     if user.profil == Profil.AGENT:
         return pages_agent(user)
+    if user.profil == Profil.OPERATEUR:
+        return [url_for(e) for e in PAGES_OPERATEUR]
     from app.models import Livraison
     from app.models.aide import Aide
     from app.models.intrant import StatutLivraison
@@ -124,7 +132,7 @@ def pages_a_garder(user):
 
 
 @hors_ligne_bp.route('/hors-ligne/pages')
-@profil_requis(Profil.ELEVEUR, Profil.AGENT)
+@profil_requis(Profil.ELEVEUR, Profil.AGENT, Profil.OPERATEUR)
 def pages():
     return jsonify(pages=pages_a_garder(current_user))
 
