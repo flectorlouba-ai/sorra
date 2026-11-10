@@ -31,6 +31,10 @@ def connexion():
     if request.method == 'POST':
         identifiant = request.form.get('identifiant', '').strip().lower()
         mot_de_passe = request.form.get('mot_de_passe', '')
+        if securite.connexion_trop_frequente(request.remote_addr):          # lot S : limite de débit par adresse
+            enregistrer(Action.ECHEC_CONNEXION, identifiant=identifiant[:64] or '(vide)', detail='trop de tentatives depuis cette adresse')
+            db.session.commit()
+            return render_template('auth/connexion.html', erreur='Trop de tentatives depuis cet appareil : réessayez dans quelques minutes.'), 429
         user = Utilisateur.query.filter_by(identifiant=identifiant).first()
 
         if demo.active() and demo.bloque(identifiant, request.remote_addr):
@@ -101,9 +105,12 @@ def _ouvrir_session(user, next_page=''):
     login_user(user)
     user.derniere_connexion = maintenant()
     user.echecs_connexion = 0
+    nouvel_appareil = securite.appareil_inconnu(user)                       # lot S : avant d'ouvrir la session
     s = securite.ouvrir(user)
     session['sid'] = s.id
-    enregistrer(Action.CONNEXION, utilisateur=user, detail=s.appareil)
+    enregistrer(Action.CONNEXION, utilisateur=user, detail=s.appareil + (' · nouvel appareil' if nouvel_appareil else ''))
+    if nouvel_appareil and user.profil.value not in ('ELEVEUR',):
+        flash(f'Première connexion depuis cet appareil ({s.appareil}). Si ce n\'est pas vous, changez votre mot de passe et prévenez l\'administrateur.', 'warning')
     db.session.commit()
     if user.doit_changer_mdp:
         return redirect(url_for('auth.mot_de_passe'))
@@ -258,6 +265,8 @@ def mot_de_passe():
             erreur = 'La confirmation ne correspond pas au nouveau mot de passe.'
         elif nouveau == actuel:
             erreur = 'Le nouveau mot de passe doit être différent de l\'actuel.'
+        elif securite.mot_de_passe_courant(nouveau):
+            erreur = 'Ce mot de passe est trop courant ou trop simple : choisissez-en un autre.'
         else:
             current_user.set_password(nouveau)
             current_user.doit_changer_mdp = False

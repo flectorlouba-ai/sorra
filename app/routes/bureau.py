@@ -308,6 +308,23 @@ def droits():
         lignes.append({'adresse': regle.rule, 'methodes': ' '.join(sorted(m for m in regle.methods if m in ('GET', 'POST'))),
                        'profils': ', '.join(sorted(p.value for p in profils)) if profils else ('tout compte connecté' if login else 'public'),
                        'doc': ((vue.__doc__ or '').strip().splitlines() or [''])[0][:120] if vue else ''})
+    if request.args.get('format') == 'xlsx':                                 # lot S : export des droits
+        wb = Workbook()
+        ws = wb.active
+        ws.title = 'Droits'
+        ws.append(['SORRA — profils et droits par adresse', f'{date.today():%d/%m/%Y}'])
+        ws['A1'].font = Font(bold=True)
+        ws.append(['Adresse', 'Méthodes', 'Profils', 'Description'])
+        for c in ws[2]:
+            c.font = Font(bold=True)
+        for l in lignes:
+            ws.append([l['adresse'], l['methodes'], l['profils'], l['doc']])
+        tampon = io.BytesIO()
+        wb.save(tampon)
+        enregistrer(Action.EXPORT, table='droits', detail=f'Export des droits : {len(lignes)} adresse(s)')
+        db.session.commit()
+        return Response(tampon.getvalue(), mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        headers={'Content-Disposition': f'attachment; filename="SORRA_droits_{date.today():%Y%m%d}.xlsx"'})
     return render_template('bureau/droits.html', lignes=lignes, conforme=('ADMIN-3', conformite.spec('ADMIN', 3), conformite.admin_droits(current_user)))
 
 

@@ -23,7 +23,7 @@ Règles : `docs/regles_lots.md`. Décisions prises seul : `docs/decisions_autono
 | F — œufs des bandes de ponte | `7ec1e19` | 727 | oui | 2026-11-10-7ec1e19 | migration 0031 ; jeu de démo sans bande de ponte (à ajouter) |
 | B — imports Excel / CSV | `594f224` | 731 | oui | 2026-11-10-594f224 | migration 0032 ; 3 modèles |
 | M — BCEG et MAEDR | `2438f27` | 734 | oui | 2026-11-10-2438f27 | migration 0033 ; compte MAEDR à créer dans la démo |
-| S | | | | | |
+| S — sécurité | (fusion S) | | oui | (version au déploiement) | clé GPG et destination distante à poser par le propriétaire |
 | P | | | | | |
 
 ## Décisions les plus importantes

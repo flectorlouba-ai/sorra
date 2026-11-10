@@ -4,6 +4,7 @@
 {% block icone %}key{% endblock %}
 {% block page_titre %}🔑 Profils et droits{% endblock %}
 {% block page_sous_titre %}Lus dans le code de l'application : une ligne par adresse, les profils qui y ont accès (lecture seule){% endblock %}
+{% block actions %}<a class="btn-ghost" href="{{ url_for('bureau.droits', format='xlsx') }}" data-export-droits>⬇️ Exporter les droits (Excel)</a>{% endblock %}
 {% block contenu %}
 {% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <div class="table-wrap"><div class="table-scroll"><table>

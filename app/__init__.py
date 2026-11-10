@@ -233,6 +233,21 @@ def _installer_controles_session(app):
     libres = {'static', 'auth.connexion', 'auth.deconnexion', 'auth.mot_de_passe', 'auth.mise_en_place',
               'auth.codes_secours', 'auth.deux_facteurs'}
 
+    @app.after_request
+    def entetes_securite(reponse):
+        """Lot S : en-têtes de sécurité sur chaque réponse (CSP sans ressource externe, pas d'iframe, pas de sniff)."""
+        reponse.headers.setdefault('Content-Security-Policy',
+                                   "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; "
+                                   "img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; media-src 'self' blob:; "
+                                   "worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'")
+        reponse.headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
+        reponse.headers.setdefault('X-Content-Type-Options', 'nosniff')
+        reponse.headers.setdefault('X-Frame-Options', 'DENY')
+        reponse.headers.setdefault('Permissions-Policy', 'camera=(self), geolocation=(self), microphone=(self), payment=()')
+        if request.is_secure or app.config.get('DERRIERE_PROXY'):
+            reponse.headers.setdefault('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+        return reponse
+
     @app.before_request
     def controles_session():
         if request.endpoint in (None, 'static') or not current_user.is_authenticated:

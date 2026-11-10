@@ -7,7 +7,7 @@ from app import db
 from app.models import Profil
 from app.models.securite import Proposition, StatutProposition
 from app.services import approbations, securite
-from app.services.journal import verifier_chaine
+from app.services.journal import verifier_chaine, enregistrer, Action
 from app.utils.permissions import profil_requis
 
 controle_bp = Blueprint('controle', __name__)
@@ -48,6 +48,8 @@ def decider(ident):
 def sessions():
     from app.services import conformite
     sessions = securite.ouvertes().all()
+    enregistrer(Action.CONSULTATION, table='session_utilisateur', detail=f'Sessions ouvertes consultées ({len(sessions)})')   # lot S
+    db.session.commit()
     return render_template('controle/sessions.html', sessions=sessions,
                            conforme=('ADMIN-6', conformite.spec('ADMIN', 6), conformite.admin_sessions(current_user, sessions)))
 

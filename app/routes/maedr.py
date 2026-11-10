@@ -12,6 +12,10 @@ maedr_bp = Blueprint('maedr', __name__)
 @maedr_bp.route('/bceg/fermes')
 @profil_requis(Profil.BCEG, Profil.ADMIN)
 def bceg_fermes():
+    from app import db
+    from app.services.journal import enregistrer, Action
+    enregistrer(Action.CONSULTATION, table='ferme', detail='Fermes financées consultées par la BCEG')   # lot S
+    db.session.commit()
     return render_template('maedr/tableau.html', titre='🏘️ Fermes financées', sous_titre="Avec l'accord de l'éleveur seulement ; un clic ouvre le mini bilan",
                            conforme=('BCEG-1', conformite.SPEC_BCEG, conformite.bceg_fermes(current_user)))
 

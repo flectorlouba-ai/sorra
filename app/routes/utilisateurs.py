@@ -73,6 +73,9 @@ def _lire_formulaire(user=None):
         return None, 'Le mot de passe provisoire est obligatoire.'
     if mdp and len(mdp) < longueur_min:
         return None, f'Le mot de passe doit contenir au moins {longueur_min} caractères.'
+    from app.services import securite
+    if mdp and securite.mot_de_passe_courant(mdp):
+        return None, 'Ce mot de passe est trop courant ou trop simple : choisissez-en un autre.'
     donnees['mot_de_passe'] = mdp
     if user is not None:
         donnees['actif'] = user.actif        # lot A1 : seul « 🗄️ Archiver » archive (plus de case à décocher)
@@ -112,6 +115,9 @@ def index():
     elif statut == 'inactifs':
         q = q.filter(Utilisateur.actif.is_(False))
     utilisateurs = q.order_by(Utilisateur.nom, Utilisateur.prenom).all()
+    from app.services.journal import enregistrer, Action
+    enregistrer(Action.CONSULTATION, table='utilisateur', detail=f'Liste des comptes consultée ({len(utilisateurs)})')   # lot S
+    db.session.commit()
     fermes = [{'id': str(fe.id), 'numero': fe.numero_metier, 'nom': fe.nom,
                'province_id': fe.province_id}
               for fe in Ferme.query.order_by(Ferme.numero_metier)]

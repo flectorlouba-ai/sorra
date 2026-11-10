@@ -16,6 +16,20 @@ cd "$(git rev-parse --show-toplevel)"
 [ -z "$(git status --porcelain)" ] || { echo "Déploiement refusé : des modifications ne sont pas validées."; exit 1; }
 git fetch -q origin main
 [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ] || { echo "Déploiement refusé : main n'est pas poussé sur GitHub."; exit 1; }
+# Lot S : aucun secret dans les fichiers suivis (clés VAPID, SECRET_KEY, mots de passe de base) — le .env n'est jamais commité
+if git grep -nE "(SECRET_KEY|SORRA_VAPID_PRIVEE|DATABASE_URL)=[^ ]{8,}|postgres(ql)?://[^ ]+:[^ @]+@|BEGIN (RSA |OPENSSH |EC )?PRIVATE KEY" -- ':!deploiement/demo/deployer.sh' ':!docs/*' ':!tests/*' >/dev/null; then
+  echo "Déploiement refusé : un secret semble présent dans un fichier suivi (git grep ci-dessus)."; git grep -nE "(SECRET_KEY|SORRA_VAPID_PRIVEE|DATABASE_URL)=[^ ]{8,}|postgres(ql)?://[^ ]+:[^ @]+@|BEGIN (RSA |OPENSSH |EC )?PRIVATE KEY" -- ':!deploiement/demo/deployer.sh' ':!docs/*' ':!tests/*' | cut -c1-120; exit 1
+fi
+# Lot S : vulnérabilités connues des bibliothèques (pip-audit, s'il est installé dans le venv du poste)
+if [ -x venv/Scripts/pip-audit.exe ] || [ -x venv/bin/pip-audit ]; then
+  AUDIT=$([ -x venv/Scripts/pip-audit.exe ] && echo venv/Scripts/pip-audit.exe || echo venv/bin/pip-audit)
+  if ! "$AUDIT" -r requirements.txt --progress-spinner off >/tmp/pip-audit.txt 2>&1; then
+    echo "Déploiement refusé : pip-audit signale une vulnérabilité connue (voir ci-dessous)."; tail -20 /tmp/pip-audit.txt; exit 1
+  fi
+  echo "== pip-audit : aucune vulnérabilité connue"
+else
+  echo "== pip-audit absent du venv : contrôle des bibliothèques sauté (pip install pip-audit)"
+fi
 
 VERSION="$(date +%Y-%m-%d)-$(git rev-parse --short HEAD)"
 ETIQUETTE="demo-$(date +%Y%m%d-%H%M)"
