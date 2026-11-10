@@ -26,6 +26,7 @@
     <div class="qui"><b>{{ current_user.nom_complet }}</b><span class="role">{{ current_user.profil.libelle }}</span></div>
     {% set cle_aide = aide_pour(self.aide()|trim) %}
     <a class="ib" href="{{ url_for('aides.aide', cle=cle_aide, retour=request.path) if cle_aide else url_for('aides.liste') }}" title="Aide">❓ <span class="d-none d-md-inline">Aide</span></a>
+    <a class="ib" href="{{ url_for('aides.guide', profil=current_user.profil.value) }}" title="Mon guide (PDF)" target="_blank" data-guide>📘</a>
     {% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR') %}<a class="ib" href="{{ url_for('bureau.version_terrain') }}" title="Version terrain" data-version-terrain>📱</a>{% endif %}
     {% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR', 'VETO', 'DGE') %}<a class="ib" href="{{ url_for('notifications.mes_notifications') }}" title="Mes notifications" data-mes-notifications>🔔</a>{% endif %}
     <form method="post" action="{{ url_for('auth.deconnexion') }}" class="d-inline">

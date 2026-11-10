@@ -827,3 +827,5 @@ a.desactive{opacity:.45;pointer-events:none;}
 .theme-terrain .apercu-bilan{font-size:3rem;line-height:1;margin-bottom:6px;}
 .theme-terrain .tache-jour{display:inline-block;margin-left:6px;font-size:.78rem;font-weight:700;color:var(--e-orange-fonce);background:var(--e-orange-pale);border-radius:10px;padding:1px 8px;}
 .theme-terrain .ligne-rappel.du strong{color:var(--e-orange-fonce);}
+
+.theme-terrain .btn-login-code{width:100%;min-height:54px;border-radius:16px;border:2px solid var(--e-bleu);background:var(--e-blanc);color:var(--e-bleu-fonce);font:inherit;font-weight:900;font-size:1.05rem;margin-top:10px;}

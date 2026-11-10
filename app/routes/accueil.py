@@ -157,6 +157,7 @@ TUILES_CONFIGURATION = [
     ("Tâches d'entretien", 'Abreuvoirs, litière, désinfection…', 'tools', 'entretien.taches'),
     ('Aides', "« Comment faire ? » de l'éleveur", 'question-circle', 'aides.administrer'),
     ('Imports Excel / CSV', 'Reprise de l’existant, lots annulables', 'upload', 'imports.index'),
+    ('File de synchronisation', 'Envois des téléphones faits sans réseau', 'arrow-repeat', 'bureau.synchronisation'),
 ]
 COULEURS = ['mc-navy', 'mc-blue', 'mc-steel', 'mc-cobalt']
 

@@ -67,7 +67,8 @@ PAGES_ELEVEUR = ['accueil.index', 'eleveur.saisie', 'eleveur.ma_bande', 'eleveur
                  'eleveur.mon_compte', 'visites.mes_visites', 'sante.mes_declarations', 'eleveur.presentation',
                  'aides.liste', 'auth.mot_de_passe', 'notifications.mes_notifications',   # lot T
                  'argent.fiscalite', 'argent.bilan',   # lot G / K4
-                 'eleveur.oeufs']   # lot F
+                 'eleveur.oeufs',   # lot F
+                 'auth.mon_code']   # lot P
 ALLER = ['peser', 'sortie', 'malade', 'traitement', 'vaccins']
 
 
@@ -112,18 +113,19 @@ def pages_agent(user):
 # faite sans réseau part dans la file d'attente et le serveur fait les contrôles à l'arrivée.
 PAGES_OPERATEUR = ['accueil.index', 'operateur.scanner', 'operateur.attendus', 'operateur.receptions',
                    'auth.mot_de_passe', 'terrain.moi', 'terrain.presentation', 'aides.liste',
-                   'notifications.mes_notifications']   # lot T
+                   'notifications.mes_notifications', 'auth.mon_code']   # lot T, P
 PAGES_AGENT_TERRAIN = ['terrain.tournee', 'terrain.fermes', 'terrain.saisir', 'terrain.stock', 'terrain.nouvel_eleveur',
                        'terrain.moi', 'terrain.presentation', 'hors_ligne.conflits', 'aides.liste',
                        'eleveur.achat', 'argent.payer', 'entretien.ecran', 'entretien.panne', 'bandes.ouvrir',
                        'bandes.rattrapage', 'terrain.nouvelle_ferme', 'terrain.ferme_provisoire',   # lot E-b
                        'indicateurs.mes',   # lot C
-                       'notifications.actions_terrain', 'notifications.mes_notifications']   # lot T
+                       'notifications.actions_terrain', 'notifications.mes_notifications',   # lot T
+                       'auth.mon_code']   # lot P
 # Pages que l'agent et l'opérateur peuvent ouvrir mais qui ne sont PAS gardées sur le téléphone : la sécurité du
 # compte (en ligne par nature), la création d'une ferme (avec du réseau seulement, jusqu'au lot 19 bis), et les
 # écrans de la « Version bureau » de l'agent (pilotage, sur ordinateur). Vérifié par tests/test_lot19ter.py.
 EN_LIGNE_SEULEMENT = {'auth.securite', 'auth.mise_en_place', 'fermes.nouvelle', 'bureau.accueil', 'bureau.mes_lots',
-                      'actions.liste', 'actions.rapports', 'bureau.enrolement', 'bureau.fiche_conforme', 'bureau.creation_conforme', 'imports.index',
+                      'actions.liste', 'actions.rapports', 'bureau.enrolement', 'bureau.fiche_conforme', 'bureau.creation_conforme', 'imports.index', 'bureau.synchronisation', 'aides.guide',
                       'bureau.version_ordinateur', 'bureau.version_terrain', 'bureau.recherche', 'bureau.exports'}
 VERSION_BUREAU_AGENT = {'operateurs.liste', 'livraisons.liste', 'livraisons.nouvelle', 'bandes.liste', 'sante.vaccins',
                         'pilotage.tableau', 'tracabilite.lots', 'agent.commandes', 'fermes.liste',

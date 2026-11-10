@@ -24,7 +24,7 @@ Règles : `docs/regles_lots.md`. Décisions prises seul : `docs/decisions_autono
 | B — imports Excel / CSV | `594f224` | 731 | oui | 2026-11-10-594f224 | migration 0032 ; 3 modèles |
 | M — BCEG et MAEDR | `2438f27` | 734 | oui | 2026-11-10-2438f27 | migration 0033 ; compte MAEDR à créer dans la démo |
 | S — sécurité | `db5c48c` | 740 | oui | 2026-11-10-db5c48c | clé GPG et destination distante à poser par le propriétaire |
-| P | | | | | |
+| P — code du terrain, synchronisation, guides | (fusion P) | | oui | (version au déploiement) | migration 0034 |
 
 ## Décisions les plus importantes
 (voir `docs/decisions_autonomes.md`)
