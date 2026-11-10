@@ -68,8 +68,10 @@ class Tableau:
     """Ce que la macro `tableau` attend."""
 
     def __init__(self, lignes, provinces=None, archives=None, creation=None, creation_caches=None, noms=None,
-                 choix=None, peut_modifier=False, peut_archiver=False, colonnes_en_plus=(), vide=None, titre=None):
+                 choix=None, peut_modifier=False, peut_archiver=False, colonnes_en_plus=(), vide=None, titre=None,
+                 libelle_modifier='Enregistrer la modification'):
         self.lignes = lignes
+        self.libelle_modifier = libelle_modifier
         self.titre = titre                                        # titre vivant (nombre, bande, date) ; sinon celui du cahier
         self.provinces = provinces or sorted({l['province'] for l in lignes if l.get('province')})
         self.archives = archives
@@ -1194,3 +1196,367 @@ def _compte_rendu(user, form):
 CREATIONS['AGENT-1'] = _planifier_visite
 CREATIONS['AGENT-4'] = _planifier_visite
 CREATIONS['AGENT-5'] = _compte_rendu
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Administrateur — K2
+# ══════════════════════════════════════════════════════════════════════
+
+def _journal_cle(j):
+    from app.models.securite import JournalChaine
+    c = db.session.get(JournalChaine, j.id) if j.id else None
+    return (c.empreinte[:8] + '…') if c and c.empreinte else '—'
+
+
+def admin_accueil(user):
+    """Événements nécessitant une intervention : échecs de connexion répétés, comptes bloqués, propositions en
+    attente, sessions anciennes, chaîne du journal rompue."""
+    from app.models import JournalAudit
+    from app.models.securite import Proposition
+    from app.services.journal import Action as J, verifier_chaine
+    from app.services import securite
+    lignes = []
+    depuis = maintenant() - timedelta(days=7)
+    for u in Utilisateur.query.filter(Utilisateur.bloque_jusqu_a.isnot(None)).all():
+        lignes.append(ligne({'Événement': '🔒 Compte bloqué (échecs de connexion)', 'Gravité': _badge('haute', 'danger'), 'Qui': u.nom_complet,
+                             'Profil': u.profil.libelle, 'Appareil': '—', 'Quand': _d(_date_de(u.bloque_jusqu_a), '%d/%m %H:%M'),
+                             'État': _badge('À traiter', 'warn')}, f'bloque:{u.id}', lien=url_for('utilisateurs.index'), jour=_date_de(u.bloque_jusqu_a)))
+    echecs = {}
+    for j in JournalAudit.query.filter(JournalAudit.action == J.ECHEC_CONNEXION, JournalAudit.horodatage >= depuis):
+        echecs.setdefault(j.identifiant or '?', []).append(j)
+    for ident, js in echecs.items():
+        if len(js) >= 3:
+            lignes.append(ligne({'Événement': f'⚠️ {len(js)} échecs de connexion en 7 jours', 'Gravité': _badge('moyenne', 'warn'), 'Qui': ident,
+                                 'Profil': '—', 'Appareil': js[-1].adresse_ip or '—', 'Quand': _d(_date_de(js[-1].horodatage), '%d/%m %H:%M'),
+                                 'État': _badge('À surveiller', 'neutre')}, f'echecs:{ident}', lien=url_for('journal.index', action=J.ECHEC_CONNEXION),
+                                jour=_date_de(js[-1].horodatage)))
+    for p in Proposition.query.filter_by(statut='EN_ATTENTE'):
+        lignes.append(ligne({'Événement': f'👀 Proposition à approuver · {p.libelle}', 'Gravité': _badge('moyenne', 'warn'), 'Qui': p.auteur.nom_complet,
+                             'Profil': p.auteur.profil.libelle, 'Appareil': '—', 'Quand': _d(_date_de(p.propose_le), '%d/%m %H:%M'),
+                             'État': _badge('En attente', 'warn')}, f'prop:{p.id}', lien=url_for('controle.approbations_ecran'), jour=_date_de(p.propose_le)))
+    for s in securite.ouvertes():
+        age = _heures_depuis(s.derniere_activite)
+        if age > 24:
+            u = db.session.get(Utilisateur, s.utilisateur_id)
+            lignes.append(ligne({'Événement': '🔐 Session ouverte depuis plus de 24 h', 'Gravité': _badge('basse', 'neutre'),
+                                 'Qui': u.nom_complet if u else '—', 'Profil': u.profil.libelle if u else '—', 'Appareil': (s.appareil or '—')[:40],
+                                 'Quand': _d(_date_de(s.derniere_activite), '%d/%m %H:%M'), 'État': _badge('À fermer ?', 'neutre')},
+                                f'session:{s.id}', lien=url_for('controle.sessions'), jour=_date_de(s.derniere_activite)))
+    try:
+        intact, n, rompue = verifier_chaine()
+    except Exception:
+        intact, n, rompue = True, 0, None
+    if not intact:
+        lignes.append(ligne({'Événement': '⛓️ Chaîne du journal rompue', 'Gravité': _badge('critique', 'danger'), 'Qui': 'système', 'Profil': '—',
+                             'Appareil': '—', 'Quand': _d(date.today()), 'État': _badge('À traiter', 'danger')}, 'chaine', lien=url_for('controle.integrite')))
+    lignes.sort(key=lambda l: l['date'] or '', reverse=True)
+    return Tableau(lignes, vide='Aucun événement à traiter ✓')
+
+
+def admin_utilisateurs(user, utilisateurs):
+    from app.services import securite
+    exige = securite.profils_obligatoires()
+    lignes = []
+    for u in utilisateurs:
+        perimetre = 'national' if u.est_national else (', '.join(p.nom for p in u.provinces) or ('ferme(s) : ' + ', '.join(f.ferme.numero for f in u.fermes) if u.fermes else '—'))
+        bloque = u.bloque_jusqu_a is not None
+        cell = {'Nom': u.nom_complet, 'Identifiant': u.identifiant, 'Profil': u.profil.libelle, 'Périmètre': perimetre, 'Téléphone': u.telephone or '—',
+                '2FA': '✓ active' if u.totp_active else ('exigée' if u.profil.value in exige else '—'),
+                'Dernière connexion': _d(_date_de(u.derniere_connexion), '%d/%m/%Y %H:%M') if u.derniere_connexion else '—',
+                'Échecs': str(u.echecs_connexion or 0) + (' · bloqué' if bloque else ''),
+                'État': _badge('Actif' if u.actif else '🗄️ Archivé', 'ok' if u.actif else 'off'), 'Créé le': _d(_date_de(getattr(u, 'cree_le', None)))}
+        valeurs = {**{k: _texte(v) for k, v in cell.items()}, 'Profil': u.profil.value, 'État': 'actif' if u.actif else 'inactif',
+                   '2FA': 'reinitialiser' if u.totp_active else ''}
+        droits = ['modifier', 'archiver'] if u.actif and u.id != user.id else (['modifier'] if u.id != user.id else [])
+        lignes.append(ligne(cell, str(u.id), valeurs=valeurs, action=url_for('bureau.fiche_conforme', cle='ADMIN-2', ident=str(u.id)),
+                            droits=droits, pied=pied(u), titre=f'{u.identifiant} · {u.nom_complet}', jour=_date_de(getattr(u, 'cree_le', None)),
+                            archivee=not u.actif))
+    choix = {'Profil': [(p.value, p.libelle) for p in Profil], 'État': [('actif', 'Actif'), ('inactif', 'Archivé (désactivé)'), ('debloquer', 'Débloquer (échecs remis à zéro)')],
+             '2FA': [('', 'Inchangée'), ('reinitialiser', 'Réinitialiser la 2FA')]}
+    return Tableau(lignes, creation=url_for('utilisateurs.index') + '#nouveau', choix=choix, peut_modifier=True, peut_archiver=True,
+                   noms={'Nom': 'nom', 'Identifiant': 'identifiant', 'Téléphone': 'telephone'}, vide='Aucun compte.')
+
+
+def admin_droits(user):
+    """Profils et permissions : une ligne par profil, lue dans le code (registre des fonctions et droits des routes)."""
+    from app.services.bureau import FONCTIONS
+    from app.services import securite
+    from flask import current_app
+    from app.routes.bureau import _profils_de
+    exige = securite.profils_obligatoires()
+    saisir, valider, consulter = {}, {}, {}
+    for regle in current_app.url_map.iter_rules():
+        vue = current_app.view_functions.get(regle.endpoint)
+        profils, login = _profils_de(vue) if vue else (None, False)
+        for p in (profils or ()):
+            if 'POST' in regle.methods:
+                (valider if any(m in regle.rule for m in ('approuv', 'valid', 'decid', 'tranch', 'confirm')) else saisir).setdefault(p, set()).add(regle.rule)
+            else:
+                consulter.setdefault(p, set()).add(regle.rule)
+    comptes = {}
+    for u in Utilisateur.query.filter_by(actif=True):
+        comptes[u.profil] = comptes.get(u.profil, 0) + 1
+    lignes = []
+    for p in Profil:
+        fonctions = ', '.join(f[2] for f in FONCTIONS.get(p, [])) or '—'
+        perimetre = 'national' if p in (Profil.ADMIN, Profil.DGE, Profil.MAEDR, Profil.AUDITEUR) else ('province(s)' if p in (Profil.AGENT, Profil.VETO) else 'ses fermes' if p == Profil.ELEVEUR else 'son établissement' if p == Profil.OPERATEUR else 'fermes financées (avec accord)')
+        cell = {'Profil': p.libelle, 'Comptes': str(comptes.get(p, 0)), 'Périmètre': perimetre, 'Fonctionnalités': fonctions,
+                'Saisir': str(len(saisir.get(p, ()))), 'Valider': str(len(valider.get(p, ()))), 'Consulter': str(len(consulter.get(p, ()))),
+                '2FA': 'exigée' if p.value in exige else 'facultative', 'Modifié le': '—'}
+        lignes.append(ligne(cell, p.value, lien=url_for('bureau.droits', profil=p.value)))
+    return Tableau(lignes, creation=url_for('bureau.creation_conforme', cle='ADMIN-3'), vide='—')
+
+
+def admin_parametres(user):
+    """Paramètres, listes, catalogues et référentiels : une ligne par élément (paramètre, valeur de liste, article)."""
+    from app.models import Parametre, Produit
+    from app.models.liste_deroulante import ListeDeroulante
+    from app.services.approbations import SENSIBLES
+    lignes = []
+    for p in Parametre.query.order_by(Parametre.cle):
+        sensible = any(p.cle.startswith(s) for s in SENSIBLES) if isinstance(SENSIBLES, (tuple, list, set)) else p.cle in SENSIBLES
+        qui = db.session.get(Utilisateur, p.modifie_par) if p.modifie_par else None
+        unite = {'POURCENT': '%', 'JOURS': 'jours', 'HEURES': 'h'}.get(p.type.value if hasattr(p.type, 'value') else str(p.type), '')
+        cell = {'Élément': p.description or p.cle, 'Catégorie': 'Paramètre · ' + p.cle.split('.')[0], 'Valeur': p.valeur, 'Unité': unite or '—',
+                'Sensible': 'oui (quatre yeux)' if sensible else 'non', 'Modifié par': qui.nom_complet if qui else '—', 'Le': _d(_date_de(p.modifie_le))}
+        lignes.append(ligne(cell, f'param:{p.cle}', valeurs={**{k: _texte(v) for k, v in cell.items()}, 'Motif': ''},
+                            action=url_for('bureau.fiche_conforme', cle='ADMIN-4', ident=f'param:{p.cle}'), droits=['modifier'],
+                            pied='quatre yeux si sensible · inscrit au journal', titre=p.description or p.cle, jour=_date_de(p.modifie_le)))
+    for l in ListeDeroulante.query.order_by(ListeDeroulante.categorie, ListeDeroulante.ordre):
+        cell = {'Élément': l.valeur, 'Catégorie': 'Liste · ' + l.categorie, 'Valeur': l.valeur, 'Unité': '—', 'Sensible': 'non', 'Modifié par': '—', 'Le': '—'}
+        lignes.append(ligne(cell, f'liste:{l.id}', valeurs={**{k: _texte(v) for k, v in cell.items()}},
+                            action=url_for('bureau.fiche_conforme', cle='ADMIN-4', ident=f'liste:{l.id}'), droits=['modifier', 'archiver'],
+                            pied='inscrit au journal', titre=f'{l.categorie} · {l.valeur}', archivee=not getattr(l, 'actif', True)))
+    for a in Produit.query.order_by(Produit.type, Produit.nom):
+        cell = {'Élément': a.nom, 'Catégorie': 'Catalogue · ' + a.type, 'Valeur': a.conditionnement or '—', 'Unité': a.unite, 'Sensible': 'non',
+                'Modifié par': '—', 'Le': _d(_date_de(a.modifie_le))}
+        lignes.append(ligne(cell, f'article:{a.id}', lien=url_for('catalogue.index'), jour=_date_de(a.modifie_le), archivee=a.archive_le is not None))
+    return Tableau(lignes, creation=url_for('parametres.index'), peut_modifier=True, peut_archiver=True, colonnes_en_plus=('Motif',),
+                   vide='Aucun paramètre.')
+
+
+def admin_sessions(user, sessions):
+    from app.services import securite, parametres
+    duree = int(parametres.obtenir('securite.duree_session_minutes', 30))
+    lignes = []
+    for s in sessions:
+        u = db.session.get(Utilisateur, s.utilisateur_id)
+        expire = s.derniere_activite + timedelta(minutes=duree) if u and securite.expire_par_inactivite(u) else None
+        cell = {'Utilisateur': u.nom_complet if u else '—', 'Profil': u.profil.libelle if u else '—', 'Appareil': (s.appareil or '—')[:60],
+                'Adresse': s.adresse_ip or '—', 'Ouverte': _d(_date_de(s.ouverte_le), '%d/%m %H:%M'),
+                'Dernière activité': _d(_date_de(s.derniere_activite), '%d/%m %H:%M'),
+                'Expire': _d(_date_de(expire), '%d/%m %H:%M') if expire else 'jamais (terrain)',
+                '2FA': '✓' if u and u.totp_active else '—', 'État': _badge('Ouverte', 'ok')}
+        lignes.append(ligne(cell, s.id, valeurs={**{k: _texte(v) for k, v in cell.items()}, 'Motif': ''},
+                            action=url_for('bureau.fiche_conforme', cle='ADMIN-6', ident=s.id), droits=['modifier'] if s.id != flask_session_id() else [],
+                            pied='la fermeture est inscrite au journal', titre=f'Session · {u.nom_complet if u else "?"}', jour=_date_de(s.ouverte_le)))
+    return Tableau(lignes, creation=url_for('bureau.creation_conforme', cle='ADMIN-6'), choix={'Utilisateur': [(str(u.id), u.nom_complet) for u in Utilisateur.query.filter_by(actif=True).order_by(Utilisateur.nom)]},
+                   peut_modifier=True, colonnes_en_plus=('Motif',), vide='Aucune session ouverte.', libelle_modifier='Fermer la session')
+
+
+def flask_session_id():
+    from flask import session
+    return session.get('sid')
+
+
+def journal(user, entrees, cle):
+    from app.services.journal import Action as J
+    lignes = []
+    for j in entrees:
+        u = db.session.get(Utilisateur, j.utilisateur_id) if j.utilisateur_id else None
+        cell = {'Quand': _d(_date_de(j.horodatage), '%d/%m/%Y %H:%M'), 'Qui': j.identifiant or (u.identifiant if u else 'système'),
+                'Profil': u.profil.libelle if u else '—', 'Action': J.LIBELLES.get(j.action, j.action), 'Objet': ' · '.join(x for x in (j.table_nom, j.enregistrement_id) if x) or '—',
+                'Avant': (str(j.avant)[:80] if j.avant else '—'), 'Après': (str(j.apres)[:80] if j.apres else '—'), 'Adresse': j.adresse_ip or '—',
+                'Chaîne': _journal_cle(j)}
+        if cle.startswith('AUDITEUR'):
+            cell['Objet'] = ((j.detail or '')[:120]) or cell['Objet']
+        lignes.append(ligne(cell, str(j.id), lien=url_for('journal.detail', ligne_id=j.id), jour=_date_de(j.horodatage)))
+    return Tableau(lignes, vide='Aucune entrée.')
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Auditeur — K2
+# ══════════════════════════════════════════════════════════════════════
+
+def auditeur_verifications(user, limite=50):
+    """Dernières vérifications de la chaîne (chacune est inscrite au journal : table « journal », action VERIFICATION)."""
+    from app.models import JournalAudit
+    from app.services.journal import Action as J
+    import re
+    lignes = []
+    for j in JournalAudit.query.filter(JournalAudit.table_nom == 'journal', JournalAudit.action == J.VERIFICATION).order_by(JournalAudit.horodatage.desc()).limit(limite):
+        m = re.search(r'(\d[\d ]*) entrée', j.detail or '')
+        intact = 'intacte' in (j.detail or '')
+        cell = {'Quand': _d(_date_de(j.horodatage), '%d/%m/%Y %H:%M'), 'Résultat': _badge('Chaîne intacte' if intact else 'Chaîne rompue', 'ok' if intact else 'danger'),
+                'Entrées': m.group(1) if m else '—'}
+        lignes.append(ligne(cell, str(j.id), lien=url_for('controle.integrite'), jour=_date_de(j.horodatage)))
+    return Tableau(lignes, vide='Aucune vérification enregistrée : « ＋ Lancer une vérification ».')
+
+
+def auditeur_scans(user, scans):
+    from app.models.tracabilite import ResultatScan
+    lignes = []
+    for s in scans:
+        cell = {'Quand': _d(_date_de(s.horodatage), '%d/%m/%Y %H:%M'), 'Opérateur': s.operateur.nom if s.operateur else '—',
+                'Lot': s.lot.numero if s.lot else (s.saisie or '—'),
+                'Résultat': _badge(ResultatScan.LIBELLES.get(s.resultat, s.resultat), {'VERT': 'ok', 'ORANGE': 'warn'}.get(s.resultat, 'danger'))}
+        lignes.append(ligne(cell, str(s.id), lien=url_for('tracabilite.lot', numero=s.lot.numero) if s.lot else None, jour=_date_de(s.horodatage)))
+    return Tableau(lignes, vide='Aucun scan.')
+
+
+def auditeur_exports(user, entrees):
+    lignes = []
+    for j in entrees:
+        cell = {'Quand': _d(_date_de(j.horodatage), '%d/%m/%Y %H:%M'), 'Qui': j.identifiant or '—', 'Contenu': (j.detail or '')[:160]}
+        lignes.append(ligne(cell, str(j.id), lien=url_for('journal.detail', ligne_id=j.id), jour=_date_de(j.horodatage)))
+    return Tableau(lignes, vide='Aucun export.')
+
+
+def auditeur_recherche(user, q, entrees):
+    lignes = []
+    for j in entrees:
+        cell = {'Critère': q, 'Résultats': f'{_d(_date_de(j.horodatage), "%d/%m %H:%M")} · {j.identifiant or "—"} · {j.action} · {(j.detail or "")[:100]}'}
+        lignes.append(ligne(cell, str(j.id), lien=url_for('journal.detail', ligne_id=j.id), jour=_date_de(j.horodatage)))
+    return Tableau(lignes, vide='Tapez un identifiant, un numéro de lot ou de ferme dans « ＋ Nouvelle recherche ».' if not q else 'Aucun résultat.')
+
+
+# ── Gestes K2 ────────────────────────────────────────────────────────────
+
+def _utilisateur(ident, user, form, action):
+    import uuid
+    from app.services import securite
+    from app.services.journal import enregistrer, Action as J
+    u = db.session.get(Utilisateur, uuid.UUID(ident))
+    if u is None or user.profil != Profil.ADMIN or u.id == user.id:
+        raise RegleConformite('Vous ne pouvez pas modifier ce compte.')
+    if action == 'archiver':
+        u.actif = False
+        for s in securite.ouvertes(u.id):
+            securite.fermer(s.id, user, 'Compte désactivé')
+        enregistrer(J.MODIFICATION, table='utilisateur', enregistrement_id=u.id, detail=f'Compte {u.identifiant} désactivé par {user.nom_complet}')
+        return f'Compte {u.identifiant} désactivé.'
+    avant = f'{u.nom_complet} · {u.profil.value} · {u.telephone or "—"} · {"actif" if u.actif else "inactif"}'
+    if form.get('nom', '').strip():
+        u.nom = form['nom'].strip()[:120]
+    if form.get('telephone') is not None:
+        u.telephone = (form.get('telephone') or '').strip()[:30] or None
+    etat = form.get('État')
+    if etat == 'actif':
+        u.actif = True
+    elif etat == 'inactif':
+        u.actif = False
+    elif etat == 'debloquer':
+        u.bloque_jusqu_a, u.echecs_connexion = None, 0
+    if form.get('2FA') == 'reinitialiser':
+        u.totp_secret, u.totp_active, u.codes_secours = None, False, None
+    if form.get('Profil') in Profil.__members__ and form['Profil'] != u.profil.value:
+        from app.services import approbations
+        approbations.proposer('PROFIL', str(u.id), f'Profil de {u.identifiant}', u.profil.value, form['Profil'],
+                              {'utilisateur_id': str(u.id), 'profil': form['Profil']}, form.get('Motif') or 'changement de profil (liste des comptes)', user)
+        enregistrer(J.MODIFICATION, table='utilisateur', enregistrement_id=u.id, detail=f'Compte {u.identifiant} modifié : {avant} → changement de profil proposé (quatre yeux)')
+        return 'Changement de profil proposé : il s’appliquera après approbation par une autre personne.'
+    enregistrer(J.MODIFICATION, table='utilisateur', enregistrement_id=u.id,
+                detail=f'Compte {u.identifiant} modifié (liste) : {avant} → {u.nom_complet} · {u.profil.value} · {u.telephone or "—"} · {"actif" if u.actif else "inactif"}')
+    return f'Compte {u.identifiant} enregistré.'
+
+
+def _parametre_admin(ident, user, form, action):
+    from app.models import Parametre
+    from app.models.liste_deroulante import ListeDeroulante
+    from app.services import approbations, parametres as regles
+    from app.services.approbations import SENSIBLES
+    from app.services.journal import enregistrer, Action as J
+    genre, _, cle = ident.partition(':')
+    if genre == 'param':
+        p = Parametre.query.filter_by(cle=cle).first()
+        if p is None:
+            raise RegleConformite('Paramètre introuvable.')
+        apres = (form.get('Valeur') or '').strip()
+        if not apres:
+            raise RegleConformite('Indiquez la valeur.')
+        sensible = any(p.cle.startswith(s) for s in SENSIBLES) if isinstance(SENSIBLES, (tuple, list, set)) else p.cle in SENSIBLES
+        if sensible:
+            approbations.proposer('PARAMETRE', p.cle, p.description or p.cle, p.valeur, apres, {'cle': p.cle, 'valeur': apres},
+                                  form.get('Motif') or 'modification depuis la liste des paramètres', user)
+            return 'Paramètre sensible : proposition enregistrée, à approuver par une autre personne.'
+        avant = p.valeur
+        p.valeur, p.modifie_par, p.modifie_le = apres, user.id, maintenant()
+        regles.oublier_cache()
+        enregistrer(J.MODIFICATION, table='parametre', enregistrement_id=p.id, detail=f'{p.cle} : {avant} → {apres} ({user.nom_complet})')
+        return 'Paramètre enregistré.'
+    if genre == 'liste':
+        l = db.session.get(ListeDeroulante, int(cle))
+        if l is None:
+            raise RegleConformite('Valeur introuvable.')
+        if action == 'archiver':
+            if hasattr(l, 'actif'):
+                l.actif = False
+            elif hasattr(l, 'archive_le'):
+                l.archive_le = maintenant()
+            enregistrer(J.ARCHIVAGE, table='liste_deroulante', enregistrement_id=l.id, detail=f'Valeur « {l.valeur} » ({l.categorie}) archivée par {user.nom_complet}')
+            return 'Valeur archivée.'
+        v = (form.get('Valeur') or form.get('Élément') or '').strip()
+        if not v:
+            raise RegleConformite('Indiquez la valeur.')
+        avant = l.valeur
+        l.valeur = v[:120]
+        enregistrer(J.MODIFICATION, table='liste_deroulante', enregistrement_id=l.id, detail=f'{l.categorie} : « {avant} » → « {l.valeur} » ({user.nom_complet})')
+        return 'Valeur enregistrée.'
+    raise RegleConformite('Les articles du catalogue se modifient dans le catalogue.')
+
+
+def _session(ident, user, form, action):
+    from app.services import securite
+    from app.services.journal import enregistrer, Action as J
+    if user.profil != Profil.ADMIN:
+        raise RegleConformite('Réservé à l’administrateur.')
+    if ident == flask_session_id():
+        raise RegleConformite('Vous ne fermez pas votre propre session ici : déconnectez-vous.')
+    securite.fermer(ident, user, (form.get('Motif') or 'fermée par l’administrateur')[:200])
+    enregistrer(J.DECONNEXION, table='session_utilisateur', enregistrement_id=ident, detail=f'Session fermée par {user.nom_complet}')
+    return 'Session fermée.'
+
+
+def _fermer_sessions_compte(user, form):
+    """ADMIN 6 : « ＋ Fermer les sessions d'un compte »."""
+    import uuid
+    from app.services import securite
+    from app.services.journal import enregistrer, Action as J
+    ident = form.get('Utilisateur')
+    try:
+        u = db.session.get(Utilisateur, uuid.UUID(ident)) if ident else None
+    except ValueError:
+        u = None
+    if u is None:
+        raise RegleConformite('Choisissez le compte.')
+    n = 0
+    for s in securite.ouvertes(u.id):
+        if s.id != flask_session_id():
+            securite.fermer(s.id, user, (form.get('Motif') or 'fermeture par l’administrateur')[:200])
+            n += 1
+    enregistrer(J.DECONNEXION, table='session_utilisateur', detail=f'{n} session(s) de {u.identifiant} fermée(s) par {user.nom_complet}')
+    return f'{n} session(s) fermée(s).'
+
+
+def _proposer_droits(user, form):
+    """ADMIN 3 : « ＋ Proposer un changement de droits » : proposition quatre yeux (genre PROFIL), appliquée à la main."""
+    from app.services import approbations
+    profil = form.get('Profil') or ''
+    quoi = ' · '.join(f'{k} : {form.get(k)}' for k in ('Périmètre', 'Saisir', 'Valider', 'Consulter', '2FA') if form.get(k))
+    if not profil or not quoi:
+        raise RegleConformite('Indiquez le profil et le changement demandé.')
+    approbations.proposer('PROFIL', f'droits:{profil}', f'Droits du profil {profil}', '—', quoi, {'profil': profil, 'changement': quoi},
+                          form.get('Motif') or 'changement de droits', user)
+    return 'Proposition enregistrée : elle sera appliquée après approbation.'
+
+
+def _lancer_verification(user, form):
+    """AUDITEUR 1 / 3 : « ＋ Lancer une vérification » : contrôle de la chaîne, résultat inscrit au journal."""
+    from app.services.journal import enregistrer, Action as J, verifier_chaine
+    intact, n, rompue = verifier_chaine()
+    enregistrer(J.VERIFICATION, table='journal', detail=f'Vérification de la chaîne du journal : {"intacte" if intact else "ROMPUE à l’entrée " + str(rompue.id)} · {n} entrées')
+    return f'Chaîne {"intacte" if intact else "rompue"} · {n} entrées vérifiées.'
+
+
+GESTES.update({'ADMIN-2': _utilisateur, 'ADMIN-4': _parametre_admin, 'ADMIN-6': _session})
+CREATIONS.update({'ADMIN-6': _fermer_sessions_compte, 'ADMIN-3': _proposer_droits, 'AUDITEUR-1': _lancer_verification, 'AUDITEUR-3': _lancer_verification})

@@ -5,6 +5,7 @@ import uuid
 from datetime import date, datetime, timedelta
 
 from flask import Blueprint, render_template, request, Response, abort, current_app
+from flask_login import current_user
 
 from app import db
 from app.models import (JournalAudit, Utilisateur, Profil, Province, TypeParametre, Localite, Ferme,
@@ -124,7 +125,10 @@ def index():
     personnes = [i for (i,) in db.session.query(Utilisateur.identifiant)
                  .order_by(Utilisateur.identifiant).all()]
     filtres = {k: v for k, v in request.args.items() if k != 'page' and v}
-    return render_template('journal/index.html', pagination=pagination, filtres=filtres,
+    from app.services import conformite
+    cle = 'AUDITEUR-2' if current_user.profil == Profil.AUDITEUR else 'ADMIN-7'
+    conforme = (cle, conformite.spec(cle.split('-')[0], int(cle.split('-')[1])), conformite.journal(current_user, pagination.items, cle))
+    return render_template('journal/index.html', conforme=conforme, pagination=pagination, filtres=filtres,
                            personnes=personnes, tables=TABLES, actions=Action.LIBELLES,
                            libelle_element=libelle_element)
 
@@ -265,7 +269,10 @@ def scans():
     pagination = _scans(request.args).paginate(page=page, per_page=current_app.config['JOURNAL_PAR_PAGE'],
                                                error_out=False)
     filtres = {k: v for k, v in request.args.items() if k != 'page' and v}
-    return render_template('journal/scans.html', pagination=pagination, filtres=filtres,
+    from app.services import conformite
+    conforme = ('AUDITEUR-4', conformite.spec('AUDITEUR', 4), conformite.auditeur_scans(current_user, pagination.items)) \
+        if current_user.profil == Profil.AUDITEUR else None
+    return render_template('journal/scans.html', conforme=conforme, pagination=pagination, filtres=filtres,
                            operateurs=Operateur.query.order_by(Operateur.nom).all(), resultats=ResultatScan.LIBELLES)
 
 

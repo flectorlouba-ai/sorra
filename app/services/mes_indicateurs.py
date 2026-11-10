@@ -216,20 +216,48 @@ def administrateur(user):
     cree = [u.cree_le.date() for u in comptes if getattr(u, 'cree_le', None)]
     sem = ind.semaines()
     actifs_hebdo = [sum(1 for d in cree if d <= s[1]) or None for s in sem]
+    from app.services import securite
+    sessions = securite.ouvertes().count()
+    # Libellés = cahier de conformité (lot K)
     return {'cartes': [
-        _carte('Comptes actifs', str(len(actifs)), f'{len(comptes) - len(actifs)} archivé(s)'),
-        _carte('Répartition par profil', ' · '.join(f'{n} {k}' for k, n in sorted(profils.items(), key=lambda x: -x[1])[:3])),
+        _carte('Comptes actifs', str(len(actifs)), f'{len(comptes) - len(actifs)} désactivé(s)'),
+        _carte('Profils', str(len(profils)), ' · '.join(f'{n} {k.split(" (")[0]}' for k, n in sorted(profils.items(), key=lambda x: -x[1])[:3])),
         _carte('Validations en attente', str(attente), alerte=attente > 0),
+        _carte('Opérations sensibles', str(sum(1 for a, h in journal if a in sensibles and h.date() >= date.today() - timedelta(days=7))), '7 derniers jours'),
+        _carte('Sessions ouvertes', str(sessions)),
         _carte('Échecs de connexion (7 jours)', str(echecs_7j), alerte=echecs_7j > 10)], 'courbes': [
-        _courbe('Comptes', 'créés (cumul)', actifs_hebdo, 'bleu', 0),
-        _courbe('Opérations sensibles', 'par semaine',
-                ind.serie_compte_hebdo([h.date() for a, h in journal if a in sensibles], debut=depuis), 'orange', 0),
+        _courbe('Connexions par semaine', 'connexions', ind.serie_compte_hebdo([h.date() for a, h in journal if a == Action.CONNEXION], debut=depuis), 'bleu', 0),
         _courbe('Échecs de connexion', 'par semaine',
-                ind.serie_compte_hebdo([h.date() for a, h in journal if a == Action.ECHEC_CONNEXION], debut=depuis), 'rouge', 0)]}
+                ind.serie_compte_hebdo([h.date() for a, h in journal if a == Action.ECHEC_CONNEXION], debut=depuis), 'rouge', 0),
+        _courbe('Opérations sensibles', 'par semaine',
+                ind.serie_compte_hebdo([h.date() for a, h in journal if a in sensibles], debut=depuis), 'orange', 0)]}
+
+
+def auditeur(user):
+    """Lot K : tableau de bord d'audit — intégrité, entrées, exports, scans refusés (aucune donnée financière)."""
+    from app.models import JournalAudit
+    from app.models.tracabilite import Scan, ResultatScan
+    from app.services.journal import Action, verifier_chaine
+    depuis = date.today() - timedelta(weeks=52)
+    journal = JournalAudit.query.filter(JournalAudit.horodatage >= depuis).with_entities(JournalAudit.action, JournalAudit.horodatage).all()
+    try:
+        intact, n, _ = verifier_chaine()
+    except Exception:
+        intact, n = None, len(journal)
+    exports = [h.date() for a, h in journal if a == Action.EXPORT]
+    refuses = [s.horodatage.date() for s in Scan.query.filter(Scan.resultat == ResultatScan.ROUGE, Scan.horodatage >= depuis)]
+    return {'cartes': [
+        _carte('Intégrité du journal', '—' if intact is None else ('✓ chaîne intacte' if intact else '⚠️ chaîne rompue'), alerte=intact is False),
+        _carte('Entrées journalisées', _nombre(n, 0), '52 dernières semaines : ' + _nombre(len(journal), 0)),
+        _carte('Exports', str(len(exports)), '52 semaines'),
+        _carte('Scans refusés', str(len(refuses)), '52 semaines', alerte=bool(refuses))], 'courbes': [
+        _courbe('Entrées par semaine', 'entrées', ind.serie_compte_hebdo([h.date() for a, h in journal], debut=depuis), 'bleu', 0),
+        _courbe('Exports par semaine', 'exports', ind.serie_compte_hebdo(exports, debut=depuis), 'vert', 0),
+        _courbe('Scans refusés', 'par semaine', ind.serie_compte_hebdo(refuses, debut=depuis), 'rouge', 0)]}
 
 
 PAR_PROFIL = {Profil.ELEVEUR: eleveur, Profil.AGENT: agent, Profil.VETO: veterinaire, Profil.DGE: dge,
-              Profil.ADMIN: administrateur}
+              Profil.ADMIN: administrateur, Profil.AUDITEUR: auditeur}
 
 
 def pour(user):

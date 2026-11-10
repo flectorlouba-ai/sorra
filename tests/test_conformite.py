@@ -19,7 +19,7 @@ PROFILS = {'DGE (POUFA)': 'DGE', 'Vétérinaire': 'VETO', 'Administrateur': 'ADM
 MDP_DEMO = 'Demo-yl2-2026'
 COMPTES = {'DGE': 'dge', 'VETO': 'veto', 'ADMIN': 'admin', 'ELEVEUR': 'eleveur', 'AGENT': 'agent.est', 'AUDITEUR': 'aninf'}
 # Écrans livrés (sous-lots déployés) : les autres sont vérifiés quand leur sous-lot arrive
-LIVRES = {('DGE', n) for n in range(1, 9)} | {('VETO', n) for n in range(1, 9)} | {('ELEVEUR', n) for n in range(1, 9)} | {('AGENT', n) for n in range(1, 9)}
+LIVRES = {('DGE', n) for n in range(1, 9)} | {('VETO', n) for n in range(1, 9)} | {('ELEVEUR', n) for n in range(1, 9)} | {('AGENT', n) for n in range(1, 9)} | {('ADMIN', n) for n in range(1, 8)} | {('AUDITEUR', n) for n in range(1, 7)}
 # Titres dont une partie est vivante (code de bande, nombre, date) : on vérifie la partie fixe
 TITRES = {('ELEVEUR', 3): 'Mes saisies · bande', ('ELEVEUR', 4): 'Mon argent mois par mois', ('AGENT', 2): r'Mes \d+ fermes?', ('AGENT', 4): 'Tournée du'}
 

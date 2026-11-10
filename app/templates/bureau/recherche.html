@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Recherche{% endblock %}
 {% block icone %}search{% endblock %}
 {% block page_titre %}🔍 Recherche{% endblock %}
 {% block page_sous_titre %}Par personne, ferme, lot ou numéro, dans le journal (chaque recherche est journalisée){% endblock %}
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <form class="filters-bar" method="get"><input class="form-control" name="q" value="{{ q }}" placeholder="ex. EST-007, paul.mba, LOT-…" aria-label="Recherche" style="max-width:360px"><button class="btn-filter" type="submit"><i class="bi bi-search"></i></button></form>
 {% if q %}<div class="table-wrap"><div class="table-scroll"><table>
   <thead><tr><th>Quand</th><th>Qui</th><th>Action</th><th>Objet</th><th>Détail</th></tr></thead>

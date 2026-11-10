@@ -46,14 +46,19 @@ def decider(ident):
 @controle_bp.route('/sessions')
 @profil_requis(Profil.ADMIN)
 def sessions():
-    return render_template('controle/sessions.html', sessions=securite.ouvertes().all())
+    from app.services import conformite
+    sessions = securite.ouvertes().all()
+    return render_template('controle/sessions.html', sessions=sessions,
+                           conforme=('ADMIN-6', conformite.spec('ADMIN', 6), conformite.admin_sessions(current_user, sessions)))
 
 
 @controle_bp.route('/integrite')
 @profil_requis(Profil.ADMIN, Profil.AUDITEUR)
 def integrite():
     intact, nombre, rompue = verifier_chaine()
-    return render_template('controle/integrite.html', intact=intact, nombre=nombre, rompue=rompue)
+    from app.services import conformite
+    return render_template('controle/integrite.html', intact=intact, nombre=nombre, rompue=rompue,
+                           conforme=('AUDITEUR-3', conformite.spec('AUDITEUR', 3), conformite.auditeur_verifications(current_user)))
 
 
 @controle_bp.route('/configuration')
@@ -61,4 +66,6 @@ def integrite():
 def configuration():
     from app.routes.accueil import TUILES_CONFIGURATION
     tuiles = [{'titre': t, 'sous_titre': s, 'icone': i, 'lien': url_for(e)} for t, s, i, e in TUILES_CONFIGURATION]
-    return render_template('controle/configuration.html', tuiles=tuiles)
+    from app.services import conformite
+    return render_template('controle/configuration.html', tuiles=tuiles,
+                           conforme=('ADMIN-4', conformite.spec('ADMIN', 4), conformite.admin_parametres(current_user)))

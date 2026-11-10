@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Journal des exports{% endblock %}
 {% block icone %}download{% endblock %}
 {% block page_titre %}⬇️ Journal des exports{% endblock %}
 {% block page_sous_titre %}Chaque export et chaque impression, avec qui et quand{% endblock %}
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <div class="table-wrap"><div class="table-scroll"><table>
   <thead><tr><th>Quand</th><th>Qui</th><th>Contenu</th><th>Adresse</th></tr></thead>
   <tbody>{% for l in lignes %}<tr><td>{{ l.horodatage|date_locale }}</td><td>{{ l.identifiant or '—' }}</td><td>{{ l.detail }}</td><td>{{ l.adresse_ip or '—' }}</td></tr>

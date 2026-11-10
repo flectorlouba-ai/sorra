@@ -190,7 +190,7 @@
         zone.appendChild(creation.content.cloneNode(true));
         document.getElementById('fen-fiche-titre').textContent = creation.getAttribute('data-titre') || '';
         window.ouvrir('fen-fiche');
-      } else if (document.getElementById(quoi)) { e.preventDefault(); if (quoi === 'fen-entree' && window.ouvrirEntree) window.ouvrirEntree(); else window.ouvrir(quoi); }
+      } else if (document.getElementById(quoi)) { e.preventDefault(); if (quoi === 'fen-entree' && window.ouvrirEntree) window.ouvrirEntree(); else if (quoi === 'fen-user' && window.ouvrirCreation) window.ouvrirCreation(); else window.ouvrir(quoi); }
     });
     if (location.hash === '#ouvrir') { setTimeout(function () { bp.click(); }, 50); }
   }

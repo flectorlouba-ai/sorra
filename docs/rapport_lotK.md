@@ -18,9 +18,9 @@ Correspondance écrans ↔ routes : `docs/conformite/correspondance.csv` ; captu
 ## Sous-lots
 | Sous-lot | Écrans | Conformes | Écarts justifiés | Non conformes | Version |
 |---|---|---|---|---|---|
-| K1 — DGE + Vétérinaire | 16 | 16 (colonnes, boutons, indicateurs, carte, fiche) | 9 colonnes « — » (Biosécurité, Évolution, Diffusion, Validé MAEDR, Bande et Mise en place des commandes, Lots retenus, Prochain contrôle, Lot du vaccin) + archivage d'une étape vaccinale par la fenêtre dédiée | 0 | (au déploiement) |
-| K3 — Éleveur + Agent (bureau) | 16 | | | | |
-| K2 — Administrateur + Auditeur | 13 | | | | |
+| K1 — DGE + Vétérinaire | 16 | 16 (colonnes, boutons, indicateurs, carte, fiche) | 9 colonnes « — » (Biosécurité, Évolution, Diffusion, Validé MAEDR, Bande et Mise en place des commandes, Lots retenus, Prochain contrôle, Lot du vaccin) + archivage d'une étape vaccinale par la fenêtre dédiée | 0 | 2026-11-10-b7b943f |
+| K3 — Éleveur + Agent (bureau) | 16 | 16 | tournée : pas d'archivage d'une ligne calculée ; Mon argent : opérations archivées une à une (fiche du lot A1), bouton bilan PDF et régime fiscal au lot G (K4) | 0 | 2026-11-10-1595e4d |
+| K2 — Administrateur + Auditeur | 13 | 13 | « Modifié le » de la matrice des droits : « — » (pas d'historique) | 0 | (au déploiement) |
 | K4 — téléphone Éleveur | | | | | |
 | K5 — téléphone Agent, Opérateur, GPS, notifications, actions | | | | | |
 

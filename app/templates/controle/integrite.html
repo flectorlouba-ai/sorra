@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Intégrité du journal{% endblock %}
 {% block icone %}shield-check{% endblock %}
 {% block page_sous_titre %}Chaque entrée porte l'empreinte SHA-256 de la précédente : une modification se voit{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <div class="card-p" style="max-width:640px;">
   <div class="card-p-body">
     {% if intact %}
