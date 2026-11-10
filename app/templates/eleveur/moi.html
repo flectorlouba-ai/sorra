@@ -25,6 +25,8 @@
   <a class="lien-moi" href="{{ url_for('eleveur.mon_compte') }}" data-moi="compte">🔑 Mon compte <small>téléphone, mot de passe</small></a>
   {% if banque %}<a class="lien-moi" href="{{ url_for('eleveur.ma_banque') }}" data-moi="banque">🏦 Ma banque
     {% if banque_a_repondre %}<span class="pastille-nouveau">nouveau</span>{% else %}<small>BCEG</small>{% endif %}</a>{% endif %}
+  <a class="lien-moi" href="{{ url_for('auth.mon_code') }}" data-moi="code">🔢 Mon code <small>{{ 'réglé' if current_user.pin_hash else 'entrer plus vite' }}</small></a>
+  <a class="lien-moi" href="{{ url_for('aides.guide', profil='ELEVEUR') }}" data-moi="guide" target="_blank">📘 Mon guide (PDF)</a>
   <a class="lien-moi" href="{{ url_for('notifications.mes_notifications') }}" data-moi="notifications">🔔 Mes notifications <small>rappel du soir, alertes</small></a>
   <a class="lien-moi" href="{{ url_for('aides.liste') }}" data-moi="aide">❓ Comment faire ?</a>
   <a class="lien-moi" href="{{ url_for('eleveur.presentation') }}" data-moi="presentation">🎬 Revoir la présentation</a>

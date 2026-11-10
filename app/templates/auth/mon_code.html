@@ -1,0 +1,25 @@
+{% extends '_base.html' %}
+{% block titre %}Mon code{% endblock %}
+{% block icone %}key{% endblock %}
+{% block page_titre %}🔢 Mon code{% endblock %}
+{% block page_sous_titre %}4 à 6 chiffres pour entrer plus vite sur ce téléphone{% endblock %}
+{% block contenu %}
+{# Lot P : code PIN du terrain. Après 5 erreurs, le mot de passe redevient obligatoire. #}
+{% if erreur %}<div class="flash-item danger">{{ erreur }}</div>{% endif %}
+{% if coupe %}<div class="encadre-orange">⚠️ Votre code est coupé après 5 erreurs : réglez-en un nouveau avec votre mot de passe.</div>{% endif %}
+<form method="post" class="form-terrain" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="form-group"><label class="form-label" for="code">Nouveau code (4 à 6 chiffres)</label>
+    <input class="form-control champ-gros" id="code" name="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off"></div>
+  <div class="form-group"><label class="form-label" for="confirmation">Le même code, encore</label>
+    <input class="form-control champ-gros" id="confirmation" name="confirmation" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off"></div>
+  <div class="form-group"><label class="form-label" for="mot_de_passe">Votre mot de passe (pour confirmer)</label>
+    <input class="form-control" id="mot_de_passe" name="mot_de_passe" type="password" autocomplete="current-password"></div>
+  <button type="submit" class="btn-gros btn-vert">Enregistrer mon code</button>
+</form>
+{% if a_un_code %}
+<form method="post" class="mt-2"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="retirer" value="1">
+  <button type="submit" class="btn-gros-secondaire">Retirer mon code</button></form>
+{% endif %}
+<p class="carte-sous mt-2">Sur l'écran de connexion : votre identifiant, puis « Entrer avec mon code ». Le mot de passe reste nécessaire après 5 erreurs, ou si vous changez de téléphone.</p>
+{% endblock %}

@@ -1,7 +1,7 @@
 """« Comment faire ? » (lot 13) : l'aide de chaque écran principal de l'éleveur (bouton « ? »), la liste
 complète (👤 Moi → Comment faire ?), et leur modification par l'ADMIN (Configuration → Aides)."""
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, jsonify
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from app import db
 from app.models import Profil
@@ -37,6 +37,24 @@ def aide(cle):
     if a is None:
         abort(404)
     return render_template('aides/aide.html', a=a, captures=CAPTURES, retour=request.args.get('retour'))
+
+
+@aides_bp.route('/aide/guide/<profil>.pdf')
+@login_required
+def guide(profil):
+    """Lot P : guide PDF du profil (le sien ; l'ADMIN et la DGE : tous)."""
+    from flask import Response
+    from app.services import terrain_p
+    from app.services.journal import enregistrer, Action
+    if profil not in Profil.__members__:
+        abort(404)
+    if current_user.profil.value != profil and current_user.profil not in (Profil.ADMIN, Profil.DGE):
+        abort(403)
+    pdf = terrain_p.guide_pdf(Profil[profil])
+    enregistrer(Action.EXPORT, table='aide', detail=f'Guide PDF du profil {profil} ({current_user.identifiant})')
+    from app import db
+    db.session.commit()
+    return Response(pdf, mimetype='application/pdf', headers={'Content-Disposition': f'inline; filename="SORRA_guide_{profil.lower()}.pdf"'})
 
 
 @aides_bp.route('/administration/aides', methods=['GET', 'POST'])

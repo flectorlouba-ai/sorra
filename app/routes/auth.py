@@ -278,3 +278,46 @@ def mot_de_passe():
             return redirect(url_for('accueil.index'))
     return render_template('auth/mot_de_passe.html', erreur=erreur, longueur_min=longueur_min,
                            obligatoire=current_user.doit_changer_mdp)
+
+
+# ── Lot P : code du terrain ───────────────────────────────────────────────
+
+@auth_bp.route('/code', methods=['POST'])
+def connexion_code():
+    """Connexion par identifiant + code (4 à 6 chiffres) pour l'éleveur, l'agent et l'opérateur."""
+    from app.services import terrain_p
+    if current_user.is_authenticated:
+        return redirect(url_for('accueil.index'))
+    if securite.connexion_trop_frequente(request.remote_addr):
+        return render_template('auth/connexion.html', erreur='Trop de tentatives depuis cet appareil : réessayez dans quelques minutes.'), 429
+    identifiant = request.form.get('identifiant', '').strip().lower()
+    user = terrain_p.verifier_pin(identifiant, request.form.get('code', ''))
+    if user is None:
+        enregistrer(Action.ECHEC_CONNEXION, identifiant=identifiant[:64] or '(vide)', detail='code du terrain refusé')
+        db.session.commit()
+        return render_template('auth/connexion.html', erreur='Code refusé. Après 5 erreurs, entrez votre mot de passe.', identifiant=identifiant)
+    return _ouvrir_session(user, '')
+
+
+@auth_bp.route('/mon-code', methods=['GET', 'POST'])
+@login_required
+def mon_code():
+    from app.services import terrain_p
+    if current_user.profil not in terrain_p.PROFILS_PIN:
+        abort(404)
+    erreur = None
+    if request.method == 'POST':
+        try:
+            if request.form.get('retirer') == '1':
+                terrain_p.retirer_pin(current_user)
+                db.session.commit()
+                flash('Code retiré : le mot de passe est de nouveau demandé.', 'success')
+            else:
+                terrain_p.regler_pin(current_user, request.form.get('code', ''), request.form.get('confirmation', ''), request.form.get('mot_de_passe', ''))
+                db.session.commit()
+                flash('Code enregistré ✓ — à la prochaine connexion, votre identifiant et votre code suffisent.', 'success')
+            return redirect(url_for('eleveur.moi') if current_user.profil == Profil.ELEVEUR else url_for('terrain.moi'))
+        except terrain_p.ReglePin as e:
+            db.session.rollback()
+            erreur = str(e)
+    return render_template('auth/mon_code.html', erreur=erreur, a_un_code=bool(current_user.pin_hash), coupe=current_user.pin_echecs >= terrain_p.PIN_ECHECS_MAX)

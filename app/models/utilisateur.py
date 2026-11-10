@@ -93,6 +93,8 @@ class Utilisateur(UserMixin, HorodatageMixin, db.Model):
     totp_secret        = db.Column(db.String(64), nullable=True)
     totp_active        = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
     codes_secours      = db.Column(db.JSON, nullable=True)
+    pin_hash           = db.Column(db.String(256), nullable=True)                                   # lot P : code du terrain
+    pin_echecs         = db.Column(db.Integer, nullable=False, default=0, server_default='0')
     operateur_id       = db.Column(db.Integer, db.ForeignKey('operateur.id'), nullable=True)   # lot 19 : profil OPÉRATEUR
 
     provinces = db.relationship('Province', secondary=utilisateur_province,
@@ -124,6 +126,12 @@ class Utilisateur(UserMixin, HorodatageMixin, db.Model):
     @property
     def ferme_ids(self):
         return [f.ferme_id for f in self.fermes]
+
+    def set_pin(self, pin):
+        self.pin_hash, self.pin_echecs = generate_password_hash(pin), 0
+
+    def check_pin(self, pin):
+        return bool(self.pin_hash) and check_password_hash(self.pin_hash, pin or '')
 
     def set_password(self, mdp):
         self.mot_de_passe_hash = generate_password_hash(mdp)

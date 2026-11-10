@@ -1012,3 +1012,8 @@ body.bureau .case-choix input{margin-right:4px;}
 .vue-detaillee>summary{cursor:pointer;font-weight:700;font-size:.8rem;color:var(--noir3);padding:.4rem 0;}
 .dash-carte-seule{grid-template-columns:1fr;margin-bottom:1rem;}
 .dash-carte-seule .carte-fermes{max-height:360px;}
+
+/* ── Lot P : connexion par code ── */
+.login-code{margin-top:10px;}
+.btn-login-code{width:100%;padding:10px;border-radius:8px;border:2px solid var(--noir);background:var(--blanc);color:var(--noir);font:inherit;font-weight:800;font-size:.9rem;cursor:pointer;}
+.login-code .login-field{margin-bottom:8px;}

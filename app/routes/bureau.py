@@ -380,3 +380,27 @@ def mes_lots():
     conforme = ('ELEVEUR-7', conformite.spec('ELEVEUR', 7), conformite.eleveur_lots(current_user, lots, receptions.etat_pour_eleveur)) \
         if current_user.profil == Profil.ELEVEUR else None
     return render_template('bureau/mes_lots.html', lots=lots, etat=receptions.etat_pour_eleveur, conforme=conforme)
+
+
+# ── Lot P : file de synchronisation (envois hors ligne) ───────────────────
+
+@bureau_bp.route('/synchronisation')
+@profil_requis(Profil.ADMIN, Profil.DGE)
+def synchronisation():
+    from app.services import terrain_p
+    f = terrain_p.file_synchronisation()
+    lignes = []
+    for l in f['lignes']:
+        e = l['envoi']
+        u = db.session.get(Utilisateur, e.utilisateur_id)
+        cell = {'Reçu le': e.recu_le.strftime('%d/%m/%Y %H:%M') if e.recu_le else '—', 'Saisi le': e.saisi_le.strftime('%d/%m/%Y %H:%M') if e.saisi_le else '—',
+                'Délai': (f'{l["delai_h"]:.1f} h'.replace('.', ',') if l['delai_h'] is not None else '—'), 'Qui': u.nom_complet if u else '—',
+                'Profil': u.profil.libelle if u else '—', 'Appareil': (e.appareil_id or '—')[:12], 'Écran': e.adresse, 'Objet': ' · '.join(x for x in (e.objet_table, e.objet_id) if x) or '—'}
+        lignes.append(conformite.ligne(cell, str(e.id), jour=e.recu_le.date() if e.recu_le else None, archivee=False))
+    spec = {'fonction': '🔄 File de synchronisation', 'bouton': None, 'titre': 'Envois reçus des téléphones (saisies faites sans réseau)',
+            'colonnes': list(lignes[0]['cellules'].keys()) if lignes else ['Reçu le', 'Saisi le', 'Délai', 'Qui', 'Profil', 'Appareil', 'Écran', 'Objet'],
+            'champs': [(c, 'A', '') for c in ['Reçu le', 'Saisi le', 'Délai', 'Qui', 'Profil', 'Appareil', 'Écran', 'Objet']], 'clic': 'Lecture seule',
+            'indicateurs': [], 'courbes': [], 'carte': False, 'image': ''}
+    enregistrer(Action.CONSULTATION, table='envoi_hors_ligne', detail=f'File de synchronisation consultée ({len(lignes)})')
+    db.session.commit()
+    return render_template('bureau/synchronisation.html', f=f, conforme=('SYNC-1', spec, conformite.Tableau(lignes, vide='Aucun envoi hors ligne pour le moment.')))

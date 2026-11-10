@@ -38,7 +38,7 @@ FONCTIONS = {
         ('utilisateurs', '👥', 'Utilisateurs', 'utilisateurs.index', None, ('＋ Nouvel utilisateur', 'utilisateurs.index', '@fen-user'), ('utilisateurs.',)),
         ('droits', '🔑', 'Profils et droits', 'bureau.droits', None, ('＋ Proposer un changement de droits', 'bureau.droits', '@creation'), ()),
         ('parametres', '⚙️', 'Paramètres', 'controle.configuration', None, ('＋ Ajouter un paramètre ou une liste', 'listes.index'),
-         ('controle.configuration', 'parametres.', 'listes.', 'catalogue.', 'referentiel.', 'aides.administrer', 'entretien.taches', 'pilotage.formules', 'imports.')),
+         ('controle.configuration', 'parametres.', 'listes.', 'catalogue.', 'referentiel.', 'aides.administrer', 'entretien.taches', 'pilotage.formules', 'imports.', 'bureau.synchronisation')),
         ('validations', '👀', 'Validations', 'controle.approbations_ecran', '_n_a_approuver', ('＋ Proposer un changement', 'controle.configuration'), ('controle.approbations',)),
         ('securite', '🔐', 'Sessions et sécurité', 'controle.sessions', None, ("＋ Fermer les sessions d'un compte", 'controle.sessions', '@creation'), ('controle.sessions', 'controle.integrite')),
         ('journal', '📜', 'Journal', 'journal.index', None, ('＋ Exporter le journal', 'journal.export'), ('journal.',)),
