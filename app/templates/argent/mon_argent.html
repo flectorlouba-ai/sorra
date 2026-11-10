@@ -29,11 +29,37 @@
   {% endif %}
 
   <div class="chiffres-argent">
-    <div class="chiffre-argent gagne"><small>Gagné</small><span class="num">{{ totaux.gagne|qte }}</span></div>
-    <div class="chiffre-argent depense"><small>Dépensé</small><span class="num">{{ totaux.depense|qte }}</span></div>
-    <div class="chiffre-argent reste{{ ' negatif' if totaux.reste < 0 }}"><small>Reste</small><span class="num">{{ totaux.reste|qte }}</span></div>
+    <div class="chiffre-argent gagne"><small>💰 Gagné</small><span class="num">{{ court(totaux.gagne) if periode == 'tout' else totaux.gagne|qte }}</span></div>
+    <div class="chiffre-argent depense"><small>🧾 Dépensé</small><span class="num">{{ court(totaux.depense) if periode == 'tout' else totaux.depense|qte }}</span></div>
+    <div class="chiffre-argent reste{{ ' negatif' if totaux.reste < 0 }}"><small>✅ Bénéfice</small><span class="num">{{ court(totaux.reste) if periode == 'tout' else totaux.reste|qte }}</span></div>
   </div>
   <div class="carte-sous centre">en FCFA</div>
+
+  {% if douze %}
+  {# Lot G / K4 : mois par mois sur 12 mois — barres gagné / dépensé, ligne du bénéfice (SVG dessiné sur place) #}
+  {% set ns = namespace(maxi=1, mini=0) %}
+  {% for m in douze.mois %}{% set ns.maxi = [ns.maxi, m.recettes, m.depenses, m.benefice|abs]|max %}{% set ns.mini = [ns.mini, m.benefice]|min %}{% endfor %}
+  {% set h = 120 %}{% set ech = h / (ns.maxi - ns.mini) %}{% set zero = 10 + ns.maxi * ech %}
+  <div class="carte graphe-argent" data-graphe-argent>
+    <div class="carte-titre-ligne"><span class="carte-titre">Mois par mois</span>
+      <span class="legende-argent"><i class="l-gagne"></i> gagné <i class="l-depense"></i> dépensé <b>━</b> bénéfice</span></div>
+    <svg viewBox="0 0 360 160" role="img" aria-label="Gagné, dépensé et bénéfice par mois sur 12 mois">
+      <line x1="0" x2="360" y1="{{ zero }}" y2="{{ zero }}" class="axe"/>
+      {% for m in douze.mois %}{% set x = loop.index0 * 30 %}
+      <rect class="b-gagne" x="{{ x + 4 }}" y="{{ zero - m.recettes * ech }}" width="9" height="{{ m.recettes * ech }}"/>
+      <rect class="b-depense" x="{{ x + 15 }}" y="{{ zero - m.depenses * ech }}" width="9" height="{{ m.depenses * ech }}"/>
+      <text x="{{ x + 15 }}" y="156" text-anchor="middle" class="mois">{{ lettres[m.mois - 1] }}</text>
+      {% endfor %}
+      <polyline class="l-benefice" points="{% for m in douze.mois %}{{ loop.index0 * 30 + 15 }},{{ zero - m.benefice * ech }} {% endfor %}"/>
+    </svg>
+  </div>
+  <a class="btn-gros-secondaire" href="{{ url_for('argent.bilan') }}" data-bilan-pdf>📄 Télécharger mon bilan (PDF)</a>
+  <a class="carte carte-lien" href="{{ url_for('argent.fiscalite') }}" data-fiscalite>
+    <span class="carte-titre">🏛️ Ma fiscalité</span>
+    <span class="carte-sous">Régime estimé : {{ fisc.code }}{% if fisc.pct is not none %} · {{ fisc.pct }} % du seuil{% endif %}</span>
+    <span class="carte-fleche" aria-hidden="true">›</span>
+  </a>
+  {% endif %}
 
   <a class="btn-gros" href="{{ url_for('argent.payer') }}">💸 J'ai payé</a>
 

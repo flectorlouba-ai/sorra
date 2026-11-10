@@ -1,0 +1,32 @@
+{% extends '_base.html' %}
+{% block aide %}argent{% endblock %}
+{% block titre %}Ma fiscalité{% endblock %}
+{% block icone %}bank{% endblock %}
+{% block page_titre %}🏛️ Ma fiscalité{% endblock %}
+{% block page_sous_titre %}Estimation d'après vos ventes de l'année {{ annee }}{% endblock %}
+{% block contenu %}
+{# Lot G / K4 : écran 2 de la maquette Mon argent. Jamais de chiffre inventé ; seuils réglables (quatre yeux). #}
+<a class="lien-retour" href="{{ url_for('argent.mon_argent', periode='tout') }}">‹ Mon argent</a>
+<div class="carte" data-ca>
+  <div class="carte-titre">Chiffre d'affaires de l'année</div>
+  <div class="gros-chiffre">{{ fisc.ca|qte }} FCFA</div>
+  {% if fisc.seuil %}
+  <div class="jauge-seuil"><span style="width:{{ [fisc.pct, 100]|min }}%" class="{{ 'proche' if fisc.proche }}"></span></div>
+  <div class="carte-sous">{{ fisc.pct }} % du seuil de {{ court(fisc.seuil) }} FCFA</div>
+  {% endif %}
+</div>
+<div class="carte" data-regime>
+  <div class="carte-titre">Mon régime estimé</div>
+  <div class="regime">{{ fisc.regime }}</div>
+  <div class="carte-sous">{{ fisc.raison }}</div>
+</div>
+{% if fisc.proche and fisc.suivant %}
+<div class="encadre-orange" data-proche-seuil>⚠️ <strong>Je suis proche du seuil</strong><br>Au-delà de {{ court(fisc.seuil) }} FCFA, je passe au {{ fisc.suivant }}. Parlez-en à votre agent.</div>
+{% endif %}
+<div class="carte" data-rappels>
+  <div class="carte-titre">📅 Mes rappels</div>
+  <div class="ligne-rappel"><span>Déclaration annuelle</span><strong>{{ fisc.rappel }}</strong></div>
+  <div class="carte-sous">date réglée par l'administrateur</div>
+</div>
+<p class="mention-fiscale">{{ fisc.mention }}</p>
+{% endblock %}

@@ -5,6 +5,7 @@
 {% block page_sous_titre %}{{ ferme.nom }}{% if not theme_eleveur %} · saisie de l'agent pour l'éleveur{% endif %}{% endblock %}
 
 {% block contenu %}
+<a class="lien-retour" href="{{ url_for('entretien.ecran') }}">‹ Entretien</a>
 {% import '_fiches.html' as fiches %}
 {# Lot A1 : le formulaire d'ajout s'ouvre en fenêtre (feuille du bas en terrain) ; ✕ ramène à la liste #}
 {% call fiches.fenetre('fen-ajout', self.page_titre(), retour=url_for('entretien.ecran') if theme_eleveur else url_for('entretien.ecran', ferme=ferme.numero)) %}

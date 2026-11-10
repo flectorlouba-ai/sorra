@@ -2,7 +2,7 @@
    Variables : liv, secondes (temps restant) ; bandeau_texte et bandeau_action (facultatifs,
    pour « Enregistré ✓ — Annuler » d'un achat, lot 9). #}
 <div class="bandeau-annuler" id="bandeau-annuler-{{ liv.numero }}" data-secondes="{{ secondes }}">
-  <span><i class="bi bi-check-circle-fill"></i> {{ bandeau_texte or ('Reçue ✓ — ' ~ liv.numero) }}</span>
+  <span><i class="bi bi-check-circle-fill"></i> {{ bandeau_texte or ('Reçue ✓ — merci !') }}</span>
   <form method="post" action="{{ bandeau_action or url_for('livraisons.annuler_confirmation', numero=liv.numero) }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <button type="submit" class="bandeau-annuler-btn">Annuler <span class="bandeau-decompte">({{ secondes }})</span></button>

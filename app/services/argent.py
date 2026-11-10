@@ -21,7 +21,7 @@ from app.utils.dates import en_utc
 DELAI_ANNULATION_SECONDES = 10
 TOLERANCE_RESEAU_SECONDES = 20
 VENTES = (MotifSortie.ABATTOIR, MotifSortie.VENTE)
-PERIODES = {'mois': 'Ce mois', 'bande': 'Cette bande', 'tout': 'Tout'}
+PERIODES = {'mois': 'Ce mois', 'bande': 'Cette bande', 'tout': '12 mois'}   # lot G / K4 : « Tout » devient « 12 mois »
 SEUIL_AGREGAT = 3        # tableau de bord : moins de 3 fermes → « — »
 
 
@@ -150,6 +150,9 @@ def filtrer(mvts, periode, bande=None, jour=None):
         return [m for m in mvts if (m['date'].year, m['date'].month) == (jour.year, jour.month)]
     if periode == 'bande' and bande is not None:
         return [m for m in mvts if bande.id in m['parts'] or (m['genre'] == 'vente' and m['objet'].bande_id == bande.id)]
+    if periode == 'tout':                                      # lot G / K4 : les 12 derniers mois glissants
+        debut = date(jour.year - 1, jour.month, 1)
+        return [m for m in mvts if m['date'] >= debut]
     return list(mvts)
 
 

@@ -15,7 +15,7 @@
   <span class="tache-ico" aria-hidden="true">💉</span>
   <div class="tache-texte">
     <a href="{{ url_for('sante.vacciner', numero=x.bande.numero, calendrier=x.calendrier.id) }}"><strong>{{ x.calendrier.produit.nom }} · {{ x.code }}</strong></a>
-    {% if x.etat == 'retard' %} <span class="tache-retard">en retard</span>{% endif %}
+    {% if x.etat == 'retard' %} <span class="tache-retard">en retard</span>{% elif x.etat == 'aujourdhui' %} <span class="tache-jour">Vaccin du jour · pas encore fait</span>{% endif %}
     <small>{{ {'retard': 'prévu le ' ~ x.prevu.strftime('%d/%m'), 'a_faire': 'prévu le ' ~ x.prevu.strftime('%d/%m'),
                'aujourdhui': "aujourd'hui", 'demain': 'demain'}[x.etat] }} · {{ x.calendrier.mode|lower }}</small>
   </div>

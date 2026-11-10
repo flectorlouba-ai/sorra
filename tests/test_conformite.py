@@ -163,3 +163,103 @@ def test_ecarts_justifies_affichent_un_tiret(client, demo):
         cellules = [re.sub(r'<[^>]+>', '', c).strip() for c in re.findall(r'<td>(.*?)</td>', l, re.S)]
         if len(cellules) > i:
             assert cellules[i] == '—', cellules
+
+
+# ── Terrain (téléphone) : K4 éleveur, K5 agent / opérateur ──────────────
+
+TERRAIN_ROUTES = {
+    ('maquettes_sorra_eleveur_epuree.html', 1): (None, '/auth/connexion'), ('maquettes_sorra_eleveur_epuree.html', 2): ('eleveur', '/'),
+    ('maquettes_sorra_eleveur_epuree.html', 3): ('eleveur', '/livraisons/mes-livraisons'), ('maquettes_sorra_eleveur_epuree.html', 4): ('eleveur', '/bandes/ouvrir'),
+    ('maquettes_sorra_eleveur_epuree.html', 5): ('eleveur', '/saisie-du-jour'), ('maquettes_sorra_eleveur_epuree.html', 6): ('eleveur', '/saisie-du-jour'),
+    ('maquettes_sorra_eleveur_epuree.html', 7): ('eleveur', '/aller/peser'), ('maquettes_sorra_eleveur_epuree.html', 8): ('eleveur', '/aller/sortie'),
+    ('maquettes_sorra_eleveur_epuree.html', 9): ('eleveur', '/aller/malade'), ('maquettes_sorra_eleveur_epuree.html', 10): ('eleveur', '/'),
+    ('maquettes_sorra_eleveur_epuree.html', 11): ('eleveur', '/vaccins-et-soins'), ('maquettes_sorra_eleveur_epuree.html', 12): ('eleveur', '/bandes/mes-bandes'),
+    ('maquettes_sorra_eleveur_epuree.html', 13): ('eleveur', '/'),
+    ('maquette_sorra_multibandes.html', 1): ('eleveur', '/saisie-du-jour'), ('maquette_sorra_8tuiles.html', 1): ('eleveur', '/'),
+    ('maquette_sorra_entretien.html', 1): ('eleveur', '/'), ('maquette_sorra_entretien.html', 2): ('eleveur', '/entretien'),
+    ('maquette_sorra_entretien.html', 3): ('eleveur', '/entretien/panne'), ('maquette_sorra_entretien.html', 4): ('eleveur', '/entretien'),
+    ('maquette_sorra_entretien.html', 5): ('eleveur', '/bandes/ouvrir'),
+    ('maquettes_sorra_lotA.html', 1): ('eleveur', '/aller/peser'), ('maquettes_sorra_lotA.html', 2): ('eleveur', '/aller/peser'),
+    ('maquettes_sorra_lotA.html', 3): ('eleveur', '/aller/peser'), ('maquettes_sorra_lotA.html', 4): ('eleveur', '/bandes/mes-bandes'),
+    ('maquettes_sorra_lotA.html', 5): ('eleveur', '/bandes/ouvrir'),
+    ('maquettes_sorra_terrain_ajouts.html', 7): ('eleveur', '/ma-bande'),
+    ('maquette_argent.html', 1): ('eleveur', '/mon-argent?periode=tout'), ('maquette_argent.html', 2): ('eleveur', '/mon-argent/fiscalite'),
+    ('maquette_argent.html', 3): ('eleveur', '/mon-argent/bilan'),
+    ('maquettes_sorra_gps_terrain.html', 5): ('eleveur', '/mon-compte'),
+}
+# Boutons qui n'apparaissent que dans un état précis (après un geste, avec une donnée) : déclarés, avec la raison
+ECARTS_TERRAIN = {
+    ('maquettes_sorra_eleveur_epuree.html', 5, 'Envoyer ✓'): 'visible seulement quand la saisie du jour n’est pas encore faite (données de démo : déjà saisie)',
+    ('maquettes_sorra_lotA.html', 1, '＋ Ajouter une saisie'): 'la liste générique de la maquette est illustrée par la pesée (« ＋ Ajouter une pesée ») ; les saisies du jour se font par l’écran dédié',
+    ('maquettes_sorra_lotA.html', 1, '›'): 'chevron de ligne : présent sur les lignes (data-fiche)',
+    ('maquettes_sorra_lotA.html', 2, '✕'): 'fenêtre : ✕ présent dans #fen-fiche',
+    ('maquettes_sorra_lotA.html', 3, '✕'): 'fenêtre : ✕ présent dans #fen-fiche',
+    ('maquettes_sorra_lotA.html', 4, '✕'): 'fenêtre : ✕ présent dans #fen-fiche',
+    ('maquettes_sorra_lotA.html', 4, '📞 Appeler Paul'): 'nom fictif ; le bouton « 📞 Appeler <prénom de l’agent> » existe sur la fiche d’une bande clôturée',
+    ('maquettes_sorra_lotA.html', 5, '✕'): 'fenêtre : ✕ présent dans #fen-fiche',
+    ('maquettes_sorra_lotA.html', 5, 'Ouvrir la bande'): 'visible seulement quand des poussins attendent une bande (données de démo : aucun)',
+    ('maquettes_sorra_lotA.html', 2, 'Enregistrer'): 'bouton de la fenêtre d’ajout : « Enregistrer » présent dans le formulaire ouvert',
+    ('maquettes_sorra_lotA.html', 3, 'Enregistrer la modification'): 'présent dans la fiche préremplie (template) d’une ligne',
+    ('maquette_argent.html', 1, '›'): 'chevron de la carte Ma fiscalité (carte-fleche)',
+}
+TERRAIN_LIVRE = {k for k in TERRAIN_ROUTES}
+
+
+def _page_terrain(client, ident, chemin):
+    client.post('/auth/deconnexion')
+    if ident:
+        connecter(client, ident, MDP_DEMO)
+    r = client.get(chemin, follow_redirects=True)
+    return r.status_code, html.unescape(r.get_data(as_text=True))
+
+
+def _ecrans_terrain():
+    wb = load_workbook(XLSX, read_only=True)
+    ecrans = []
+    for r in list(wb['Terrain - écrans'].iter_rows(values_only=True))[1:]:
+        cle = (r[2], r[4])
+        if cle in TERRAIN_LIVRE:
+            ecrans.append((cle, r[5], [b.strip() for b in (r[7] or '').split(',') if b.strip() and b.strip() != '—']))
+    return ecrans
+
+
+@pytest.mark.parametrize('cle,ecran,boutons', _ecrans_terrain(), ids=lambda x: str(x) if isinstance(x, tuple) else None)
+def test_ecran_terrain_conforme(client, demo, cle, ecran, boutons):
+    """Chaque écran du téléphone répond, en style terrain, avec ses boutons principaux (ou un écart déclaré)."""
+    ident, chemin = TERRAIN_ROUTES[cle]
+    code, page = _page_terrain(client, ident, chemin)
+    assert code == 200, (cle, ecran, code)
+    if ident:
+        assert 'theme-terrain' in page, (cle, 'style terrain')
+    for b in boutons:
+        if (cle[0], cle[1], b) in ECARTS_TERRAIN:
+            continue
+        assert b in page, (cle, ecran, 'bouton', b)
+
+
+def test_mon_argent_douze_mois_bilan_fiscalite(client, demo):
+    """Lot G / K4 : 12 mois, Gagné / Dépensé / Bénéfice, graphique, bilan PDF (2 pages, journalisé), fiscalité ; jamais le vétérinaire."""
+    from app.models import JournalAudit
+    _page_terrain(client, 'eleveur', '/')
+    page = html.unescape(client.get('/mon-argent?periode=tout').get_data(as_text=True))
+    for t in ('12 mois', 'Gagné', 'Dépensé', 'Bénéfice', 'Mois par mois', 'data-graphe-argent', '📄 Télécharger mon bilan (PDF)', '🏛️ Ma fiscalité', 'Régime estimé'):
+        assert t in page, t
+    page = html.unescape(client.get('/mon-argent/fiscalite').get_data(as_text=True))
+    for t in ("Chiffre d'affaires de l'année", 'Mon régime estimé', 'Impôt synthétique libératoire', '📅 Mes rappels', 'Déclaration annuelle',
+              'Estimation indicative, seuils réglables, à valider avec la DGI. SORRA ne remplace pas un comptable.'):
+        assert t in page, t
+    page = html.unescape(client.get('/mon-argent/bilan').get_data(as_text=True))
+    assert '⬇️ Enregistrer le PDF' in page and '⤴ Partager' in page and 'À montrer à la banque, au comptable ou à la DGE' in page
+    r = client.get('/mon-argent/bilan.pdf')
+    assert r.status_code == 200 and r.data[:4] == b'%PDF' and r.data.count(b'/Type /Page') >= 2
+    assert JournalAudit.query.filter(JournalAudit.detail.contains('Mini bilan')).count() == 1
+    client.post('/auth/deconnexion')
+    connecter(client, 'veto', MDP_DEMO)
+    assert client.get('/mon-argent/bilan.pdf?ferme=EST-001').status_code == 403
+    assert client.get('/mon-argent/fiscalite?ferme=EST-001').status_code == 403
+    client.post('/auth/deconnexion')
+    connecter(client, 'agent.est', MDP_DEMO)                      # l'agent, pour une ferme de son périmètre
+    assert client.get('/mon-argent/bilan.pdf?ferme=EST-001').status_code == 200
+    from app.services import bilan
+    assert bilan.fiscalite(0)['code'] == 'ISL' and bilan.fiscalite(45_000_000)['code'] == 'RSI' and bilan.fiscalite(90_000_000)['code'] == 'réel'
+    assert bilan.fiscalite(28_165_000)['pct'] == 94 and bilan.fiscalite(28_165_000)['proche']
