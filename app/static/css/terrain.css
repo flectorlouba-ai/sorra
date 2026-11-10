@@ -760,3 +760,15 @@ a.desactive{opacity:.45;pointer-events:none;}
 .theme-terrain .punaise-ancienne{fill:var(--e-gris);opacity:.5;}
 .theme-terrain .punaise-fond{fill:var(--e-bleu-pale);}
 .theme-terrain .punaise-grille{stroke:var(--e-bleu-bord);stroke-width:1;}
+/* Lot L : comptes de démonstration en un clic (page de connexion de la démo seulement) */
+.comptes-demo{margin-top:18px;background:var(--e-blanc);border:1px dashed var(--e-bleu-bord);border-radius:16px;padding:12px 14px;text-align:left;}
+.comptes-demo-titre{font-weight:900;color:var(--e-nuit);margin-bottom:6px;}
+.comptes-demo-titre small{display:block;font-weight:600;color:var(--e-gris);font-size:.8rem;}
+.comptes-demo-groupe{margin-top:8px;}
+.comptes-demo-nom{font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--e-bleu-fonce);margin-bottom:4px;}
+.comptes-demo ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;gap:4px;}
+@media (min-width:560px){.comptes-demo ul{grid-template-columns:1fr 1fr;}}
+.compte-demo{width:100%;text-align:left;background:var(--e-creme);border:1px solid var(--e-trait);border-radius:12px;padding:9px 12px;
+  font:inherit;font-size:.9rem;color:var(--e-nuit);cursor:pointer;min-height:44px;}
+.compte-demo strong{font-family:'JetBrains Mono',monospace;}
+.compte-demo.choisi{border-color:var(--e-bleu-bouton);background:var(--e-bleu-pale);}

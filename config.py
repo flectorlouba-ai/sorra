@@ -40,6 +40,10 @@ class Config:
     # Démonstration publique (sorra.performyl.com) : données fictives, mot de passe connu de tous.
     # Bandeau sur toutes les pages, comptes protégés, verrouillage par compte + adresse IP.
     DEMO = _oui('YL2_DEMO', '0')
+    # Lot L : encadré « Comptes de démonstration » sur la page de connexion (un clic remplit identifiant et mot de
+    # passe). Absent = faux : sans ce réglage, aucun identifiant ni mot de passe n'apparaît dans la page.
+    DEMO_COMPTES = _oui('SORRA_DEMO_COMPTES', '0')
+    DEMO_MOT_DE_PASSE = os.environ.get('SORRA_DEMO_MDP', 'Demo-yl2-2026')   # mot de passe PUBLIC des comptes fictifs
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024   # fichier d'import POUFA
 
     @classmethod

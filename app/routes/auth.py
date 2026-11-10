@@ -15,6 +15,13 @@ from app.utils.dates import en_utc
 auth_bp = Blueprint('auth', __name__)
 
 
+@auth_bp.context_processor
+def _comptes_demo():
+    """Lot L : l'encadré « Comptes de démonstration » de la page de connexion, seulement avec le réglage
+    SORRA_DEMO_COMPTES de la démo ; None sinon (rien dans la page)."""
+    return {'comptes_demo': demo.comptes_en_un_clic()}
+
+
 @auth_bp.route('/connexion', methods=['GET', 'POST'])
 def connexion():
     if current_user.is_authenticated:
