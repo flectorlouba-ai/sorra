@@ -2,24 +2,25 @@
    l'accueil de chaque profil et sur la liste des élevages. `carte` : pilotage.carte(..., details=True) ; `n` : fermes. #}
 {% macro carte_perimetre(carte, n) -%}
   <div class="carte-zone" data-carte-perimetre>
-    <h3>🗺️ Carte du périmètre <span>{{ n }} ferme{{ 's' if n != 1 }}{% if carte %} · {{ carte.points|length }} avec une position{% endif %}</span></h3>
+    <h3>{{ icone('carte') }} Carte du périmètre <span>{{ n }} ferme{{ 's' if n != 1 }}{% if carte %} · {{ carte.points|length }} avec une position{% endif %}</span>
+      {% if carte and carte.formes|length > 1 %}<select class="form-select form-select-sm carte-province-choix" data-carte-province aria-label="Province"><option value="">Tout le Gabon</option>{% for f in carte.formes %}<option value="{{ f.province.code }}">{{ f.province.nom }}</option>{% endfor %}</select>{% endif %}
+    </h3>
     {% if carte %}
     <div style="position:relative">
-    <svg class="carte-fermes" viewBox="0 0 {{ carte.largeur }} {{ carte.hauteur }}" role="img" aria-label="Carte des fermes du périmètre" id="carte-bureau">
-      {% for f in carte.formes %}<g class="carte-province-gabon"><title>{{ f.province.nom }}</title>{% for c in f.chemins %}<path d="{{ c }}"/>{% endfor %}</g>{% endfor %}
+    <svg class="carte-fermes" viewBox="{{ carte.cadre|join(' ') if carte.cadre else '0 0 ' ~ carte.largeur ~ ' ' ~ carte.hauteur }}" data-cadre="{{ carte.cadre|join(' ') if carte.cadre }}" role="img" aria-label="Carte des fermes du périmètre" id="carte-bureau">
+      {% for f in carte.formes %}<g class="carte-province-gabon" data-province="{{ f.province.code }}"><title>{{ f.province.nom }}</title>{% for c in f.chemins %}<path d="{{ c }}"/>{% endfor %}</g>{% endfor %}
       {% for p in carte.points %}{% set i = p.infos %}
-      <a href="{{ url_for('fermes.fiche', numero=p.ferme.numero) }}" data-point-ferme="{{ p.ferme.numero }}"
+      <a href="{{ url_for('fermes.fiche', numero=p.ferme.numero) }}" data-point-ferme="{{ p.ferme.numero }}" data-province="{{ p.ferme.province.code }}"
          data-bulle="{{ p.ferme.numero }} · {{ p.ferme.nom }}|Mortalité : {{ (i.mortalite|round(1)|qte ~ ' %') if i.mortalite is not none else '—' }} · effectif {{ i.effectif|qte }}|Atteinte de la cible : {{ (i.atteinte|round|int ~ ' %') if i.atteinte is not none else '—' }}|Dernière saisie : {{ i.derniere_saisie.strftime('%d/%m') if i.derniere_saisie else 'aucune' }}{% if p.raisons %}|⚠️ {{ p.raisons|join(' · ') }}{% endif %}">
         {% if p.alerte %}<circle class="halo" cx="{{ p.x }}" cy="{{ p.y }}" r="13"/>{% endif %}
         <circle class="point-ferme point-{{ p.feu }}{{ ' point-approximatif' if p.approximative }}" cx="{{ p.x }}" cy="{{ p.y }}" r="7"/>
-        {% if p.alerte %}<text x="{{ p.x }}" y="{{ p.y - 10 }}" text-anchor="middle" style="font-size:11px">⚠️</text>{% endif %}
-        {% if n <= 40 %}<text class="etiquette-ferme" x="{{ p.x + 9 }}" y="{{ p.y + 4 }}">{{ p.ferme.numero }}</text>{% endif %}
+        <text class="etiquette-ferme etiquette-survol" x="{{ p.x + 9 }}" y="{{ p.y + 4 }}">{{ p.ferme.numero }}</text>
       </a>
       {% endfor %}
     </svg>
     <div class="bulle-carte" id="bulle-carte" hidden></div>
     </div>
-    <div class="leg"><span><i style="background:var(--vert)"></i>tout va bien</span><span><i style="background:var(--ambre-vif)"></i>attention</span><span><i style="background:var(--rouge-vif)"></i>alerte</span><span><i style="background:var(--grisb)"></i>sans bande</span><span>⚠️ halo : un indicateur hors seuil</span></div>
+    <div class="leg"><span><i style="background:var(--vert)"></i>tout va bien</span><span><i style="background:var(--ambre-vif)"></i>attention</span><span><i style="background:var(--rouge-vif)"></i>alerte</span><span><i style="background:var(--grisb)"></i>sans bande</span><span>halo rouge : un indicateur hors seuil</span></div>
     {% else %}<div class="empty-note">Aucune ferme avec une position dans votre périmètre.</div>{% endif %}
   </div>
 {%- endmacro %}
@@ -39,6 +40,15 @@
     bulle.hidden = false;
   });
   carte.addEventListener('mouseleave', function () { bulle.hidden = true; });
+  // Lot V : sélecteur de province — recadre la carte sur la province choisie, les autres fermes sont masquées
+  var choix = document.querySelector('[data-carte-province]');
+  if (choix) choix.addEventListener('change', function () {
+    var code = choix.value;
+    carte.querySelectorAll('[data-province]').forEach(function (el) { el.classList.toggle('hors-province', !!code && el.getAttribute('data-province') !== code); });
+    var g = code ? carte.querySelector('g[data-province="' + code + '"]') : null;
+    if (g && g.getBBox) { var b = g.getBBox(), m = 12; carte.setAttribute('viewBox', [b.x - m, b.y - m, b.width + 2 * m, b.height + 2 * m].join(' ')); }
+    else if (carte.getAttribute('data-cadre')) carte.setAttribute('viewBox', carte.getAttribute('data-cadre'));
+  });
 })();
 </script>
 {%- endmacro %}

@@ -93,8 +93,8 @@ def test_aucun_debordement_horizontal(serveur, ident):
                 page.set_viewport_size({'width': largeur, 'height': 900})
                 ouvrir(page, serveur + chemin)
                 assert not deborde(page), f'{ident} {chemin} déborde à {largeur} px'
-                if largeur < 900:
-                    assert page.evaluate("getComputedStyle(document.querySelector('.btns-fonctions')).display") == 'flex'
+                if largeur < 900:                                       # lot V : colonne de gauche au-dessus, 4 boutons par ligne
+                    assert page.evaluate("getComputedStyle(document.querySelector('.btns-fonctions')).gridTemplateColumns").count(' ') == 3
         b.close()
 
 

@@ -2,6 +2,7 @@
 {% from 'indicateurs/_courbes.html' import courbe_hebdo %}
 {% from '_tableau.html' import tableau %}
 {% from '_carte.html' import carte_perimetre, script_bulle %}
+{% from '_macros.html' import pastilles_indicateurs %}
 {% set active = fonctions_bureau()|selectattr('actif')|first %}
 {% block titre %}{{ active.nom if active else 'Accueil' }}{% endblock %}
 {% block icone %}speedometer2{% endblock %}
@@ -9,23 +10,21 @@
 {% block page_sous_titre %}Indicateurs clés, carte du périmètre, fermes en alerte, évolution sur 52 semaines{% endblock %}
 {% block contenu %}
 {# Lot R : tableau de bord de chaque profil. Cartes (lot C) → carte + alertes → 3 courbes (lot C) → synthèse. #}
-<div class="kpis" data-kpis>
-  {% for c in d.cartes %}<div class="carte-indicateur{{ ' alerte' if c.alerte }}"><small>{{ c.nom }}</small><b>{{ c.valeur }}</b>{% if c.sous %}<span>{{ c.sous }}</span>{% endif %}</div>{% endfor %}
-  {% if not d.cartes %}<div class="carte-indicateur"><small>Indicateurs</small><b>—</b><span>le contenu de ce profil arrive au lot M</span></div>{% endif %}
-</div>
+{{ pastilles_indicateurs(d.cartes, vide='Indicateurs : aucun pour ce profil') }}
 
 <div class="dash">
   {{ carte_perimetre(d.carte, d.fermes|length) }}
   <div class="al" data-fermes-en-alerte>
-    <h3>⚠️ Fermes en alerte <span>{{ d.alertes|length }}</span></h3>
+    <h3>{{ icone('alerte') }} Élevages en alerte <span>{{ d.alertes|length }}</span></h3>
     {% for a in d.alertes %}
-    <a class="ali" href="{{ url_for('fermes.fiche', numero=a.ferme.numero) }}"><span class="d {{ a.couleur }}"></span>
-      <span><b>{{ a.ferme.numero }} · {{ a.ferme.nom }}</b><small>{{ a.raisons|join(' · ') }}</small></span></a>
-    {% else %}<div class="empty-note">Aucune ferme en alerte ✓</div>{% endfor %}
+    <a class="ali" href="{{ url_for('fermes.fiche', numero=a.ferme.numero) }}" data-ferme-alerte="{{ a.ferme.numero }}"><span class="d {{ a.couleur }}"></span>
+      <span><b>{{ a.ferme.numero }} · {{ a.ferme.nom }}</b><small>{{ a.raisons|join(' · ') }}</small></span>
+      <span class="ali-droite"><span class="badge {{ 'badge-danger' if a.couleur == 'rouge' else 'badge-warn' }}">{{ 'ALERTE' if a.couleur == 'rouge' else 'SURVEILLER' }}</span><span class="voir">Voir ›</span></span></a>
+    {% else %}<div class="empty-note">Aucun élevage en alerte ✓</div>{% endfor %}
     {% if alertes %}
-    <h3 class="mt-3">🔔 Alertes <span>{{ alertes|sum(attribute='nombre') }}</span></h3>
+    <h3 class="mt-3">{{ icone('cloche') }} Alertes <span>{{ alertes|sum(attribute='nombre') }}</span></h3>
     {% for a in alertes %}<a class="ali" href="{{ a.lien }}" data-alerte><span class="d {{ 'rouge' if a.niveau == 'urgence' else 'orange' }}"></span>
-      <span><b>{{ a.texte }}</b>{% if a.meta %}<small>{{ a.meta }}</small>{% endif %}</span></a>{% endfor %}
+      <span><b>{{ a.texte }}</b>{% if a.meta %}<small>{{ a.meta }}</small>{% endif %}</span><span class="ali-droite"><span class="voir">Voir ›</span></span></a>{% endfor %}
     {% endif %}
   </div>
 </div>
@@ -36,7 +35,7 @@
 {% endif %}
 {% if d.mes_actions is defined and current_user.profil.value == 'DGE' %}
 <div class="table-wrap mb-3" data-mes-actions><div class="table-scroll"><table>
-  <thead><tr><th>🎯 Mes actions</th><th>Ferme</th><th>Demandée par</th><th>Échéance</th><th>Priorité</th><th>État</th></tr></thead>
+  <thead><tr><th>Mes actions</th><th>Ferme</th><th>Demandée par</th><th>Échéance</th><th>Priorité</th><th>État</th></tr></thead>
   <tbody>{% for a in d.mes_actions %}
     <tr data-etat="{{ a.etat }}"><td><a href="{{ url_for('actions.liste', etat=a.etat) }}">{{ a.numero }} · {{ a.intitule }}</a></td><td>{{ a.libelle_perimetre }}</td>
       <td>{{ a.createur.nom_complet }}</td><td>{{ a.echeance.strftime('%d/%m') }}</td><td>{{ a.priorite|lower }}</td>

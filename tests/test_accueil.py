@@ -54,7 +54,7 @@ def test_perimetre_en_tete(client, app):
     assert 'Périmètre : <b>Estuaire' in accueil(client, 'veto', Profil.VETO)
     client.post('/auth/deconnexion')
     assert 'Périmètre : <b>0 ferme suivie' in accueil(client, 'agent', Profil.AGENT)
-    assert 'Déconnexion' in client.get('/').get_data(as_text=True)
+    assert 'aria-label="Se déconnecter"' in client.get('/').get_data(as_text=True)      # lot V : icône seule
 
 
 def test_compteur_a_approuver(client, app):

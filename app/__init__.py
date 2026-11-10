@@ -151,6 +151,13 @@ def create_app(env='default'):
     from app.routes.accueil import perimetre as _perimetre
     app.jinja_env.globals['fonctions_bureau'] = lambda: _fonctions_bureau(_utilisateur)
     app.jinja_env.globals['perimetre_bureau'] = lambda: _perimetre(_utilisateur)
+    from app.services.bureau import n_notifications as _n_notif, derniere_synchronisation as _synchro
+    from app.utils.icones import icone, sans_emoji, emoji_de_tete
+    app.jinja_env.globals['notifications_bureau'] = lambda: _n_notif(_utilisateur)      # lot V : pastille de la cloche
+    app.jinja_env.globals['synchronisation_bureau'] = lambda: _synchro(_utilisateur)   # lot V : dernière synchronisation
+    app.jinja_env.globals['icone'] = icone                                             # lot V : icônes SVG locales
+    app.jinja_env.filters['sans_emoji'] = sans_emoji
+    app.jinja_env.filters['emoji_de_tete'] = emoji_de_tete
     from flask_login import current_user as _utilisateur
     app.jinja_env.globals['fiches_infos'] = lambda objets: fiches_infos(objets, _utilisateur)
     app.jinja_env.globals['nombre_archivees'] = nombre_archivees

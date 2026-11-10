@@ -16,32 +16,39 @@
 <body{% if theme_terrain %} class="{% if theme_eleveur %}theme-eleveur {% endif %}theme-terrain terrain-{{ profil_terrain }}"{% elif bureau %} class="bureau"{% endif %}{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR') %} data-pages-hors-ligne{% endif %}{% endif %}>
 {% include '_bandeau_demo.html' %}
 {% if bureau %}
-{# ══ ORDINATEUR (lot R) ══ #}
+{# ══ ORDINATEUR (lot R ; habillage PERFORM YL.1 au lot V) ══ #}
 {% set fonctions = fonctions_bureau() %}
-<div class="zone-titre">
+{% set _b_active = fonctions|selectattr('actif')|first %}
+{% set _b_titre = self.page_titre()|trim %}{% if false %}{% block icone %}grid{% endblock %}{% block page_titre %}{{ self.titre() }}{% endblock %}{% endif %}
+{% set _b_titre_texte = _b_titre|striptags|sans_emoji %}
+{% set _b_emoji = _b_titre|striptags|emoji_de_tete or (_b_active.icone if _b_active else '📊') %}
+<header class="zone-titre">
   <a href="{{ url_for('bureau.accueil') }}" class="logo-texte">{{ logo_poulet() }}<span class="marque">SORRA<small>Suivi et traçabilité de la filière avicole</small></span></a>
-  {% set _b_titre = self.page_titre()|trim %}{% if false %}{% block icone %}grid{% endblock %}{% block page_titre %}{{ self.titre() }}{% endblock %}{% endif %}
-  <h1>{% if not _b_titre[:2]|trim|length or _b_titre[0]|lower == _b_titre[0]|upper and _b_titre[0] not in '0123456789' %}{% else %}<i class="bi bi-{{ self.icone()|trim }}"></i> {% endif %}<span>{{ _b_titre|safe }}</span></h1>
+  <nav class="fil-ariane" aria-label="Fil d'Ariane"><span class="fil-profil">{{ current_user.profil.libelle }}</span><span class="fil-sep" aria-hidden="true">›</span><h1 class="fil-ecran"><span>{{ _b_titre_texte }}</span></h1></nav>
   <div class="droite">
     <div class="qui"><b>{{ current_user.nom_complet }}</b><span class="role">{{ current_user.profil.libelle }}</span></div>
     {% set cle_aide = aide_pour(self.aide()|trim) %}
-    <a class="ib" href="{{ url_for('aides.aide', cle=cle_aide, retour=request.path) if cle_aide else url_for('aides.liste') }}" title="Aide">❓ <span class="d-none d-md-inline">Aide</span></a>
-    <a class="ib" href="{{ url_for('aides.guide', profil=current_user.profil.value) }}" title="Mon guide (PDF)" target="_blank" data-guide>📘</a>
-    {% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR') %}<a class="ib" href="{{ url_for('bureau.version_terrain') }}" title="Version terrain" data-version-terrain>📱</a>{% endif %}
-    {% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR', 'VETO', 'DGE') %}<a class="ib" href="{{ url_for('notifications.mes_notifications') }}" title="Mes notifications" data-mes-notifications>🔔</a>{% endif %}
+    <a class="ib" href="{{ url_for('aides.aide', cle=cle_aide, retour=request.path) if cle_aide else url_for('aides.liste') }}" title="Aide" aria-label="Aide">{{ icone('aide') }}<span class="lib">Aide</span></a>
+    <a class="ib" href="{{ url_for('aides.guide', profil=current_user.profil.value) }}" title="Mon guide (PDF)" aria-label="Mon guide (PDF)" target="_blank" data-guide>{{ icone('guide') }}</a>
+    {% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR') %}<a class="ib" href="{{ url_for('bureau.version_terrain') }}" title="Version terrain" aria-label="Version terrain" data-version-terrain>{{ icone('telephone') }}</a>{% endif %}
+    {% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR', 'VETO', 'DGE') %}{% set _n_notif = notifications_bureau() %}<a class="ib ib-cloche" href="{{ url_for('notifications.mes_notifications') }}" title="Mes notifications" aria-label="Mes notifications{% if _n_notif %} ({{ _n_notif }}){% endif %}" data-mes-notifications>{{ icone('cloche') }}{% if _n_notif %}<span class="pa" data-nb-notifications>{{ _n_notif }}</span>{% endif %}</a>{% endif %}
+    <a class="ib" href="{{ url_for('bureau.accueil') }}" title="Accueil" aria-label="Accueil">{{ icone('maison') }}<span class="lib">Accueil</span></a>
     <form method="post" action="{{ url_for('auth.deconnexion') }}" class="d-inline">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="ib out" title="Se déconnecter">⏻ <span class="d-none d-md-inline">Déconnexion</span></button>
+      <button type="submit" class="ib out" title="Se déconnecter" aria-label="Se déconnecter">{{ icone('sortie') }}</button>
     </form>
   </div>
-</div>
+</header>
 <div class="corps-bureau">
   <aside class="gauche">
     <div class="t">FONCTIONNALITÉS</div>
     <nav class="btns-fonctions" aria-label="Fonctionnalités">
-      {% for f in fonctions %}<a class="fb{{ ' on' if f.actif }}" href="{{ f.lien }}" data-fonction="{{ f.cle }}"{% if f.actif %} aria-current="page"{% endif %}>{% if f.compteur %}<span class="pa">{{ f.compteur }}</span>{% endif %}<span class="ic">{{ f.icone }}</span>{{ f.nom }}</a>{% endfor %}
+      {% for f in fonctions %}<a class="fb{{ ' on' if f.actif }}" href="{{ f.lien }}" data-fonction="{{ f.cle }}"{% if f.actif %} aria-current="page"{% endif %}>{% if f.compteur %}<span class="pa">{{ f.compteur }}</span>{% endif %}<span class="ic">{{ icone(f.icone) }}</span><span class="fb-nom">{{ f.nom }}</span></a>{% endfor %}
     </nav>
-    <div class="perim" data-perimetre>🗺️ Périmètre : <b>{{ perimetre_bureau() }}</b></div>
+    <div class="perim" data-perimetre>
+      <div>{{ icone('carte') }} Périmètre : <b>{{ perimetre_bureau() }}</b></div>
+      <div class="synchro" data-synchronisation>{{ icone('synchro') }} Dernière synchronisation : <b>{{ synchronisation_bureau() }}</b></div>
+    </div>
   </aside>
   <main class="droite-zone page-body">
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -53,16 +60,17 @@
     {% endwith %}
     {% set _b_sous_titre = self.page_sous_titre()|trim %}
     {% set _b_actions = self.actions()|trim %}
-    {% set _b_active = fonctions|selectattr('actif')|first %}
-    {% if _b_sous_titre or _b_actions or (_b_active and _b_active.bouton and _b_active.bouton.lien) %}
-    <div class="barre-actions">
-      {% if _b_sous_titre %}<div class="page-sub">{{ _b_sous_titre|safe }}</div>{% endif %}
-      <span class="bp-zone" style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <div class="entete-page">
+      <div class="entete-gauche">
+        <span class="entete-icone" aria-hidden="true">{{ icone(_b_emoji) }}</span>
+        <div><div class="entete-titre">{{ _b_titre_texte }}</div>{% if _b_sous_titre %}<div class="page-sub">{{ _b_sous_titre|safe }}</div>{% endif %}</div>
+      </div>
+      <div class="barre-actions bp-zone" data-actions-page>
+        <span class="outils-page" data-outils-page></span>
         {{ _b_actions|safe }}
         {% if _b_active and _b_active.bouton and _b_active.bouton.lien and _b_active.bouton.libelle not in _b_actions %}<a class="bp" href="{{ _b_active.bouton.lien }}" data-bouton-creation{% if _b_active.bouton.ouvrir and _b_active.bouton.ici %} data-ouvrir-creation="{{ _b_active.bouton.ouvrir }}"{% endif %}>{{ _b_active.bouton.libelle }}</a>{% endif %}
-      </span>
+      </div>
     </div>
-    {% endif %}
     {% block pastilles %}{% endblock %}{% if false %}{% block aide %}{% endblock %}{% endif %}
     {% block contenu %}{% endblock %}
   </main>
@@ -129,8 +137,9 @@
   <div class="modal-box">
     <div class="fenetre-poignee" aria-hidden="true"></div>
     <div class="modal-head">
-      <span class="modal-head-title" id="fen-fiche-titre"></span>
-      <button type="button" class="modal-close" data-fermer aria-label="Fermer">✕</button>
+      <span class="modal-head-icone" aria-hidden="true">{{ icone('presse-papiers') }}</span>
+      <span class="modal-head-textes"><span class="modal-head-title" id="fen-fiche-titre"></span><span class="modal-head-sous" id="fen-fiche-sous" data-sous-titre></span></span>
+      <button type="button" class="modal-close" data-fermer aria-label="Fermer">{{ icone('fermer') }}</button>
     </div>
     <div class="fen-fiche-contenu"></div>
   </div>

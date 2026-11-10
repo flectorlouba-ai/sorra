@@ -117,10 +117,12 @@
       var prov = (barre.querySelector('[data-filtre=province]') || {}).value || '';
       var per = parseInt((barre.querySelector('[data-filtre=periode]') || {}).value || '0', 10);
       var q = ((barre.querySelector('[data-filtre=recherche]') || {}).value || '').toLowerCase().trim();
+      var alerteSeule = !!(barre.querySelector('[data-filtre=alerte]') || {}).checked;
       var limite = per ? Date.now() - per * 86400000 : 0, visibles = 0;
       rows.forEach(function (r) {
         var archivee = r.classList.contains('tr-archivee');
         var ok = tous === 'archives' ? archivee : !archivee;
+        if (ok && alerteSeule && !r.classList.contains('tr-alerte')) ok = false;
         if (ok && prov && (r.getAttribute('data-province') || '') !== prov) ok = false;
         if (ok && limite) { var d = r.getAttribute('data-date'); ok = !!d && new Date(d).getTime() >= limite; }
         if (ok && q && texte(r).toLowerCase().indexOf(q) < 0) ok = false;
@@ -133,7 +135,62 @@
       paginer(table, wrap);
     }
     barre.querySelectorAll('select, input').forEach(function (e) { e.addEventListener('input', appliquer); e.addEventListener('change', appliquer); });
+    var bf = barre.querySelector('[data-filtrer]'), br = barre.querySelector('[data-reinitialiser]');
+    if (bf) bf.addEventListener('click', appliquer);
+    if (br) br.addEventListener('click', function () {
+      barre.querySelectorAll('select').forEach(function (s) { s.value = ''; });
+      barre.querySelectorAll('input[type=search]').forEach(function (i) { i.value = ''; });
+      barre.querySelectorAll('input[type=checkbox]').forEach(function (c) { c.checked = false; });
+      appliquer();
+    });
     appliquer();
+  }
+
+  // ── Lot V : habillage PERFORM YL.1 des cellules — nombres à droite, codes en chasse fixe, badges, lignes teintées, total ──
+  var RE_NOMBRE = /^[-+]?\d{1,3}(?:[   ]?\d{3})*(?:[.,]\d+)?(?: ?(?:%|FCFA|t|kg|h|j|€))?$/;
+  var RE_CODE = /^[A-Z]{2,5}-\d{2,}[A-Z0-9-]*$|^B\d{1,2}$|^(?:BD|LOT|CMD|LIV|ACT|SIG|RAP)-?\d+/;
+  function habiller(table) {
+    if (table.hasAttribute('data-habille')) return;
+    table.setAttribute('data-habille', '1');
+    var tete = entete(table);
+    Array.prototype.forEach.call(table.tBodies[0] ? table.tBodies[0].rows : [], function (r) {
+      if (r.querySelector('td.table-vide')) return;
+      var premier = texte(r.cells[0] || {});
+      if (/^total/i.test(premier)) r.classList.add('tr-total');
+      Array.prototype.forEach.call(r.cells, function (td, i) {
+        var t = texte(td), col = (tete[i] || '').toLowerCase();
+        if (td.children.length === 0) {
+          if (t === '⚠️' || (col === 'alerte' && t && t !== '—')) { td.innerHTML = '<span class="badge badge-danger">ALERTE</span>'; r.classList.add('tr-alerte'); }
+          else if (/^hors programme$/i.test(t)) td.innerHTML = '<span class="badge badge-off">HORS PROGRAMME</span>';
+          else if (/^(à surveiller|attention|surveiller)$/i.test(t)) { td.innerHTML = '<span class="badge badge-warn">SURVEILLER</span>'; r.classList.add('tr-surveiller'); }
+          else if (/^(en alerte|alerte)$/i.test(t)) { td.innerHTML = '<span class="badge badge-danger">ALERTE</span>'; r.classList.add('tr-alerte'); }
+          else if (/^-?\d+(?:[.,]\d+)? ?%$/.test(t)) {
+            var v = nombre(t), ton = col.indexOf('mortalit') >= 0 ? (v >= 10 ? 'rouge' : v >= 5 ? 'orange' : 'vert') : (v >= 80 ? 'vert' : v >= 50 ? 'orange' : 'rouge');
+            td.innerHTML = '<span class="badge-pct ' + ton + '">' + t + '</span>'; td.classList.add('td-nombre');
+          }
+          else if (RE_NOMBRE.test(t) && t !== '—') td.classList.add('td-nombre');
+          else if (RE_CODE.test(t)) td.classList.add('td-code');
+        } else {
+          if (td.querySelector('.badge-danger')) r.classList.add('tr-alerte');
+          else if (td.querySelector('.badge-warn')) r.classList.add('tr-surveiller');
+          if (td.querySelector('a') && RE_CODE.test(t)) td.classList.add('td-code');
+        }
+        if (/^(nom|ferme|élevage|elevage|intitulé|intitule|titre|article)$/.test(col) && t && t !== '—') {
+          td.classList.add('td-nom');
+          if (td.children.length === 0 && r.hasAttribute('data-lien')) td.innerHTML = '<a class="lien-nom" href="' + r.getAttribute('data-lien') + '">' + td.innerHTML + '</a>';
+        }
+      });
+    });
+  }
+
+  // ── Lot V : Excel / Imprimer du tableau unique de la page remontent dans l'en-tête de page ──
+  function remonterOutils() {
+    var zone = document.querySelector('[data-outils-page]');
+    var outils = document.querySelectorAll('.table-wrap .outils-tableau');
+    if (!zone || outils.length !== 1) return;
+    var o = outils[0], ex = o.querySelector('[data-excel]'), im = o.querySelector('[data-imprimer]');
+    if (im) zone.appendChild(im);
+    if (ex) zone.appendChild(ex);
   }
 
   // ── Lot K : clic sur une ligne = fiche préremplie (un seul <template> par tableau) ──
@@ -170,6 +227,8 @@
     var form = zone.querySelector('form');
     if (form) remplir(form, donnees);
     document.getElementById('fen-fiche-titre').textContent = (donnees.titre || modele.getAttribute('data-titre') || '');
+    var sous = document.getElementById('fen-fiche-sous');                 // lot V : sous-titre = la fonction du cahier
+    if (sous) sous.textContent = donnees.titre ? (modele.getAttribute('data-titre') || '') : (modele.getAttribute('data-sous') || '');
     window.ouvrir('fen-fiche');
   }
   document.addEventListener('click', function (e) {
@@ -203,13 +262,14 @@
       outils = document.createElement('div');
       outils.className = 'outils-tableau';
       outils.innerHTML = '<span>' + lignes(table).length + ' ligne(s)</span>' +
-        '<button type="button" class="pr2" data-imprimer>🖨️ Imprimer</button>' +
-        '<button type="button" class="xl" data-excel>⬇️ Excel</button>';
+        '<button type="button" class="pr2 bs" data-imprimer>Imprimer</button>' +
+        '<button type="button" class="xl bs" data-excel>Excel</button>';
       wrap.insertBefore(outils, wrap.firstChild);
     } else if (outils.hasAttribute('data-branche')) { return; }
     outils.setAttribute('data-branche', '1');
     outils.querySelector('[data-imprimer]').addEventListener('click', function () { imprimer(wrap, table); });
     outils.querySelector('[data-excel]').addEventListener('click', function () { excel(table); });
+    habiller(table);
     filtres(wrap, table);
     Array.prototype.forEach.call(table.tHead.rows[0].cells, function (th, i) {
       if (!texte(th)) return;
@@ -218,4 +278,5 @@
     });
     paginer(table, wrap);
   });
+  remonterOutils();
 })();

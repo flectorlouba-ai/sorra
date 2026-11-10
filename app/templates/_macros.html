@@ -86,3 +86,18 @@
 {% if s.n >= 1 %}<span class="serie">🔥 {% if s.repart and s.n == 1 %}On repart : 1 jour !{% else %}{{ s.n }} jour{{ 's' if s.n > 1 }}{% endif %}</span>
 {%- elif s.repart %}<span class="serie serie-zero">🔥 Envoyez aujourd'hui pour repartir</span>{% endif %}
 {%- endmacro %}
+
+{# Lot V — indicateurs en pastilles PERFORM YL.1 (remplacent les cartes d'indicateurs sur toutes les pages du bureau).
+   cartes : [{nom, valeur, sous, etat ('alerte' | 'surveiller' | 'ok' | None), evolution (texte facultatif, ex. '▲ 2 %')}].
+   La VALEUR en gras suivie du libellé en gris ; couleur selon l'état ; « — » quand il n'y a pas de chiffre. #}
+{% macro pastilles_indicateurs(cartes, attr='data-kpis', vide='Aucun indicateur pour le moment.') -%}
+<div class="pastilles-indic" {{ attr }}>
+  {%- for c in cartes -%}
+  <span class="pi{% if c.etat %} pi-{{ c.etat }}{% elif c.alerte %} pi-alerte{% endif %}" data-indicateur="{{ c.nom }}"{% if c.sous %} title="{{ c.sous }}"{% endif %}>
+    <b>{{ c.valeur if c.valeur not in (None, '') else '—' }}</b>{% if c.evolution %} <i class="pi-evol">{{ c.evolution }}</i>{% endif %} <span>{{ c.nom }}</span>{% if c.sous %} <small>· {{ c.sous }}</small>{% endif %}
+  </span>
+  {%- else -%}
+  <span class="pi"><b>—</b> <span>{{ vide }}</span></span>
+  {%- endfor -%}
+</div>
+{%- endmacro %}

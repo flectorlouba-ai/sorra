@@ -81,7 +81,8 @@ def test_valeurs_couleurs_de_yl1():
            '#f59e0b', '#1a1100', '#dc2626', '#fca5a5', '#fef2f2', '#94a3b8', '#f0f0f0', '#f9f0f0',
            '#8b0000', '#faf8f0', '#5a4000', '#a07800', '#f0f4f8', '#fde8e8', '#d8a0a0', '#e8f5e8',
            '#2a6a2a', '#b0d8b0', '#fff3e0', '#7a4800', '#f0c080', '#e0eaff', '#1a3a8a', '#a0bce8',
-           '#c0392b', '#e8b0a8', '#a00', '#d0daf0', '#c0c8e0', '#1a5a1a', '#90c890'}
+           '#c0392b', '#e8b0a8', '#a00', '#d0daf0', '#c0c8e0', '#1a5a1a', '#90c890',
+           '#dfe6f1', '#fffbeb', '#a16207', '#f0fdf4'}                      # lot V : couleurs fixées par le prompt du lot
     texte = CSS.read_text(encoding='utf-8')
     racine = texte[texte.index(':root{'):texte.index('}', texte.index(':root{'))]
     couleurs = {c.lower() for c in re.findall(r'#[0-9a-fA-F]{3,6}\b', racine)}

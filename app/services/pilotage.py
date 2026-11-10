@@ -231,5 +231,7 @@ def carte(user, province_id=None, largeur=640, hauteur=560, marge=12, programme=
             points.append(point)
     # Le plus grave dessiné en dernier : il reste visible quand deux fermes se superposent
     points.sort(key=lambda p: ('gris', 'vert', 'orange', 'rouge').index(p['feu']))
-    return {'largeur': largeur, 'hauteur': hauteur, 'formes': formes, 'points': points,
+    # Lot V : cadre réellement occupé par les contours (viewBox sans marge vide autour du pays)
+    cadre = (round(dx - marge, 1), round(dy - marge, 1), round((x1 - x0) * echelle + 2 * marge, 1), round((y1 - y0) * echelle + 2 * marge, 1))
+    return {'largeur': largeur, 'hauteur': hauteur, 'formes': formes, 'points': points, 'cadre': cadre,
             'a_localiser': a_localiser, 'a_verifier': a_verifier}

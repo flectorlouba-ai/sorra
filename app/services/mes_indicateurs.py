@@ -9,8 +9,9 @@ from app.models.bande import Bande, StatutBande
 from app.utils.permissions import filtre_perimetre
 
 
-def _carte(nom, valeur, sous=None, alerte=False):
-    return {'nom': nom, 'valeur': valeur, 'sous': sous, 'alerte': alerte}
+def _carte(nom, valeur, sous=None, alerte=False, etat=None):
+    # etat (lot V, pastilles) : 'alerte' (rouge), 'surveiller' (jaune), 'ok' (vert) ou None (blanc) ; alerte=True → 'alerte'
+    return {'nom': nom, 'valeur': valeur, 'sous': sous, 'alerte': alerte, 'etat': 'alerte' if alerte else etat}
 
 
 def _courbe(nom, unite, valeurs, couleur='bleu', decimales=1):

@@ -1,15 +1,15 @@
 {% extends '_base.html' %}
 {% from '_tableau.html' import tableau %}
+{% from '_macros.html' import pastilles_indicateurs %}
 {% block titre %}Synchronisation{% endblock %}
 {% block icone %}arrow-repeat{% endblock %}
 {% block page_titre %}🔄 File de synchronisation{% endblock %}
 {% block page_sous_titre %}Ce que les téléphones ont envoyé après coup (saisies faites sans réseau) : délai entre la saisie et la réception{% endblock %}
 {% block contenu %}
-<div class="kpis" data-sync-kpis>
-  <div class="carte-indicateur"><small>Envois reçus (7 jours)</small><b>{{ f.n_semaine }}</b></div>
-  <div class="carte-indicateur"><small>Délai moyen saisie → réception</small><b>{{ ('%.1f' % f.delai_moyen_h)|replace('.', ',') ~ ' h' if f.delai_moyen_h is not none else '—' }}</b></div>
-  <div class="carte-indicateur"><small>Appareils</small><b>{{ f.appareils }}</b></div>
-  <div class="carte-indicateur{{ ' alerte' if f.en_retard }}"><small>Reçus plus de 48 h après la saisie</small><b>{{ f.en_retard }}</b></div>
-</div>
+{{ pastilles_indicateurs([
+  {'nom': 'Envois reçus (7 jours)', 'valeur': f.n_semaine},
+  {'nom': 'Délai moyen saisie → réception', 'valeur': ('%.1f' % f.delai_moyen_h)|replace('.', ',') ~ ' h' if f.delai_moyen_h is not none else '—'},
+  {'nom': 'Appareils', 'valeur': f.appareils},
+  {'nom': 'Reçus plus de 48 h après la saisie', 'valeur': f.en_retard, 'etat': 'alerte' if f.en_retard else 'ok'}], attr='data-sync-kpis') }}
 {{ tableau(conforme[0], conforme[1], conforme[2]) }}
 {% endblock %}

@@ -1,13 +1,15 @@
 {% extends '_base.html' %}
+{% from '_macros.html' import pastilles_indicateurs %}
 {% block titre %}Import n° {{ lot.id }}{% endblock %}
 {% block icone %}upload{% endblock %}
 {% block page_titre %}⬆️ Import n° {{ lot.id }}{% endblock %}
 {% block page_sous_titre %}{{ modele.nom }} · {{ lot.fichier }} · {{ lot.cree_le|date_locale('%d/%m/%Y %H:%M') }} · {{ lot.auteur.nom_complet }}{% endblock %}
 {% block actions %}<a class="btn-ghost" href="{{ url_for('imports.rapport', ident=lot.id) }}">⬇️ Rapport Excel</a> <a class="btn-ghost" href="{{ url_for('imports.index') }}">‹ Imports</a>{% endblock %}
 {% block contenu %}
-<div class="kpis"><div class="carte-indicateur"><small>Lignes du fichier</small><b>{{ lot.nb_lignes }}</b></div>
-  <div class="carte-indicateur"><small>Importées</small><b>{{ lot.nb_importees }}</b></div>
-  <div class="carte-indicateur{{ ' alerte' if lot.annule_le }}"><small>État</small><b>{{ 'Annulé' if lot.annule_le else 'Importé' }}</b>{% if lot.annule_le %}<span>{{ lot.motif_annulation }}</span>{% endif %}</div></div>
+{{ pastilles_indicateurs([
+  {'nom': 'lignes du fichier', 'valeur': lot.nb_lignes},
+  {'nom': 'importées', 'valeur': lot.nb_importees},
+  {'nom': 'état du lot', 'valeur': 'Annulé' if lot.annule_le else 'Importé', 'sous': lot.motif_annulation if lot.annule_le else none, 'etat': 'alerte' if lot.annule_le else 'ok'}], attr='data-import-kpis') }}
 <div class="table-wrap" data-import-lignes><div class="table-scroll"><table>
   <thead><tr><th>Ligne</th><th>Résultat</th><th>Numéro créé</th><th>Erreurs</th></tr></thead>
   <tbody>{% for r in lignes %}<tr><td class="td-num">{{ r.ligne }}</td><td>{% if r.ok %}<span class="badge badge-ok">importée</span>{% else %}<span class="badge badge-danger">refusée</span>{% endif %}</td>

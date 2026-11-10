@@ -119,3 +119,30 @@ def fonctions_pour(user):
 
 def fonction_active(user):
     return next((f for f in fonctions_pour(user) if f['actif']), None)
+
+
+def n_notifications(user):
+    """Lot V : pastille de la cloche — notifications des 7 derniers jours (il n'y a pas d'état « lu »)."""
+    from datetime import timedelta
+    from app.models.base import maintenant
+    from app.models.notification import Notification
+    try:
+        return Notification.query.filter(Notification.utilisateur_id == user.id,
+                                         Notification.cree_le >= maintenant() - timedelta(days=7)).count()
+    except Exception:                                                   # table absente (base de test minimale)
+        return 0
+
+
+def derniere_synchronisation(user):
+    """Lot V : dernier envoi hors ligne reçu (le sien pour le terrain, tous sinon) → texte court ou '—'."""
+    from app import db
+    from app.models.hors_ligne import EnvoiHorsLigne
+    from app.utils.dates import date_locale
+    q = db.session.query(db.func.max(EnvoiHorsLigne.recu_le))
+    if user.profil in (Profil.ELEVEUR, Profil.AGENT, Profil.OPERATEUR):
+        q = q.filter(EnvoiHorsLigne.utilisateur_id == user.id)
+    try:
+        d = q.scalar()
+    except Exception:
+        d = None
+    return date_locale(d, '%d/%m à %H:%M') if d else '—'

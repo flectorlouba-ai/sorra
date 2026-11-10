@@ -347,7 +347,7 @@ def test_alertes_retard_et_ecart(client, monde):
     page = client.get('/').get_data(as_text=True)
     assert '1 livraison non confirmée depuis plus de 3 jours' in page
     assert '1 livraison reçue avec écart' in page
-    assert '🔔 Alertes <span>2</span>' in page            # compteur de l'encadré (lot R) : 1 + 1
+    assert ' Alertes <span>2</span>' in page             # compteur de l'encadré (lot R, icône SVG au lot V) : 1 + 1
     liste = client.get('/livraisons/?alerte=retard').get_data(as_text=True)
     assert vieille.numero in liste and ecart.numero not in liste
     assert ecart.numero in client.get('/livraisons/?alerte=ecart').get_data(as_text=True)

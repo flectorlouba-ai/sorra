@@ -25,6 +25,7 @@ Règles : `docs/regles_lots.md`. Décisions prises seul : `docs/decisions_autono
 | M — BCEG et MAEDR | `2438f27` | 734 | oui | 2026-11-10-2438f27 | migration 0033 ; compte MAEDR à créer dans la démo |
 | S — sécurité | `db5c48c` | 740 | oui | 2026-11-10-db5c48c | clé GPG et destination distante à poser par le propriétaire |
 | P — code du terrain, synchronisation, guides | `db36077` | 743 | oui | 2026-11-10-db36077 | migration 0034 |
+| V express — habillage PERFORM YL.1 du bureau | `COMMIT_V` | 743 | oui | VERSION_V | fait : barre bleu nuit (fil d'Ariane, cloche, déconnexion icône), colonne blanche (icône carrée, actif bleu nuit, synchronisation), en-tête de page (Excel / Imprimer remontés, bouton principal majuscules), indicateurs en pastilles colorées partout, barre FILTRES (« En alerte uniquement », Filtrer, Réinitialiser), tableaux (nombres à droite, codes, badges, lignes teintées, TOTAL), fenêtres (en-tête bleu nuit, cadenas « calculé / attribué par SORRA », Archiver à gauche, ENREGISTRER), carte cadrée sur le Gabon (étiquettes au survol, sélecteur de province), icônes SVG locales (`app/utils/icones.py`), responsive 900 / 560 px ; aucune route, page ni écran téléphone touché ; maquette `maquette_sorra_bureau_v2.html` absente du dépôt → `maquette_sorra_bureau.html` + les 10 points du prompt |
 
 ## Bilan au 10/11/2026 (fin de la file du prompt unique)
 Tous les lots sont livrés, testés (743 tests, 1 ignoré) et déployés : dernière version **2026-11-10-db36077**.

@@ -1,15 +1,12 @@
 {% extends '_base.html' %}
 {% from 'indicateurs/_courbes.html' import courbe_hebdo %}
+{% from '_macros.html' import pastilles_indicateurs %}
 {% block titre %}Mes indicateurs{% endblock %}
 {% block icone %}graph-up-arrow{% endblock %}
 {% block page_titre %}📈 Mes indicateurs{% endblock %}
 {% block page_sous_titre %}Les chiffres clés de votre périmètre, et leur évolution semaine par semaine{% endblock %}
 {% block contenu %}
-<div class="cartes-indicateurs" data-mes-indicateurs>
-  {% for c in d.cartes %}
-  <div class="carte-indicateur{{ ' alerte' if c.alerte }}"><small>{{ c.nom }}</small><b>{{ c.valeur }}</b>{% if c.sous %}<span>{{ c.sous }}</span>{% endif %}</div>
-  {% endfor %}
-</div>
+{{ pastilles_indicateurs(d.cartes, attr='data-mes-indicateurs') }}
 <div class="courbes-hebdo">
   {% for c in d.courbes %}{{ courbe_hebdo(c) }}{% endfor %}
 </div>

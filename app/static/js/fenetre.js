@@ -41,6 +41,8 @@
     zone.innerHTML = '';
     zone.appendChild(modele.content.cloneNode(true));
     boite('fen-fiche-titre').textContent = modele.getAttribute('data-titre') || '';
+    var sous = boite('fen-fiche-sous');                                   // lot V : sous-titre de la fenêtre
+    if (sous) sous.textContent = modele.getAttribute('data-sous') || '';
     window.ouvrir('fen-fiche');
   }
 
