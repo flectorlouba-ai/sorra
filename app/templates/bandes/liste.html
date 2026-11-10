@@ -4,6 +4,7 @@
 {% block page_sous_titre %}{{ lignes|length }} bande{{ 's' if lignes|length != 1 }} · du poussin à la sortie{% endblock %}
 
 {% block actions %}
+{% if current_user.profil.value == 'ADMIN' %}<a href="{{ url_for('fiches.entites_archivees', genre='bande') }}" class="btn-ghost">🗄️ Archivées</a>{% endif %}
 {% if peut_ouvrir %}
 <a href="{{ url_for('bandes.ouvrir') }}" class="btn-new"><i class="bi bi-plus-lg"></i> Ouvrir une bande</a>
 {% endif %}

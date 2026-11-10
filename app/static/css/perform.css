@@ -812,3 +812,30 @@ i.picto-panne{font-style:normal;font-size:2rem;display:block;}
 .sortie-compte{font-size:.82rem;color:var(--gris5);margin-top:.2rem;}
 .card-p-head .btn-ghost{color:var(--blanc);border-color:var(--b-attenue);}
 .card-p-head .btn-ghost:hover{background:var(--noir3);color:var(--blanc);}
+
+/* ── Lot A1 : fiches modifiables et archivage (docs/ergonomie.md, section K) ── */
+body.fenetre-ouverte{overflow:hidden;}
+.fenetre-poignee{display:none;}
+.fen-fiche-contenu{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;}
+.modal-box.modal-large{max-width:860px;}
+.ligne-fiche{display:flex;align-items:center;gap:.5rem;width:100%;background:transparent;border:0;padding:.35rem 0;
+  text-align:left;font:inherit;color:inherit;cursor:pointer;min-height:44px;}
+.ligne-fiche-texte{flex:1;min-width:0;}
+.ligne-fiche-fleche{color:var(--gris8);font-size:1.1rem;}
+.ligne-modifiee{font-size:.8rem;opacity:.75;margin-left:.2rem;}
+.fiche-qui{font-size:.75rem;color:var(--gris5);margin-bottom:.6rem;}
+.fiche-archivee{background:var(--grise);border-radius:7px;padding:.5rem .7rem;font-weight:700;margin-bottom:.6rem;}
+.fiche-verrou{background:var(--att-fond);border:1px solid var(--att-bord);border-radius:7px;padding:.6rem .8rem;font-weight:800;margin:.6rem 0;}
+.fiche-lecture{display:grid;grid-template-columns:auto 1fr;gap:.25rem .8rem;margin:0;font-size:.8rem;}
+.fiche-lecture dt{font-weight:800;}
+.fiche-lecture dd{margin:0;}
+.fiche-confirmer{border-top:1px dashed var(--grisb);margin-top:.8rem;padding-top:.6rem;font-size:.8rem;}
+.btn-archiver-lien{background:transparent;border:1.5px solid var(--grisb);border-radius:7px;font:inherit;font-size:.73rem;
+  font-weight:700;padding:.48rem 1rem;cursor:pointer;color:var(--noir);margin-right:auto;}
+.btn-archiver{background:var(--gris5);color:var(--blanc);border:0;border-radius:7px;font-weight:800;padding:.5rem 1rem;}
+.lien-archivees{display:inline-block;font-size:.75rem;font-weight:700;color:var(--gris5);margin:.6rem 0;min-height:24px;}
+.barre-ajout{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin:.4rem 0 .8rem;flex-wrap:wrap;}
+/* Mon argent : toute la ligne ouvre sa fiche ; « à compléter » reste au-dessus */
+.mouvements li{position:relative;}
+.mvt-fiche{position:absolute;inset:0;width:100%;background:transparent;border:0;cursor:pointer;}
+.mouvements .mvt-completer{position:relative;z-index:1;}

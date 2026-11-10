@@ -6,6 +6,7 @@
 {% block page_sous_titre %}{{ total }} ferme{{ 's' if total != 1 }} · {{ operationnelles }} opérationnelle{{ 's' if operationnelles != 1 }}{% endblock %}
 
 {% block actions %}
+{% if current_user.profil.value == 'ADMIN' %}<a href="{{ url_for('fiches.entites_archivees', genre='ferme') }}" class="btn-ghost">🗄️ Archivées</a>{% endif %}
 {% if peut_creer %}
 <a href="{{ url_for('fermes.nouvelle') }}" class="btn-new"><i class="bi bi-plus-lg"></i> Nouvelle ferme</a>
 {% endif %}

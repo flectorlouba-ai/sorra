@@ -17,7 +17,7 @@
       <li class="val-item {% if not item.actif %}inactif{% endif %}" data-id="{{ item.id }}">
         <i class="bi bi-grip-vertical drag-handle"></i>
         <span class="val-text">{{ item.valeur }}</span>
-        <span class="badge-actif {{ 'on' if item.actif else 'off' }}">{{ 'Actif' if item.actif else 'Inactif' }}</span>
+        <span class="badge-actif {{ 'on' if item.actif else 'off' }}">{{ 'En service' if item.actif else '🗄️ Archivée' }}</span>
         <button class="btn-edit" data-v='{{ {"id": item.id, "valeur": item.valeur, "actif": item.actif}|tojson }}'
                 onclick="ouvrirEdition(this)"><i class="bi bi-pencil"></i></button>
       </li>
@@ -49,17 +49,14 @@
       <div class="modal-body">
         <label class="form-label-sm">Valeur</label>
         <input type="text" name="valeur" id="editValeur" class="form-control-sm2" required>
-        <div class="toggle-row">
-          <label class="form-label-sm" style="margin-bottom:0;">Actif</label>
-          <select name="actif" id="editActif" class="form-control-sm2" style="width:auto;margin-bottom:0;">
-            <option value="1">Oui</option>
-            <option value="0">Non</option>
-          </select>
-        </div>
+        {# Lot A1 : « Archiver » remplace « Désactiver » : la valeur n'est plus proposée, elle se restaure #}
+        <input type="hidden" name="actif" id="editActif" value="1">
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn-cancel" onclick="fermer('editModal')">Annuler</button>
-        <button type="submit" class="btn-save"><i class="bi bi-check-lg"></i> Enregistrer</button>
+        <button type="submit" class="btn-archiver-lien" name="archiver" value="1" data-si="actif">🗄️ Archiver</button>
+        <button type="button" class="btn-cancel" onclick="fermer('editModal')">✕ Fermer</button>
+        <button type="submit" class="btn-save" name="restaurer" value="1" data-si="archive">↩️ Restaurer</button>
+        <button type="submit" class="btn-save" data-si="actif"><i class="bi bi-check-lg"></i> Enregistrer la modification</button>
       </div>
     </form>
   </div>
@@ -74,6 +71,7 @@ function ouvrirEdition(btn) {
   document.getElementById('editForm').action = "{{ url_for('listes.modifier', id=0) }}".replace(/0$/, v.id);
   document.getElementById('editValeur').value = v.valeur;
   document.getElementById('editActif').value = v.actif ? '1' : '0';
+  etatFenetre('editModal', v.actif ? 'actif' : 'archive');
   ouvrir('editModal');
 }
 

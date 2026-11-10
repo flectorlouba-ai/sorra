@@ -61,10 +61,13 @@
   <a class="btn-gros-secondaire" href="{{ url_for('bandes.sortie', numero=bande.numero) }}">🚚 Sortie</a>
 </div>
 {% if x.historique %}
+{# Lot A1 : une saisie touchée s'ouvre préremplie (modifier, archiver) #}
+{% import '_fiches.html' as fiches %}
+{% set infos_h = fiches_infos(x.historique[:3]) %}
 <ul class="historique-saisies">
   {% for s in x.historique[:3] %}
-  <li><span class="historique-date">{{ s.date.strftime('%d/%m') }}</span> {{ s.morts|qte }} morts · {{ s.sacs|qte }} sacs
-    <span class="coche-envoye" title="Envoyé">✓ envoyé</span></li>
+  <li>{% call fiches.ligne(infos_h[s.id], request.path) %}<span class="historique-date">{{ s.date.strftime('%d/%m') }}</span> {{ s.morts|qte }} morts · {{ s.sacs|qte }} sacs
+    <span class="coche-envoye" title="Envoyé">✓ envoyé</span>{% endcall %}</li>
   {% endfor %}
 </ul>
 {% endif %}

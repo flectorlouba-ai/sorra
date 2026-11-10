@@ -215,8 +215,19 @@ def soins():
     sit = _situation(bandes_en_cours())
     prochains = sorted(((s, v) for s in sit for v in s['vaccins'] if v['etat'] == 'a_venir'),
                        key=lambda x: x[1]['prevu'])
+    # Lot A1 : vaccins et traitements enregistrés (bandes en cours), touchables pour les modifier ou les archiver
+    from app.models.sante import Vaccination, Traitement
+    from app.services import fiches
+    ids = [b.id for b in bandes_en_cours()]
+    faits = []
+    if ids:
+        faits = sorted(Vaccination.query.filter(Vaccination.bande_id.in_(ids), Vaccination.annule.is_(False)).all()
+                       + Traitement.query.filter(Traitement.bande_id.in_(ids)).all(),
+                       key=lambda o: getattr(o, 'date', None) or o.date_debut, reverse=True)[:12]
+    n_archives = {g: sum(fiches.nombre_archivees(g, bande=b) for b in bandes_en_cours()) for g in ('vaccin', 'traitement')}
     return render_template('eleveur/soins.html', vaccins=vaccins_a_faire(sit), avec_bande=bool(sit),
-                           prochain=prochains[0] if prochains else None, bandeau=bandeau_vaccin(current_user))
+                           prochain=prochains[0] if prochains else None, bandeau=bandeau_vaccin(current_user),
+                           faits=faits, n_archives=n_archives)
 
 
 @eleveur_bp.route('/vaccinations/<uuid:ident>/annuler', methods=['POST'])
@@ -369,7 +380,9 @@ def stock():
     fermes = _fermes()
     achats = (filtre_perimetre(Livraison.query).filter(Livraison.origine == OrigineLivraison.ACHAT)
               .order_by(Livraison.date_livraison.desc(), Livraison.numero_metier.desc()).limit(5).all())
-    return render_template('eleveur/stock.html', stocks=[(f, intrants.stock_ferme(f)) for f in fermes], achats=achats)
+    from app.services import fiches
+    return render_template('eleveur/stock.html', stocks=[(f, intrants.stock_ferme(f)) for f in fermes], achats=achats,
+                           n_archivees=fiches.nombre_archivees('achat', fermes=fermes))
 
 
 # ── J'ai acheté ─────────────────────────────────────────────────────────

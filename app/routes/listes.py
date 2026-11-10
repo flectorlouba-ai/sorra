@@ -72,6 +72,12 @@ def ajouter():
 @profil_requis(Profil.ADMIN)
 def modifier(id):
     item = db.session.get(ListeDeroulante, id) or abort(404)
+    if request.form.get('archiver') or request.form.get('restaurer'):
+        # Lot A1 : « Archiver » remplace « Désactiver » (journal : archivage / restauration)
+        item.actif = bool(request.form.get('restaurer'))
+        db.session.commit()
+        flash(f'« {item.valeur} » ' + ('restaurée.' if item.actif else "archivée : elle n'est plus proposée."), 'success')
+        return redirect(url_for('listes.index') + f'#{item.categorie}')
     valeur = request.form.get('valeur', '').strip()
     if not valeur:
         flash('La valeur ne peut pas être vide.', 'danger')

@@ -1,10 +1,10 @@
 """Registre des opérateurs (abattoirs, acheteurs, distributeurs). Pas de suppression :
 un opérateur se désactive. Pas de compte de connexion pour eux dans ce lot."""
 from app import db
-from app.models.base import HorodatageMixin
+from app.models.base import ArchivableMixin, HorodatageMixin
 
 
-class Operateur(HorodatageMixin, db.Model):
+class Operateur(ArchivableMixin, HorodatageMixin, db.Model):
     __tablename__ = 'operateur'
     __perimetre__ = 'province_id'
 

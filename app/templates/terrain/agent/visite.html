@@ -8,6 +8,9 @@
 <div class="pastilles-bat pastilles-choix" data-choix-ferme>
   {% for f in tournee + autres %}<a class="pastille-bat{{ ' active' if f.id == ferme.id }}" href="{{ url_for('visites.compte_rendu', numero=f.numero) }}">{{ '🚗 ' if f in tournee }}{{ f.numero }}</a>{% endfor %}
 </div>
+{% import '_fiches.html' as fiches %}
+{# Lot A1 : le formulaire d'ajout s'ouvre en fenêtre (feuille du bas en terrain) ; ✕ ramène à la liste #}
+{% call fiches.fenetre('fen-ajout', self.page_titre(), retour=url_for('terrain.fiche', numero=ferme.numero)) %}
 <form method="post" action="{{ url_for('visites.compte_rendu', numero=ferme.numero) }}" enctype="multipart/form-data" class="form-terrain" novalidate data-hors-ligne="Compte rendu de visite · {{ ferme.nom }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   {% if visite %}<input type="hidden" name="visite" value="{{ visite.id }}">{% endif %}
@@ -40,6 +43,7 @@
   <div class="form-hint" id="photo-nom"></div>
   <button type="submit" class="btn-gros btn-vert">Envoyer le compte rendu</button>
 </form>
+{% endcall %}
 {% endblock %}
 {% block scripts %}
 <script>

@@ -150,6 +150,8 @@
           location.href = '/saisie-du-jour';
           return;
         }
+        // Lot A1 : une fiche modifiée ou archivée sans réseau ramène à sa liste
+        if (form.hasAttribute('data-retour-garde')) { location.href = form.getAttribute('data-retour-garde'); return; }
         location.href = '/';
       });
     });

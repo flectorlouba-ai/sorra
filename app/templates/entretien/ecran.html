@@ -14,9 +14,12 @@
        bandeau_texte='Réparé ✓ — ' ~ bandeau_repare.panne.libelle ~ ' · ' ~ bandeau_repare.panne.ou,
        bandeau_action=url_for('entretien.annuler_reparation', ident=bandeau_repare.panne.id) %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
 
+  {% import '_fiches.html' as fiches %}
+  {% set retour = request.full_path.rstrip('?') %}
+  {% set infos = fiches_infos(pannes + faits) %}
   {% for p in pannes %}
   <div class="carte carte-panne">
-    <div class="panne-titre">{{ p.icone }} {{ p.libelle }} en panne · {{ p.ou }}</div>
+    {% call fiches.ligne(infos[p.id], retour) %}<span class="panne-titre">{{ p.icone }} {{ p.libelle }} en panne · {{ p.ou }}</span>{% endcall %}
     <div class="carte-sous">signalée le {{ p.signalee_le|date_locale('%d/%m à %H:%M') }}{% if ferme.agent %} · {{ ferme.agent.prenom or ferme.agent.nom }} est prévenu{% endif %}
       {% if p.photo %} · <a href="{{ url_for('entretien.photo', ident=p.id) }}" target="_blank">photo</a>{% endif %}</div>
     <form method="post" action="{{ url_for('entretien.reparee', ident=p.id, **q) }}" data-hors-ligne="Panne réparée · {{ p.libelle }}">
@@ -48,5 +51,18 @@
   {% endfor %}
 
   <a class="btn-panne" href="{{ url_for('entretien.panne', **q) }}">⚠️ Quelque chose est en panne</a>
+
+  {% if faits %}
+  <section class="carte" data-liste="entretiens">
+    <h2 class="sorties-titre">Faits récemment</h2>
+    <ul class="liste-fiches">
+      {% for f in faits %}
+      <li>{% call fiches.ligne(infos[f.id], retour) %}{{ f.tache.icone }} <strong>{{ f.tache.nom }}</strong>{% if f.batiment %} · {{ f.batiment.code }}{% endif %}
+        <small>{{ f.fait_le.strftime('%d/%m') }}</small>{% endcall %}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+  {% for g, n in n_archives.items() if n %}<a class="lien-archivees" href="{{ url_for('fiches.archivees', genre=g, ferme=ferme.numero, retour=retour) }}">🗄️ {{ 'Entretiens' if g == 'entretien' else 'Pannes' }} archivés ({{ n }})</a> {% endfor %}
 </div>
 {% endblock %}

@@ -104,7 +104,10 @@ def test_detail_lisible(client_admin, admin):
     prop = lignes('PROPOSITION', 'proposition')[-1]
     assert 'Agent technique' in prop.detail and 'Services vétérinaires' in prop.detail
     assert 'Modifié' in page and '***' not in page
-    assert '>Oui<' in page and '>Non<' in page   # compte actif → désactivé
+    client_admin.post(f'/administration/utilisateurs/{u.id}/modifier', data={'archiver': '1'})   # lot A1
+    archivage = lignes('ARCHIVAGE', 'utilisateur')[-1]
+    page = client_admin.get(f'/journal/{archivage.id}').get_data(as_text=True)
+    assert '>Oui<' in page and '>Non<' in page   # compte actif → archivé
     loc = Localite(province=province('NGO'), nom='Mouila')
     db.session.add(loc)
     db.session.commit()

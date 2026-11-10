@@ -3,7 +3,7 @@ l'éleveur, et pannes signalées à l'agent. Repris de la maintenance préventiv
 (un modèle de tâche avec une fréquence, une réalisation datée), en beaucoup plus simple :
 des périodes de calendrier fixes, pas d'échéances glissantes ni d'équipements détaillés."""
 from app import db
-from app.models.base import SaisieTerrainMixin, HorodatageMixin, maintenant
+from app.models.base import ArchivableMixin, SaisieTerrainMixin, HorodatageMixin, maintenant
 
 
 class Frequence:
@@ -57,7 +57,7 @@ class TacheEntretien(HorodatageMixin, db.Model):
         return Frequence.LIBELLES.get(self.frequence, self.frequence)
 
 
-class EntretienFait(SaisieTerrainMixin, db.Model):
+class EntretienFait(ArchivableMixin, SaisieTerrainMixin, db.Model):
     """« Fait ✓ » : une tâche faite pour un bâtiment (ou toute la ferme) et une période."""
     __tablename__ = 'entretien_fait'
     __perimetre_ferme__ = 'ferme_id'
@@ -76,7 +76,7 @@ class EntretienFait(SaisieTerrainMixin, db.Model):
     ferme = db.relationship('Ferme')
 
 
-class Panne(SaisieTerrainMixin, db.Model):
+class Panne(ArchivableMixin, SaisieTerrainMixin, db.Model):
     """Panne signalée par l'éleveur (ou l'agent) : Signalée → Réparée."""
     __tablename__ = 'panne'
     __perimetre_ferme__ = 'ferme_id'

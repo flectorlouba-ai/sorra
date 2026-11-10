@@ -182,7 +182,7 @@ def test_batiments_codes_et_capacite(client_admin):
     db.session.refresh(f)
     assert [b.code for b in f.batiments] == ['B1', 'B2'] and f.capacite == 800
     b1 = f.batiments[0]
-    client_admin.post(f'/fermes/{f.numero}/batiments/{b1.id}/modifier', data={'capacite': '500'})  # désactivé
+    client_admin.post(f'/fermes/{f.numero}/batiments/{b1.id}/modifier', data={'archiver': '1'})  # lot A1 : archivé
     db.session.refresh(f)
     assert f.capacite == 300
     client_admin.post(f'/fermes/{f.numero}/batiments/ajouter', data={'capacite': '100'})

@@ -261,12 +261,12 @@ def quantites_utilisees(ferme):
     aliment = (db.session.query(SaisieAliment.produit_id, db.func.sum(SaisieAliment.sacs))
                .join(SaisieJour, SaisieAliment.saisie_id == SaisieJour.id)
                .join(Bande, SaisieJour.bande_id == Bande.id)
-               .filter(Bande.ferme_id == ferme.id).group_by(SaisieAliment.produit_id).all())
+               .filter(Bande.ferme_id == ferme.id, SaisieJour.archive_le.is_(None)).group_by(SaisieAliment.produit_id).all())
     from app.models.sante import Vaccination, Traitement
     soins = []
     for modele in (Vaccination, Traitement):
         q = (db.session.query(modele.produit_id, db.func.sum(modele.quantite))
-             .join(Bande, modele.bande_id == Bande.id).filter(Bande.ferme_id == ferme.id))
+             .join(Bande, modele.bande_id == Bande.id).filter(Bande.ferme_id == ferme.id, modele.archive_le.is_(None)))
         if modele is Vaccination:
             q = q.filter(Vaccination.annule.is_(False))      # « Annuler (10) » (lot 11)
         soins += q.group_by(modele.produit_id).all()
@@ -279,7 +279,7 @@ def stock_ferme(ferme):
     """Stock par produit : reçus confirmés − utilisés. Pour les poussins, les morts à
     l'arrivée sont retirés : il reste les poussins « en attente de bande »."""
     lignes = (LivraisonLigne.query.join(Livraison)
-              .filter(Livraison.ferme_id == ferme.id, Livraison.statut.in_(S.CONFIRMEES)).all())
+              .filter(Livraison.ferme_id == ferme.id, Livraison.statut.in_(S.CONFIRMEES), Livraison.archive_le.is_(None)).all())
     recus, sources = {}, {}
     for l in lignes:
         net = (l.quantite_recue or 0) - (l.morts_arrivee or 0)

@@ -1,0 +1,30 @@
+{% extends '_base.html' %}
+{% block titre %}{{ 'Fermes' if genre == 'ferme' else 'Bandes' }} archivées{% endblock %}
+{% block icone %}archive{% endblock %}
+{% block page_sous_titre %}Conservées, masquées des listes et des calculs · seul l'administrateur les restaure{% endblock %}
+{% block contenu %}
+<a class="lien-archivees" href="{{ url_for('fermes.liste' if genre == 'ferme' else 'bandes.liste') }}">‹ Retour à la liste</a>
+<div class="table-wrap"><div class="table-scroll">
+  <table>
+    <thead><tr><th>Numéro</th><th>{{ 'Nom' if genre == 'ferme' else 'Ferme' }}</th><th>Archivée le</th><th></th></tr></thead>
+    <tbody>
+    {% for o in elements %}
+      <tr>
+        <td class="td-num">{{ o.numero }}</td>
+        <td>{{ o.nom if genre == 'ferme' else o.ferme.nom }}</td>
+        <td>{{ o.archive_le|date_locale('%d/%m/%Y à %H:%M') }}</td>
+        <td style="text-align:right;">
+          <form method="post" action="{{ url_for('fiches.entite', genre=genre, numero=o.numero) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="restaurer">
+            <button type="submit" class="btn-enregistrer">↩️ Restaurer</button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="4" class="table-vide"><i class="bi bi-archive"></i>Rien d'archivé.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

@@ -72,9 +72,14 @@ def _bandeau_repare():
 @profil_requis(*UTILISATEURS)
 def ecran():
     ferme = _ferme()
+    from app.models.entretien import EntretienFait
+    from app.services import fiches
+    faits = (EntretienFait.query.filter_by(ferme_id=ferme.id, annule=False)
+             .order_by(EntretienFait.fait_le.desc(), EntretienFait.cree_le.desc()).limit(10).all())
     return render_template('entretien/ecran.html', ferme=ferme, cartes=regles.cartes(ferme),
                            pannes=regles.pannes_en_cours(ferme), bandeau_fait=_bandeau_fait(),
-                           bandeau_repare=_bandeau_repare())
+                           bandeau_repare=_bandeau_repare(), faits=faits,
+                           n_archives={g: fiches.nombre_archivees(g, ferme=ferme) for g in ('entretien', 'panne')})
 
 
 @entretien_bp.route('/entretien/fait', methods=['POST'])

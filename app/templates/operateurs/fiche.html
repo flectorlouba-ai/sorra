@@ -2,7 +2,7 @@
 {% block titre %}{{ op.numero }} — {{ op.nom }}{% endblock %}
 {% block sous_titre %}Opérateurs{% endblock %}
 {% block icone %}truck{% endblock %}
-{% block page_titre %}{{ op.nom }} {% if op.actif %}<span class="badge badge-ok">Actif</span>{% else %}<span class="badge badge-off">Inactif</span>{% endif %}{% endblock %}
+{% block page_titre %}{{ op.nom }} {% if op.actif %}<span class="badge badge-ok">Actif</span>{% else %}<span class="badge badge-off">🗄️ Archivé</span>{% endif %}{% endblock %}
 {% block page_sous_titre %}<span class="mono">{{ op.numero }}</span> · {{ op.type }}{% endblock %}
 
 {% block actions %}

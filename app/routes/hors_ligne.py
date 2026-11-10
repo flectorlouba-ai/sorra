@@ -18,7 +18,7 @@ hors_ligne_bp = Blueprint('hors_ligne', __name__)
 # Fichiers gardés dès l'installation (adresses versionnées par url_for : ?v=<empreinte>)
 A_GARDER = ['css/perform.css', 'css/terrain.css', 'polices/polices.css',
             'vendor/bootstrap-5.3.3/css/bootstrap.min.css', 'vendor/bootstrap-icons-1.11.3/bootstrap-icons.min.css',
-            'vendor/bootstrap-5.3.3/js/bootstrap.bundle.min.js', 'js/compteurs.js', 'js/hors_ligne.js',
+            'vendor/bootstrap-5.3.3/js/bootstrap.bundle.min.js', 'js/compteurs.js', 'js/hors_ligne.js', 'js/fenetre.js',
             'js/eleveur.js', 'manifest.webmanifest', 'icones/icone-192.png',
             'polices/nunito-latin-400-normal.woff2', 'polices/nunito-latin-600-normal.woff2',
             'polices/nunito-latin-700-normal.woff2', 'polices/nunito-latin-800-normal.woff2',

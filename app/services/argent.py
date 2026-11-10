@@ -85,7 +85,7 @@ def _parts_achat(achat, montant):
 
 def _ventes(ferme_ids):
     return (Sortie.query.join(Bande).filter(Bande.ferme_id.in_(ferme_ids), Sortie.motif.in_(VENTES),
-                                            Sortie.mise_de_cote.is_(False))
+                                            Sortie.mise_de_cote.is_(False), Sortie.archive_le.is_(None))
             .order_by(Sortie.date.desc()).all())
 
 

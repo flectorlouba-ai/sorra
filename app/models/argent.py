@@ -3,7 +3,7 @@ sorties (`sortie.montant_fcfa`), les achats le prix payé des achats personnels
 (`livraison.prix_paye_fcfa`). Noms pensés pour être repris par le futur module Économie
 (charges, coût de production, marge)."""
 from app import db
-from app.models.base import SaisieTerrainMixin
+from app.models.base import ArchivableMixin, SaisieTerrainMixin
 
 CATEGORIE_DEFAUT_ICONE = '📦'
 
@@ -17,7 +17,7 @@ def icone_et_nom(valeur):
     return CATEGORIE_DEFAUT_ICONE, valeur
 
 
-class Depense(SaisieTerrainMixin, db.Model):
+class Depense(ArchivableMixin, SaisieTerrainMixin, db.Model):
     """« J'ai payé » : une dépense de la ferme, rattachée aux bandes à l'affichage
     (services/argent.py) et figée dans le bilan à la clôture."""
     __tablename__ = 'depense'

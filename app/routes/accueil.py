@@ -205,7 +205,7 @@ def _alertes(user):
                              'nombre': n, 'niveau': 'warning', 'meta': 'Poussins · 30 derniers jours'})
     if user.profil in (Profil.AGENT, Profil.ADMIN):
         from app.models.entretien import Panne, StatutPanne
-        for p in (filtre_perimetre(Panne.query.filter_by(statut=StatutPanne.SIGNALEE))
+        for p in (filtre_perimetre(Panne.query.filter_by(statut=StatutPanne.SIGNALEE, archive_le=None))
                   .order_by(Panne.signalee_le.desc())):
             resultat.append({'texte': f'Panne signalée : {p.icone} {p.libelle} · {p.ou}',
                              'lien': url_for('fermes.fiche', numero=p.ferme.numero) + '#entretien', 'nombre': 1,

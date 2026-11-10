@@ -10,7 +10,7 @@ from app.models import Ferme, Profil
 from app.models.argent import Depense
 from app.models.bande import Bande, Sortie, StatutBande
 from app.models.base import maintenant
-from app.services import argent as regles, hors_ligne, sante
+from app.services import fiches, argent as regles, hors_ligne, sante
 from app.utils.dates import en_utc
 from app.utils.permissions import profil_requis, filtre_perimetre
 
@@ -75,7 +75,8 @@ def mon_argent():
     t = regles.totaux(mvts, bande.id if bande else None)
     return render_template('argent/mon_argent.html', periode=periode, periodes=regles.PERIODES, totaux=t,
                            mouvements=mvts[:30], bande=bande, choix_bandes=choix_bandes if periode == 'bande' else [],
-                           aide=regles.aide_etat(bande) if bande else None, bandeau=_bandeau_depense())
+                           aide=regles.aide_etat(bande) if bande else None, bandeau=_bandeau_depense(),
+                           n_archivees=fiches.nombre_archivees('depense', fermes=fermes))
 
 
 # ── J'ai payé (éleveur, ou agent pour lui) ──────────────────────────────

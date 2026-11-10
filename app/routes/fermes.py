@@ -428,13 +428,22 @@ def modifier_batiment(numero, batiment_id):
     if not regles.peut_modifier(current_user, ferme):
         abort(403)
     b = Batiment.query.filter_by(id=batiment_id, ferme_id=ferme.id).first_or_404()
+    if request.form.get('archiver') or request.form.get('restaurer'):
+        # Lot A1 : « Archiver » remplace « Désactiver » ; jamais un bâtiment qui a une bande en cours
+        from app.services.bandes import bande_ouverte
+        if request.form.get('archiver') and bande_ouverte(b) is not None:
+            flash(f'Le bâtiment {b.code} a une bande en cours : il ne peut pas être archivé.', 'danger')
+        else:
+            b.actif = bool(request.form.get('restaurer'))
+            db.session.commit()
+            flash(f'Bâtiment {b.code} ' + ('restauré.' if b.actif else 'archivé : il ne compte plus dans les places.'), 'success')
+        return redirect(url_for('fermes.fiche', numero=numero) + '#batiments')
     capacite = _capacite(request.form.get('capacite'))
     if capacite is None:
         flash('La capacité doit être un nombre de poulets (0 ou plus).', 'danger')
     else:
         b.nom = request.form.get('nom', '').strip() or None
         b.capacite = capacite
-        b.actif = request.form.get('actif') == 'on'
         db.session.commit()
         flash(f'Bâtiment {b.code} enregistré.', 'success')
     return redirect(url_for('fermes.fiche', numero=numero) + '#batiments')

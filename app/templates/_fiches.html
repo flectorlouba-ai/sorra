@@ -1,0 +1,129 @@
+{# Lot A1 — règle des formulaires (docs/ergonomie.md, section K).
+   Une ligne touchée ouvre la fiche PRÉREMPLIE dans la fenêtre commune #fen-fiche (_base.html) :
+   feuille qui monte du bas en terrain, fenêtre au centre en bureau. Le formulaire est déjà dans la page
+   (<template>), donc il s'ouvre et s'envoie sans réseau (file d'attente de hors_ligne.js).
+   `info` vient de fiches_infos(liste) (app/services/fiches.py). #}
+
+{# Une ligne de liste qui ouvre sa fiche. caller() : le texte de la ligne. #}
+{% macro ligne(info, retour, classe='') -%}
+<button type="button" class="ligne-fiche {{ classe }}" data-fiche="fiche-{{ info.genre }}-{{ info.objet.id }}" aria-haspopup="dialog">
+  <span class="ligne-fiche-texte">{{ caller() }}</span>
+  {%- if info.nb %}<span class="ligne-modifiee" title="Modifiée {{ info.nb }} fois">✏️</span>{% endif -%}
+  <span class="ligne-fiche-fleche" aria-hidden="true">›</span>
+</button>
+{{ modele(info, retour) }}
+{%- endmacro %}
+
+{# Petit bouton ✏️ (tableaux des écrans de bureau). #}
+{% macro bouton(info, retour) -%}
+<button type="button" class="btn-edit" data-fiche="fiche-{{ info.genre }}-{{ info.objet.id }}" title="Ouvrir la fiche" aria-haspopup="dialog">
+  <i class="bi bi-pencil"></i>{% if info.nb %}<span class="ligne-modifiee" title="Modifiée {{ info.nb }} fois">✏️</span>{% endif %}</button>
+{{ modele(info, retour) }}
+{%- endmacro %}
+
+{% macro _valeur(c) -%}
+{%- if c.valeur is none -%}
+{%- elif c.genre == 'date' -%}{{ c.valeur.isoformat() }}
+{%- elif c.genre == 'decimal' -%}{{ ('%g' % c.valeur)|replace('.', ',') }}
+{%- else -%}{{ c.valeur }}{%- endif -%}
+{%- endmacro %}
+
+{% macro _lecture(c) -%}
+{%- if c.valeur is none -%}—
+{%- elif c.genre == 'date' -%}{{ c.valeur.strftime('%d/%m/%Y') }}
+{%- elif c.genre == 'choix' -%}{% for v, n in c.choix if v == c.valeur %}{{ n }}{% endfor %}
+{%- elif c.genre in ('entier', 'decimal') -%}{{ c.valeur|qte }}
+{%- else -%}{{ c.valeur }}{%- endif -%}
+{%- endmacro %}
+
+{# Le formulaire prérempli, gardé dans un <template> jusqu'au toucher. #}
+{% macro modele(info, retour) -%}
+{%- set id = 'fiche-' ~ info.genre ~ '-' ~ info.objet.id -%}
+<template id="{{ id }}" data-titre="{{ info.icone }} {{ info.titre }}">
+<form method="post" action="{{ url_for('fiches.enregistrer', genre=info.genre, ident=info.objet.id) }}" class="fiche-form" novalidate
+      data-hors-ligne="{{ 'Restauration' if info.archive else 'Modification' }} · {{ info.titre }}" data-retour-garde="{{ retour.split('?')[0] }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="retour" value="{{ retour }}">
+  <div class="modal-body">
+    <div class="fiche-qui">Saisie par {{ info.auteur or '—' }}{% if info.nb %} · modifiée {{ info.nb }} fois{% endif %}</div>
+    {% if info.archive %}
+    <div class="fiche-archivee">🗄️ Archivée : elle ne compte plus dans les calculs.</div>
+    {% endif %}
+    {% if info.mode and not info.archive %}
+      {% for c in info.champs %}
+      <div class="form-group">
+        <label class="form-label" for="{{ id }}-{{ c.nom }}">{{ c.libelle }}{% if not c.facultatif %}<span class="req">*</span>{% endif %}</label>
+        {% if c.genre == 'choix' %}
+        <select class="form-control" id="{{ id }}-{{ c.nom }}" name="{{ c.nom }}">
+          {% for v, n in c.choix %}<option value="{{ v }}"{{ ' selected' if v == c.valeur }}>{{ n }}</option>{% endfor %}
+        </select>
+        {% elif c.genre == 'date' %}
+        <input class="form-control" type="date" id="{{ id }}-{{ c.nom }}" name="{{ c.nom }}" value="{{ _valeur(c) }}">
+        {% else %}
+        <input class="form-control" id="{{ id }}-{{ c.nom }}" name="{{ c.nom }}" value="{{ _valeur(c) }}"
+               {% if c.genre == 'entier' %}inputmode="numeric"{% elif c.genre == 'decimal' %}inputmode="decimal"{% else %}maxlength="300"{% endif %}>
+        {% endif %}
+      </div>
+      {% endfor %}
+      {% if info.motif %}
+      <div class="form-group">
+        <label class="form-label" for="{{ id }}-motif">Motif de la correction<span class="req">*</span></label>
+        <input class="form-control" id="{{ id }}-motif" name="motif" maxlength="300" placeholder="ex. erreur de comptage">
+        <div class="form-hint">Inscrit au journal ; la personne qui a saisi est prévenue.</div>
+      </div>
+      {% endif %}
+    {% else %}
+      <dl class="fiche-lecture">
+        {% for c in info.champs %}<dt>{{ c.libelle }}</dt><dd>{{ _lecture(c) }}</dd>{% endfor %}
+      </dl>
+      {% if info.message and not info.archive %}
+      <div class="fiche-verrou">{{ info.message }}</div>
+      {% if info.telephone_agent %}<a class="btn-gros-secondaire" href="tel:{{ info.telephone_agent|replace(' ', '') }}">📞 Appeler mon agent</a>{% endif %}
+      {% endif %}
+      {% if info.archive and info.restaurer %}
+      <div class="form-group">
+        <label class="form-label" for="{{ id }}-motif">Motif (facultatif)</label>
+        <input class="form-control" id="{{ id }}-motif" name="motif" maxlength="300">
+      </div>
+      {% endif %}
+    {% endif %}
+    {% if info.mode and not info.archive %}
+    <div class="fiche-confirmer" hidden>
+      <p>Archiver « {{ info.titre }} » ? Elle ne comptera plus dans les calculs. Elle reste conservée et votre agent peut la restaurer.</p>
+      <button type="submit" class="btn-gros btn-archiver" name="action" value="archiver">🗄️ Oui, archiver</button>
+    </div>
+    {% endif %}
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn-annuler" data-fermer>✕ Fermer</button>
+    {% if info.archive %}
+      {% if info.restaurer %}<button type="submit" class="btn-enregistrer" name="action" value="restaurer">↩️ Restaurer</button>{% endif %}
+    {% elif info.mode %}
+      <button type="button" class="btn-archiver-lien" data-confirmer>🗄️ Archiver</button>
+      <button type="submit" class="btn-enregistrer" name="action" value="modifier">Enregistrer la modification</button>
+    {% endif %}
+  </div>
+</form>
+</template>
+{%- endmacro %}
+
+{# Lien « Voir les archivées (n) », seulement s'il y en a. #}
+{% macro voir_archivees(genre, n, retour, bande=None, ferme=None) -%}
+{% if n %}<a class="lien-archivees" href="{{ url_for('fiches.archivees', genre=genre, bande=bande, ferme=ferme, retour=retour) }}">🗄️ Voir les archivées ({{ n }})</a>{% endif %}
+{%- endmacro %}
+
+{# Fenêtre d'ajout : le formulaire d'un écran s'ouvre d'office en fenêtre (feuille en terrain, centre en bureau).
+   `retour` : où mène ✕ quand l'écran n'a pas de liste derrière (sinon la fenêtre se ferme sur la liste). #}
+{% macro fenetre(id, titre, retour=None, ouverte=True, large=False) -%}
+<div class="modal-overlay fenetre-ajout" id="{{ id }}" role="dialog" aria-modal="true" aria-labelledby="{{ id }}-titre"
+     {%- if ouverte %} data-ouverte{% else %} hidden{% endif %}{% if retour %} data-retour-fermer="{{ retour }}"{% endif %}>
+  <div class="modal-box{{ ' modal-large' if large }}">
+    <div class="fenetre-poignee" aria-hidden="true"></div>
+    <div class="modal-head">
+      <span class="modal-head-title" id="{{ id }}-titre">{{ titre }}</span>
+      <button type="button" class="modal-close" data-fermer aria-label="Fermer">✕</button>
+    </div>
+    <div class="modal-body fenetre-corps">{{ caller() }}</div>
+  </div>
+</div>
+{%- endmacro %}

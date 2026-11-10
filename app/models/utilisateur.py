@@ -97,7 +97,7 @@ class Utilisateur(UserMixin, HorodatageMixin, db.Model):
 
     provinces = db.relationship('Province', secondary=utilisateur_province,
                                 order_by='Province.ordre', lazy='selectin')
-    operateur = db.relationship('Operateur')
+    operateur = db.relationship('Operateur', foreign_keys=[operateur_id])
     fermes    = db.relationship(UtilisateurFerme, cascade='all, delete-orphan', lazy='selectin')
 
     def get_id(self):

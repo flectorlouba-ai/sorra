@@ -25,14 +25,17 @@
 {% if achats %}
 <div class="carte">
   <div class="carte-titre">🛒 Mes derniers achats</div>
-  <ul class="liste-simple">
+  {% import '_fiches.html' as fiches %}
+  {% set infos = fiches_infos(achats) %}
+  <ul class="liste-simple liste-fiches">
     {% for a in achats %}{% set l = a.lignes[0] %}
-    <li{% if a.statut == 'ANNULEE' %} class="annule"{% endif %}><strong>{{ a.date_livraison.strftime('%d/%m') }}</strong> · {{ l.quantite_recue|qte }} {{ l.produit.unite }} {{ l.produit.nom }}
+    <li{% if a.statut == 'ANNULEE' %} class="annule"{% endif %}>{% call fiches.ligne(infos[a.id], request.path) %}<strong>{{ a.date_livraison.strftime('%d/%m') }}</strong> · {{ l.quantite_recue|qte }} {{ l.produit.unite }} {{ l.produit.nom }}
       {% if a.prix_paye_fcfa %}<span class="carte-sous">· {{ a.prix_paye_fcfa|qte }} FCFA</span>{% endif %}
-      {% if a.statut == 'ANNULEE' %}<span class="carte-sous">· annulé</span>{% endif %}</li>
+      {% if a.statut == 'ANNULEE' %}<span class="carte-sous">· annulé</span>{% endif %}{% endcall %}</li>
     {% endfor %}
   </ul>
-  <div class="carte-sous">Une erreur ? Votre agent peut corriger un achat.</div>
+  <div class="carte-sous">Une erreur ? Touchez l'achat pour le modifier.</div>
+  {{ fiches.voir_archivees('achat', n_archivees, request.path) }}
 </div>
 {% endif %}
 {% endblock %}

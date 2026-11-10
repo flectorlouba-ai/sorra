@@ -96,3 +96,10 @@ Règles, contrôles et seuils : `app/services/receptions.py` ; indicateurs : `ap
 | Version bureau / terrain | `terrain.bureau`, `terrain.version_terrain` | — |
 
 Écrans de pilotage de l'agent toujours au style bureau : `utils/terrain.ECRANS_BUREAU_AGENT`.
+
+## Éléments archivés (lot A1)
+
+- Un élément archivé (saisie, pesée, sortie, vaccin, traitement, dépense, achat, panne, entretien, signalement, visite, bande ou ferme vide) **ne compte dans aucun indicateur ni tableau de bord** : il est masqué de toutes les requêtes (`models/base.py`), sauf sur les écrans « Voir les archivées ».
+- Une sortie archivée sort des ventes et des lots (son lot est annulé) ; un achat archivé sort du stock ; un vaccin ou un traitement archivé rend sa quantité au stock.
+- Produits, opérateurs, utilisateurs, valeurs de liste et bâtiments archivés ne sont plus proposés ; leur histoire reste.
+- **Fermes et bandes archivées** (ADMIN, seulement vides) : « 🗄️ Archivées » sur la liste des fermes et des bandes, avec « ↩️ Restaurer ».

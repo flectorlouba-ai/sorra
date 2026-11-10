@@ -22,9 +22,12 @@ def test_dge_cree_et_modifie(client, app):
     assert [o.numero for o in Operateur.query.order_by(Operateur.numero)] == ['OPE-0001', 'OPE-0002']
     op = Operateur.query.filter_by(numero='OPE-0001').one()
     assert op.convention and op.convention_date.isoformat() == '2026-10-01'
-    client.post('/operateurs/OPE-0001/modifier', data=donnees())   # « actif » décoché
+    client.post('/operateurs/OPE-0001/modifier', data=donnees())   # convention décochée
     db.session.refresh(op)
-    assert op.actif is False and op.convention is False
+    assert op.actif is True and op.convention is False
+    client.post('/operateurs/OPE-0001/modifier', data={'archiver': '1'})   # lot A1 : « Archiver »
+    db.session.refresh(op)
+    assert op.actif is False and op.archive_le is not None
     assert JournalAudit.query.filter_by(table_nom='operateur', action='CREATION').count() == 2
     assert not [r for r in client.application.url_map.iter_rules()
                 if r.rule.startswith('/operateurs') and 'supprimer' in r.rule]

@@ -9,7 +9,7 @@
 {% for c in a_trancher %}
   <form method="post" action="{{ url_for('hors_ligne.trancher', ident=c.id) }}" class="carte carte-verif{{ ' carte-alerte' if en_retard(c) }}" id="verif-{{ c.id }}" data-verif="{{ c.id }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="carte-titre">{{ c.ferme.numero if c.ferme else '' }} · {{ c.quoi|lower }}{% if c.genre == G.SORTIE %} · doublon possible{% endif %}{% if c.bande %} · Bâtiment {{ c.bande.batiment.code[1:] }}{% endif %}</div>
+    <div class="carte-titre">{{ c.ferme.numero if c.ferme else '' }} · {{ c.quoi[:1]|lower ~ c.quoi[1:] }}{% if c.genre == G.SORTIE %} · doublon possible{% endif %}{% if c.bande %} · Bâtiment {{ c.bande.batiment.code[1:] }}{% endif %}</div>
     {% if en_retard(c) %}<div class="carte-sous">🔴 Attend depuis plus de 48 h</div>{% endif %}
     <div class="form-label">Quelle version garder ?</div>
     <div class="versions-terrain">

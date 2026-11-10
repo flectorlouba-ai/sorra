@@ -67,6 +67,7 @@ def utilises_par_ligne(lignes_ids):
     if not lignes_ids:
         return {}
     rows = (db.session.query(BandePoussins.livraison_ligne_id, db.func.sum(BandePoussins.quantite))
+            .join(Bande, BandePoussins.bande_id == Bande.id)          # bande archivée : poussins rendus au stock
             .filter(BandePoussins.livraison_ligne_id.in_(lignes_ids))
             .group_by(BandePoussins.livraison_ligne_id).all())
     return {lid: int(q) for lid, q in rows}

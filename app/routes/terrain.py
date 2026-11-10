@@ -222,12 +222,15 @@ def fiche(numero):
     _terrain_agent()
     from app.models.visite import Visite, StatutVisite
     ferme = _ma_ferme(numero)
-    derniere = (Visite.query.filter_by(ferme_id=ferme.id, statut=StatutVisite.FAITE)
-                .order_by(Visite.faite_le.desc()).first())
+    from app.services import fiches
+    visites = (Visite.query.filter_by(ferme_id=ferme.id, statut=StatutVisite.FAITE)
+               .order_by(Visite.faite_le.desc()).limit(5).all())
+    derniere = visites[0] if visites else None
     sit = situation(ferme)
     prenom = prenom_eleveur(ferme)
     return render_template('terrain/agent/fiche.html', ferme=ferme, situation=sit, derniere=derniere,
-                           prenom=prenom, bande=sit[0]['bande'] if sit else None)
+                           prenom=prenom, bande=sit[0]['bande'] if sit else None, visites=visites,
+                           n_visites_archivees=fiches.nombre_archivees('visite', ferme=ferme))
 
 
 # ── Saisir pour un éleveur ──────────────────────────────────────────────

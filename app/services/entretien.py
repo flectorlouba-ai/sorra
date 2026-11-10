@@ -159,7 +159,7 @@ def annuler_fait(lignes):
 # ── Pannes ──────────────────────────────────────────────────────────────
 
 def pannes_en_cours(ferme):
-    return (Panne.query.filter_by(ferme_id=ferme.id, statut=StatutPanne.SIGNALEE)
+    return (Panne.query.filter_by(ferme_id=ferme.id, statut=StatutPanne.SIGNALEE, archive_le=None)
             .order_by(Panne.signalee_le.desc()).all())
 
 

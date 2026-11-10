@@ -17,9 +17,10 @@ def index():
     if f['type'] in TYPES_INTRANT:
         q = q.filter(Produit.type == f['type'])
     if f['etat'] != 'tous':
-        q = q.filter(Produit.actif.is_(f['etat'] != 'inactifs'))
+        q = q.filter(Produit.actif.is_(f['etat'] != 'archives'))
     produits = q.order_by(Produit.type, Produit.nom).all()
     return render_template('administration/catalogue.html', produits=produits, filtre=f,
+                           n_archives=Produit.query.filter(Produit.actif.is_(False)).count(),
                            types=TYPES_INTRANT, unites=UNITES)
 
 
@@ -51,8 +52,6 @@ def _lire(produit=None):
     donnees = {'nom': nom, 'type': type_, 'unite': unite,
                'poids_sac_kg': poids if unite == UNITE_SACS else None,
                'delai_attente_jours': int(delai) if delai.isdigit() and type_ == 'Médicament' else None}
-    if produit is not None:
-        donnees['actif'] = f.get('actif') == 'on'
     return donnees, erreur
 
 
@@ -73,6 +72,12 @@ def creer():
 @profil_requis(Profil.ADMIN)
 def modifier(produit_id):
     produit = db.session.get(Produit, produit_id) or abort(404)
+    if request.form.get('archiver') or request.form.get('restaurer'):
+        # Lot A1 : « Archiver » remplace « Désactiver » (journal : archivage / restauration, avant / après)
+        produit.actif = bool(request.form.get('restaurer'))
+        db.session.commit()
+        flash(f'Produit « {produit.nom} » ' + ('restauré.' if produit.actif else "archivé : il n'est plus proposé."), 'success')
+        return redirect(url_for('catalogue.index'))
     donnees, erreur = _lire(produit)
     if erreur:
         flash(erreur, 'danger')

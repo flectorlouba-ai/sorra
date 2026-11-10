@@ -5,6 +5,9 @@
 {% block page_sous_titre %}<span class="mono">{{ bande.numero }}</span> · {{ present|qte }} poulets présents{% endblock %}
 {% block contenu %}
 {% with vers='sante.traiter' %}{% include 'eleveur/_autres_batiments.html' %}{% endwith %}
+{% import '_fiches.html' as fiches %}
+{# Lot A1 : le formulaire d'ajout s'ouvre en fenêtre (feuille du bas en terrain) ; ✕ ramène à la liste #}
+{% call fiches.fenetre('fen-ajout', '💊 ' ~ self.titre(), retour=url_for('eleveur.soins') if theme_eleveur else url_for('bandes.fiche', numero=bande.numero)) %}
 <form method="post" class="form-terrain" novalidate data-hors-ligne="Traitement · bande {{ bande.numero }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
@@ -41,6 +44,7 @@
   <div class="note-numero" id="note-delai"></div>
   <button type="submit" class="btn-gros"><i class="bi bi-check-lg"></i> Enregistrer le traitement</button>
 </form>
+{% endcall %}
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/compteurs.js') }}"></script>
