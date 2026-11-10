@@ -46,27 +46,40 @@ def _fermes(user):
 # ── Par profil ──────────────────────────────────────────────────────────
 
 def eleveur(user):
+    """Libellés = cahier de conformité (lot K) ; les cartes sont calculées sur la bande principale (la plus récente en
+    cours) ; plusieurs bandes : une carte Viabilité par bâtiment en plus (la maquette est un minimum)."""
     bandes = _bandes(user)
-    en_cours = [b for b in bandes if b.statut == StatutBande.EN_COURS]
-    cartes = []
-    for b in en_cours:
-        v = ind.calculer(b)
-        cartes.append(_carte(f'Viabilité · {b.batiment.code}', _pct(v['viabilite']), f'mortalité {_pct(v["mortalite"])}'))
-        cartes.append(_carte(f'Aliment consommé · {b.batiment.code}', _nombre(v['aliment_kg'], 0, ' kg'),
-                             f'{_nombre(v["sacs"], 0)} sacs'))
-        cartes.append(_carte(f'Indice de consommation · {b.batiment.code}',
-                             'sans objet' if v['ponte'] else _nombre(v['indice_consommation'], 2)))
+    en_cours = sorted([b for b in bandes if b.statut == StatutBande.EN_COURS], key=lambda b: b.date_mise_en_place, reverse=True)
     fermes = _fermes(user)
-    p = ind.participation(fermes)
-    cartes.append(_carte("Progression vers l'objectif annuel", _pct(p['atteinte'], 0) if p['atteinte'] is not None else '—',
-                         f'{_nombre(p["reelle"], 1, " t")} produites sur 12 mois'))
     from app.services import argent
     mvts = argent.mouvements([f.id for f in fermes])
     ventes = [(m['date'], m['montant']) for m in mvts if m['signe'] > 0 and m['montant']]
+    debut_mois = date.today().replace(day=1)
+    gagne_mois = sum(m for d, m in ventes if d >= debut_mois)
+    cartes = []
+    if en_cours:
+        b = en_cours[0]
+        v = ind.calculer(b)
+        cartes += [_carte(f'Mortalité de la bande {b.batiment.code}', _pct(v['mortalite'], 2), f'{b.numero}'),
+                   _carte('Viabilité', _pct(v['viabilite'])),
+                   _carte('Poids moyen', _nombre(v['poids_moyen_g'] / 1000, 2, ' kg') if v['poids_moyen_g'] else '—',
+                          f'pesée J{v["age_pesee"]}' if v.get('age_pesee') is not None else 'pas encore pesée'),
+                   _carte('Aliment consommé', _nombre(v['aliment_kg'], 0, ' kg'), f'{_nombre(v["sacs"], 0)} sacs'),
+                   _carte('Indice de consommation', 'sans objet' if v['ponte'] else _nombre(v['indice_consommation'], 2))]
+    else:
+        cartes += [_carte('Mortalité de la bande', '—', 'aucune bande en cours'), _carte('Viabilité', '—'), _carte('Poids moyen', '—'),
+                   _carte('Aliment consommé', '—'), _carte('Indice de consommation', '—')]
+    p = ind.participation(fermes)
+    cartes += [_carte('Gagné ce mois', _nombre(gagne_mois, 0, ' FCFA')),
+               _carte('Part de ma cible annuelle', _pct(p['atteinte'], 0) if p['atteinte'] is not None else '—',
+                      f'{_nombre(p["reelle"], 1, " t")} produites sur 12 mois')]
+    for b in en_cours[1:]:
+        v = ind.calculer(b)
+        cartes.append(_carte(f'Viabilité · {b.batiment.code}', _pct(v['viabilite']), f'mortalité {_pct(v["mortalite"])}'))
     return {'cartes': cartes[:8], 'courbes': [
-        _courbe('Mortalité de la bande', '% par semaine', ind.serie_mortalite_hebdo(bandes), 'rouge', 2),
-        _courbe('Poids moyen', 'g', ind.serie_poids_hebdo(bandes), 'bleu', 0),
-        _courbe('Gagné', 'FCFA par semaine', ind.serie_somme_hebdo(ventes), 'vert', 0)]}
+        _courbe('Mortalité de la bande (%)', '% par semaine', ind.serie_mortalite_hebdo(bandes), 'rouge', 2),
+        _courbe('Poids moyen (kg)', 'kg', [(x / 1000 if x is not None else None) for x in ind.serie_poids_hebdo(bandes)], 'bleu', 2),
+        _courbe('Gagné par semaine (FCFA)', 'FCFA par semaine', ind.serie_somme_hebdo(ventes), 'vert', 0)]}
 
 
 def agent(user):
@@ -86,17 +99,23 @@ def agent(user):
     prevues = [v.date_prevue for v in visites if v.date_prevue]
     mv = ind.mortalite_viabilite([b for b in bandes if b.statut == StatutBande.EN_COURS])
     debut_mois = date.today().replace(day=1)
+    regularite = ind.mortalite_viabilite([b for b in bandes if b.statut == StatutBande.EN_COURS]).get('regularite')
+    from app.services import actions as services_actions
+    retard = services_actions.n_en_retard(user)
+    serie_reg = ind.serie_regularite_hebdo(bandes)
+    reg = next((x for x in reversed(serie_reg) if x is not None), None) if serie_reg else None
     return {'cartes': [
         _carte('Mortalité de mes fermes', _pct(mv['mortalite'], 2), f'{mv["bandes"]} bande(s) en cours'),
-        _carte('Visites ce mois', f'{sum(1 for d in faites if d and d >= debut_mois)} / '
-                                  f'{sum(1 for d in prevues if d >= debut_mois and d.month == debut_mois.month)}',
-               'faites / prévues'),
+        _carte('Régularité des saisies', _pct(reg, 0) if reg is not None else '—', 'semaine en cours'),
+        _carte('Visites faites / prévues', f'{sum(1 for d in faites if d and d >= debut_mois)} / '
+                                           f'{sum(1 for d in prevues if d >= debut_mois and d.month == debut_mois.month)}', 'ce mois'),
         _carte('Alertes ouvertes', str(alertes), alerte=alertes > 0),
         _carte('Écarts à arbitrer', str(ecarts), alerte=ecarts > 0),
+        _carte('Mes actions en retard', str(retard), alerte=retard > 0),
         _carte('Mes fermes', str(len(fermes)))], 'courbes': [
-        _courbe('Mortalité de mes fermes', '% par semaine', ind.serie_mortalite_hebdo(bandes), 'rouge', 2),
-        _courbe('Régularité des saisies', '% des jours', ind.serie_regularite_hebdo(bandes), 'bleu', 0),
-        _courbe('Visites faites', 'par semaine', ind.serie_compte_hebdo(faites, debut=min(prevues + faites) if (prevues + faites) else None), 'vert', 0)]}
+        _courbe('Mortalité de mes fermes (%)', '% par semaine', ind.serie_mortalite_hebdo(bandes), 'rouge', 2),
+        _courbe('Régularité des saisies (%)', '% des jours', serie_reg, 'bleu', 0),
+        _courbe('Visites par semaine', 'visites', ind.serie_compte_hebdo(faites, debut=min(prevues + faites) if (prevues + faites) else None), 'vert', 0)]}
 
 
 def veterinaire(user):

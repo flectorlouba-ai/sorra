@@ -73,7 +73,12 @@ def mon_argent():
                      choix_bandes[0] if choix_bandes else None)
     mvts = regles.filtrer(tous, periode, bande)
     t = regles.totaux(mvts, bande.id if bande else None)
-    return render_template('argent/mon_argent.html', periode=periode, periodes=regles.PERIODES, totaux=t,
+    from app.utils import terrain as style
+    conforme = None
+    if style.profil_terrain(current_user) is None and current_user.profil == Profil.ELEVEUR:
+        from app.services import conformite
+        conforme = ('ELEVEUR-4', conformite.spec('ELEVEUR', 4), conformite.eleveur_argent(current_user, fermes))
+    return render_template('argent/mon_argent.html', conforme=conforme, periode=periode, periodes=regles.PERIODES, totaux=t,
                            mouvements=mvts[:30], bande=bande, choix_bandes=choix_bandes if periode == 'bande' else [],
                            aide=regles.aide_etat(bande) if bande else None, bandeau=_bandeau_depense(),
                            n_archivees=fiches.nombre_archivees('depense', fermes=fermes))

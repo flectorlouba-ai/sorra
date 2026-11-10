@@ -19,7 +19,9 @@ PROFILS = {'DGE (POUFA)': 'DGE', 'Vétérinaire': 'VETO', 'Administrateur': 'ADM
 MDP_DEMO = 'Demo-yl2-2026'
 COMPTES = {'DGE': 'dge', 'VETO': 'veto', 'ADMIN': 'admin', 'ELEVEUR': 'eleveur', 'AGENT': 'agent.est', 'AUDITEUR': 'aninf'}
 # Écrans livrés (sous-lots déployés) : les autres sont vérifiés quand leur sous-lot arrive
-LIVRES = {('DGE', n) for n in range(1, 9)} | {('VETO', n) for n in range(1, 9)}
+LIVRES = {('DGE', n) for n in range(1, 9)} | {('VETO', n) for n in range(1, 9)} | {('ELEVEUR', n) for n in range(1, 9)} | {('AGENT', n) for n in range(1, 9)}
+# Titres dont une partie est vivante (code de bande, nombre, date) : on vérifie la partie fixe
+TITRES = {('ELEVEUR', 3): 'Mes saisies · bande', ('ELEVEUR', 4): 'Mon argent mois par mois', ('AGENT', 2): r'Mes \d+ fermes?', ('AGENT', 4): 'Tournée du'}
 
 # Écarts justifiés : (profil, n, quoi) → raison. Tout autre écart fait échouer le test.
 ECARTS = {
@@ -33,6 +35,9 @@ ECARTS = {
     ('VETO', 6, 'colonne:Prochain contrôle'): 'date de prochain contrôle : champ à venir ; « — »',
     ('VETO', 4, 'colonne:Lot du vaccin'): 'le numéro de lot du vaccin n’est pas saisi aujourd’hui (lot F/S) ; « — »',
     ('VETO', 4, 'archiver'): 'une ligne = une vaccination attendue d’une bande (calculée) ; l’étape du calendrier se modifie et se retire (décocher « Dans le calendrier ») par « ＋ Ajouter une étape » et la vue détaillée',
+    ('AGENT', 4, 'archiver'): 'une ligne de tournée est une visite prévue ou une ferme proposée (calculée) : la visite prévue s’archive depuis « Visites »',
+    ('ELEVEUR', 4, 'archiver'): 'les opérations (dépenses, achats, ventes) s’archivent une à une par leur fiche du lot A1 (écran Mon argent du téléphone / vue détaillée) ; la ligne du tableau est un mois (calculé)',
+    ('ELEVEUR', 4, 'titre'): 'le bouton « 📄 Télécharger mon bilan » et le régime fiscal estimé du titre viennent avec le lot G (repris au sous-lot K4)',
 }
 # Écrans dont la fiche est celle d'un lot précédent (même règle : préremplie, boutons selon les droits)
 FICHES_PROPRES = {('DGE', 8): 'id="form-action"'}
@@ -60,6 +65,8 @@ def _page(client, profil, n):
     from flask import url_for
     client.post('/auth/deconnexion')
     connecter(client, COMPTES[profil], MDP_DEMO)
+    if profil in ('ELEVEUR', 'AGENT'):
+        client.post('/bureau/version-ordinateur')          # la version ordinateur des profils de terrain
     ep = FONCTIONS[Profil(profil)][n - 1][3]
     with client.application.test_request_context():
         chemin = url_for(ep)
@@ -86,7 +93,11 @@ def test_ecran_de_bureau_conforme(client, demo, cle):
     e = CAHIER[cle]
     code, page = _page(client, profil, n)
     assert code == 200, (cle, code)
-    assert e['titre'] in page, (cle, 'titre du tableau', e['titre'])
+    titre = TITRES.get(cle)
+    if titre:
+        assert re.search(titre, page), (cle, 'titre du tableau', titre)
+    else:
+        assert e['titre'] in page, (cle, 'titre du tableau', e['titre'])
     if e['bouton']:
         assert e['bouton'] in page, (cle, 'bouton de création', e['bouton'])
     ths = _entetes(page)
@@ -100,6 +111,7 @@ def test_ecran_de_bureau_conforme(client, demo, cle):
     if e['carte']:
         assert 'carte-fermes' in page or 'Carte du périmètre' in page, (cle, 'carte')
     for ind in e['indicateurs']:
+        ind = re.sub(r' [A-Z]\d+$', '', ind)              # « Mortalité de la bande B4 » : le code de bande est vivant
         assert ind in page, (cle, 'indicateur', ind)
 
 

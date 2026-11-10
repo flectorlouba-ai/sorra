@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Ma banque{% endblock %}
 {% block icone %}bank{% endblock %}
 {% block page_titre %}🏦 Ma banque{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 {% for f, d in etats %}
 {% if etats|length > 1 %}<div class="carte-jour">{{ f.nom }}</div>{% endif %}
 <div class="carte banque-voit">

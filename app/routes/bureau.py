@@ -91,6 +91,10 @@ def tableau_de_bord(user):
         conforme = ('DGE-1', conformite.spec('DGE', 1), conformite.dge_accueil(user))
     elif user.profil == Profil.VETO:
         conforme = ('VETO-1', conformite.spec('VETO', 1), conformite.veto_accueil(user))
+    elif user.profil == Profil.ELEVEUR:
+        conforme = ('ELEVEUR-1', conformite.spec('ELEVEUR', 1), conformite.eleveur_accueil(user))
+    elif user.profil == Profil.AGENT:
+        conforme = ('AGENT-1', conformite.spec('AGENT', 1), conformite.agent_accueil(user, mes_actions))
     return {'cartes': d['cartes'], 'courbes': d['courbes'], 'carte': carte, 'alertes': alertes, 'synthese': synthese,
             'fermes': fermes, 'mes_actions': mes_actions, 'conforme': conforme}
 
@@ -318,7 +322,17 @@ def visites():
     from app.models.visite import Visite
     from app.services import positions
     lignes = filtre_perimetre(Visite.query).order_by(Visite.faite_le.desc().nullslast(), Visite.date_prevue.desc()).limit(300).all()
-    return render_template('bureau/visites.html', visites=lignes, etat=positions.etat_visite)
+    conforme = ('AGENT-5', conformite.spec('AGENT', 5), conformite.agent_visites(current_user, lignes, positions.etat_visite)) \
+        if current_user.profil == Profil.AGENT else None
+    return render_template('bureau/visites.html', visites=lignes, etat=positions.etat_visite, conforme=conforme)
+
+
+@bureau_bp.route('/enrolement')
+@profil_requis(Profil.AGENT, Profil.DGE, Profil.ADMIN)
+def enrolement():
+    """Lot K : enrôlements récents (fermes créées ces 90 jours) ; « ＋ Enrôler une ferme » ouvre le formulaire existant."""
+    fermes = filtre_perimetre(Ferme.query).order_by(Ferme.cree_le.desc()).all()
+    return render_template('bureau/enrolement.html', conforme=('AGENT-3', conformite.spec('AGENT', 3), conformite.agent_enrolement(current_user, fermes)))
 
 
 @bureau_bp.route('/mes-lots')
@@ -327,4 +341,6 @@ def mes_lots():
     from app.models.tracabilite import LotTrace
     from app.services import receptions
     lots = filtre_perimetre(LotTrace.query).order_by(LotTrace.cree_le.desc()).limit(300).all()
-    return render_template('bureau/mes_lots.html', lots=lots, etat=receptions.etat_pour_eleveur)
+    conforme = ('ELEVEUR-7', conformite.spec('ELEVEUR', 7), conformite.eleveur_lots(current_user, lots, receptions.etat_pour_eleveur)) \
+        if current_user.profil == Profil.ELEVEUR else None
+    return render_template('bureau/mes_lots.html', lots=lots, etat=receptions.etat_pour_eleveur, conforme=conforme)

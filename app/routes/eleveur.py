@@ -14,6 +14,7 @@ from app.models.bande import Bande, StatutBande
 from app.models.base import maintenant
 from app.models.intrant import StatutLivraison, OrigineLivraison
 from app.services import bandes as regles_bandes, intrants, sante
+from app.utils import terrain as style
 from app.utils.dates import en_utc
 from app.utils.permissions import profil_requis, filtre_perimetre
 
@@ -145,8 +146,27 @@ def saisie():
     if not bandes_en_cours():
         return _sans_bande('✏️ Saisie du jour')
     from app.routes.accueil import _espace_eleveur
-    return render_template('eleveur/saisie.html', espace=_espace_eleveur(_fermes()),
+    return render_template('eleveur/saisie.html', espace=_espace_eleveur(_fermes()), conforme=_conforme('ELEVEUR', 3),
                            bien_recu=session.pop('bien_recu', None))
+
+
+def _conforme(profil, n):
+    """Lot K : le tableau du cahier, en version ordinateur seulement (le téléphone ne change pas)."""
+    from app.utils import terrain as style
+    if style.profil_terrain(current_user) is not None:
+        return None
+    from app.services import conformite
+    fermes = _fermes()
+    if n == 3:
+        bandes = sorted(bandes_en_cours(), key=lambda b: b.date_mise_en_place, reverse=True)
+        t = conformite.eleveur_saisies(current_user, bandes[0] if bandes else None)
+    elif n == 5:
+        t = conformite.eleveur_sante(current_user, fermes)
+    elif n == 6:
+        t = conformite.eleveur_livraisons(current_user, fermes)
+    else:
+        return None
+    return (f'{profil}-{n}', conformite.spec(profil, n), t)
 
 
 # ── Accès directs : la tuile ouvre la bande la plus utile ───────────────
@@ -226,7 +246,7 @@ def soins():
                        + Traitement.query.filter(Traitement.bande_id.in_(ids)).all(),
                        key=lambda o: getattr(o, 'date', None) or o.date_debut, reverse=True)[:12]
     n_archives = {g: sum(fiches.nombre_archivees(g, bande=b) for b in bandes_en_cours()) for g in ('vaccin', 'traitement')}
-    return render_template('eleveur/soins.html', vaccins=vaccins_a_faire(sit), avec_bande=bool(sit),
+    return render_template('eleveur/soins.html', conforme=_conforme('ELEVEUR', 5), vaccins=vaccins_a_faire(sit), avec_bande=bool(sit),
                            prochain=prochains[0] if prochains else None, bandeau=bandeau_vaccin(current_user),
                            faits=faits, n_archives=n_archives)
 
@@ -255,7 +275,7 @@ def produits():
                    .filter(Livraison.statut == StatutLivraison.A_CONFIRMER)
                    .order_by(Livraison.date_livraison, Livraison.numero_metier).all())
     from app.routes.accueil import _bandeau_annulation
-    return render_template('eleveur/produits.html', a_confirmer=a_confirmer,
+    return render_template('eleveur/produits.html', conforme=_conforme('ELEVEUR', 6), a_confirmer=a_confirmer,
                            bandeau=_bandeau_annulation(current_user), bandeau_achat=bandeau_achat(current_user))
 
 
@@ -345,9 +365,12 @@ def _ferme_du_responsable(numero):
 def ma_banque():
     from app.services import bceg
     fermes = bceg.fermes_du_responsable(current_user)
-    if not fermes:
-        abort(404)                                      # ferme non financée, ou pas le responsable
-    return render_template('eleveur/ma_banque.html', etats=[(f, bceg.derniere(f)) for f in fermes])
+    from app.services import conformite
+    conforme = ('ELEVEUR-8', conformite.spec('ELEVEUR', 8), conformite.eleveur_bceg(current_user, _fermes())) \
+        if style.profil_terrain(current_user) is None else None
+    if not fermes and conforme is None:
+        abort(404)                                      # ferme non financée, ou pas le responsable (téléphone)
+    return render_template('eleveur/ma_banque.html', etats=[(f, bceg.derniere(f)) for f in fermes], conforme=conforme)
 
 
 @eleveur_bp.route('/ma-banque/<numero>', methods=['POST'])

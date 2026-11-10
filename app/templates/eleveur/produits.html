@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Mes produits{% endblock %}
 {% block icone %}box-seam{% endblock %}
 {% block page_titre %}📦 Mes produits{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 {% if bandeau %}{% with liv=bandeau.livraison, secondes=bandeau.secondes %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}
 {% if bandeau_achat %}{% with liv=bandeau_achat.achat, secondes=bandeau_achat.secondes,
      bandeau_texte='Enregistré ✓ — ' ~ bandeau_achat.achat.lignes[0].produit.nom,

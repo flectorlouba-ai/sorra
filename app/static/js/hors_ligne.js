@@ -258,9 +258,13 @@
   if (!corps || !corps.hasAttribute('data-pages-hors-ligne') || corps.classList.contains('bureau')) return;
   if (window.innerWidth < 900 || !window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') return;
   var meta = document.querySelector('input[name=csrf_token]');
-  fetch('/bureau/bascule-automatique', {method: 'POST', credentials: 'same-origin',
-    headers: {'Content-Type': 'application/json', 'X-CSRFToken': meta ? meta.value : ''},
-    body: JSON.stringify({largeur: window.innerWidth})})
-    .then(function (r) { return r.ok ? r.json() : {etat: 'inchange'}; })
+  // Lot K : l'accueil de l'agent n'a pas de formulaire → jeton demandé au serveur (sinon la bascule était refusée)
+  var jeton = meta ? Promise.resolve(meta.value) : fetch('/hors-ligne/jeton', {credentials: 'same-origin', cache: 'no-store'})
+    .then(function (r) { return r.json(); }).then(function (d) { return d.jeton || ''; });
+  jeton.then(function (t) {
+    return fetch('/bureau/bascule-automatique', {method: 'POST', credentials: 'same-origin',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': t},
+      body: JSON.stringify({largeur: window.innerWidth})});
+  }).then(function (r) { return r.ok ? r.json() : {etat: 'inchange'}; })
     .then(function (j) { if (j.etat === 'ordinateur') location.href = '/bureau/'; }).catch(function () {});
 })();

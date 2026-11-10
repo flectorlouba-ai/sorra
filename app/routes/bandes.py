@@ -210,6 +210,15 @@ def bilan(numero):
     return render_template('bandes/bilan.html', bande=bande, b=bande.bilan)
 
 
+def _conforme_mes_bandes():
+    from app.services import conformite
+    from app.utils import terrain as style
+    if style.profil_terrain(current_user) is not None:
+        return None
+    bandes = filtre_perimetre(Bande.query).order_by(Bande.statut, Bande.date_mise_en_place.desc()).all()
+    return ('ELEVEUR-2', conformite.spec('ELEVEUR', 2), conformite.eleveur_bandes(current_user, bandes))
+
+
 @bandes_bp.route('/mes-bandes')
 @profil_requis(Profil.ELEVEUR)
 def mes_bandes():
@@ -224,7 +233,7 @@ def mes_bandes():
                              'courbe': courbe_svg(b, largeur=320, hauteur=150, marge=28)})
         else:
             passees.append({'bande': b, 'etoiles': ludique.etoiles_du_bilan(b.bilan)})
-    return render_template('bandes/mes_bandes.html', en_cours=en_cours, passees=passees)
+    return render_template('bandes/mes_bandes.html', conforme=_conforme_mes_bandes(), en_cours=en_cours, passees=passees)
 
 
 # ── Ouverture ───────────────────────────────────────────────────────────

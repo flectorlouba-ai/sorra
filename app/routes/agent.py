@@ -31,7 +31,10 @@ def _gerer(ferme):
 @agent_bp.route('/tournee')
 @profil_requis(Profil.AGENT)
 def tournee():
-    return render_template('agent/tournee.html', lignes=regles.tournee(current_user), maintenant=maintenant())
+    from app.services import conformite
+    lignes = regles.tournee(current_user)
+    return render_template('agent/tournee.html', lignes=lignes, maintenant=maintenant(),
+                           conforme=('AGENT-4', conformite.spec('AGENT', 4), conformite.agent_tournee(current_user, lignes)))
 
 
 # ── D. Nouvel éleveur ───────────────────────────────────────────────────

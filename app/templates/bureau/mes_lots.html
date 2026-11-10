@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Mes lots{% endblock %}
 {% block icone %}qr-code{% endblock %}
 {% block page_titre %}📦 Mes lots{% endblock %}
 {% block page_sous_titre %}Les lots sortis de vos bandes et leur suivi jusqu'à la réception{% endblock %}
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <div class="table-wrap"><div class="table-scroll"><table>
   <thead><tr><th>Lot</th><th>Bande</th><th>Date</th><th>Poulets</th><th>Poids (kg)</th><th>Destinataire</th><th>QR</th><th>Suivi</th></tr></thead>
   <tbody>{% for l in lots %}{% set s = l.sortie %}{% set e = etat(s) %}
