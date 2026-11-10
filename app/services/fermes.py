@@ -198,7 +198,7 @@ def creer_ferme_terrain(province, agent, d, sans_reseau=False, appareil=None):
         raise RegleFermeTerrain('Indiquez le village ou le lieu-dit.')
     localite = localite_identique(province.id, lieu) or creer_localite(province.id, lieu, par_admin=False)
     champs = dict(nom=nom[:150], exploitant_nom=exploitant[:150], exploitant_telephone=telephone[:30],
-                  localite=localite, agent_id=agent.id, programme_poufa=d.get('programme_poufa', 'oui') != 'non',
+                  localite=localite, agent_id=agent.id, programme_poufa=d.get('programme_poufa', 'oui') != 'non', financee_bceg=d.get('financee_bceg') == '1',   # lot K5
                   bandes_par_an=min(max(bandes, 1), 12), numero_terrain=numero_terrain)
     try:
         champs['id'] = uuid.UUID(d.get('ferme_id')) if d.get('ferme_id') else uuid.uuid4()

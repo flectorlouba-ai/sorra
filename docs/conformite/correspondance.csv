@@ -15,35 +15,35 @@ Bureau;Vétérinaire;5;🔬 Diagnostics;veto;/bureau/diagnostics;bureau.diagnost
 Bureau;Vétérinaire;6;⛔ Ventes bloquées;veto;/surveillance;veto.surveillance;veto/surveillance.html;Existe;"bouton ✓ ; colonnes 9/9 dans l'ordre"
 Bureau;Vétérinaire;7;🔎 Traçabilité;veto;/recherche-lots;veto.recherche;veto/recherche.html;Existe;"bouton ✓ ; colonnes 9/9 dans l'ordre"
 Bureau;Vétérinaire;8;👀 Validations sensibles;veto;/approbations;controle.approbations_ecran;controle/approbations.html;Existe;"bouton ✓ ; colonnes 8/8 dans l'ordre"
-Bureau;Administrateur;1;🛡️ Administration;admin;/bureau/;bureau.accueil;;Partiel;"bouton ✓ ; colonnes 1/7 ; indicateurs 4/5 ; carte ✓ ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Administrateur;2;👥 Utilisateurs;admin;/administration/utilisateurs/;utilisateurs.index;administration/utilisateurs.html;Partiel;"bouton ✓ ; colonnes 4/10 ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Administrateur;3;🔑 Profils et droits;admin;/bureau/droits;bureau.droits;bureau/droits.html;Partiel;"bouton « ＋ Proposer un changement de droits » absent ; colonnes 0/9 ; titre du tableau différent ; Imprimer absent"
-Bureau;Administrateur;4;⚙️ Paramètres;admin;/configuration;controle.configuration;controle/configuration.html;Partiel;"bouton ✓ ; colonnes 0/7 ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Administrateur;5;👀 Validations;admin;/approbations;controle.approbations_ecran;controle/approbations.html;Partiel;"bouton « ＋ Proposer un changement » absent ; colonnes 8/8 dans l'ordre ; titre du tableau différent"
-Bureau;Administrateur;6;🔐 Sessions et sécurité;admin;/sessions;controle.sessions;controle/sessions.html;Partiel;"bouton « ＋ Fermer les sessions d'un compte » absent ; colonnes 5/9 ; Excel absent ; Imprimer absent"
-Bureau;Administrateur;7;📜 Journal;admin;/journal/;journal.index;journal/index.html;Partiel;"bouton ✓ ; colonnes 1/9 ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Éleveur (ordinateur);1;🏠 Mon accueil;eleveur;/bureau/;bureau.accueil;;Partiel;"bouton « ＋ Saisir aujourd'hui » absent ; colonnes 0/4 ; indicateurs 0/7 ; carte absente ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Éleveur (ordinateur);2;🐔 Mes bandes;eleveur;/bandes/mes-bandes;bandes.mes_bandes;bandes/mes_bandes.html;Partiel;"bouton « ＋ Ouvrir une bande » absent ; colonnes 0/11 ; Excel absent ; Imprimer absent"
-Bureau;Éleveur (ordinateur);3;📝 Saisie journalière;eleveur;/saisie-du-jour;eleveur.saisie;eleveur/saisie.html;Partiel;"bouton « ＋ Saisir aujourd'hui » absent ; colonnes 0/9 ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Éleveur (ordinateur);4;💰 Mon argent;eleveur;/mon-argent;argent.mon_argent;argent/mon_argent.html;Partiel;"bouton « ＋ J'ai payé / J'ai vendu » absent ; colonnes 0/9 ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Éleveur (ordinateur);5;🩺 Santé;eleveur;/vaccins-et-soins;eleveur.soins;eleveur/soins.html;Partiel;"bouton « ＋ Signaler un problème » absent ; colonnes 0/7 ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Éleveur (ordinateur);6;🚚 Livraisons;eleveur;/mes-produits;eleveur.produits;eleveur/produits.html;Partiel;"bouton « ＋ Signaler une différence » absent ; colonnes 0/8 ; Excel absent ; Imprimer absent"
-Bureau;Éleveur (ordinateur);7;📦 Mes lots;eleveur;/bureau/mes-lots;bureau.mes_lots;bureau/mes_lots.html;Partiel;"bouton « ＋ Déclarer une sortie » absent ; colonnes 7/8 ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Éleveur (ordinateur);8;🏦 Consentement BCEG;eleveur;/ma-banque;eleveur.ma_banque;eleveur/ma_banque.html;Absent;HTTP 404
-Bureau;Agent technique (ordinateur);1;🏠 Mon accueil;agent.est;/bureau/;bureau.accueil;;Partiel;"bouton « ＋ Nouvelle visite » absent ; colonnes 0/7 ; indicateurs 0/6 ; carte absente ; Excel absent ; Imprimer absent"
-Bureau;Agent technique (ordinateur);2;🏘️ Mes fermes;agent.est;/fermes/;fermes.liste;fermes/liste.html;Existe;"bouton ✓ ; colonnes 9/9 dans l'ordre ; carte ✓"
-Bureau;Agent technique (ordinateur);3;➕ Enrôlement;agent.est;/fermes/nouvelle;fermes.nouvelle;fermes/formulaire.html;Partiel;"bouton « ＋ Enrôler une ferme » absent ; colonnes 0/9 ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Agent technique (ordinateur);4;🚗 Mes tournées;agent.est;/tournee;agent.tournee;agent/tournee.html;Partiel;"bouton « ＋ Planifier une tournée » absent ; colonnes 0/7 ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Agent technique (ordinateur);5;📋 Visites;agent.est;/bureau/visites;bureau.visites;bureau/visites.html;Partiel;"bouton « ＋ Nouveau compte rendu » absent ; colonnes 8/8 dans l'ordre ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Agent technique (ordinateur);6;⚖️ Contrôle des saisies;agent.est;/hors-ligne/a-verifier;hors_ligne.conflits;terrain/agent/a_verifier.html;Partiel;"bouton « ＋ Signaler un écart » absent ; colonnes 0/9 ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Agent technique (ordinateur);7;📦 Stocks et livraisons;agent.est;/livraisons/;livraisons.liste;livraisons/liste.html;Partiel;"bouton ✓ ; colonnes 1/7 ; titre du tableau différent ; Imprimer absent"
+Bureau;Administrateur;1;🛡️ Administration;admin;/bureau/;bureau.accueil;;Existe;"bouton ✓ ; colonnes 7/7 dans l'ordre ; indicateurs 5/5 ; carte ✓"
+Bureau;Administrateur;2;👥 Utilisateurs;admin;/administration/utilisateurs/;utilisateurs.index;administration/utilisateurs.html;Existe;"bouton ✓ ; colonnes 10/10 dans l'ordre"
+Bureau;Administrateur;3;🔑 Profils et droits;admin;/bureau/droits;bureau.droits;bureau/droits.html;Existe;"bouton ✓ ; colonnes 9/9 dans l'ordre"
+Bureau;Administrateur;4;⚙️ Paramètres;admin;/configuration;controle.configuration;controle/configuration.html;Existe;"bouton ✓ ; colonnes 7/7 dans l'ordre"
+Bureau;Administrateur;5;👀 Validations;admin;/approbations;controle.approbations_ecran;controle/approbations.html;Existe;"bouton ✓ ; colonnes 8/8 dans l'ordre ; titre du tableau différent"
+Bureau;Administrateur;6;🔐 Sessions et sécurité;admin;/sessions;controle.sessions;controle/sessions.html;Partiel;"bouton « ＋ Fermer les sessions d'un compte » absent ; colonnes 9/9 dans l'ordre"
+Bureau;Administrateur;7;📜 Journal;admin;/journal/;journal.index;journal/index.html;Existe;"bouton ✓ ; colonnes 9/9 dans l'ordre ; titre du tableau différent"
+Bureau;Éleveur (ordinateur);1;🏠 Mon accueil;eleveur;/bureau/;bureau.accueil;;Partiel;"bouton « ＋ Saisir aujourd'hui » absent ; colonnes 4/4 dans l'ordre ; indicateurs 6/7 ; carte ✓"
+Bureau;Éleveur (ordinateur);2;🐔 Mes bandes;eleveur;/bandes/mes-bandes;bandes.mes_bandes;bandes/mes_bandes.html;Existe;"bouton ✓ ; colonnes 11/11 dans l'ordre"
+Bureau;Éleveur (ordinateur);3;📝 Saisie journalière;eleveur;/saisie-du-jour;eleveur.saisie;eleveur/saisie.html;Partiel;"bouton « ＋ Saisir aujourd'hui » absent ; colonnes 9/9 dans l'ordre ; titre du tableau différent"
+Bureau;Éleveur (ordinateur);4;💰 Mon argent;eleveur;/mon-argent;argent.mon_argent;argent/mon_argent.html;Partiel;"bouton « ＋ J'ai payé / J'ai vendu » absent ; colonnes 8/9 ; titre du tableau différent"
+Bureau;Éleveur (ordinateur);5;🩺 Santé;eleveur;/vaccins-et-soins;eleveur.soins;eleveur/soins.html;Existe;"bouton ✓ ; colonnes 7/7 dans l'ordre"
+Bureau;Éleveur (ordinateur);6;🚚 Livraisons;eleveur;/mes-produits;eleveur.produits;eleveur/produits.html;Existe;"bouton ✓ ; colonnes 8/8 dans l'ordre"
+Bureau;Éleveur (ordinateur);7;📦 Mes lots;eleveur;/bureau/mes-lots;bureau.mes_lots;bureau/mes_lots.html;Existe;"bouton ✓ ; colonnes 8/8 dans l'ordre"
+Bureau;Éleveur (ordinateur);8;🏦 Consentement BCEG;eleveur;/ma-banque;eleveur.ma_banque;eleveur/ma_banque.html;Existe;"bouton ✓ ; colonnes 4/4 dans l'ordre"
+Bureau;Agent technique (ordinateur);1;🏠 Mon accueil;agent.est;/bureau/;bureau.accueil;;Existe;"bouton ✓ ; colonnes 7/7 dans l'ordre ; indicateurs 6/6 ; carte ✓"
+Bureau;Agent technique (ordinateur);2;🏘️ Mes fermes;agent.est;/fermes/;fermes.liste;fermes/liste.html;Existe;"bouton ✓ ; colonnes 9/9 dans l'ordre ; carte ✓ ; titre du tableau différent"
+Bureau;Agent technique (ordinateur);3;➕ Enrôlement;agent.est;/bureau/enrolement;bureau.enrolement;bureau/enrolement.html;Existe;"bouton ✓ ; colonnes 9/9 dans l'ordre"
+Bureau;Agent technique (ordinateur);4;🚗 Mes tournées;agent.est;/tournee;agent.tournee;agent/tournee.html;Existe;"bouton ✓ ; colonnes 7/7 dans l'ordre"
+Bureau;Agent technique (ordinateur);5;📋 Visites;agent.est;/bureau/visites;bureau.visites;bureau/visites.html;Existe;"bouton ✓ ; colonnes 8/8 dans l'ordre"
+Bureau;Agent technique (ordinateur);6;⚖️ Contrôle des saisies;agent.est;/hors-ligne/a-verifier;hors_ligne.conflits;terrain/agent/a_verifier.html;Existe;"bouton ✓ ; colonnes 9/9 dans l'ordre"
+Bureau;Agent technique (ordinateur);7;📦 Stocks et livraisons;agent.est;/livraisons/;livraisons.liste;livraisons/liste.html;Existe;"bouton ✓ ; colonnes 7/7 dans l'ordre"
 Bureau;Agent technique (ordinateur);8;🛒 Commandes;agent.est;/commandes;agent.commandes;agent/commandes.html;Existe;"bouton ✓ ; colonnes 8/8 dans l'ordre"
-Bureau;Auditeur ANINF;1;📊 Tableau de bord d'audit;aninf;/bureau/;bureau.accueil;;Partiel;"bouton « ＋ Lancer une vérification » absent ; colonnes 0/3 ; indicateurs 0/4 ; carte absente ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Auditeur ANINF;2;📜 Journal d'audit;aninf;/journal/;journal.index;journal/index.html;Partiel;"bouton ✓ ; colonnes 1/4 ; Excel absent ; Imprimer absent"
-Bureau;Auditeur ANINF;3;🔗 Intégrité;aninf;/integrite;controle.integrite;controle/integrite.html;Partiel;"bouton « ＋ Lancer une vérification » absent ; colonnes 0/2 ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Auditeur ANINF;4;📷 Journal des scans;aninf;/journal/scans;journal.scans;journal/scans.html;Partiel;"bouton ✓ ; colonnes 3/4 ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Auditeur ANINF;5;⬇️ Journal des exports;aninf;/bureau/exports;bureau.exports;bureau/exports.html;Partiel;"bouton « ＋ Nouvel export » absent ; colonnes 3/3 dans l'ordre ; titre du tableau différent ; Excel absent ; Imprimer absent"
-Bureau;Auditeur ANINF;6;🔍 Recherche;aninf;/bureau/recherche;bureau.recherche;bureau/recherche.html;Partiel;"bouton « ＋ Nouvelle recherche » absent ; colonnes 0/2 ; titre du tableau différent ; Excel absent ; Imprimer absent"
+Bureau;Auditeur ANINF;1;📊 Tableau de bord d'audit;aninf;/bureau/;bureau.accueil;;Existe;"bouton ✓ ; colonnes 3/3 dans l'ordre ; indicateurs 4/4 ; carte ✓"
+Bureau;Auditeur ANINF;2;📜 Journal d'audit;aninf;/journal/;journal.index;journal/index.html;Existe;"bouton ✓ ; colonnes 4/4 dans l'ordre"
+Bureau;Auditeur ANINF;3;🔗 Intégrité;aninf;/integrite;controle.integrite;controle/integrite.html;Existe;"bouton ✓ ; colonnes 2/2 dans l'ordre"
+Bureau;Auditeur ANINF;4;📷 Journal des scans;aninf;/journal/scans;journal.scans;journal/scans.html;Existe;"bouton ✓ ; colonnes 4/4 dans l'ordre"
+Bureau;Auditeur ANINF;5;⬇️ Journal des exports;aninf;/bureau/exports;bureau.exports;bureau/exports.html;Existe;"bouton ✓ ; colonnes 3/3 dans l'ordre"
+Bureau;Auditeur ANINF;6;🔍 Recherche;aninf;/bureau/recherche;bureau.recherche;bureau/recherche.html;Existe;"bouton ✓ ; colonnes 2/2 dans l'ordre"
 Terrain;Éleveur (téléphone);1;1. Connexion;;/auth/connexion;auth.connexion;auth/connexion.html;Existe;
 Terrain;Éleveur (téléphone);2;2. Livraison à confirmer;eleveur;/;accueil.index;accueil.html;Existe;
 Terrain;Éleveur (téléphone);3;3. J'ai reçu moins;eleveur;/livraisons/mes-livraisons;livraisons.mes_livraisons;livraisons/mes_livraisons.html;Existe;
@@ -54,7 +54,7 @@ Terrain;Éleveur (téléphone);7;7. Pesée;eleveur;/aller/peser;eleveur.aller;;E
 Terrain;Éleveur (téléphone);8;8. Sortie de poulets;eleveur;/aller/sortie;eleveur.aller;;Existe;
 Terrain;Éleveur (téléphone);9;9. Signaler un poulet malade;eleveur;/aller/malade;eleveur.aller;;Existe;
 Terrain;Éleveur (téléphone);10;10. Quand ça ne va pas;eleveur;/;accueil.index;accueil.html;Existe;
-Terrain;Éleveur (téléphone);11;11. Vaccin du jour;eleveur;/soins;;;Absent;HTTP 404
+Terrain;Éleveur (téléphone);11;11. Vaccin du jour;eleveur;/vaccins-et-soins;eleveur.soins;eleveur/soins.html;Existe;
 Terrain;Éleveur (téléphone);12;12. Bande terminée;eleveur;/bandes/mes-bandes;bandes.mes_bandes;bandes/mes_bandes.html;Existe;
 Terrain;Éleveur (téléphone);13;13. Pas de réseau;eleveur;/;accueil.index;accueil.html;Existe;
 Terrain;Éleveur (téléphone);14;14. Page publique du QR code;;/q/;;;Existe;page publique du QR : route /q/<numéro>
@@ -83,16 +83,16 @@ Terrain;Agent et opérateur (téléphone);15;6. En attente du vétérinaire;abat
 Terrain;Agent et opérateur (téléphone);16;7. Lots qui arrivent;abattoir.owendo;/operateur/attendus;operateur.attendus;operateur/attendus.html;Existe;boutons 1/1
 Terrain;Agent et opérateur (téléphone);17;8. Mes réceptions;abattoir.owendo;/operateur/receptions;operateur.receptions;operateur/receptions.html;Existe;
 Terrain;Opérateur (téléphone) et traçabilité aval;1;Accueil de l'opérateur , pensé pour le téléphone (on reçoit au quai, pas au bureau). Le sc;abattoir.owendo;/;accueil.index;accueil.html;Existe;
-Terrain;Opérateur (téléphone) et traçabilité aval;2;Scan par la caméra du téléphone (fonctionne grâce au HTTPS). Saisie du numéro à la main en;abattoir.owendo;/operateur/scanner;operateur.scanner;operateur/scanner.html;Partiel;boutons 0/1 (manque : Chercher ce numéro)
+Terrain;Opérateur (téléphone) et traçabilité aval;2;Scan par la caméra du téléphone (fonctionne grâce au HTTPS). Saisie du numéro à la main en;abattoir.owendo;/operateur/scanner;operateur.scanner;operateur/scanner.html;Existe;boutons 1/1
 Terrain;Opérateur (téléphone) et traçabilité aval;3;Les « événements vérifiables » (fonction 63) sont contrôlés automatiquement, l'opérateur n;abattoir.owendo;/operateur/scanner;operateur.scanner;operateur/scanner.html;Existe;boutons 1/1
 Terrain;Opérateur (téléphone) et traçabilité aval;4;Contrôle des écarts (fonction 58). Écart de nombre ou morts à l'arrivée au-delà du seuil (;abattoir.owendo;/operateur/scanner;operateur.scanner;operateur/scanner.html;Partiel;boutons 0/1 (manque : Valider avec l'écart)
 Terrain;Opérateur (téléphone) et traçabilité aval;5;Unicité et non-réutilisation (fonction 65). Un QR ne peut être reçu qu'une fois. Le messag;abattoir.owendo;/operateur/scanner;operateur.scanner;operateur/scanner.html;Partiel;boutons 0/2 (manque : Appeler l'agent de la ferme, Scanner un autre lot)
 Terrain;Opérateur (téléphone) et traçabilité aval;6;Lot non validable (fonction 63). Les camions arrivent quand même : on ne peut pas laisser ;abattoir.owendo;/operateur/scanner;operateur.scanner;operateur/scanner.html;Partiel;boutons 0/2 (manque : Recevoir sous réserve, Refuser le lot)
 Terrain;Opérateur (téléphone) et traçabilité aval;7;Fonction 66. 4 chiffres clés et un tableau par province, dans la tuile « Tableau de bord »;dge;/tracabilite/tableau-de-bord;;;Absent;HTTP 404
 Terrain;Opérateur (téléphone) et traçabilité aval;8;Chaque scan, accepté ou refusé, est tracé. C'est la preuve de traçabilité pour l'audit, et;aninf;/journal/scans;journal.scans;journal/scans.html;Existe;
-Terrain;Formulaires, catalogue, fermes (téléphone et bureau);1;1. Une liste + un bouton;eleveur;/eleveur/stock;;;Absent;HTTP 404
-Terrain;Formulaires, catalogue, fermes (téléphone et bureau);2;2. Formulaire en fenêtre;eleveur;/eleveur/achat;;;Absent;HTTP 404
-Terrain;Formulaires, catalogue, fermes (téléphone et bureau);3;3. Toucher une ligne = formulaire prérempli;eleveur;/eleveur/stock;;;Absent;HTTP 404
+Terrain;Formulaires, catalogue, fermes (téléphone et bureau);1;1. Une liste + un bouton;eleveur;/aller/peser;eleveur.aller;;Partiel;boutons 1/2 (manque : ＋ Ajouter une saisie)
+Terrain;Formulaires, catalogue, fermes (téléphone et bureau);2;2. Formulaire en fenêtre;eleveur;/aller/peser;eleveur.aller;;Existe;boutons 2/2
+Terrain;Formulaires, catalogue, fermes (téléphone et bureau);3;3. Toucher une ligne = formulaire prérempli;eleveur;/aller/peser;eleveur.aller;;Existe;boutons 2/2
 Terrain;Formulaires, catalogue, fermes (téléphone et bureau);4;4. Bande clôturée : lecture seule;eleveur;/bandes/mes-bandes;bandes.mes_bandes;bandes/mes_bandes.html;Partiel;boutons 1/2 (manque : 📞 Appeler Paul)
 Terrain;Formulaires, catalogue, fermes (téléphone et bureau);5;5. Ouvrir une bande : chair ou ponte;eleveur;/bandes/ouvrir;bandes.ouvrir;bandes/choisir_ferme.html;Partiel;boutons 1/2 (manque : Ouvrir la bande)
 Terrain;Formulaires, catalogue, fermes (téléphone et bureau);6;6. Catalogue des intrants (pilotage);dge;/administration/catalogue/;catalogue.index;administration/catalogue.html;Existe;
@@ -123,11 +123,11 @@ Terrain;GPS sur le terrain;11;11. Après l'envoi;agent.est;/terrain/ferme-provis
 Terrain;Notifications, actions de l'agent, fiche papier;1;1. Sur l'écran verrouillé;eleveur;/moi/notifications;notifications.mes_notifications;notifications/mes_notifications.html;Existe;
 Terrain;Notifications, actions de l'agent, fiche papier;2;2. Mes notifications;eleveur;/moi/notifications;notifications.mes_notifications;notifications/mes_notifications.html;Existe;
 Terrain;Notifications, actions de l'agent, fiche papier;3;3. Ce que reçoit chacun;agent.est;/moi/notifications;notifications.mes_notifications;notifications/mes_notifications.html;Existe;
-Terrain;Notifications, actions de l'agent, fiche papier;4;4. Accueil de l'agent;agent.est;/;accueil.index;accueil.html;Partiel;boutons 1/2 (manque : 🚗 Ma tournée 4 fermes aujourd'hui 4)
+Terrain;Notifications, actions de l'agent, fiche papier;4;4. Accueil de l'agent;agent.est;/;accueil.index;accueil.html;Partiel;boutons 0/2 (manque : 🚗 Ma tournée 4 fermes aujourd'hui 4, Voir)
 Terrain;Notifications, actions de l'agent, fiche papier;5;5. Mes actions;agent.est;/terrain/actions;notifications.actions_terrain;terrain/agent/actions.html;Existe;boutons 1/1
 Terrain;Notifications, actions de l'agent, fiche papier;6;6. Marquer une action comme faite;agent.est;/terrain/actions;notifications.actions_terrain;terrain/agent/actions.html;Existe;boutons 2/2
 Terrain;Notifications, actions de l'agent, fiche papier;7;7. Ma bande : imprimer la fiche;eleveur;/ma-bande;eleveur.ma_bande;eleveur/ma_bande.html;Existe;boutons 1/1
 Terrain;Notifications, actions de l'agent, fiche papier;8;8. La fiche imprimée (A4);eleveur;/ma-bande;eleveur.ma_bande;eleveur/ma_bande.html;Existe;
-Terrain;Mon argent (éleveur);1;Écran 1;eleveur;/argent;;;Absent;HTTP 404
-Terrain;Mon argent (éleveur);2;Écran 2;eleveur;/argent;;;Absent;HTTP 404
-Terrain;Mon argent (éleveur);3;Écran 3;eleveur;/argent;;;Absent;HTTP 404
+Terrain;Mon argent (éleveur);1;Écran 1;eleveur;/mon-argent?periode=tout;argent.mon_argent;argent/mon_argent.html;Existe;boutons 2/2
+Terrain;Mon argent (éleveur);2;Écran 2;eleveur;/mon-argent/fiscalite;argent.fiscalite;argent/fiscalite.html;Existe;
+Terrain;Mon argent (éleveur);3;Écran 3;eleveur;/mon-argent/bilan;argent.bilan;argent/bilan.html;Existe;boutons 1/1

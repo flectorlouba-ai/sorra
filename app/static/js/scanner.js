@@ -40,7 +40,7 @@
       bloc.hidden = true;
     }
     var valider = document.querySelector('[data-valider]');   // lot 19 ter : « Valider avec cet écart »
-    if (valider) valider.textContent = aExpliquer ? 'Valider avec cet écart' : '✓ Valider la réception';
+    if (valider) valider.textContent = aExpliquer ? "Valider avec l'écart" : '✓ Valider la réception';
     if (motifs) {
       var sansAnnonce = chiffres.getAttribute('data-annonce') === '';
       motifs.hidden = !(aExpliquer || (sansAnnonce && document.querySelector('input[name=motif_ecart]:checked')));

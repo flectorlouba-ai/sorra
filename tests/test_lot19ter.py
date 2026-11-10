@@ -231,7 +231,7 @@ def test_aucun_mot_technique_chez_l_operateur(client, terrain):
         p.date = AUJ - timedelta(days=9)
     db.session.commit()
     page = texte(client.get(f'/operateur/lot?code={a_part.code}'))
-    assert 'Gardez ces poulets à part' in page and 'Je les reçois et je les garde à part' in page and 'Je refuse ce lot' in page
+    assert 'Gardez ces poulets à part' in page and 'Je les reçois et je les garde à part' in page and 'Refuser le lot' in page
     pages.append(page)
     r = client.post('/operateur/recevoir', data={'numero': a_part.numero, 'vivants': '50', 'morts': '0', 'poids': '100',
                                                  'choix': 'reserve'}, follow_redirects=True)
