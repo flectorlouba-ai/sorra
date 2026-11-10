@@ -22,7 +22,7 @@ Correspondance écrans ↔ routes : `docs/conformite/correspondance.csv` ; captu
 | K3 — Éleveur + Agent (bureau) | 16 | 16 | tournée : pas d'archivage d'une ligne calculée ; Mon argent : opérations archivées une à une (fiche du lot A1), bouton bilan PDF et régime fiscal au lot G (K4) | 0 | 2026-11-10-1595e4d |
 | K2 — Administrateur + Auditeur | 13 | 13 | « Modifié le » de la matrice des droits : « — » (pas d'historique) | 0 | 2026-11-10-3f2d408 |
 | K4 — téléphone Éleveur | 30 écrans + Mon argent (3) | 33 | boutons d'un état précis déclarés (`ECARTS_TERRAIN`) ; nom fictif « Paul » | 0 | 2026-11-10-926e3cf |
-| K5 — téléphone Agent, Opérateur, GPS, notifications, actions | 54 | 54 | sous-états après un geste (scan, relevé GPS, étape 2 de l'enrôlement, feuille d'une action) et valeurs fictives déclarés ; « Je les reçois et je les garde à part » gardé (mot technique interdit) | 0 | (au déploiement) |
+| K5 — téléphone Agent, Opérateur, GPS, notifications, actions | 54 | 54 | sous-états après un geste (scan, relevé GPS, étape 2 de l'enrôlement, feuille d'une action) et valeurs fictives déclarés ; « Je les reçois et je les garde à part » gardé (mot technique interdit) | 0 | 2026-11-10-992b803 |
 
 Déployé sur la démo : voir `docs/rapport_suite.md` (une ligne par sous-lot).
 
@@ -39,4 +39,4 @@ Déployé sur la démo : voir `docs/rapport_suite.md` (une ligne par sous-lot).
 - Limite connue : le jeu de démonstration n'a presque pas de ventes ; le graphique et le bilan de l'éleveur sont donc presque
   vides (à enrichir : `deploiement/demo/donnees_demo.json`).
 
-Déployé sur la démo : oui (chaque sous-lot) — dernière version : voir `docs/rapport_suite.md`.
+Déployé sur la démo : **oui** (chaque sous-lot) — dernière version : 2026-11-10-992b803.
