@@ -16,4 +16,4 @@
   déposer → aperçu → vérifier → importer → lot n° 1 → rapport Excel → Annuler le lot (motif) → les bandes sont archivées.
 - `dge` : même chose avec un .csv de saisies ; `veto` / `agent` : accès refusé.
 
-Déployé sur la démo : voir `docs/rapport_suite.md`.
+Déployé sur la démo : **oui** — version 2026-11-10-594f224.
