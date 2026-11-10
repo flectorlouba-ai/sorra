@@ -1036,3 +1036,29 @@ body.bureau .case-choix input{margin-right:4px;}
 .page-connexion .bandeau-demo{position:fixed;top:0;left:0;right:0;}
 .page-connexion{justify-content:flex-start;}
 .page-connexion .login-scene{margin:auto;padding:28px 0 8px;}
+/* ── Connexion : format compact (fenêtres basses, au gabarit de YL.1) ── */
+.page-connexion .login-card{max-width:340px;}
+.page-connexion .login-head{padding:1rem 1.25rem .9rem;}
+.page-connexion .login-head-logo{width:56px;height:56px;margin-bottom:.5rem;padding:5px;border-radius:10px;}
+.page-connexion .login-head h1{font-size:1.05rem;}
+.page-connexion .login-head p{font-size:.68rem;}
+.page-connexion .login-body{padding:1rem 1.25rem 1.1rem;}
+.page-connexion .login-body .mb-3{margin-bottom:.7rem!important;}
+.page-connexion .login-body .mb-4{margin-bottom:.9rem!important;}
+.page-connexion .form-label{font-size:.66rem;margin-bottom:3px;}
+.page-connexion .form-control{padding:7px 10px;font-size:.84rem;}
+.page-connexion .btn-login{padding:8px;font-size:.86rem;}
+.page-connexion .login-aide{margin-top:7px;font-size:.72rem;}
+.page-connexion .login-code{margin-top:6px;}
+.page-connexion .btn-login-code{min-height:36px;padding:6px;font-size:.8rem;}
+.page-connexion .login-foot{padding:7px;font-size:.68rem;}
+.page-connexion .erreur-box,.page-connexion .alert{font-size:.78rem!important;padding:6px 10px!important;margin-bottom:.7rem!important;}
+.page-connexion .login-scene{gap:12px;padding-top:22px;}
+.page-connexion .comptes-demo{max-width:340px;padding:10px 12px;}
+.page-connexion .comptes-demo-titre{font-size:.8rem;margin-bottom:2px;}
+.page-connexion .comptes-demo-titre small{font-size:.66rem;}
+.page-connexion .comptes-demo-groupe{margin-top:5px;}
+.page-connexion .comptes-demo-nom{font-size:.6rem;margin-bottom:3px;}
+.page-connexion .comptes-demo ul{gap:3px;}
+.page-connexion .compte-demo{min-height:0;padding:4px 7px;font-size:.7rem;line-height:1.2;border-radius:6px;}
+.page-connexion .compte-demo strong{font-size:.7rem;}
