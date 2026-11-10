@@ -6,7 +6,7 @@
 |---|---|---|---|
 | A2 — catalogue, fournisseurs, origines | `85c4a9e` | oui | 2026-11-10-85c4a9e |
 | A3 — programme POUFA, capacité, production, ponte | `fbf03ae` | oui | 2026-11-10-fbf03ae |
-| E — carte, GPS, tournées (**partie a**) | voir la note ci-dessous | voir la note ci-dessous | — |
+| E — carte, GPS, tournées (**partie a**) | `9a16679` | oui | 2026-11-10-9a16679 |
 | C — indicateurs | **non commencé** (temps) | — | — |
 
 - Chaque lot : suite complète verte avant la fusion (A2 : 463 tests, A3 : 477, E-a : 491).
