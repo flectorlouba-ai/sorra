@@ -19,4 +19,4 @@ Rien de l'existant ne change : tout s'ajoute et n'apparaît que pour une bande *
 - **Ordinateur, `admin`** : Paramètres → `ponte.chute_pct` = proposition quatre yeux.
 - Le jeu de démo n'a pas de bande de ponte : à ajouter dans `deploiement/demo/donnees_demo.json`.
 
-Déployé sur la démo : voir `docs/rapport_suite.md`.
+Déployé sur la démo : **oui** — version 2026-11-10-7ec1e19.
