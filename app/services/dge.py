@@ -53,6 +53,8 @@ def prevoir(ferme, jour, produit, quantite, fournisseur, user):
     from app.services import intrants
     if ferme is None or produit is None:
         raise RegleDge('Choisissez la ferme et le produit.')
+    if not ferme.programme_poufa:                                  # lot A3
+        raise RegleDge("Cette ferme est hors programme : pas de livraison ni de commande de l'État.")
     if jour is None:
         raise RegleDge('Indiquez la date prévue.')
     if not quantite or quantite <= 0:

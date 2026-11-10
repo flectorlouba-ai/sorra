@@ -43,6 +43,9 @@ class Ferme(ArchivableMixin, SaisieTerrainMixin, db.Model):
     # Lot 13 : financement BCEG et responsable de la ferme (seul à répondre « Ma banque »)
     financee_bceg        = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
     responsable_id       = db.Column(db.Uuid, db.ForeignKey('utilisateur.id'), nullable=True)
+    # Lot A3 : membre du programme POUFA (sinon : ni livraisons ni commandes de l'État, pas de cible) ; capacité
+    programme_poufa      = db.Column(db.Boolean, nullable=False, default=True, server_default=db.true())
+    bandes_par_an        = db.Column(db.Integer, nullable=True, default=6, server_default='6')
 
     province = db.relationship('Province')
     responsable = db.relationship('Utilisateur', foreign_keys=[responsable_id])
@@ -60,6 +63,15 @@ class Ferme(ArchivableMixin, SaisieTerrainMixin, db.Model):
     @property
     def numero(self):
         return self.numero_metier
+
+    @property
+    def capacite_a_completer(self):
+        """Lot A3 : aucun bâtiment en service, aucune place, ou bandes par an non renseignées."""
+        return not self.capacite or not self.bandes_par_an
+
+    @property
+    def libelle_programme(self):
+        return 'Programme POUFA' if self.programme_poufa else 'Hors programme'
 
     @property
     def capacite(self):

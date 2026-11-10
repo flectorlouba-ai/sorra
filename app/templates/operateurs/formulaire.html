@@ -10,6 +10,10 @@
 {%- endmacro %}
 
 {% block contenu %}
+{% import '_fiches.html' as fiches %}
+{# Lot A3 : le formulaire de l'opérateur s'ouvre en fenêtre au centre ; ✕ ramène à la fiche ou à la liste #}
+{% call fiches.fenetre('fen-operateur', ('Modifier ' ~ op.numero) if op else 'Nouvel opérateur',
+                       retour=url_for('operateurs.fiche', numero=op.numero) if op else url_for('operateurs.liste'), large=True) %}
 <form method="post" class="form-terrain" novalidate>
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   {% for e in erreurs %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ e }}</div>{% endfor %}
@@ -70,6 +74,7 @@
   {% endif %}
   {% if not op %}<div class="note-numero">Le numéro est donné automatiquement.</div>{% endif %}
 </form>
+{% endcall %}
 {% endblock %}
 
 {% block scripts %}

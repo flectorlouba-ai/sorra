@@ -5,7 +5,7 @@ from flask import (Blueprint, render_template, request, redirect, url_for, flash
                    Response, session)
 from flask_login import current_user
 
-from app import db
+from app import db, indicateurs
 from app.models import (Ferme, Province, Localite, Utilisateur, Profil, FermeInfrastructure, Batiment, Livraison,
                         UtilisateurFerme)
 from app.models.intrant import OrigineLivraison
@@ -14,7 +14,7 @@ from app.models.base import maintenant
 from app.models.ferme import SourcePosition
 from app.models.liste_deroulante import ld_choices
 from app.services import fermes as regles
-from app.services import geo, import_poufa, intrants
+from app.services import geo, import_poufa, intrants, parametres
 from app.services import bandes as regles_bandes
 from app.models import Bande
 from app.services.journal import enregistrer, Action
@@ -49,14 +49,23 @@ def controle_position(ferme):
 
 # ── Liste ───────────────────────────────────────────────────────────────
 
+def filtrer_programme(requete, choix):
+    """Lot A3 : filtre Programme / Hors programme / Toutes (listes, tableaux de bord, carte)."""
+    if choix == 'programme':
+        return requete.filter(Ferme.programme_poufa.is_(True))
+    if choix == 'hors':
+        return requete.filter(Ferme.programme_poufa.is_(False))
+    return requete
+
+
 @fermes_bp.route('/')
 @profil_requis(*LECTEURS)
 def liste():
     base = filtre_perimetre(Ferme.query)
     total = base.count()
     operationnelles = base.filter(Ferme.statut == 'Opérationnelle').count()
-    f = {k: request.args.get(k, '').strip() for k in ('province', 'cohorte', 'statut', 'q')}
-    q = base
+    f = {k: request.args.get(k, '').strip() for k in ('province', 'cohorte', 'statut', 'q', 'programme')}
+    q = filtrer_programme(base, f['programme'])
     if f['province'].isdigit():
         q = q.filter(Ferme.province_id == int(f['province']))
     if f['cohorte'] in ('1', '2'):
@@ -80,7 +89,9 @@ def liste():
         # L'agent filtre parmi les provinces où il a des fermes ou peut en créer
         ids = {fe.province_id for fe in base} | set(current_user.province_ids)
         provinces = [p for p in Province.query.order_by(Province.ordre) if p.id in ids]
-    return render_template('fermes/liste.html', fermes=fermes, total=total, urgences=urgences,
+    production = indicateurs.production_fermes(fermes)
+    return render_template('fermes/liste.html', fermes=fermes, total=total, urgences=urgences, production=production,
+                           hors_programme=base.filter(Ferme.programme_poufa.is_(False)).count(),
                            operationnelles=operationnelles, filtre=f, provinces=provinces,
                            statuts=[v for v, _ in ld_choices('statuts_ferme')],
                            peut_creer=regles.peut_creer(current_user))
@@ -216,7 +227,9 @@ def _contexte_formulaire(ferme, provinces, saisie, erreurs, suggestions=None):
                 agents=_agents() if a_profil(Profil.ADMIN, Profil.DGE) else [],
                 statuts=[v for v, _ in ld_choices('statuts_ferme')],
                 infrastructures=[v for v, _ in ld_choices('types_infrastructures')],
-                province_modifiable=ferme is None or a_profil(Profil.ADMIN))
+                province_modifiable=ferme is None or a_profil(Profil.ADMIN),
+                poids_sortie=indicateurs.poids_sortie_kg(),
+                bandes_defaut=parametres.obtenir('production.bandes_par_an_defaut', 6))
 
 
 def _lire(f, ferme, provinces):
@@ -289,11 +302,29 @@ def _lire(f, ferme, provinces):
         if aid and d['agent'] is None:
             erreurs.append('Agent technique inconnu.')
 
+    # Lot A3 : programme POUFA (cohorte seulement si oui) et capacité obligatoire
+    d['programme_poufa'] = f.get('programme_poufa', 'oui') != 'non'
+    try:
+        d['bandes_par_an'] = int((f.get('bandes_par_an') or '').strip())
+        if not 1 <= d['bandes_par_an'] <= 12:
+            raise ValueError
+    except ValueError:
+        d['bandes_par_an'] = None
+        erreurs.append('Indiquez le nombre de bandes par an (1 à 12).')
+    if ferme is None:
+        try:
+            d['nb_batiments'] = int((f.get('nb_batiments') or '').strip())
+            d['places'] = int((f.get('places') or '').strip())
+            if d['nb_batiments'] < 1 or d['nb_batiments'] > 30 or d['places'] < 1:
+                raise ValueError
+        except ValueError:
+            erreurs.append('Indiquez la capacité : le nombre de bâtiments et les places par bâtiment.')
+
     # Compléments (modification seulement)
     if ferme is not None:
         d['reference_ami'] = f.get('reference_ami', '').strip().upper() or None
         cohorte = f.get('cohorte', '')
-        d['cohorte'] = int(cohorte) if cohorte in ('1', '2') else None
+        d['cohorte'] = int(cohorte) if cohorte in ('1', '2') and d['programme_poufa'] else None
         statuts = [v for v, _ in ld_choices('statuts_ferme')] + [ferme.statut]
         d['statut'] = f.get('statut') if f.get('statut') in statuts else ferme.statut
         connues = [v for v, _ in ld_choices('types_infrastructures')] + \
@@ -347,7 +378,10 @@ def nouvelle():
         agent_id=agent.id if agent else None, latitude=d['latitude'], longitude=d['longitude'],
         gps_precision_m=d['gps_precision_m'] if d['latitude'] is not None else None,
         gps_source=d['gps_source'] if d['latitude'] is not None else None,
-        gps_date=maintenant() if d['latitude'] is not None else None)
+        gps_date=maintenant() if d['latitude'] is not None else None,
+        programme_poufa=d['programme_poufa'], bandes_par_an=d['bandes_par_an'])
+    for _ in range(d['nb_batiments']):
+        regles.ajouter_batiment(ferme, d['places'])
     db.session.commit()
     flash(f'Ferme {ferme.numero} créée.', 'success')
     _avertir_position(ferme)
@@ -379,7 +413,7 @@ def modifier(numero):
         ferme.gps_precision_m = d['gps_precision_m'] if d['latitude'] is not None else None
     ferme.latitude, ferme.longitude = d['latitude'], d['longitude']
     for champ in ('nom', 'exploitant_nom', 'exploitant_telephone', 'reference_ami', 'cohorte',
-                  'observations'):
+                  'observations', 'programme_poufa', 'bandes_par_an'):
         setattr(ferme, champ, d[champ])
     ferme.telephone_normalise = regles.normaliser_telephone(ferme.exploitant_telephone)
     ferme.province, ferme.localite = d['province'], d['localite']

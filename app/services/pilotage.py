@@ -11,7 +11,7 @@ from app.utils.permissions import filtre_perimetre
 
 
 def lire_filtres(args):
-    f = {k: (args.get(k) or '').strip() for k in ('province', 'cohorte', 'statut', 'du', 'au')}
+    f = {k: (args.get(k) or '').strip() for k in ('province', 'cohorte', 'statut', 'du', 'au', 'programme')}
     for cle in ('du', 'au'):
         try:
             f[cle + '_date'] = date.fromisoformat(f[cle]) if f[cle] else None
@@ -28,7 +28,29 @@ def fermes_filtrees(user, f):
         q = q.filter(Ferme.cohorte == int(f['cohorte']))
     if f.get('statut'):
         q = q.filter(Ferme.statut == f['statut'])
+    if f.get('programme') == 'programme':                       # lot A3 : Programme / Hors programme / Toutes
+        q = q.filter(Ferme.programme_poufa.is_(True))
+    elif f.get('programme') == 'hors':
+        q = q.filter(Ferme.programme_poufa.is_(False))
     return q
+
+
+def production(fermes):
+    """Lot A3 : production réelle 12 mois, cible et atteinte du programme, hors programme compté à part."""
+    p = indicateurs.production_fermes(fermes)
+    au_programme = [fe for fe in fermes if fe.programme_poufa]
+    hors = [fe for fe in fermes if not fe.programme_poufa]
+    reelle_prog = sum(p[fe.id]['reelle'] for fe in au_programme)
+    cible = sum(p[fe.id]['cible'] or 0 for fe in au_programme)
+    reelle_hors = sum(p[fe.id]['reelle'] for fe in hors)
+    objectif = indicateurs.objectif_national_t()
+    atteinte = indicateurs.taux_atteinte(reelle_prog, cible)
+    return {'reelle_programme': reelle_prog, 'cible': cible, 'atteinte': atteinte,
+            'couleur': indicateurs.couleur_atteinte(atteinte),
+            'fermes_hors': len(hors), 'reelle_hors': reelle_hors,
+            'reelle_totale': reelle_prog + reelle_hors, 'objectif': objectif,
+            'part_nationale': (reelle_prog + reelle_hors) * 100 / objectif if objectif else None,
+            'carcasse': (reelle_prog + reelle_hors) * indicateurs.rendement_carcasse()}
 
 
 def bandes_filtrees(user, f):
@@ -46,6 +68,7 @@ def tableau(user, f):
     bandes = bandes_filtrees(user, f).all()
     total = indicateurs.synthese(bandes, f.get('du_date'), f.get('au_date'))
     total['fermes'] = len(fermes)
+    total['production'] = production(fermes)
     total['fermes_actives'] = sum(1 for fe in fermes if fe.statut == 'Opérationnelle')
     par_province = []
     for p in Province.query.order_by(Province.ordre):
@@ -136,13 +159,15 @@ def feu_de_la_ferme(ferme):
     return pire
 
 
-def carte(user, province_id=None, largeur=640, hauteur=560, marge=12):
+def carte(user, province_id=None, largeur=640, hauteur=560, marge=12, programme=None):
     contours = geo.contours()
     provinces = {p.code: p for p in Province.query}
     codes = [p.code for p in provinces.values() if province_id is None or p.id == province_id]
     fermes = filtre_perimetre(Ferme.query, utilisateur=user)
     if province_id:
         fermes = fermes.filter(Ferme.province_id == province_id)
+    if programme in ('programme', 'hors'):                          # lot A3
+        fermes = fermes.filter(Ferme.programme_poufa.is_(programme == 'programme'))
     fermes = [fe for fe in fermes.all() if fe.a_une_position]
     xs = [pt[0] for c in codes for a in contours.get(c, []) for pt in a]
     ys = [pt[1] for c in codes for a in contours.get(c, []) for pt in a]

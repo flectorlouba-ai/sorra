@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import current_user
 
 from app import db, indicateurs
+from app.models.liste_deroulante import ld_choices
 from app.models import Ferme, Province, Profil, Batiment, Operateur, LivraisonLigne
 from app.models.bande import Bande, Pesee, Sortie, StatutBande, MotifSortie, SaisieAliment
 from app.models.sante import Traitement
@@ -262,6 +263,7 @@ def ouvrir():
             bande = regles.ouvrir(ferme, batiment, ligne, _nombre(request.form.get('effectif'), entier=True),
                                   _jour(request.form.get('date')), _nombre(request.form.get('poids_g')),
                                   current_user)
+            regles.typer(bande, request.form.get('type_production'), request.form.get('souche'))
             if sans_desinfection:
                 bande.ouverte_sans_desinfection = True
                 enregistrer(Action.SANS_DESINFECTION, table='bande', enregistrement_id=bande.id,
@@ -282,6 +284,7 @@ def ouvrir():
     return render_template('bandes/ouvrir.html', ferme=ferme, attente=attente, libres=libres, etats=etats,
                            erreur=erreur, saisie=request.values, duree=duree, avertissement=avertissement,
                            poids_defaut=parametres.obtenir('bandes.poids_poussin_g', 40),
+                           souches=[v for v, _ in ld_choices('souches')],
                            peut_rattrapage=regles.peut_rattrapage(current_user))
 
 

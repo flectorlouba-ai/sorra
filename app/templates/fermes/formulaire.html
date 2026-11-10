@@ -12,6 +12,10 @@
 {% block contenu %}
 {% if theme_terrain %}<div class="reseau-requis" data-reseau-requis>📶 <strong>Avec du réseau seulement</strong> : la création d'une ferme sans réseau arrivera plus tard.</div>{% endif %}
 {% set fe = ferme %}
+{% import '_fiches.html' as fiches %}
+{# Lot A3 : le formulaire s'ouvre en fenêtre (fenêtre au centre en bureau) ; ✕ ramène à la fiche ou à la liste #}
+{% call fiches.fenetre('fen-ferme', ('Modifier ' ~ fe.numero) if fe else 'Nouvelle ferme',
+                       retour=url_for('fermes.fiche', numero=fe.numero) if fe else url_for('fermes.liste'), large=True) %}
 <form method="post" class="form-terrain" id="form-ferme" novalidate>
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
@@ -120,6 +124,41 @@
   </div>
   {% endif %}
 
+  <div class="section-title mt-2">Programme et capacité</div>
+  {% set prog = val('programme_poufa', 'oui' if (not fe or fe.programme_poufa) else 'non') %}
+  <div class="form-group">
+    <span class="form-label">Membre du programme POUFA ?<span class="req">*</span></span>
+    <div class="choix-cases" data-programme>
+      <label class="case-choix"><input type="radio" name="programme_poufa" value="oui" {% if prog != 'non' %}checked{% endif %}><span>Oui</span></label>
+      <label class="case-choix"><input type="radio" name="programme_poufa" value="non" {% if prog == 'non' %}checked{% endif %}><span>Non</span></label>
+    </div>
+    <div class="form-hint">Hors programme : ni livraisons ni commandes de l'État, pas de cible ; la ferme est comptée à part.</div>
+  </div>
+  <div class="form-grid">
+    {% if not fe %}
+    <div class="form-group">
+      <label class="form-label" for="nb_batiments">Bâtiments<span class="req">*</span></label>
+      <input class="form-control" id="nb_batiments" name="nb_batiments" inputmode="numeric" value="{{ val('nb_batiments', 1) }}" data-calcul>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="places">Places par bâtiment<span class="req">*</span></label>
+      <input class="form-control" id="places" name="places" inputmode="numeric" value="{{ val('places', '') }}" placeholder="ex. 1000" data-calcul>
+    </div>
+    {% else %}
+    <div class="form-group">
+      <span class="form-label">Places</span>
+      <div class="mono" id="places-fixes" data-places="{{ fe.capacite }}">{{ fe.capacite|qte }} <span class="td-sous">({{ fe.batiments|selectattr('actif')|list|length }} bâtiment{{ 's' if fe.batiments|selectattr('actif')|list|length > 1 }}, à changer dans « Bâtiments »)</span></div>
+    </div>
+    {% endif %}
+    <div class="form-group">
+      <label class="form-label" for="bandes_par_an">Bandes par an<span class="req">*</span></label>
+      <input class="form-control" id="bandes_par_an" name="bandes_par_an" inputmode="numeric" value="{{ val('bandes_par_an', fe.bandes_par_an if fe else bandes_defaut) }}" data-calcul>
+    </div>
+    <div class="form-group span2">
+      <div class="production-directe" id="production-directe" data-poids="{{ poids_sortie }}" aria-live="polite"></div>
+    </div>
+  </div>
+
   {% if fe %}
   <div class="section-title mt-2">Compléments</div>
   <div class="form-grid">
@@ -164,9 +203,30 @@
   <button type="submit" class="btn-gros mt-3">{{ 'Enregistrer' if fe else 'Enregistrer la ferme' }}</button>
   {% if not fe %}<div class="note-numero">Le numéro est donné automatiquement.</div>{% endif %}
 </form>
+{% endcall %}
 {% endblock %}
 
 {% block scripts %}
+<script>
+// Lot A3 : production théorique en direct (places × bandes par an × poids de sortie)
+(function () {
+  var zone = document.getElementById('production-directe');
+  if (!zone) return;
+  function nombre(id) { var e = document.getElementById(id); return e ? parseFloat(String(e.value).replace(',', '.')) || 0 : 0; }
+  function maj() {
+    var fixes = document.getElementById('places-fixes');
+    var places = fixes ? parseFloat(fixes.dataset.places) || 0 : nombre('nb_batiments') * nombre('places');
+    var t = places * nombre('bandes_par_an') * parseFloat(zone.dataset.poids) / 1000;
+    var poufa = (document.querySelector('input[name=programme_poufa]:checked') || {}).value !== 'non';
+    zone.textContent = t > 0 ? '≈ ' + t.toLocaleString('fr-FR', {maximumFractionDigits: 1}) + ' t de poulet vif par an' +
+      (poufa ? ' : ce sera la cible de la ferme' : ' (hors programme : pas de cible)') : 'Production théorique : indiquez la capacité.';
+  }
+  document.querySelectorAll('[data-calcul], input[name=programme_poufa]').forEach(function (e) {
+    e.addEventListener('input', maj); e.addEventListener('change', maj);
+  });
+  maj();
+})();
+</script>
 <script>
 (function () {
   var prov = document.getElementById('province_id');

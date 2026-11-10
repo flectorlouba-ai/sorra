@@ -23,6 +23,8 @@
   {{ tuile({'cle': 'chiffres', 'ico': '📈', 'nom': 'Ses chiffres', 'lien': url_for('bandes.fiche', numero=bande.numero) if bande else url_for('bandes.liste')}) }}
 </div>
 <div class="carte carte-infos">
+  {% if ferme.capacite_a_completer %}<div class="info-ligne" data-capacite-a-completer>🏗️ <strong>Capacité à compléter</strong> : bâtiments, places, bandes par an</div>{% endif %}
+  <div class="info-ligne">{{ '🏛️ Programme POUFA' ~ (' · cohorte ' ~ ferme.cohorte if ferme.cohorte else '') if ferme.programme_poufa else '🏠 Hors programme' }}</div>
   <div class="info-ligne" data-position>📍 Position : {% if ferme.a_une_position %}relevée ✓{% if ferme.gps_precision_m %} ± {{ ferme.gps_precision_m|round|int }} m{% endif %}{% else %}<strong>à relever</strong>{% endif %}</div>
   <div class="info-ligne">🏦 BCEG : {{ 'financée' if ferme.financee_bceg else 'non financée' }}</div>
   <div class="info-ligne">📋 Dernière visite : {% if derniere %}le {{ derniere.faite_le.strftime('%d/%m/%Y') }} · {{ derniere.objet|lower }}{% else %}aucune{% endif %}</div>

@@ -191,6 +191,8 @@ def derniers_inventaires(ferme_ids):
 def commander(ferme, produit, quantite, motif, user):
     if produit is None:
         raise RegleAgent('Choisissez le produit.')
+    if not ferme.programme_poufa:                                  # lot A3
+        raise RegleAgent("Cette ferme est hors programme : pas de livraison ni de commande de l'État.")
     if not quantite or quantite <= 0:
         raise RegleAgent('Indiquez une quantité supérieure à 0.')
     c = CommandeIntrant(ferme_id=ferme.id, produit_id=produit.id, quantite=quantite,

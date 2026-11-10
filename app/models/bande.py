@@ -14,6 +14,13 @@ class StatutBande:
     LIBELLES = {EN_COURS: 'En cours', CLOTUREE: 'Clôturée'}
 
 
+class TypeProduction:
+    CHAIR = 'CHAIR'
+    PONTE = 'PONTE'
+    TOUS = (CHAIR, PONTE)
+    LIBELLES = {CHAIR: '🐔 Chair', PONTE: '🥚 Ponte'}
+
+
 class MotifSortie:
     """Fixés dans le code : l'abattoir exige un opérateur du registre."""
     ABATTOIR = 'Abattoir'
@@ -42,6 +49,9 @@ class Bande(ArchivableMixin, SaisieTerrainMixin, db.Model):
     bilan             = db.Column(db.JSON, nullable=True)   # figé à la clôture
     # Lot 10 : bande ouverte alors que le bâtiment n'était pas marqué « nettoyé et désinfecté »
     ouverte_sans_desinfection = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
+    # Lot A3 : chair ou ponte ; souche (liste « Souches »)
+    type_production   = db.Column(db.String(6), nullable=False, default='CHAIR', server_default='CHAIR')
+    souche            = db.Column(db.String(60), nullable=True)
 
     ferme = db.relationship('Ferme')
     batiment = db.relationship('Batiment')
@@ -70,6 +80,21 @@ class Bande(ArchivableMixin, SaisieTerrainMixin, db.Model):
     @property
     def numero(self):
         return self.numero_metier
+
+    @property
+    def ponte(self):
+        return self.type_production == TypeProduction.PONTE
+
+    @property
+    def libelle_type(self):
+        return TypeProduction.LIBELLES.get(self.type_production, self.type_production)
+
+    @property
+    def origine_poussins(self):
+        """Lot A3 : déduite des livraisons des poussins (Programme / Externe) ; None si rattrapage."""
+        from app.models.intrant import OrigineLivraison
+        origines = {OrigineLivraison.ORIGINES.get(bp.ligne.livraison.origine) for bp in self.poussins}
+        return ' + '.join(sorted(o for o in origines if o)) or None
 
     def aliment_veille(self, jour):
         """(produit, sacs) le plus donné la veille de `jour`, ou None (bouton « Comme hier », lot 12)."""
