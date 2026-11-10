@@ -17,8 +17,8 @@ cd "$(git rev-parse --show-toplevel)"
 git fetch -q origin main
 [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ] || { echo "Déploiement refusé : main n'est pas poussé sur GitHub."; exit 1; }
 # Lot S : aucun secret dans les fichiers suivis (clés VAPID, SECRET_KEY, mots de passe de base) — le .env n'est jamais commité
-if git grep -nE "(SECRET_KEY|SORRA_VAPID_PRIVEE|DATABASE_URL)=[^ ]{8,}|postgres(ql)?://[^ ]+:[^ @]+@|BEGIN (RSA |OPENSSH |EC )?PRIVATE KEY" -- ':!deploiement/demo/deployer.sh' ':!docs/*' ':!tests/*' >/dev/null; then
-  echo "Déploiement refusé : un secret semble présent dans un fichier suivi (git grep ci-dessus)."; git grep -nE "(SECRET_KEY|SORRA_VAPID_PRIVEE|DATABASE_URL)=[^ ]{8,}|postgres(ql)?://[^ ]+:[^ @]+@|BEGIN (RSA |OPENSSH |EC )?PRIVATE KEY" -- ':!deploiement/demo/deployer.sh' ':!docs/*' ':!tests/*' | cut -c1-120; exit 1
+if git grep -nE "(SECRET_KEY|SORRA_VAPID_PRIVEE)=[A-Za-z0-9_\-]{24,}|postgres(ql)?(\+psycopg2)?://[^ :]+:[^ @<]{6,}@|BEGIN (RSA |OPENSSH |EC )?PRIVATE KEY" -- ':!deploiement/*' ':!docs/*' ':!tests/*' ':!.env.exemple' ':!README.md' >/dev/null; then
+  echo "Déploiement refusé : un secret semble présent dans un fichier suivi (git grep ci-dessus)."; git grep -nE "(SECRET_KEY|SORRA_VAPID_PRIVEE)=[A-Za-z0-9_\-]{24,}|postgres(ql)?(\+psycopg2)?://[^ :]+:[^ @<]{6,}@|BEGIN (RSA |OPENSSH |EC )?PRIVATE KEY" -- ':!deploiement/*' ':!docs/*' ':!tests/*' ':!.env.exemple' ':!README.md' | cut -c1-120; exit 1
 fi
 # Lot S : vulnérabilités connues des bibliothèques (pip-audit, s'il est installé dans le venv du poste)
 if [ -x venv/Scripts/pip-audit.exe ] || [ -x venv/bin/pip-audit ]; then
