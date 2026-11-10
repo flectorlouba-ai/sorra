@@ -19,4 +19,4 @@
 - **Ordinateur, `admin`** : Bandes → une bande clôturée → « 📄 Bilan (PDF) ».
 - **Téléphone, `eleveur`** : Mes bandes → « 📄 Bilan de la bande » sous une bande terminée.
 
-Déployé sur la démo : voir `docs/rapport_suite.md`.
+Déployé sur la démo : **oui** — version 2026-11-10-b50ee43 (fusion commune avec le lot T).

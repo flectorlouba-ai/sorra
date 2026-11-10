@@ -35,4 +35,4 @@ Rien de l'existant ne change sur le téléphone : on ajoute.
 - **Ordinateur, `veto` / `dge`** : 🔔 dans la zone titre → Mes notifications (style bureau), alertes grisées.
 - **Serveur** : `flask notifications-envoyer` affiche « n créée(s), m envoyée(s) » (et « clés VAPID absentes » sans clés).
 
-Déployé sur la démo : voir `docs/rapport_suite.md`.
+Déployé sur la démo : **oui** — version 2026-11-10-b50ee43 (sans clés VAPID : écrans présents, aucun envoi tant que le propriétaire n'a pas posé les clés et le cron).
