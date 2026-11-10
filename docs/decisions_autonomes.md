@@ -121,3 +121,6 @@ Chaque ligne : lot · question · choix · autre option · comment revenir en ar
 | F | Ventes d'œufs | Table `vente_oeufs` (plateaux × 30 + unités, prix, acheteur) ; recette de Mon argent et ligne « Ventes d'œufs » du bilan ; fiche du lot A1 (modifier / archiver) ; stock jamais négatif | Vente = sortie de bande | `services/oeufs` |
 | F | Chute de ponte | Comparaison des moyennes 7 jours / 7 jours précédents ; seuil `ponte.chute_pct` (quatre yeux) ; alerte dans les raisons existantes + notification immédiate à l'agent (type feu rouge, non désactivable) | Seuil absolu de taux | — |
 | F | Réforme | = clôture d'une bande de ponte avec le motif « Réforme » (fenêtre existante de la fiche de la bande) | Geste dédié | — |
+| B | Portée du moteur | Trois modèles d'import (bandes en reprise, saisies, dépenses) réutilisant les règles existantes ; l'import POUFA des fermes (lot 0) reste en place ; d'autres modèles s'ajoutent dans `imports.MODELES` | Réécrire l'import des fermes | `services/imports` |
+| B | Annulation d'un lot | Archive chaque enregistrement créé (archive_le), jamais de suppression ; motif obligatoire ; journal | Suppression | — |
+| B | Fichier en attente | Gardé dans la session (5 Mo au plus) entre l'aperçu et l'import ; rien n'est écrit sur le disque | Dossier temporaire | — |

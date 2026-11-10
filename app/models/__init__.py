@@ -32,6 +32,7 @@ from app.models.position import PositionFerme  # noqa: F401,E402  (lot E)
 from app.models.rapport import Rapport, TypeRapport  # noqa: F401,E402  (lot D)
 from app.models.action import Action, OrigineAction, Priorite  # noqa: F401,E402  (lot D)
 from app.models.oeufs import VenteOeufs  # noqa: F401,E402  (lot F)
+from app.models.imports import LotImport, LigneImport, CorrespondanceImport  # noqa: F401,E402  (lot B)
 from app.models.notification import AbonnementPush, PreferenceNotification, Notification, TypeNotification  # noqa: F401,E402  (lot T)
 
 # Lot A : saisies archivées masquées partout (voir app/models/base.py)

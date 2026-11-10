@@ -1,0 +1,57 @@
+{% extends '_base.html' %}
+{% block titre %}Imports{% endblock %}
+{% block icone %}upload{% endblock %}
+{% block page_titre %}⬆️ Imports Excel / CSV{% endblock %}
+{% block page_sous_titre %}Reprise de l'existant : un modèle, un fichier, un aperçu, puis un lot annulable (ce qu'il crée porte l'origine « reprise »){% endblock %}
+{% block contenu %}
+{# Lot B : moteur générique d'imports. Rien n'est créé avant la confirmation ; tout est au journal. #}
+<div class="card p-3 mb-3" data-import-modeles>
+  <form method="post" action="{{ url_for('imports.apercu') }}" enctype="multipart/form-data" class="row g-2 align-items-end">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="col-md-4"><label class="form-label" for="modele">1. Quoi importer ?</label>
+      <select class="form-select" id="modele" name="modele">{% for k, m in modeles.items() %}<option value="{{ k }}">{{ m.icone }} {{ m.nom }}</option>{% endfor %}</select></div>
+    <div class="col-md-4"><label class="form-label" for="fichier">2. Le fichier (.xlsx ou .csv)</label>
+      <input class="form-control" type="file" id="fichier" name="fichier" accept=".xlsx,.csv"></div>
+    <div class="col-md-4 d-flex gap-2"><button type="submit" class="btn btn-primary">3. Voir l'aperçu</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('imports.modele', cle='bandes') }}" data-modele-lien data-base="{{ url_for('imports.modele', cle='X') }}">⬇️ Modèle Excel</a></div>
+  </form>
+  <div class="td-sous mt-2">Les colonnes du fichier sont rapprochées de celles du modèle ; votre correspondance est retenue pour la prochaine fois.</div>
+</div>
+{% if apercu %}
+<div class="card p-3 mb-3" data-import-apercu>
+  <h3 class="h6">Aperçu · {{ apercu.nom }} · {{ apercu.total }} ligne(s)</h3>
+  <form method="post" action="{{ url_for('imports.verifier') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="table-wrap"><div class="table-scroll"><table>
+      <thead>
+        <tr><th>Ligne</th>{% for e in apercu.entetes %}<th>{{ e or '—' }}</th>{% endfor %}</tr>
+        <tr><th></th>{% for e in apercu.entetes %}<th>{% if e %}<select class="form-select form-select-sm" name="col_{{ loop.index0 }}" data-correspondance="{{ e }}">
+            <option value="">— ignorer —</option>{% for k, lib, obl, _ in modeles[apercu.cle].colonnes %}<option value="{{ k }}"{% if apercu.corresp.get(e) == k %} selected{% endif %}>{{ lib }}{{ ' *' if obl }}</option>{% endfor %}
+          </select>{% endif %}</th>{% endfor %}</tr>
+      </thead>
+      <tbody>{% for n, l in apercu.lignes %}<tr><td class="td-num">{{ n }}</td>{% for v in l %}<td>{{ v }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+    </table></div></div>
+    <button type="submit" class="btn btn-primary mt-2">Vérifier les lignes</button>
+  </form>
+</div>
+{% endif %}
+<div class="table-wrap" data-import-lots>
+  <div class="outils-tableau"><span class="titre-tableau">Lots d'import</span><span>{{ lots|length }} lot(s)</span>
+    <button type="button" class="pr2" data-imprimer>🖨️ Imprimer</button><button type="button" class="xl" data-excel>⬇️ Excel</button></div>
+  <div class="table-scroll"><table>
+    <thead><tr><th>N°</th><th>Quoi</th><th>Fichier</th><th>Par</th><th>Le</th><th>Importées / lignes</th><th>État</th></tr></thead>
+    <tbody>{% for l in lots %}
+      <tr class="tr-click" onclick="location.href='{{ url_for('imports.lot', ident=l.id) }}'"><td class="td-num">{{ l.id }}</td><td>{{ modeles[l.modele].nom if l.modele in modeles else l.modele }}</td>
+        <td>{{ l.fichier }}</td><td>{{ l.auteur.nom_complet }}</td><td>{{ l.cree_le|date_locale('%d/%m/%Y %H:%M') }}</td><td>{{ l.nb_importees }} / {{ l.nb_lignes }}</td>
+        <td>{% if l.annule_le %}<span class="badge badge-off">Annulé</span>{% else %}<span class="badge badge-ok">Importé</span>{% endif %}</td></tr>
+    {% else %}<tr><td colspan="7" class="table-vide">Aucun import pour le moment.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}
+{% block scripts %}<script>
+(function () {
+  var s = document.getElementById('modele'), a = document.querySelector('[data-modele-lien]');
+  function maj() { a.href = a.getAttribute('data-base').replace('X', s.value); }
+  s.addEventListener('change', maj); maj();
+})();
+</script>{% endblock %}

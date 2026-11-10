@@ -151,6 +151,7 @@ TUILES_CONFIGURATION = [
     ('Formules des indicateurs', 'Mortalité, GMQ, IC…', 'calculator', 'pilotage.formules'),
     ("Tâches d'entretien", 'Abreuvoirs, litière, désinfection…', 'tools', 'entretien.taches'),
     ('Aides', "« Comment faire ? » de l'éleveur", 'question-circle', 'aides.administrer'),
+    ('Imports Excel / CSV', 'Reprise de l’existant, lots annulables', 'upload', 'imports.index'),
 ]
 COULEURS = ['mc-navy', 'mc-blue', 'mc-steel', 'mc-cobalt']
 

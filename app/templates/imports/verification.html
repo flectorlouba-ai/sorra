@@ -1,0 +1,20 @@
+{% extends '_base.html' %}
+{% block titre %}Imports{% endblock %}
+{% block icone %}upload{% endblock %}
+{% block page_titre %}⬆️ Vérification avant import{% endblock %}
+{% block page_sous_titre %}{{ modele.icone }} {{ modele.nom }} · {{ nom }} · {{ ok }} ligne(s) prête(s) sur {{ resultats|length }}{% endblock %}
+{% block contenu %}
+<div class="table-wrap" data-import-verification><div class="table-scroll"><table>
+  <thead><tr><th>Ligne</th>{% for k, lib, obl, _ in modele.colonnes %}<th>{{ lib }}</th>{% endfor %}<th>Résultat</th></tr></thead>
+  <tbody>{% for r in resultats %}
+    <tr class="{{ '' if r.ok else 'table-warning' }}"><td class="td-num">{{ r.n }}</td>{% for k, lib, obl, _ in modele.colonnes %}<td>{{ r.brut.get(k) or '—' }}</td>{% endfor %}
+      <td>{% if r.ok %}<span class="badge badge-ok">prête</span>{% else %}<span class="badge badge-danger">refusée</span> <small>{{ r.erreurs|join(' ; ') }}</small>{% endif %}</td></tr>
+  {% endfor %}</tbody>
+</table></div></div>
+<form method="post" action="{{ url_for('imports.importer') }}" class="mt-3 d-flex gap-2">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" class="btn btn-primary" {% if not ok %}disabled{% endif %} data-importer>Importer les {{ ok }} ligne(s) prête(s)</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('imports.index') }}">Annuler</a>
+</form>
+<div class="td-sous mt-2">Les lignes refusées ne sont pas importées ; corrigez le fichier et recommencez. L'import crée un lot que vous pourrez annuler (archivage, jamais de suppression).</div>
+{% endblock %}

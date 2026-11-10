@@ -123,7 +123,7 @@ PAGES_AGENT_TERRAIN = ['terrain.tournee', 'terrain.fermes', 'terrain.saisir', 't
 # compte (en ligne par nature), la création d'une ferme (avec du réseau seulement, jusqu'au lot 19 bis), et les
 # écrans de la « Version bureau » de l'agent (pilotage, sur ordinateur). Vérifié par tests/test_lot19ter.py.
 EN_LIGNE_SEULEMENT = {'auth.securite', 'auth.mise_en_place', 'fermes.nouvelle', 'bureau.accueil', 'bureau.mes_lots',
-                      'actions.liste', 'actions.rapports', 'bureau.enrolement', 'bureau.fiche_conforme', 'bureau.creation_conforme',
+                      'actions.liste', 'actions.rapports', 'bureau.enrolement', 'bureau.fiche_conforme', 'bureau.creation_conforme', 'imports.index',
                       'bureau.version_ordinateur', 'bureau.version_terrain', 'bureau.recherche', 'bureau.exports'}
 VERSION_BUREAU_AGENT = {'operateurs.liste', 'livraisons.liste', 'livraisons.nouvelle', 'bandes.liste', 'sante.vaccins',
                         'pilotage.tableau', 'tracabilite.lots', 'agent.commandes', 'fermes.liste',
