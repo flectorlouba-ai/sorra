@@ -25,8 +25,10 @@
 {% endif %}
 <div class="carte" data-rappels>
   <div class="carte-titre">📅 Mes rappels</div>
-  <div class="ligne-rappel"><span>Déclaration annuelle</span><strong>{{ fisc.rappel }}</strong></div>
-  <div class="carte-sous">date réglée par l'administrateur</div>
+  {% for code, titre, texte, echeance, du in rappels %}
+  <div class="ligne-rappel{{ ' du' if du }}"><span>{{ titre }}</span><strong>{{ texte }}</strong></div>
+  {% endfor %}
+  <div class="carte-sous">date réglée par l'administrateur · vous êtes prévenu sur ce téléphone 30 jours avant (🔔 Mes notifications)</div>
 </div>
 <p class="mention-fiscale">{{ fisc.mention }}</p>
 {% endblock %}

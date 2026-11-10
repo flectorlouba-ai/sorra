@@ -112,6 +112,28 @@ def fiscalite(chiffre_affaires):
             'mention': 'Estimation indicative, seuils réglables, à valider avec la DGI. SORRA ne remplace pas un comptable.'}
 
 
+def rappels(fermes, jour=None):
+    """Lot G : les rappels fiscaux de l'éleveur — déclaration annuelle (30 jours avant la date réglée) et seuil de régime
+    approché (≥ 80 %). [(code, titre, texte, échéance)]"""
+    jour = jour or date.today()
+    s = seuils()
+    resultat = []
+    try:
+        jj, mm = (int(x) for x in s['rappel'].split('/')[:2])
+        echeance = date(jour.year, mm, jj)
+        if echeance < jour:
+            echeance = date(jour.year + 1, mm, jj)
+    except (ValueError, TypeError):
+        echeance = None
+    if echeance is not None:
+        restant = (echeance - jour).days
+        resultat.append(('declaration', 'Déclaration annuelle', f'à faire avant le {echeance:%d/%m/%Y}' + (f' · dans {restant} jour{"s" if restant > 1 else ""}' if restant <= 30 else ''), echeance, restant <= 30))
+    f = fiscalite(bilan(fermes, annee=jour.year)['recettes'])
+    if f['proche'] and f['suivant']:
+        resultat.append(('seuil', 'Seuil de régime approché', f"{f['pct']} % du seuil de {_m(f['seuil'])} FCFA : au-delà, {f['suivant']}", None, True))
+    return resultat
+
+
 def _m(v):
     """30 000 000 → « 30 M »."""
     if v is None:

@@ -200,3 +200,29 @@ def test_fiche_papier_semaine_pdf(client, monde):
 def test_service_worker_push(client, monde):
     sw = client.get('/sw.js').get_data(as_text=True)
     assert "addEventListener('push'" in sw and "addEventListener('notificationclick'" in sw
+
+
+def test_rappels_fiscaux_lot_g(client, monde):
+    """Lot G : déclaration annuelle (30 jours avant la date réglée) et seuil approché → rappels à l'éleveur, une fois par an."""
+    from datetime import datetime
+    from app.services import bilan, parametres
+    from app.models import Parametre
+    el = monde['el']
+    jj = (AUJ + timedelta(days=10))
+    p = Parametre.query.filter_by(cle='fiscalite.rappel_declaration').first()
+    if p is None:
+        db.session.add(Parametre(cle='fiscalite.rappel_declaration', valeur=f'{jj.day:02d}/{jj.month:02d}', type='TEXTE', description='essai'))
+    else:
+        p.valeur = f'{jj.day:02d}/{jj.month:02d}'
+    db.session.commit()
+    parametres.oublier_cache()
+    r = bilan.rappels([monde['f']], AUJ)
+    assert r[0][0] == 'declaration' and 'dans 10 jours' in r[0][2] and r[0][4]
+    notifications.calculer(datetime.combine(AUJ, datetime.min.time()).replace(hour=9))
+    assert Notification.query.filter_by(utilisateur_id=el.id, type=T.RAPPEL_FISCAL).count() == 1
+    notifications.calculer(datetime.combine(AUJ, datetime.min.time()).replace(hour=9))
+    assert Notification.query.filter_by(utilisateur_id=el.id, type=T.RAPPEL_FISCAL).count() == 1     # une fois par an
+    connecter(client, 'eleveur1')
+    page = client.get('/mon-argent/fiscalite').get_data(as_text=True)
+    assert 'Déclaration annuelle' in page and 'dans 10 jours' in page
+    assert 'name="type_RAPPEL_FISCAL"' in client.get('/moi/notifications').get_data(as_text=True)

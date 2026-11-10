@@ -63,15 +63,16 @@ def connexion(page, url, ident):
 
 def ouvrir(page, url):
     """Le serveur de développement coupe parfois une grande réponse (connexion réinitialisée) : un second essai."""
-    for essai in range(2):
+    for essai in range(3):
         try:
-            page.goto(url, wait_until='commit')
-            page.wait_for_load_state('load')
-            page.wait_for_load_state('networkidle')
+            page.goto(url, wait_until='commit', timeout=20000)
+            page.wait_for_load_state('load', timeout=20000)
+            page.wait_for_load_state('networkidle', timeout=20000)
             return
         except Exception:
-            if essai:
+            if essai == 2:
                 raise
+            page.wait_for_timeout(1500)
 
 
 def deborde(page):

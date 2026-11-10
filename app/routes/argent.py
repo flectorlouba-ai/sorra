@@ -238,7 +238,7 @@ def fiscalite():
     annee = date.today().year
     b = services_bilan.bilan(fermes, annee=annee)
     return render_template('argent/fiscalite.html', ferme=f, fisc=services_bilan.fiscalite(b['recettes']), annee=annee,
-                           court=services_bilan.court)
+                           court=services_bilan.court, rappels=services_bilan.rappels(fermes))
 
 
 @argent_bp.route('/mon-argent/bilan')

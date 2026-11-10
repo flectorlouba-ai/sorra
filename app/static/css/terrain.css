@@ -826,3 +826,4 @@ a.desactive{opacity:.45;pointer-events:none;}
 .theme-terrain .carte-bilan-pdf{text-align:center;}
 .theme-terrain .apercu-bilan{font-size:3rem;line-height:1;margin-bottom:6px;}
 .theme-terrain .tache-jour{display:inline-block;margin-left:6px;font-size:.78rem;font-weight:700;color:var(--e-orange-fonce);background:var(--e-orange-pale);border-radius:10px;padding:1px 8px;}
+.theme-terrain .ligne-rappel.du strong{color:var(--e-orange-fonce);}

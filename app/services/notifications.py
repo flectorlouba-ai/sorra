@@ -196,6 +196,12 @@ def calculer(maintenant_=None):
                     crees += bool(notifier(u, T.VENTES_BLOQUEES, f'blocage:{veto.blocage_actif(b).id}', '⛔ Ventes bloquées',
                                            'Le vétérinaire a bloqué les ventes de votre bande. Aucun poulet ne doit sortir.',
                                            lien('bandes.sortie', numero=b.numero), prefs))
+            # Lot G : rappels fiscaux (une fois par an et par rappel)
+            from app.services import bilan as services_bilan
+            for code, titre, texte, echeance, du in services_bilan.rappels(fermes, aujourd_hui):
+                if du:
+                    crees += bool(notifier(u, T.RAPPEL_FISCAL, f'fiscal:{code}:{aujourd_hui.year}', f'🏛️ {titre}', texte,
+                                           lien('argent.fiscalite'), prefs))
             for f in fermes:
                 for a in AlerteSanitaire.query.filter_by(ferme_id=f.id):
                     for r in a.reponses:

@@ -11,6 +11,7 @@ class TypeNotification:
     REPONSE_VETO = 'REPONSE_VETO'
     LIVRAISON_A_CONFIRMER = 'LIVRAISON_A_CONFIRMER'
     VENTES_BLOQUEES = 'VENTES_BLOQUEES'
+    RAPPEL_FISCAL = 'RAPPEL_FISCAL'        # lot G : déclaration annuelle, seuil de régime approché
     # agent
     FEU_ROUGE = 'FEU_ROUGE'
     FERME_SANS_SAISIE = 'FERME_SANS_SAISIE'
@@ -34,6 +35,7 @@ class TypeNotification:
         PESEE_RETARD: ('⚖️', 'Pesée en retard', None), VACCIN_DEMAIN: ('💉', 'Vaccin à faire demain', None),
         REPONSE_VETO: ('💬', 'Réponses du vétérinaire', None), LIVRAISON_A_CONFIRMER: ('🚚', 'Livraisons à confirmer', None),
         VENTES_BLOQUEES: ('⛔', 'Ventes bloquées', 'toujours actif'),
+        RAPPEL_FISCAL: ('🏛️', 'Rappels fiscaux', 'déclaration annuelle, seuil de régime'),
         FEU_ROUGE: ('🔴', 'Alertes sanitaires', 'toujours actives'), FERME_SANS_SAISIE: ('📵', 'Ferme sans saisie', 'depuis 2 jours'),
         DEUX_VERSIONS: ('⚖️', 'Deux versions à trancher', None), ACTION_RETARD: ('🎯', 'Action en retard', None),
         VISITE_DEMAIN: ('📋', 'Visite prévue demain', None),
@@ -42,7 +44,7 @@ class TypeNotification:
         ECART_48H: ('⏳', 'Écart à trancher depuis 48 h', None), PARAMETRE_A_APPROUVER: ('👀', 'Paramètre à approuver', None),
     }
     PAR_PROFIL = {
-        'ELEVEUR': (SAISIE_OUBLIEE, PESEE_RETARD, VACCIN_DEMAIN, REPONSE_VETO, LIVRAISON_A_CONFIRMER, VENTES_BLOQUEES),
+        'ELEVEUR': (SAISIE_OUBLIEE, PESEE_RETARD, VACCIN_DEMAIN, REPONSE_VETO, LIVRAISON_A_CONFIRMER, VENTES_BLOQUEES, RAPPEL_FISCAL),
         'AGENT': (FEU_ROUGE, FERME_SANS_SAISIE, DEUX_VERSIONS, ACTION_RETARD, VISITE_DEMAIN),
         'OPERATEUR': (LOT_EN_ROUTE, LOT_DECIDE),
         'VETO': (SIGNALEMENT, ALERTE_SANITAIRE, ECART_48H, PARAMETRE_A_APPROUVER),
