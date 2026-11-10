@@ -118,7 +118,8 @@ PAGES_AGENT_TERRAIN = ['terrain.tournee', 'terrain.fermes', 'terrain.saisir', 't
 # écrans de la « Version bureau » de l'agent (pilotage, sur ordinateur). Vérifié par tests/test_lot19ter.py.
 EN_LIGNE_SEULEMENT = {'auth.securite', 'auth.mise_en_place', 'fermes.nouvelle'}
 VERSION_BUREAU_AGENT = {'operateurs.liste', 'livraisons.liste', 'livraisons.nouvelle', 'bandes.liste', 'sante.vaccins',
-                        'pilotage.tableau', 'tracabilite.lots', 'agent.commandes', 'fermes.liste'}
+                        'pilotage.tableau', 'tracabilite.lots', 'agent.commandes', 'fermes.liste',
+                        'catalogue.index', 'catalogue.fournisseurs'}   # lot A2 : lecture du catalogue (bureau)
 
 
 def _aides_du_profil(prefixe):

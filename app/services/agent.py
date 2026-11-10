@@ -160,13 +160,14 @@ def compter(ferme, produit, compte, user, jour=None):
     from app.services import intrants
     if compte is None or compte < 0:
         raise RegleAgent('Indiquez la quantité comptée (0 ou plus).')
-    livre = sum(((l.quantite_recue or 0) - (l.morts_arrivee or 0)) for l in
-                LivraisonLigne.query.join(Livraison).filter(Livraison.ferme_id == ferme.id,
-                                                            Livraison.statut.in_(StatutLivraison.CONFIRMEES),
-                                                            LivraisonLigne.produit_id == produit.id))
-    utilise = intrants.quantites_utilisees(ferme).get(produit.id, 0)
+    # Lot A2 : l'écart porte sur le Programme seulement (livré et utilisé Programme ; le stock Externe
+    # théorique est retiré du compté)
+    ligne = next((x for x in intrants.stock_ferme(ferme) if x['produit'].id == produit.id), None)
+    livre = ligne['etat'] if ligne else 0
+    utilise = ligne['utilise_programme'] if ligne else 0
+    externe = max(ligne['externe'], 0) if ligne else 0
     inv = InventaireStock(ferme_id=ferme.id, produit_id=produit.id, jour=jour or date.today(), livre=livre,
-                          utilise=utilise, compte=compte, agent_id=user.id)
+                          utilise=utilise, compte=compte, externe=externe, agent_id=user.id)
     db.session.add(inv)
     db.session.flush()
     return inv

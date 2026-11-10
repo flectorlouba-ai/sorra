@@ -1,68 +1,11 @@
-# SORRA — Décisions prises en mode autonome (lots 15 à 18)
+# Décisions prises seul (mode autonome, nuit du 10/11/2026)
 
-Chaque décision : la question, le choix fait, l'autre option, et comment revenir en arrière. Les plus importantes sont marquées ★.
+Chaque ligne : lot · question · choix · autre option · comment revenir en arrière.
 
-## Lot 15
-
-| # | Question | Choix fait | Autre option | Revenir en arrière |
+| Lot | Question | Choix | Autre option | Revenir en arrière |
 |---|---|---|---|---|
-| 15-1 ★ | Comment chaîner le journal sans modifier les entrées existantes (déclencheur anti-modification) ? | Empreintes dans une **table séparée `journal_chaine`** (une ligne par entrée, en écriture seule), remplie à chaque écriture en base, et par la migration pour l'existant. | Ajouter une colonne au journal : il aurait fallu modifier les lignes existantes, ce qui est interdit. | Migration 0016 : son retour arrière supprime la table, et le journal reste intact. |
-| 15-2 ★ | 2FA : comment la couper pour la démo locale ? | Variable d'environnement **`YL2_2FA`**. Elle est active par défaut en production ; le serveur de démo local est lancé avec `YL2_2FA=0`. En développement et en test, elle est inactive par défaut. | Un paramètre en base : risque de la couper par erreur en production. | Changer la valeur de la variable au lancement. |
-| 15-3 ★ | Quels écrans passent par les quatre yeux ? | Les paramètres sensibles (liste de préfixes dans `services/approbations.SENSIBLES`), les formules, le calendrier vaccinal et le **changement de profil** d'un utilisateur. Les autres paramètres (durées, adresse publique…) restent directs. | Tous les paramètres. | Modifier la liste `SENSIBLES`. |
-| 15-4 | Durée d'inactivité du pilotage | Le paramètre existant `securite.duree_session_minutes` est **ramené de 60 à 30** par la migration 0016 (s'il valait encore 60), et ne vaut plus que pour le pilotage. | Un nouveau paramètre. | Retour arrière de la migration (remet 60), ou changer la valeur dans Paramètres. |
-| 15-5 | Tuiles des écrans existants qui ne sont pas dans votre liste (Bandes, Indicateurs, Lots et QR, Opérateurs…) | **Gardées** après les tuiles visées, pour ne perdre aucun accès. | Les retirer. | Retirer la clé dans `TUILES_PROFIL` (`routes/accueil.py`). |
-| 15-6 | OPERATEUR, BCEG, MAEDR n'ont encore aucun écran | Accueil avec la phrase « Vos écrans arrivent bientôt », et **aucune tuile**. | Des tuiles « bientôt » : interdit (tuile morte). | Ajouter les tuiles quand les écrans existent. |
-| 15-7 | Sauvegardes (tuile ADMIN) | **Pas de tuile** : il n'existe pas d'écran (les sauvegardes sont des scripts du VPS, `docs/exploitation.md`). | Créer un écran de lecture des sauvegardes : il demanderait l'accès au VPS. | Lot ultérieur. |
-| 15-8 | Où l'utilisateur du pilotage gère sa 2FA et ses sessions ? | Un écran **« Ma sécurité »** (`/auth/securite`), ouvert par l'icône 🔑 de l'en-tête : mot de passe, 2FA, mes sessions. | Les mettre dans l'écran Utilisateurs. | — |
-| 15-9 | Secret TOTP stocké comment ? | En clair (base 32) dans `utilisateur.totp_secret`, comme le fait la plupart des applications ; les codes de secours sont **hachés**. | Chiffrer le secret avec une clé serveur. | Ajouter le chiffrement plus tard (migration de données). |
-| 15-10 | Chaînage avec plusieurs écritures simultanées (PostgreSQL) | Simple : la dernière empreinte est lue au moment de l'écriture. Deux transactions exactement simultanées pourraient produire une fausse « rupture » ; elle serait visible à l'écran Intégrité, sans perte de données. | Un verrou de table à chaque écriture du journal. | Ajouter `LOCK` dans `journal.chainer` si cela arrive. |
-| 15-11 | L'éleveur a-t-il « Ma sécurité » ? | **Non** : l'éleveur n'a ni 2FA ni gestion de sessions. Sa clé 🔑 ouvre toujours « Changer mon mot de passe » (phase 1 inchangée), et `/auth/securite` le renvoie à « Mon compte ». | Lui montrer l'écran avec ses sessions. | Retirer la redirection dans `routes/auth.py`. |
-
-## Lot 16
-
-| # | Question | Choix fait | Autre option | Revenir en arrière |
-|---|---|---|---|---|
-| 16-1 ★ | Comment classer les fermes « par urgence » ? | Une seule fonction (`services/agent.urgences`) : **rouge** (10 points) = signalement sans réponse, bande au feu rouge, doublon de sortie > 48 h, biosécurité < 50 % ; **orange** (3 points) = bande en orange, saisie à vérifier, livraison pas confirmée, visite en retard, écart de stock, commande refusée non lue. Tri par points décroissants. | Un ordre fixe par type de raison. | Changer les poids `ROUGE`/`ORANGE` ou la liste des raisons. |
-| 16-2 ★ (remplacée par R-1) | Tournée sans réseau : quoi garder ? | La page Tournée (gardée quand on l'ouvre avec du réseau) et les **fiches des fermes** de la tournée (la page les fait garder). Les saisies de l'agent restent **en ligne** (pas de file d'attente hors ligne pour l'agent). | Rendre le compte rendu et la biosécurité saisissables sans réseau (file d'attente du lot 7) : plus lourd, risque de doublons. | — (ajout possible plus tard avec `data-hors-ligne`). |
-| 16-3 | Biosécurité : où la ranger ? | Dans la **visite** (3 colonnes : grille, score, mesures), comme une visite « Biosécurité » faite. L'éleveur la lit dans « Mes visites » (score et mesures, pas la grille). | Une table à part. | Migration 0017 (retour arrière). |
-| 16-4 | Mesures correctives | **Une phrase libre par point « Non »** (obligatoire), sans délai. | Liste de mesures types + délai. | Ajouter une liste `mesures_biosecurite`. |
-| 16-5 | Écran « Livraisons et stock » | L'écart se voit sur la **fiche ferme** (carte Stock, « Compter ») et dans **Mes fermes**. Pas de nouveau tableau dans l'écran Livraisons (rien d'ajouté sans demande). | Un tableau « Écarts de stock » dans l'écran Livraisons. | Ajouter le tableau (`agent.derniers_inventaires`). |
-| 16-6 | Écart de stock en % | \|livré − utilisé − compté\| ÷ livré, sur les livraisons **confirmées** (morts à l'arrivée retirés) ; le dernier comptage de chaque produit compte seul. | Écart en quantité seulement. | `InventaireStock.ecart_pct`. |
-| 16-7 ★ | Qui décide des commandes ? | **DGE et ADMIN** (valider, ou refuser avec motif). « Livrée » arrive quand la livraison liée est créée (« Créer la livraison », lot 18 B ; fonction `marquer_livree` prête). | Le vétérinaire pour les vaccins. | `agent.peut_decider_commande`. |
-| 16-8 | Nouvel éleveur : identifiant | `prenom.nom` sans accents (chiffre ajouté si pris), mot de passe provisoire de 10 caractères sans lettres ambiguës, montré **une fois** à l'écran, jamais gardé en clair. | Identifiant = téléphone. | `agent.identifiant_propose`. |
-| 16-9 | Tuile Commandes chez la DGE | Ajoutée **dès le lot 16** (elle doit décider) ; le lot 18 B y ajoutera « Créer la livraison ». | Attendre le lot 18. | Retirer `commandes` de `TUILES_PROFIL[DGE]`. |
-
-## Lot 17
-
-| # | Question | Choix fait | Autre option | Revenir en arrière |
-|---|---|---|---|---|
-| 17-1 | Comment mesurer la « gravité » d'un signalement ? | 1 à 4 points : mortalité anormale (feu rouge) 3 ; déclaration de 10 poulets ou plus 2, sinon 1 ; +1 sans réponse depuis 24 h. Tri : gravité, puis le plus ancien d'abord. | Gravité choisie par le vétérinaire. | `veto.gravite`. |
-| 17-2 ★ | Qui lit le diagnostic ? | **Vétérinaires et ADMIN.** Ni l'agent (il voit « diagnostic posé le … »), ni la DGE (elle voit l'alerte confirmée, pas le diagnostic). | Ouvrir à la DGE. | `veto.peut_lire_diagnostic`. |
-| 17-3 ★ | Sortie faite sans réseau avant de connaître le blocage | **Gardée, mise de côté, à vérifier**, sans lot ni QR. Le vétérinaire dit « bien sortis » (comptée, sans QR) ou « pas sortis » (reste de côté). | La refuser (l'éleveur perdrait sa saisie). | `veto.sortie_bloquee`. |
-| 17-4 ★ | Qui lève un blocage ? | **Un vétérinaire seulement** (n'importe lequel de la province), avec motif. Ni l'agent, ni la DGE, ni l'ADMIN. | Le vétérinaire qui a posé le blocage seulement : bloquant en cas d'absence. | `veto.lever`. |
-| 17-5 | Paramètres sanitaires du vétérinaire | Écran à lui, avec les seuils « sanitaires » de la liste du lot 15 (`approbations.SANITAIRES`) ; toujours une proposition (quatre yeux), approuvée par un **autre** vétérinaire, la DGE ou l'ADMIN. | Lui ouvrir l'écran Paramètres de l'ADMIN. | `veto.parametres_sanitaires`. |
-| 17-6 | Recherche de lots : périmètre | Vétérinaire : sa province ; DGE et ADMIN : national. Les bandes hors périmètre sont comptées, pas montrées. Chaque recherche et chaque export sont au journal (action `RECHERCHE`). | Recherche nationale pour tous les vétérinaires. | `veto.rechercher`. |
-| 17-7 | Recherche : « aliments » en amont | Les livraisons d'intrants confirmées de la ferme à partir de 7 jours avant la mise en place (l'aliment n'est pas rattaché à une bande précise). | Rien sur l'aliment. | `veto._amont`. |
-| 17-8 | Surveillance pour l'ADMIN | En **lecture** (tuile ajoutée), sans pouvoir bloquer ni lever. | Pas de tuile. | `TUILES_PROFIL[ADMIN]`. |
-
-## Lot 18
-
-| # | Question | Choix fait | Autre option | Revenir en arrière |
-|---|---|---|---|---|
-| 18-1 ★ | Statut « Prévue » des livraisons | Nouveau statut `PREVUE` (aucun changement de schéma). « Livrée » = le statut existant « À confirmer », « Confirmée » = « Reçue » ou « Reçue avec écart ». Une prévue est **exclue** de `livraisons_de_l_etat` : invisible de l'éleveur et de l'agent, hors stock, sans alerte. On la voit seulement sur le planning de la DGE. | Une table « planning » à part. | Retirer le filtre dans `intrants.livraisons_de_l_etat` ; aucune donnée à migrer. |
-| 18-2 | La tuile « Livraisons de l'État » ouvre… | le **planning**, qui garde un lien « Toutes les livraisons » (liste existante). | Deux tuiles. | `TUILES['livraisons_etat']`. |
-| 18-3 | « Créer la livraison » d'une commande | Crée une livraison **prévue dans 7 jours** (date modifiable en l'annulant et en la prévoyant de nouveau), subventionnée à 100 % ; la commande passe « Livrée ». | Ouvrir le formulaire complet. | `dge.creer_livraison_commande`. |
-| 18-4 ★ | Barème du classement | Notes sur 100 par critère, sur un barème fixe (voir `a_faire_valider.md`), moyenne des bandes clôturées complètes des 12 derniers mois, pondérée par `classement.poids_*`. Bande **incomplète** (indicateur `incomplet`, moins de 80 % de jours saisis, ou sans croissance mesurée) : **ignorée et signalée** ; ferme sans bande complète : « non classée ». | Classement relatif (rang par critère). | `dge.notes`, `dge.classement`. |
-| 18-5 ★ | Rapports « automatiques » sans planificateur | Produits **à la première ouverture** de l'écran Rapports après la fin du mois, et par la commande `rapports-mensuels` (cron documenté, **non installé** : pas d'accès au VPS). | Un planificateur dans l'application. | — |
-| 18-6 ★ | E-mail des rapports | **Préparé mais coupé** : message construit et journalisé « préparé, non envoyé » ; aucun envoi (pas de serveur de messagerie, interrupteur à 0). | Brancher SMTP. | `dge.preparer_email`. |
-| 18-7 | Réaffecter une ferme | Seulement vers un agent **actif de la même province**, avec motif ; ADMIN et DGE. | Tout agent. | `dge.reaffecter`. |
-| 18-8 | Arbitrages « national » | L'écran existant gagne un **compteur et un filtre par province** pour la DGE et l'ADMIN ; les provinces avec des saisies de plus de 48 h viennent d'abord. | Un écran à part. | `routes/hors_ligne.conflits`. |
-
-## Après relecture (09/11/2026)
-
-| # | Question | Choix fait | Autre option | Revenir en arrière |
-|---|---|---|---|---|
-| R-1 ★ | Saisies de l'agent sans réseau (décision 16-2 **refusée** à la relecture) | **Rendues hors ligne** avec le mécanisme existant (identifiant unique, file d'attente du téléphone, règle des conflits du lot 12) : saisie pour l'éleveur (saisie du jour et jour oublié, pesée, sortie, poulet malade, **vaccin, traitement**, J'ai payé, entretien, réception de livraison), **compte rendu de visite**, **biosécurité**, **enrôlement d'un nouvel éleveur**. Le téléphone de l'agent garde ces pages pour toutes ses fermes à chaque ouverture de l'accueil avec du réseau (`hors_ligne.pages_agent`). Les décisions (trancher, valider, commander, compter le stock, planifier) restent en ligne. Détail des règles : `docs/hors_ligne.md`. | — (demande explicite). | Retirer `data-hors-ligne` des formulaires et l'agent de `/hors-ligne/pages`. |
-| R-1b | Nouvel éleveur sans réseau : identifiant et mot de passe | **Préparés sur le téléphone** (même règle que le serveur : `prénom.nom`, 10 caractères lisibles) et montrés tout de suite à l'agent. Le mot de passe provisoire reste dans la file d'attente du téléphone jusqu'à l'envoi, puis il est **effacé du téléphone dès que le serveur a répondu** (condition de la relecture, test `tests/test_effacement_mot_de_passe.py`) ; le serveur n'en garde que l'empreinte ; il doit être changé à la première connexion. Identifiant déjà pris : un chiffre est ajouté et l'agent est prévenu (« Saisies à vérifier »). Même téléphone déjà inscrit sur la ferme : refusé et signalé. | Identifiant provisoire attribué à l'envoi : l'éleveur ne pourrait pas se connecter avant que l'agent le lui transmette. | `agent.creer_eleveur`, `templates/agent/nouvel_eleveur.html`. |
-| R-1c | Compte rendu saisi sans réseau pour une visite déjà faite (ou annulée) entre-temps | **Gardé** comme une deuxième visite (règle du lot 12 : rien n'est perdu), l'agent est prévenu. En ligne, le refus « déjà son compte rendu » reste. | Le refuser. | `visites.compte_rendu`. |
-| R-2 | Classement : qu'est-ce qui peut rester fixe ? (demande : « seuls les seuils des étoiles ») | **Pondérations** (`classement.poids_*`, déjà), **barème des notes** et **seuil « bande incomplète »** sont des paramètres `classement.*`, tous sous **quatre yeux** (migration 0020, test `test_ponderations_et_bareme_reglables_sous_quatre_yeux`). Les seuils des étoiles sont aussi des paramètres (`bandes.etoiles_*`, lot 8), listés dans `a_faire_valider.md`. Remplace la décision 18-4 pour le barème. | Garder le barème dans le code. | Migration 0020 (retour arrière). |
+| A2 | Origine des utilisations (aliment, vaccins, traitements, poussins) : stocker ou déduire ? | **Déduite** : imputée Programme d'abord, puis Externe (même règle que la reprise, point 2) ; rien n'est demandé au terrain | Colonne `origine` sur chaque utilisation, choisie par l'éleveur | Ajouter une colonne `origine` facultative : quand elle est remplie, elle prime sur la règle (`intrants.imputer`) |
+| A2 | Types de fournisseur | Liste fixe dans le code : Aliment · Couvoir · Pharmacie vétérinaire · Matériel · Autre | Liste réglable (Listes) | Déplacer `TYPES_FOURNISSEUR` dans les listes déroulantes |
+| A2 | Commandes de l'agent : origine ? | Toujours Programme (commande à l'État) | Choix Programme / Externe | Ajouter une colonne `origine` à `commande_intrant` |
+| A2 | Achats de l'éleveur : lien au fournisseur ? | Le texte « Où ? » reste libre ; le fournisseur du catalogue est celui de l'article | Choisir un fournisseur du registre à l'achat | Ajouter `fournisseur_id` à `livraison` |
+| A2 | Écran Catalogue : DGE en écriture ? | ADMIN et DGE écrivent, l'agent lit (texte du lot A) | ADMIN seul | Retirer DGE de `ECRIVAINS` dans `routes/catalogue.py` |

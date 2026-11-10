@@ -275,6 +275,13 @@ def quantites_utilisees(ferme):
     return utilises
 
 
+def imputer(recu_programme, utilise):
+    """Lot A2 (point 2 validé) : une utilisation est imputée d'abord sur le stock Programme, puis sur
+    l'Externe. Rend (utilisé Programme, utilisé Externe)."""
+    programme = min(utilise, max(recu_programme, 0))
+    return programme, utilise - programme
+
+
 def stock_ferme(ferme):
     """Stock par produit : reçus confirmés − utilisés. Pour les poussins, les morts à
     l'arrivée sont retirés : il reste les poussins « en attente de bande »."""
@@ -291,10 +298,15 @@ def stock_ferme(ferme):
     for pid, quantite in recus.items():
         produit = db.session.get(Produit, pid)
         stock = quantite - utilises.get(pid, 0)
+        recu_p, recu_e = sources[pid][OrigineLivraison.ETAT], sources[pid][OrigineLivraison.ACHAT]
+        util_p, util_e = imputer(recu_p, utilises.get(pid, 0))
         resultat.append({'produit': produit, 'stock': stock,
                          'kg': stock * produit.poids_sac_kg if produit.en_sacs else None,
                          # entrées par source (lot 9) : livraisons de l'État, achats personnels
-                         'etat': sources[pid][OrigineLivraison.ETAT], 'achat': sources[pid][OrigineLivraison.ACHAT]})
+                         'etat': recu_p, 'achat': recu_e,
+                         # lot A2 : utilisé et stock par origine (Programme d'abord, puis Externe)
+                         'utilise_programme': util_p, 'utilise_externe': util_e,
+                         'programme': recu_p - util_p, 'externe': recu_e - util_e})
     ordre = {t: i for i, t in enumerate(['Poussins', 'Aliment', 'Vaccin', 'Médicament', 'Autre'])}
     return sorted(resultat, key=lambda r: (ordre.get(r['produit'].type, 9), r['produit'].nom))
 

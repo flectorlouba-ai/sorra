@@ -77,6 +77,15 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | **Ce qui ne s'archive pas** : sortie dont le lot a été reçu, achat de poussins déjà mis en bande, signalement déjà suivi par le vétérinaire, bâtiment avec une bande en cours, ferme ou bande qui a déjà servi | `services/fiches.py`, `routes/fermes.modifier_batiment` |
 | **Qui restaure** : l'agent de la ferme et l'ADMIN (pas la DGE) | `services/fiches.est_habilite` |
 
+## Lot A2 — catalogue et fournisseurs (DGE)
+
+| Point | Où le changer |
+|---|---|
+| **Règle d'imputation** : une utilisation (aliment, vaccin, traitement, poussins) consomme d'abord le stock Programme, puis l'Externe | `services/intrants.imputer` |
+| **Types de fournisseur** : Aliment · Couvoir · Pharmacie vétérinaire · Matériel · Autre | `models/intrant.TYPES_FOURNISSEUR` |
+| **Écart d'inventaire** : sur le Programme seulement (livré − utilisé − (compté − stock Externe)), en % du livré Programme | `models/agent.InventaireStock.ecart` |
+| **Catalogue** : la DGE peut créer et modifier les articles et les fournisseurs (comme l'ADMIN) | `routes/catalogue.ECRIVAINS` |
+
 ## Test terrain
 
 L'écran de l'éleveur doit être **testé par 3 à 5 vrais éleveurs** avant d'être figé (`docs/ergonomie.md`, section E) : 8 tuiles, saisie du jour avec « — », « Aucun mort », « Comme hier ».

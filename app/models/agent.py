@@ -53,13 +53,21 @@ class InventaireStock(HorodatageMixin, db.Model):
     utilise    = db.Column(db.Numeric(12, 2, asdecimal=False), nullable=False)
     compte     = db.Column(db.Numeric(12, 2, asdecimal=False), nullable=False)
     agent_id   = db.Column(db.Uuid, db.ForeignKey('utilisateur.id'), nullable=False)
+    # Lot A2 : livre et utilise portent sur le Programme ; stock Externe théorique au comptage
+    externe    = db.Column(db.Numeric(12, 2, asdecimal=False), nullable=True)
 
     ferme = db.relationship('Ferme')
     produit = db.relationship('Produit', lazy='joined')
 
     @property
+    def compte_programme(self):
+        """Part Programme du stock compté : le compté moins le stock Externe (consommé en dernier)."""
+        return (self.compte or 0) - (self.externe or 0)
+
+    @property
     def ecart(self):
-        return round((self.livre or 0) - (self.utilise or 0) - (self.compte or 0), 2)
+        """Écart sur le Programme seulement (fonction 19) : livré − utilisé − compté."""
+        return round((self.livre or 0) - (self.utilise or 0) - self.compte_programme, 2)
 
     @property
     def ecart_pct(self):

@@ -1,25 +1,34 @@
-"""Catalogue des intrants (ADMIN) : produits, avec type et unité fixés dans le code."""
+"""Catalogue des intrants : articles (produits) et fournisseurs. Lot A2 : ADMIN et DGE écrivent, l'agent lit.
+Type et unité restent fixés dans le code."""
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
+from flask_login import current_user
 
 from app import db
-from app.models import Produit, Profil
-from app.models.intrant import TYPES_INTRANT, UNITES, TYPE_ALIMENT, UNITE_SACS
+from app.models import Produit, Profil, Fournisseur
+from app.models.intrant import TYPES_INTRANT, UNITES, TYPE_ALIMENT, UNITE_SACS, TYPES_FOURNISSEUR
 from app.utils.permissions import profil_requis
 
 catalogue_bp = Blueprint('catalogue', __name__)
 
+ECRIVAINS = (Profil.ADMIN, Profil.DGE)
+LECTEURS = ECRIVAINS + (Profil.AGENT,)
+
 
 @catalogue_bp.route('/')
-@profil_requis(Profil.ADMIN)
+@profil_requis(*LECTEURS)
 def index():
-    f = {k: request.args.get(k, '') for k in ('type', 'etat')}
+    f = {k: request.args.get(k, '') for k in ('type', 'etat', 'fournisseur')}
     q = Produit.query
     if f['type'] in TYPES_INTRANT:
         q = q.filter(Produit.type == f['type'])
     if f['etat'] != 'tous':
         q = q.filter(Produit.actif.is_(f['etat'] != 'archives'))
+    if f.get('fournisseur', '').isdigit():
+        q = q.filter(Produit.fournisseur_id == int(f['fournisseur']))
     produits = q.order_by(Produit.type, Produit.nom).all()
     return render_template('administration/catalogue.html', produits=produits, filtre=f,
+                           ecrire=current_user.profil in ECRIVAINS,
+                           fournisseurs=Fournisseur.query.filter_by(actif=True).order_by(Fournisseur.nom).all(),
                            n_archives=Produit.query.filter(Produit.actif.is_(False)).count(),
                            types=TYPES_INTRANT, unites=UNITES)
 
@@ -49,14 +58,19 @@ def _lire(produit=None):
     delai = f.get('delai_attente_jours', '').strip()
     if delai and (not delai.isdigit() or int(delai) > 365):
         erreur = erreur or "Le délai d'attente est un nombre de jours (0 à 365)."
+    fournisseur = f.get('fournisseur_id', '')
+    fournisseur = db.session.get(Fournisseur, int(fournisseur)) if fournisseur.isdigit() else None
     donnees = {'nom': nom, 'type': type_, 'unite': unite,
+               'reference': f.get('reference', '').strip()[:40] or None,
+               'conditionnement': f.get('conditionnement', '').strip()[:60] or None,
+               'fournisseur_id': fournisseur.id if fournisseur else None,
                'poids_sac_kg': poids if unite == UNITE_SACS else None,
                'delai_attente_jours': int(delai) if delai.isdigit() and type_ == 'Médicament' else None}
     return donnees, erreur
 
 
 @catalogue_bp.route('/creer', methods=['POST'])
-@profil_requis(Profil.ADMIN)
+@profil_requis(*ECRIVAINS)
 def creer():
     donnees, erreur = _lire()
     if erreur:
@@ -69,7 +83,7 @@ def creer():
 
 
 @catalogue_bp.route('/<int:produit_id>/modifier', methods=['POST'])
-@profil_requis(Profil.ADMIN)
+@profil_requis(*ECRIVAINS)
 def modifier(produit_id):
     produit = db.session.get(Produit, produit_id) or abort(404)
     if request.form.get('archiver') or request.form.get('restaurer'):
@@ -87,3 +101,62 @@ def modifier(produit_id):
         db.session.commit()
         flash(f'Produit « {produit.nom} » enregistré.', 'success')
     return redirect(url_for('catalogue.index'))
+
+
+# ── Fournisseurs (lot A2) ───────────────────────────────────────────────
+
+@catalogue_bp.route('/fournisseurs')
+@profil_requis(*LECTEURS)
+def fournisseurs():
+    etat = request.args.get('etat', '')
+    q = Fournisseur.query.filter(Fournisseur.actif.is_(etat != 'archives'))
+    return render_template('administration/fournisseurs.html', fournisseurs=q.order_by(Fournisseur.nom).all(),
+                           etat=etat, types=TYPES_FOURNISSEUR, ecrire=current_user.profil in ECRIVAINS,
+                           n_archives=Fournisseur.query.filter(Fournisseur.actif.is_(False)).count())
+
+
+def _lire_fournisseur(fournisseur=None):
+    f = request.form
+    d = {'nom': f.get('nom', '').strip()[:150], 'type': f.get('type'),
+         'telephone': f.get('telephone', '').strip()[:30] or None, 'ville': f.get('ville', '').strip()[:80] or None}
+    if not d['nom']:
+        return d, 'Le nom du fournisseur est obligatoire.'
+    if d['type'] not in TYPES_FOURNISSEUR:
+        return d, 'Choisissez le type de fournisseur.'
+    if Fournisseur.query.filter(db.func.lower(Fournisseur.nom) == d['nom'].lower(),
+                                Fournisseur.id != (fournisseur.id if fournisseur else -1)).first():
+        return d, f'Le fournisseur « {d["nom"]} » existe déjà.'
+    return d, None
+
+
+@catalogue_bp.route('/fournisseurs/creer', methods=['POST'])
+@profil_requis(*ECRIVAINS)
+def creer_fournisseur():
+    d, erreur = _lire_fournisseur()
+    if erreur:
+        flash(erreur, 'danger')
+    else:
+        db.session.add(Fournisseur(actif=True, **d))
+        db.session.commit()
+        flash(f'Fournisseur « {d["nom"]} » ajouté.', 'success')
+    return redirect(url_for('catalogue.fournisseurs'))
+
+
+@catalogue_bp.route('/fournisseurs/<int:ident>/modifier', methods=['POST'])
+@profil_requis(*ECRIVAINS)
+def modifier_fournisseur(ident):
+    fo = db.session.get(Fournisseur, ident) or abort(404)
+    if request.form.get('archiver') or request.form.get('restaurer'):
+        fo.actif = bool(request.form.get('restaurer'))      # archivage synchronisé (lot A1)
+        db.session.commit()
+        flash(f'Fournisseur « {fo.nom} » ' + ('restauré.' if fo.actif else 'archivé.'), 'success')
+        return redirect(url_for('catalogue.fournisseurs'))
+    d, erreur = _lire_fournisseur(fo)
+    if erreur:
+        flash(erreur, 'danger')
+    else:
+        for cle, valeur in d.items():
+            setattr(fo, cle, valeur)
+        db.session.commit()
+        flash(f'Fournisseur « {fo.nom} » enregistré.', 'success')
+    return redirect(url_for('catalogue.fournisseurs'))

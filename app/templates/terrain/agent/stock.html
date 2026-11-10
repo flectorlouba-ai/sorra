@@ -13,6 +13,7 @@
   <div class="carte carte-stock" data-intrant="{{ c.produit.id }}">
     <div class="carte-titre">{{ c.produit.nom }}</div>
     <div class="stock-chiffres">Reçu {{ c.recu|qte }} {{ c.unite }} · Utilisé {{ c.utilise|qte }} · Reste {{ c.reste|qte }}</div>
+    {% if c.externe %}<div class="carte-sous" data-origines>Programme {{ c.programme|qte }} · Externe {{ c.externe|qte }} (le manque se compte sur le Programme)</div>{% endif %}
     {% if c.constat %}<div class="stock-constat stock-{{ c.constat[1] }}">{{ c.constat[0] }}</div>
     {% elif c.produit.type != 'Poussins' %}<div class="carte-sous">Pas encore compté</div>{% endif %}
     {% if c.produit.type != 'Poussins' %}
