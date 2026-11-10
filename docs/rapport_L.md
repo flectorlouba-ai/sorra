@@ -9,8 +9,16 @@
 - Tests : `tests/test_lotL.py` (5) ; captures `docs/captures/lotL/`.
 
 ## À faire sur le serveur (une seule fois)
-Ajouter `SORRA_DEMO_COMPTES=1` au `.env` de la démo, puis redémarrer le service `performyl2-demo` (ou relancer le
-déploiement). Je n'ai pas pu l'écrire moi-même : l'écriture d'un fichier sur le serveur m'a été refusée.
+Ajouter `SORRA_DEMO_COMPTES=1` au `.env` de la démo, puis redémarrer le service (je n'ai pas le droit d'écrire un
+fichier sur le serveur) :
+
+```
+ssh -i ~/.ssh/perform_yl_ed25519 root@187.124.217.218
+echo "SORRA_DEMO_COMPTES=1" >> /var/www/performyl2-demo/.env
+systemctl restart performyl2-demo
+```
+
+Déployé sur la démo : oui — version 2026-11-10-046d42b (encadré visible après la ligne ci-dessus).
 
 ## À tester
 - **Téléphone et ordinateur**, page de connexion : l'encadré, un clic sur « agent.est », puis « Se connecter ».
