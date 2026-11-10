@@ -34,7 +34,7 @@ def liste():
     if f['province'].isdigit():
         q = q.filter(Operateur.province_id == int(f['province']))
     if f['etat'] != 'tous':
-        q = q.filter(Operateur.actif.is_(f['etat'] != 'inactifs'))
+        q = q.filter(Operateur.actif.is_(f['etat'] != 'archives'))
     if f['q']:
         motif = f'%{f["q"]}%'
         q = q.filter(db.or_(Operateur.nom.ilike(motif), Operateur.numero.ilike(motif),
@@ -86,8 +86,6 @@ def _lire(f, op):
             d['convention_date'] = date.fromisoformat(f['convention_date'])
         except ValueError:
             erreurs.append('Date de convention invalide.')
-    if op is not None:
-        d['actif'] = f.get('actif') == 'on'
     return d, erreurs
 
 
@@ -113,6 +111,12 @@ def modifier(numero):
     op = charger(numero)
     if request.method == 'GET':
         return render_template('operateurs/formulaire.html', **_contexte(op, {}, []))
+    if request.form.get('archiver') or request.form.get('restaurer'):
+        # Lot A1 : « Archiver » remplace « Désactiver » (journal : archivage / restauration)
+        op.actif = bool(request.form.get('restaurer'))
+        db.session.commit()
+        flash(f'Opérateur {op.numero} ' + ('restauré.' if op.actif else "archivé : il n'est plus proposé."), 'success')
+        return redirect(url_for('operateurs.fiche', numero=op.numero))
     d, erreurs = _lire(request.form, op)
     if erreurs:
         return render_template('operateurs/formulaire.html', **_contexte(op, request.form, erreurs))

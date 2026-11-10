@@ -107,7 +107,8 @@ def sortie_bloquee(sortie, blocage):
 def sorties_a_verifier(blocages):
     from app.models.bande import Sortie
     ids = [b.id for b in blocages]
-    return (Sortie.query.filter(Sortie.blocage_id.in_(ids), Sortie.a_verifier.is_(True))
+    return (Sortie.query.filter(Sortie.blocage_id.in_(ids), Sortie.a_verifier.is_(True),
+                                Sortie.archive_le.is_(None))
             .order_by(Sortie.cree_le).all()) if ids else []
 
 
@@ -168,7 +169,7 @@ def _amont(bande):
     soins = ([{'date': v.date, 'quoi': f'Vaccin {v.produit.nom} ({v.mode})'}
               for v in Vaccination.query.filter_by(bande_id=bande.id, annule=False)]
              + [{'date': t.date_debut, 'quoi': f'Traitement {t.produit.nom} : {t.motif}'}
-                for t in Traitement.query.filter_by(bande_id=bande.id)])
+                for t in Traitement.query.filter_by(bande_id=bande.id, archive_le=None)])
     return {'poussins': poussins, 'aliments': aliments, 'soins': sorted(soins, key=lambda x: x['date'])}
 
 

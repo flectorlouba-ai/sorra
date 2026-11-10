@@ -13,6 +13,33 @@
   {% if blocage.poseur.telephone %}<a class="btn-gros btn-gros-rouge mt-2" href="tel:{{ blocage.poseur.telephone|replace(' ', '') }}">📞 Appeler le vétérinaire</a>{% endif %}
 </div>
 {% else %}
+<button type="button" class="btn-ajouter btn-new" data-ouvrir="fen-ajout">＋ Ajouter une sortie</button>
+{% endif %}
+{% import '_fiches.html' as fiches %}
+{% set retour = request.path ~ '?liste=1' %}
+{% set infos = fiches_infos(sorties|map('first')|list) %}
+<section class="sorties-faites" data-sorties-faites>
+  <h2 class="sorties-titre">Sorties de cette bande</h2>
+  <ul class="sorties-liste">
+    {% for s, etat in sorties %}
+    <li data-sortie-etape="{{ etat.etape if etat else 'parti' }}">{% call fiches.ligne(infos[s.id], retour) %}
+      <div class="sortie-ligne"><strong>{{ s.date.strftime('%d/%m') }}</strong> · {{ s.nombre|qte }} poulets ·
+        {{ s.operateur.nom if s.operateur else (s.destinataire_libre or s.motif) }}</div>
+      <div class="sortie-etapes">
+        <span class="etape-faite">✓ Partis</span>
+        {% if etat and etat.etape != 'parti' %}<span class="etape-fleche">›</span>
+        <span class="{{ {'recu': 'etape-faite', 'attente': 'etape-attente', 'refuse': 'etape-refus'}[etat.etape] }}">{{ etat.texte|replace('✓ Partis', '') }}</span>{% endif %}
+      </div>
+      {% if etat and etat.compte %}<div class="sortie-compte">{{ etat.compte }}</div>{% endif %}{% endcall %}
+    </li>
+    {% else %}
+    <li class="empty-note">Pas encore de sortie.</li>
+    {% endfor %}
+  </ul>
+  {{ fiches.voir_archivees('sortie', nombre_archivees('sortie', bande=bande), retour, bande=bande.numero) }}
+</section>
+{% if not blocage %}
+{% call fiches.fenetre('fen-ajout', '🚚 Nouvelle sortie · bâtiment ' ~ bande.batiment.code, ouverte=erreur or not request.args.get('liste')) %}
 <form method="post" class="form-terrain" novalidate data-hors-ligne="Sortie · bâtiment {{ bande.batiment.code }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
@@ -56,25 +83,7 @@
   <button type="submit" class="btn-gros"><i class="bi bi-check-lg"></i> Enregistrer la sortie</button>
   <div class="note-numero" id="reste">Il restera {{ present|qte }} poulets dans la bande</div>
 </form>
-{% endif %}
-{% if sorties %}
-<section class="sorties-faites" data-sorties-faites>
-  <h2 class="sorties-titre">Sorties de cette bande</h2>
-  <ul class="sorties-liste">
-    {% for s, etat in sorties %}
-    <li data-sortie-etape="{{ etat.etape if etat else 'parti' }}">
-      <div class="sortie-ligne"><strong>{{ s.date.strftime('%d/%m') }}</strong> · {{ s.nombre|qte }} poulets ·
-        {{ s.operateur.nom if s.operateur else (s.destinataire_libre or s.motif) }}</div>
-      <div class="sortie-etapes">
-        <span class="etape-faite">✓ Partis</span>
-        {% if etat and etat.etape != 'parti' %}<span class="etape-fleche">›</span>
-        <span class="{{ {'recu': 'etape-faite', 'attente': 'etape-attente', 'refuse': 'etape-refus'}[etat.etape] }}">{{ etat.texte|replace('✓ Partis', '') }}</span>{% endif %}
-      </div>
-      {% if etat and etat.compte %}<div class="sortie-compte">{{ etat.compte }}</div>{% endif %}
-    </li>
-    {% endfor %}
-  </ul>
-</section>
+{% endcall %}
 {% endif %}
 {% endblock %}
 {% block scripts %}

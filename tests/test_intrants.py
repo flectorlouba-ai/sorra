@@ -72,7 +72,10 @@ def test_catalogue_admin(client_admin):
     assert 'existe déjà' in r.get_data(as_text=True)
     client_admin.post(f'/administration/catalogue/{p.id}/modifier',
                       data={'nom': 'Aliment croissance', 'type': 'Aliment', 'unite': 'sacs', 'poids_sac_kg': '50'})
-    assert db.session.get(Produit, p.id).actif is False   # désactivé, pas supprimé
+    assert db.session.get(Produit, p.id).actif is True     # lot A1 : modifier n'archive plus
+    client_admin.post(f'/administration/catalogue/{p.id}/modifier', data={'archiver': '1'})
+    p = db.session.get(Produit, p.id)
+    assert p.actif is False and p.archive_le is not None   # archivé, pas supprimé
     r = client_admin.post('/administration/catalogue/creer', data={'nom': 'X', 'type': 'Pierre', 'unite': 'kg'},
                           follow_redirects=True)
     assert 'Choisissez le type' in r.get_data(as_text=True)

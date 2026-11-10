@@ -47,13 +47,17 @@ def test_desactiver_et_nouveau_mot_de_passe(client_admin):
         'nom': 'Mba', 'profil': 'AGENT', 'provinces': [str(province('EST').id)],
         'mot_de_passe': 'Autre-mdp-2026'})
     db.session.refresh(u)
-    assert u.actif is False and u.doit_changer_mdp is True and u.check_password('Autre-mdp-2026')
+    assert u.actif is True and u.doit_changer_mdp is True and u.check_password('Autre-mdp-2026')
+    client_admin.post(f'/administration/utilisateurs/{u.id}/modifier', data={'archiver': '1'})   # lot A1
+    db.session.refresh(u)
+    assert u.actif is False
 
 
 def test_admin_ne_se_desactive_pas(client_admin, admin):
     r = client_admin.post(f'/administration/utilisateurs/{admin.id}/modifier',
-                          data={'nom': 'Admin', 'profil': 'ADMIN'}, follow_redirects=True)
+                          data={'archiver': '1'}, follow_redirects=True)
     assert 'votre propre compte' in r.get_data(as_text=True)
+    assert db.session.get(Utilisateur, admin.id).actif is True
 
 
 def test_dernier_admin_garde_son_profil(client_admin, admin):

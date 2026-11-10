@@ -174,7 +174,7 @@ def fiche(numero):
             c['kg'] += a.kg
     return render_template('bandes/fiche.html', bande=bande, v=v, couleur=couleur,
                            vaccins=sante.vaccins_de_la_bande(bande),
-                           traitements=Traitement.query.filter_by(bande_id=bande.id).order_by(Traitement.date_debut).all(),
+                           traitements=Traitement.query.filter_by(bande_id=bande.id, archive_le=None).order_by(Traitement.date_debut).all(),
                            delai=sante.fin_delai_attente(bande),
                            phrase=indicateurs.phrase(bande, couleur, raison, v),
                            courbe=courbe_svg(bande), journal=journal_bande(bande),

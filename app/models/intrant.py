@@ -5,7 +5,7 @@ l'application s'appuie sur « Poussins » (morts à l'arrivée, attente de bande
 et « Aliment » (sacs ↔ kg). Les renommer casserait ces calculs.
 """
 from app import db
-from app.models.base import SaisieTerrainMixin, HorodatageMixin
+from app.models.base import ArchivableMixin, SaisieTerrainMixin, HorodatageMixin
 
 TYPE_POUSSINS = 'Poussins'
 TYPE_ALIMENT = 'Aliment'
@@ -34,7 +34,7 @@ class OrigineLivraison:
     LIBELLES = {ETAT: "Livraison de l'État", ACHAT: 'Achat personnel'}
 
 
-class Produit(HorodatageMixin, db.Model):
+class Produit(ArchivableMixin, HorodatageMixin, db.Model):
     __tablename__ = 'produit'
 
     id           = db.Column(db.Integer, primary_key=True)
@@ -54,7 +54,7 @@ class Produit(HorodatageMixin, db.Model):
         return f'<Produit {self.nom}>'
 
 
-class Livraison(SaisieTerrainMixin, db.Model):
+class Livraison(ArchivableMixin, SaisieTerrainMixin, db.Model):
     """Une livraison = une ferme, une date, un fournisseur, une ou plusieurs lignes.
     Le numéro (LIV-2026-000001) est `numero_metier`. Pas de suppression."""
     __tablename__ = 'livraison'

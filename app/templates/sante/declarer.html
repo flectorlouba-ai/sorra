@@ -7,6 +7,9 @@
 
 {% block contenu %}
 {% with vers='sante.declarer' %}{% include 'eleveur/_autres_batiments.html' %}{% endwith %}
+{% import '_fiches.html' as fiches %}
+{# Lot A1 : le formulaire d'ajout s'ouvre en fenêtre (feuille du bas en terrain) ; ✕ ramène à la liste #}
+{% call fiches.fenetre('fen-ajout', '🩺 ' ~ self.titre(), retour=url_for('sante.mes_declarations') if theme_eleveur else url_for('accueil.index')) %}
 <form method="post" enctype="multipart/form-data" class="form-terrain" id="form-declaration" novalidate data-hors-ligne="Poulet malade{% if bande %} · bâtiment {{ bande.batiment.code }}{% endif %}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   {% if bande %}<input type="hidden" name="bande" value="{{ bande.numero }}">{% else %}<input type="hidden" name="ferme" value="{{ ferme.numero }}">{% endif %}
@@ -46,6 +49,7 @@
 
   <button type="submit" class="btn-gros-rouge"><i class="bi bi-send"></i> Envoyer au vétérinaire</button>
 </form>
+{% endcall %}
 {% endblock %}
 
 {% block scripts %}

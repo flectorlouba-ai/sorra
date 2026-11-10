@@ -5,7 +5,7 @@ SaisieTerrainMixin : identifiant créé par l'application, prêt pour le hors li
 Rien ne se supprime ; une bande clôturée passe en lecture seule.
 """
 from app import db
-from app.models.base import SaisieTerrainMixin
+from app.models.base import ArchivableMixin, SaisieTerrainMixin
 
 
 class StatutBande:
@@ -22,7 +22,7 @@ class MotifSortie:
     TOUS = [ABATTOIR, VENTE, AUTRE]
 
 
-class Bande(SaisieTerrainMixin, db.Model):
+class Bande(ArchivableMixin, SaisieTerrainMixin, db.Model):
     __tablename__ = 'bande'
     __perimetre_ferme__ = 'ferme_id'
 
@@ -48,10 +48,24 @@ class Bande(SaisieTerrainMixin, db.Model):
     cloturant = db.relationship('Utilisateur', foreign_keys=[cloturee_par])
     poussins = db.relationship('BandePoussins', back_populates='bande', cascade='all, delete-orphan',
                                lazy='selectin')
-    saisies = db.relationship('SaisieJour', back_populates='bande', order_by='SaisieJour.date',
-                              lazy='selectin')
-    pesees = db.relationship('Pesee', back_populates='bande', order_by='Pesee.date', lazy='selectin')
-    sorties = db.relationship('Sortie', back_populates='bande', order_by='Sortie.date', lazy='selectin')
+    # Lot A : listes complètes (archivées comprises) ; `saisies`, `pesees`, `sorties` n'ont que les non archivées,
+    # si bien que tous les calculs excluent d'eux-mêmes ce qui est archivé.
+    saisies_toutes = db.relationship('SaisieJour', back_populates='bande', order_by='SaisieJour.date',
+                                     lazy='selectin')
+    pesees_toutes = db.relationship('Pesee', back_populates='bande', order_by='Pesee.date', lazy='selectin')
+    sorties_toutes = db.relationship('Sortie', back_populates='bande', order_by='Sortie.date', lazy='selectin')
+
+    @property
+    def saisies(self):
+        return [s for s in self.saisies_toutes if s.archive_le is None]
+
+    @property
+    def pesees(self):
+        return [p for p in self.pesees_toutes if p.archive_le is None]
+
+    @property
+    def sorties(self):
+        return [s for s in self.sorties_toutes if s.archive_le is None]
 
     @property
     def numero(self):
@@ -98,7 +112,7 @@ class BandePoussins(db.Model):
     ligne = db.relationship('LivraisonLigne')
 
 
-class SaisieJour(SaisieTerrainMixin, db.Model):
+class SaisieJour(ArchivableMixin, SaisieTerrainMixin, db.Model):
     """Saisie du jour d'une bande : une par jour ; un second envoi s'y ajoute."""
     __tablename__ = 'saisie_jour'
     __table_args__ = (db.UniqueConstraint('bande_id', 'date'),)
@@ -109,7 +123,7 @@ class SaisieJour(SaisieTerrainMixin, db.Model):
     saisi_par_agent = db.Column(db.Boolean, nullable=False, default=False)
     a_verifier      = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())  # lot 12
 
-    bande = db.relationship('Bande', back_populates='saisies')
+    bande = db.relationship('Bande', back_populates='saisies_toutes')
     aliments = db.relationship('SaisieAliment', back_populates='saisie', cascade='all, delete-orphan',
                                lazy='selectin')
 
@@ -136,7 +150,7 @@ class SaisieAliment(db.Model):
     produit = db.relationship('Produit', lazy='joined')
 
 
-class Pesee(SaisieTerrainMixin, db.Model):
+class Pesee(ArchivableMixin, SaisieTerrainMixin, db.Model):
     __tablename__ = 'pesee'
 
     bande_id        = db.Column(db.Uuid, db.ForeignKey('bande.id'), nullable=False, index=True)
@@ -147,10 +161,10 @@ class Pesee(SaisieTerrainMixin, db.Model):
     poids_attendu_g = db.Column(db.Numeric(10, 1, asdecimal=False), nullable=True)
     saisi_par_agent = db.Column(db.Boolean, nullable=False, default=False)
 
-    bande = db.relationship('Bande', back_populates='pesees')
+    bande = db.relationship('Bande', back_populates='pesees_toutes')
 
 
-class Sortie(SaisieTerrainMixin, db.Model):
+class Sortie(ArchivableMixin, SaisieTerrainMixin, db.Model):
     """Sortie de poulets. Les ventes (Économie) et les lots QR (Traçabilité) se
     rattacheront à son identifiant, sans colonne supplémentaire ici."""
     __tablename__ = 'sortie'
@@ -170,7 +184,7 @@ class Sortie(SaisieTerrainMixin, db.Model):
     # Lot 17 : sortie faite sans réseau, reçue après un blocage du vétérinaire (à vérifier, sans lot)
     blocage_id       = db.Column(db.Integer, db.ForeignKey('blocage_sorties.id'), nullable=True)
 
-    bande = db.relationship('Bande', back_populates='sorties')
+    bande = db.relationship('Bande', back_populates='sorties_toutes')
     operateur = db.relationship('Operateur')
 
     @property

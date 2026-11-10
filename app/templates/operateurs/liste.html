@@ -23,7 +23,7 @@
   {% endif %}
   <select name="etat" class="filter-sel" onchange="this.form.submit()">
     <option value="">Actifs</option>
-    <option value="inactifs" {% if filtre.etat == 'inactifs' %}selected{% endif %}>Inactifs</option>
+    <option value="archives" {% if filtre.etat == 'archives' %}selected{% endif %}>Archivés</option>
     <option value="tous" {% if filtre.etat == 'tous' %}selected{% endif %}>Tous</option>
   </select>
   <input type="search" name="q" class="filter-search" placeholder="Rechercher un opérateur…" value="{{ filtre.q }}">
@@ -42,7 +42,7 @@
         <td>{{ o.province.nom }}</td>
         <td>{{ o.telephone or '—' }}</td>
         <td>{% if o.convention %}<span class="badge badge-ok">Signée</span>{% else %}<span class="badge badge-neutre">Non</span>{% endif %}</td>
-        <td>{% if o.actif %}<span class="badge badge-ok">Actif</span>{% else %}<span class="badge badge-off">Inactif</span>{% endif %}</td>
+        <td>{% if o.actif %}<span class="badge badge-ok">Actif</span>{% else %}<span class="badge badge-off">🗄️ Archivé</span>{% endif %}</td>
       </tr>
     {% else %}
       <tr><td colspan="7" class="table-vide"><i class="bi bi-truck"></i>Aucun opérateur ne correspond.</td></tr>

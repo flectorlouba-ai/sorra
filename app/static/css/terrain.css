@@ -199,7 +199,7 @@
 .pastilles-bat{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px;}
 .pastille-bat{display:inline-flex;align-items:center;gap:6px;position:relative;padding:8px 14px;border-radius:999px;
   background:var(--e-blanc);border:1px solid var(--e-trait);box-shadow:0 2px 8px var(--e-ombre);color:var(--e-nuit);
-  font-weight:800;text-decoration:none;font-size:.95rem;}
+  font-weight:800;text-decoration:none;font-size:.95rem;min-height:44px;}   /* lot A1 : 44 px (était 41) */
 .pastille-bat.active{background:var(--e-nuit);color:var(--e-blanc);border-color:var(--e-nuit);}
 .pastille-feu{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
 .pastille-feu.feu-vert{background:var(--e-prairie);}
@@ -242,7 +242,7 @@
 .theme-terrain .historique-saisies{list-style:none;margin:8px 0;padding:0;font-weight:700;}
 .theme-terrain .historique-saisies li{display:flex;gap:8px;padding:6px 2px;border-top:1px solid var(--e-trait);color:var(--e-nuit);}
 .theme-terrain .historique-date{font-family:inherit;font-weight:900;}
-.theme-terrain .coche-envoye{margin-left:auto;color:var(--e-prairie);font-weight:900;}
+.theme-terrain .coche-envoye{margin-left:auto;color:var(--e-prairie-fonce);font-weight:900;}   /* lot A1 : 5,2 (était 3,0) */
 .theme-terrain .encouragement{background:var(--e-vert-pale);color:var(--e-prairie-fonce);border-radius:14px;padding:10px 12px;font-weight:800;}
 
 /* ── Étoiles ──────────────────────────────────────────────────────────── */
@@ -703,3 +703,41 @@ a.desactive{opacity:.45;pointer-events:none;}
 .version-terrain:has(.version-choix:checked) .version-retenir{background:var(--e-bleu-fonce);color:var(--e-blanc);}
 .alertes-terrain{margin-top:12px;}
 .alertes-terrain a{color:inherit;text-decoration:none;}
+
+/* ── Lot A1 : la fenêtre du terrain est une feuille qui monte du bas (poignée, ✕, glisser pour fermer) ── */
+.theme-terrain .modal-overlay{align-items:flex-end;padding:0;}
+.theme-terrain .modal-box{max-width:none;width:100%;border:0;border-radius:22px 22px 0 0;max-height:92vh;
+  background:var(--e-creme);animation:e-monte .22s ease-out;}
+@keyframes e-monte{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.theme-terrain .fenetre-poignee{display:block;width:48px;height:5px;border-radius:3px;background:var(--e-gris);
+  opacity:.45;margin:10px auto 2px;flex-shrink:0;touch-action:none;}
+.theme-terrain .modal-head{background:transparent;border-radius:0;padding:4px 8px 4px 18px;touch-action:none;}
+.theme-terrain .modal-head-title{color:var(--e-nuit);font-size:1.05rem;text-transform:none;letter-spacing:0;}
+.theme-terrain .modal-close{color:var(--e-nuit);font-size:1.3rem;min-width:44px;min-height:44px;}
+.theme-terrain .modal-body{padding:6px 16px 12px;}
+.theme-terrain .modal-footer{background:var(--e-creme);border-top:1px solid var(--e-trait);flex-wrap:wrap;padding:10px 16px 16px;}
+.theme-terrain .modal-footer .btn-annuler,.theme-terrain .btn-archiver-lien{min-height:48px;font-size:.95rem;border-radius:14px;flex:1;}
+.theme-terrain .modal-footer .btn-enregistrer{flex-basis:100%;order:-1;}
+.theme-terrain .form-label{font-size:.8rem;}
+.theme-terrain .modal-body .form-control{font-size:1.05rem;min-height:48px;border-radius:12px;}
+.theme-terrain .ligne-fiche{min-height:48px;color:var(--e-nuit);}
+.theme-terrain .ligne-fiche-fleche{color:var(--e-gris);font-size:1.4rem;}
+.theme-terrain .fiche-qui{font-size:.85rem;color:var(--e-gris);}
+.theme-terrain .fiche-lecture{font-size:.95rem;}
+.theme-terrain .fiche-verrou{font-size:.95rem;border-radius:14px;}
+.theme-terrain .btn-archiver{min-height:52px;width:100%;border-radius:16px;font-size:1rem;}
+.theme-terrain .lien-archivees{font-size:.85rem;color:var(--e-gris);min-height:44px;line-height:44px;}
+.theme-terrain .btn-ajouter{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:52px;
+  border-radius:16px;background:var(--e-bleu-bouton);color:var(--e-blanc);font-weight:900;font-size:1.05rem;border:0;text-decoration:none;}
+.theme-terrain .liste-fiches{list-style:none;padding:0;margin:0;}
+.theme-terrain .liste-fiches li{border-bottom:1px solid var(--e-trait);}
+.theme-terrain .liste-fiches li:last-child{border-bottom:0;}
+
+/* Lot A1 — petits défauts relevés au dossier : numéro de ferme sous le nom (« J'ai acheté », « J'ai payé »,
+   « Mes produits ») et bouton des pages d'erreur (« Retour à l'accueil ») à 12 px au moins */
+.theme-terrain .case-choix small{font-size:.8rem;}
+.theme-terrain .btn-new{font-size:.85rem;min-height:44px;}
+.theme-terrain .historique-saisies .ligne-fiche{padding:0;min-height:44px;}
+.theme-terrain .historique-saisies .ligne-fiche-texte{display:flex;gap:8px;align-items:center;}
+.theme-terrain .modal-footer .btn-enregistrer{background:var(--e-prairie-bouton);color:var(--e-blanc);text-transform:none;letter-spacing:0;font-weight:900;}
+.theme-terrain .btn-ajouter{text-transform:none;letter-spacing:0;margin-bottom:12px;}

@@ -27,3 +27,10 @@ from app.models.securite import JournalChaine, Proposition, SessionUtilisateur  
 from app.models.agent import CommandeIntrant, InventaireStock  # noqa: F401
 from app.models.veto import Diagnostic, BlocageSorties  # noqa: F401
 from app.models.dge import RapportMensuel  # noqa: F401
+
+# Lot A : saisies archivées masquées partout (voir app/models/base.py)
+from app.models.base import masquer_archivees as _masquer  # noqa: E402
+from app.models.entretien import EntretienFait as _EF, Panne as _P  # noqa: E402
+_masquer(SaisieJour, Pesee, Vaccination, Traitement, Depense, _EF, _P, Visite,
+         # Fiches qui ne s'archivent que si rien ne les utilise (achat sans poussins en bande, bande vide, ferme vide)
+         Livraison, Bande, Ferme)

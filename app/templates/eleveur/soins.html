@@ -27,6 +27,21 @@
 </div>
 {% endfor %}
 
+{% if faits %}
+{% import '_fiches.html' as fiches %}
+{% set infos = fiches_infos(faits) %}
+<section class="carte" data-liste="soins">
+  <h2 class="sorties-titre">Déjà faits</h2>
+  <ul class="liste-fiches">
+    {% for o in faits %}{% set i = infos[o.id] %}
+    <li>{% call fiches.ligne(i, request.path) %}{{ i.icone }} <strong>{{ o.produit.nom }}</strong> · {{ o.bande.batiment.code }}
+      <small>{{ (o.date if i.genre == 'vaccin' else o.date_debut).strftime('%d/%m') }} · {{ o.nombre_animaux|qte }} poulets</small>{% endcall %}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% for g, n in n_archives.items() if n %}<a class="lien-archivees" href="{{ url_for('fiches.archivees', genre=g, retour=request.path) }}">🗄️ {{ 'Vaccins' if g == 'vaccin' else 'Traitements' }} archivés ({{ n }})</a> {% endfor %}
+
 <div class="grosses-cases">
   <a class="grosse-case" href="{{ url_for('eleveur.aller', quoi='traitement') }}" data-case="traitement">
     <span class="gc-ico">💊</span><span class="gc-nom">Traitement</span><small>enregistrer un médicament</small></a>

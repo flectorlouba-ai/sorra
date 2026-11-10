@@ -75,7 +75,7 @@ def _lire_formulaire(user=None):
         return None, f'Le mot de passe doit contenir au moins {longueur_min} caractères.'
     donnees['mot_de_passe'] = mdp
     if user is not None:
-        donnees['actif'] = f.get('actif') == 'on'
+        donnees['actif'] = user.actif        # lot A1 : seul « 🗄️ Archiver » archive (plus de case à décocher)
     return donnees, None
 
 
@@ -153,8 +153,25 @@ def creer():
 @profil_requis(Profil.ADMIN)
 def modifier(user_id):
     user = _charger(user_id)
-    donnees, erreur = _lire_formulaire(user)
     from app.utils import demo
+    if request.form.get('archiver') or request.form.get('restaurer'):
+        # Lot A1 : « Archiver » remplace « Désactiver » (journal : archivage / restauration)
+        actif, erreur = bool(request.form.get('restaurer')), None
+        if not actif and demo.active():
+            erreur = f'{demo.MESSAGE} (mot de passe et désactivation des comptes)'
+        elif not actif and user.id == current_user.id:
+            erreur = 'Vous ne pouvez pas archiver votre propre compte.'
+        elif not actif and user.profil == Profil.ADMIN and user.actif and _admins_actifs_hors(user) == 0:
+            erreur = 'Il doit rester au moins un administrateur actif.'
+        if erreur:
+            flash(erreur, 'danger')
+        else:
+            user.actif = actif
+            db.session.commit()
+            flash(f'Compte « {user.identifiant} » ' + ('restauré.' if actif else 'archivé : la personne ne peut plus se connecter.'),
+                  'success')
+        return redirect(url_for('utilisateurs.index'))
+    donnees, erreur = _lire_formulaire(user)
     if not erreur and demo.active() and (donnees['mot_de_passe'] or not donnees['actif']):
         erreur = f'{demo.MESSAGE} (mot de passe et désactivation des comptes)'
     if not erreur and user.id == current_user.id and not donnees['actif']:

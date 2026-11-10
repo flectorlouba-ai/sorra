@@ -166,7 +166,8 @@ def doublon_sortie(sortie, user):
     """Après une sortie : même bande, même jour, même nombre, même destinataire, autre personne ?
     Renvoie True si la nouvelle sortie est mise de côté (pas de lot QR à créer)."""
     autre = next((o for o in Sortie.query.filter(Sortie.bande_id == sortie.bande_id, Sortie.date == sortie.date,
-                                                  Sortie.id != sortie.id, Sortie.nombre == sortie.nombre)
+                                                  Sortie.id != sortie.id, Sortie.nombre == sortie.nombre,
+                                                  Sortie.archive_le.is_(None))
                   if _destinataire(o) == _destinataire(sortie) and o.cree_par and o.cree_par != user.id), None)
     if autre is None:
         return False

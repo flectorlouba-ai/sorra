@@ -1,5 +1,5 @@
 {% extends '_base.html' %}
-{% from '_macros.html' import tete_fenetre, pied_fenetre %}
+{% from '_macros.html' import tete_fenetre, pied_archivable %}
 {% block titre %}Catalogue des intrants{% endblock %}
 {% block icone %}box-seam{% endblock %}
 {% block page_sous_titre %}Produits livrés aux fermes : poussins, aliment, vaccins, médicaments{% endblock %}
@@ -15,8 +15,8 @@
     {% for t in types %}<option value="{{ t }}" {% if filtre.type == t %}selected{% endif %}>{{ t }}</option>{% endfor %}
   </select>
   <select name="etat" class="filter-sel" onchange="this.form.submit()">
-    <option value="">Actifs</option>
-    <option value="inactifs" {% if filtre.etat == 'inactifs' %}selected{% endif %}>Inactifs</option>
+    <option value="">En service</option>
+    <option value="archives" {% if filtre.etat == 'archives' %}selected{% endif %}>Archivés ({{ n_archives }})</option>
     <option value="tous" {% if filtre.etat == 'tous' %}selected{% endif %}>Tous</option>
   </select>
 </form>
@@ -31,7 +31,7 @@
         <td>{{ p.type }}</td>
         <td>{{ p.unite }}</td>
         <td>{% if p.poids_sac_kg %}{{ p.poids_sac_kg|qte }} kg{% elif p.delai_attente_jours %}délai {{ p.delai_attente_jours }} j{% else %}—{% endif %}</td>
-        <td>{% if p.actif %}<span class="badge badge-ok">Actif</span>{% else %}<span class="badge badge-off">Inactif</span>{% endif %}</td>
+        <td>{% if p.actif %}<span class="badge badge-ok">En service</span>{% else %}<span class="badge badge-off">🗄️ Archivé</span>{% endif %}</td>
         <td style="text-align:right;">
           <button type="button" class="btn-edit" title="Modifier"
                   data-p='{{ {"id": p.id, "nom": p.nom, "type": p.type, "unite": p.unite, "poids": p.poids_sac_kg|qte if p.poids_sac_kg else "", "delai": p.delai_attente_jours or "", "actif": p.actif}|tojson }}'
@@ -79,13 +79,9 @@
             <input class="form-control" id="p-delai" name="delai_attente_jours" inputmode="numeric" placeholder="ex. 7">
             <div class="form-hint">Après la fin d'un traitement, les poulets ne doivent pas partir à l'abattoir avant ce délai.</div>
           </div>
-          <div class="form-group span2" id="bloc-p-actif" hidden>
-            <label class="coche"><input type="checkbox" name="actif" id="p-actif"> Produit actif</label>
-            <div class="form-hint">Un produit ne se supprime pas : décochez pour ne plus le proposer.</div>
-          </div>
         </div>
       </div>
-      {{ pied_fenetre('fen-produit') }}
+      {{ pied_archivable('fen-produit') }}
     </form>
   </div>
 </div>
@@ -109,12 +105,11 @@ function ouvrirProduit(btn) {
     document.getElementById('p-unite').value = p.unite;
     document.getElementById('p-poids').value = p.poids;
     document.getElementById('p-delai').value = p.delai;
-    document.getElementById('bloc-p-actif').hidden = false;
-    document.getElementById('p-actif').checked = p.actif;
+    etatFenetre('fen-produit', p.actif ? 'actif' : 'archive');
   } else {
     f.action = "{{ url_for('catalogue.creer') }}";
     document.getElementById('fen-produit-titre').textContent = 'Nouveau produit';
-    document.getElementById('bloc-p-actif').hidden = true;
+    etatFenetre('fen-produit', 'nouveau');
   }
   majPoids();
   ouvrir('fen-produit');

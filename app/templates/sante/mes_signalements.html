@@ -5,12 +5,15 @@
 {% block page_sous_titre %}Vos poulets malades signalés, et la réponse du vétérinaire{% endblock %}
 
 {% block contenu %}
+{% import '_fiches.html' as fiches %}
+{% set infos = fiches_infos(elements|map(attribute='declaration')|select|list) %}
 {% for e in elements %}
 {% set a, d = e.alerte, e.declaration %}
 <div class="carte signalement" id="alerte-{{ a.id if a else 'd' ~ loop.index }}">
   <div class="carte-titre-ligne">
-    <span class="carte-titre">{{ e.date|date_locale('%d/%m') }}{% if e.bande %} · {{ e.bande.batiment.code }}{% endif %}
-      {% if d %} · {{ d.nombre_animaux|qte }} poulet{{ 's' if d.nombre_animaux > 1 }}{% else %} · beaucoup de morts{% endif %}</span>
+    {% set titre %}<span class="carte-titre">{{ e.date|date_locale('%d/%m') }}{% if e.bande %} · {{ e.bande.batiment.code }}{% endif %}
+      {% if d %} · {{ d.nombre_animaux|qte }} poulet{{ 's' if d.nombre_animaux > 1 }}{% else %} · beaucoup de morts{% endif %}</span>{% endset %}
+    {% if d %}{% call fiches.ligne(infos[d.id], request.path) %}{{ titre }}{% endcall %}{% else %}{{ titre }}{% endif %}
     <span class="etat-signalement etat-{{ e.etat }}">{{ etats[e.etat] }}</span>
   </div>
   {% if d and d.signes %}<div class="carte-sous">{{ d.signes|join(' · ') }}</div>{% endif %}

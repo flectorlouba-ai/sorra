@@ -59,12 +59,14 @@ class Action:
     RECHERCHE       = 'RECHERCHE'
     SCAN            = 'SCAN'
     DECISION_RECEPTION = 'DECISION_RECEPT'
+    ARCHIVAGE       = 'ARCHIVAGE'       # lot A : archiver remplace supprimer
+    RESTAURATION    = 'RESTAURATION'
 
     TOUTES = [CREATION, MODIFICATION, SUPPRESSION, ANNULATION, CONNEXION,
               ECHEC_CONNEXION, DECONNEXION, CHANGEMENT_MDP, EXPORT, BLOCAGE, DEBLOCAGE, IMPORT, FUSION,
               CONFIRMATION, CONFIRMATION_ANNULEE, CORRECTION, POUR_ELEVEUR, DELAI_ATTENTE, LECTURE_QR, SANS_DESINFECTION,
               VERIFICATION, REPONSE_VETO, CONSENTEMENT, PROPOSITION, APPROBATION, REFUS, RECHERCHE,
-              SCAN, DECISION_RECEPTION]
+              SCAN, DECISION_RECEPTION, ARCHIVAGE, RESTAURATION]
 
     LIBELLES = {
         CREATION: 'Création', MODIFICATION: 'Modification', SUPPRESSION: 'Suppression',
@@ -80,6 +82,7 @@ class Action:
         CONSENTEMENT: 'Consentement BCEG', PROPOSITION: 'Modification proposée (quatre yeux)',
         APPROBATION: 'Modification approuvée', REFUS: 'Modification refusée',
         SCAN: "Scan d'un lot à la réception", DECISION_RECEPTION: 'Décision du vétérinaire sur une réception',
+        ARCHIVAGE: 'Archivage', RESTAURATION: 'Restauration',
     }
 
 
@@ -184,11 +187,27 @@ def _journalisable(obj):
     return not isinstance(obj, _TABLES_EXCLUES) and not getattr(type(obj), '__journal_exclu__', False)
 
 
-def _ligne(action, obj, avant, apres, auteur):
+def _ligne(action, obj, avant, apres, auteur, detail=None):
     uid, ident, ip = auteur
     return dict(horodatage=maintenant(), utilisateur_id=uid, identifiant=ident, adresse_ip=ip,
                 action=action, table_nom=obj.__tablename__, enregistrement_id=_identifiant(obj),
-                avant=avant, apres=apres, detail=None)
+                avant=avant, apres=apres, detail=detail)
+
+
+def _action_modification(obj, avant, apres):
+    """Lot A : le passage de `archive_le` est un ARCHIVAGE ou une RESTAURATION (avant / après gardés)."""
+    if 'archive_le' in apres:
+        return Action.ARCHIVAGE if apres['archive_le'] else Action.RESTAURATION
+    if apres.get('actif') is False:          # utilisateur, valeur de liste : « Archiver » remplace « Désactiver »
+        return Action.ARCHIVAGE
+    if apres.get('actif') is True and avant.get('actif') is False:
+        return Action.RESTAURATION
+    return Action.ANNULATION if _est_annulation(obj, apres) else Action.MODIFICATION
+
+
+def detailler(session, obj, detail):
+    """Texte (motif) joint à la ligne automatique du prochain enregistrement de cet objet."""
+    session.info.setdefault('detail_journal', {})[(obj.__tablename__, str(obj.id))] = detail
 
 
 def _avant_ecriture(session, flush_context, instances):
@@ -217,8 +236,8 @@ def _apres_ecriture(session, flush_context):
         if _journalisable(obj) and obj not in session.deleted:
             avant, apres = _differences(obj)
             if apres is not None:
-                action = Action.ANNULATION if _est_annulation(obj, apres) else Action.MODIFICATION
-                lignes.append(_ligne(action, obj, avant, apres, auteur))
+                detail = session.info.get('detail_journal', {}).pop((obj.__tablename__, _identifiant(obj)), None)
+                lignes.append(_ligne(_action_modification(obj, avant, apres), obj, avant, apres, auteur, detail))
     for obj in session.deleted:
         if _journalisable(obj):
             lignes.append(_ligne(Action.SUPPRESSION, obj, _instantane(obj), None, auteur))

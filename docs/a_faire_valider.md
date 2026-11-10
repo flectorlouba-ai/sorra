@@ -68,6 +68,15 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | **Phrases de l'opérateur** : contrôles (« Bien envoyé à votre abattoir », « Poulets vaccinés », « Pas de médicament récent », « Pesés il y a 3 jours »…), refus (« Ce lot n'existe pas. », « Ce lot est pour … », « Le vétérinaire a bloqué la vente de ces poulets. »…), « Gardez ces poulets à part » | `routes/operateur.py` (`phrases_controles`, `phrase_refus`, `etat_en_mots`) | 19 ter |
 | **Le texte de « Ma banque »** (ce que la BCEG verra et ne verra pas) — à faire valider aussi par la BCEG | `templates/eleveur/ma_banque.html` | 13 |
 
+## Lot A1 — fiches et archivage (DGE)
+
+| Point | Où le changer |
+|---|---|
+| **Texte du verrou** : « 🔒 Cette bande est terminée. Pour corriger, appelez votre agent. » | `services/fiches.VERROU` |
+| **Message laissé dans « À vérifier »** quand l'agent corrige ou archive la saisie d'une autre personne : « Votre agent a corrigé « … » (nom). Motif : … » | `services/fiches.modifier` / `archiver` |
+| **Ce qui ne s'archive pas** : sortie dont le lot a été reçu, achat de poussins déjà mis en bande, signalement déjà suivi par le vétérinaire, bâtiment avec une bande en cours, ferme ou bande qui a déjà servi | `services/fiches.py`, `routes/fermes.modifier_batiment` |
+| **Qui restaure** : l'agent de la ferme et l'ADMIN (pas la DGE) | `services/fiches.est_habilite` |
+
 ## Test terrain
 
 L'écran de l'éleveur doit être **testé par 3 à 5 vrais éleveurs** avant d'être figé (`docs/ergonomie.md`, section E) : 8 tuiles, saisie du jour avec « — », « Aucun mort », « Comme hier ».

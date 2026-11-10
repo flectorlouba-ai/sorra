@@ -5,6 +5,9 @@
 {% block page_sous_titre %}{{ ferme.nom }}{% if not theme_eleveur %} · saisie de l'agent pour l'éleveur{% endif %}{% endblock %}
 
 {% block contenu %}
+{% import '_fiches.html' as fiches %}
+{# Lot A1 : le formulaire d'ajout s'ouvre en fenêtre (feuille du bas en terrain) ; ✕ ramène à la liste #}
+{% call fiches.fenetre('fen-ajout', self.page_titre(), retour=url_for('entretien.ecran') if theme_eleveur else url_for('entretien.ecran', ferme=ferme.numero)) %}
 <form method="post" enctype="multipart/form-data" class="form-terrain" novalidate data-hors-ligne="Panne · {{ ferme.nom }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <input type="hidden" name="ferme" value="{{ ferme.numero }}">
@@ -30,6 +33,7 @@
   </div>
   <button type="submit" class="btn-gros-rouge">Envoyer à mon agent</button>
 </form>
+{% endcall %}
 {% endblock %}
 
 {% block scripts %}

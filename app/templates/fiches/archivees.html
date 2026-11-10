@@ -1,0 +1,23 @@
+{% extends '_base.html' %}
+{% import '_fiches.html' as fiches %}
+{% set noms = {'saisie': 'saisies du jour', 'pesee': 'pesées', 'sortie': 'sorties', 'vaccin': 'vaccins', 'traitement': 'traitements',
+               'depense': 'dépenses', 'achat': 'achats', 'panne': 'pannes', 'entretien': 'entretiens', 'signalement': 'signalements',
+               'visite': 'visites'} %}
+{% block titre %}Archivées{% endblock %}
+{% block icone %}archive{% endblock %}
+{% block page_titre %}🗄️ {{ noms[genre]|capitalize }} archivées{% endblock %}
+{% block page_sous_titre %}{% if bande %}<span class="mono">{{ bande.numero }}</span> · {% elif ferme %}{{ ferme.nom }} · {% endif %}conservées, elles ne comptent plus dans les calculs{% endblock %}
+
+{% block contenu %}
+<a class="lien-archivees" href="{{ retour }}">‹ Retour</a>
+<div class="carte">
+  <ul class="liste-fiches">
+  {% for o in elements %}{% set i = infos[o.id] %}
+    <li>{% call fiches.ligne(i, request.full_path) %}<strong>{{ i.titre }}</strong><br>
+      <small>archivée le {{ o.archive_le|date_locale('%d/%m/%Y à %H:%M') }}{% if i.auteur %} · saisie par {{ i.auteur }}{% endif %}</small>{% endcall %}</li>
+  {% else %}
+    <li class="empty-note">Rien d'archivé.</li>
+  {% endfor %}
+  </ul>
+</div>
+{% endblock %}

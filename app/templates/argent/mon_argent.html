@@ -38,11 +38,17 @@
   {% if aide %}<div class="aide-etat">Sans l'aide de l'État, cette bande vous aurait coûté <strong>{{ aide|qte }} FCFA</strong> de plus.</div>{% endif %}
 
   <div class="form-label mt-3">Derniers mouvements</div>
+  {% import '_fiches.html' as fiches %}
+  {% set retour = request.full_path.rstrip('?') %}
+  {% set infos = fiches_infos(mouvements|map(attribute='objet')|list) %}
   <ul class="mouvements">
     {% for m in mouvements %}
     <li>
+      {% set i = infos[m.objet.id] %}
+      <button type="button" class="mvt-fiche" data-fiche="fiche-{{ i.genre }}-{{ m.objet.id }}" aria-label="Ouvrir : {{ i.titre }}"></button>
+      {{ fiches.modele(i, retour) }}
       <span class="mvt-ico" aria-hidden="true">{{ m.ico }}</span>
-      <span class="mvt-texte">{{ m.texte }}<small>{{ m.date.strftime('%d/%m') }}{% if m.agent %} · Agent pour l'éleveur{% endif %}{% if m.hors_bande %} · hors bande{% endif %}{% if m.a_verifier %} · <span class="a-verifier">◷ À vérifier par votre agent</span>{% endif %}{% if periode == 'bande' and bande and m.genre != 'vente' and m.parts|length > 1 %} · votre part : {{ m.parts[bande.id]|qte }}{% endif %}</small></span>
+      <span class="mvt-texte">{{ m.texte }}{% if i.nb %} <span class="ligne-modifiee" title="Modifiée {{ i.nb }} fois">✏️</span>{% endif %}<small>{{ m.date.strftime('%d/%m') }}{% if m.agent %} · Agent pour l'éleveur{% endif %}{% if m.hors_bande %} · hors bande{% endif %}{% if m.a_verifier %} · <span class="a-verifier">◷ À vérifier par votre agent</span>{% endif %}{% if periode == 'bande' and bande and m.genre != 'vente' and m.parts|length > 1 %} · votre part : {{ m.parts[bande.id]|qte }}{% endif %}</small></span>
       {% if m.a_completer %}<a class="mvt-completer" href="{{ url_for('argent.montant_vente', ident=m.objet.id) }}">à compléter →</a>
       {% elif m.montant is none %}<span class="mvt-montant">—</span>
       {% else %}<span class="mvt-montant {{ 'plus' if m.signe > 0 else 'moins' }}">{{ '+' if m.signe > 0 else '−' }} {{ m.montant|qte }}</span>{% endif %}
@@ -51,5 +57,6 @@
     <li class="empty-note">Rien pour cette période.</li>
     {% endfor %}
   </ul>
+  {{ fiches.voir_archivees('depense', n_archivees, retour) }}
 </div>
 {% endblock %}

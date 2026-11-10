@@ -66,15 +66,20 @@
   {% block contenu %}{% endblock %}
 </div>
 
+{# Lot A1 : fenêtre commune des fiches (une ligne touchée → formulaire prérempli, voir _fiches.html) #}
+<div class="modal-overlay" id="fen-fiche" hidden role="dialog" aria-modal="true" aria-labelledby="fen-fiche-titre">
+  <div class="modal-box">
+    <div class="fenetre-poignee" aria-hidden="true"></div>
+    <div class="modal-head">
+      <span class="modal-head-title" id="fen-fiche-titre"></span>
+      <button type="button" class="modal-close" data-fermer aria-label="Fermer">✕</button>
+    </div>
+    <div class="fen-fiche-contenu"></div>
+  </div>
+</div>
+
 <script src="{{ url_for('static', filename='vendor/bootstrap-5.3.3/js/bootstrap.bundle.min.js') }}"></script>
-<script>
-// Fenêtres (modales) : ouvrir / fermer, Échap pour fermer
-function ouvrir(id) { document.getElementById(id).hidden = false; }
-function fermer(id) { document.getElementById(id).hidden = true; }
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(function (m) { m.hidden = true; });
-});
-</script>
+<script src="{{ url_for('static', filename='js/fenetre.js') }}"></script>
 {% block scripts %}{% endblock %}
 {% if current_user.is_authenticated %}<script src="{{ url_for('static', filename='js/hors_ligne.js') }}"></script>{% endif %}
 {% if theme_eleveur %}<script src="{{ url_for('static', filename='js/eleveur.js') }}"></script>{% endif %}

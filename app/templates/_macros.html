@@ -31,6 +31,17 @@
 </div>
 {%- endmacro %}
 
+{# Lot A1 : pied d'une fenêtre de bureau dont l'élément s'archive (« Archiver » remplace « Désactiver »).
+   etatFenetre(id, 'nouveau' | 'actif' | 'archive') (fenetre.js) montre les bons boutons. #}
+{% macro pied_archivable(id) -%}
+<div class="modal-footer">
+  <button type="submit" class="btn-archiver-lien" name="archiver" value="1" data-si="actif" hidden>🗄️ Archiver</button>
+  <button type="button" class="btn-annuler" onclick="fermer('{{ id }}')">✕ Fermer</button>
+  <button type="submit" class="btn-enregistrer" name="restaurer" value="1" data-si="archive" hidden>↩️ Restaurer</button>
+  <button type="submit" class="btn-enregistrer" data-si="nouveau actif" data-libelle-actif="Enregistrer la modification">Enregistrer</button>
+</div>
+{%- endmacro %}
+
 {% macro pied_fenetre(id) -%}
 <div class="modal-footer">
   <button type="button" class="btn-annuler" onclick="fermer('{{ id }}')">Annuler</button>

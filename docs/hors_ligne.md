@@ -168,6 +168,12 @@ Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple pl
 - **Prévu au lot 19 bis (GPS)** : créer une **nouvelle ferme sans réseau** (gardée sur le téléphone, numéro attribué à l'arrivée). Aujourd'hui, sans réseau, l'agent inscrit un éleveur seulement sur une ferme déjà enregistrée.
 - L'accueil de l'agent et de l'opérateur affiche « 📶 Tout est envoyé ✓ » ou « ◷ N saisies en attente » : c'est le nombre lu sur le téléphone (`window.sorraEnAttente`).
 
+### Fiches : modifier et archiver sans réseau (lot A1)
+- La fiche préremplie de chaque ligne est **déjà dans la page** (`<template>`) : elle s'ouvre sans réseau.
+- « Enregistrer la modification », « 🗄️ Archiver » et « ↩️ Restaurer » partent par **une seule adresse** (`/fiches/<genre>/<id>`, `action` = modifier | archiver | restaurer) : sans réseau, l'envoi est **gardé sur le téléphone** comme les autres saisies, puis envoyé avec son identifiant unique (jamais en double). Le téléphone revient ensuite à la liste.
+- À l'envoi après coup, les mêmes règles s'appliquent : bande terminée entre-temps → refus (« 🔒 ») signalé à l'agent ; lot reçu entre-temps → l'archivage de la sortie est refusé.
+- `js/fenetre.js` est gardé dès l'installation.
+
 ### Session (lot 15)
 - L'éleveur et l'agent ne sont **jamais déconnectés par inactivité** : des jours sans réseau ne doivent pas faire perdre la session.
 - Si l'ADMIN ferme la session (téléphone perdu), l'envoi suivant reçoit la réponse « connexion ». Les saisies restent sur le téléphone et partent après la reconnexion, au nom de leur auteur (lot 13).

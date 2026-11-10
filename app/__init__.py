@@ -109,6 +109,9 @@ def create_app(env='default'):
     # Espace terrain de l'agent et de l'opérateur (lot 19 ter)
     from app.routes.terrain import terrain_bp
     app.register_blueprint(terrain_bp)
+    # Fiches modifiables et archivage (lot A1)
+    from app.routes.fiches import fiches_bp
+    app.register_blueprint(fiches_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
@@ -127,6 +130,10 @@ def create_app(env='default'):
     from app.utils.logo import svg as logo_poulet, poulet
     app.jinja_env.globals['logo_poulet'] = logo_poulet
     app.jinja_env.globals['poulet'] = poulet
+    from app.services.fiches import infos as fiches_infos, nombre_archivees
+    from flask_login import current_user as _utilisateur
+    app.jinja_env.globals['fiches_infos'] = lambda objets: fiches_infos(objets, _utilisateur)
+    app.jinja_env.globals['nombre_archivees'] = nombre_archivees
     app.jinja_env.filters['date_locale'] = date_locale
     app.jinja_env.filters['qte'] = quantite
 
@@ -182,6 +189,10 @@ def create_app(env='default'):
                 'visites_nouvelles': visites_nouvelles, 'moi_nouveau': moi_nouveau, 'aide_active': aide_active,
                 'aide_pour': aide_pour, 'cloche_agent': cloche_agent}
 
+    # Lot A : saisies archivées masquées de toutes les requêtes (app/models/base.py)
+    from sqlalchemy.orm import Session
+    from app.models.base import installer_masquage
+    installer_masquage(Session)
     _installer_controles_session(app)
     _installer_erreurs(app)
     from app.services import hors_ligne

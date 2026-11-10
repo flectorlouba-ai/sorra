@@ -13,12 +13,18 @@
 {% if peut_cloturer %}
 <button type="button" class="btn-new" onclick="ouvrir('fen-cloture')"><i class="bi bi-flag"></i> Clôturer la bande</button>
 {% endif %}
+{% if current_user.profil.value == 'ADMIN' %}
+<button type="button" class="btn-ghost" onclick="ouvrir('fen-archiver')">🗄️ Archiver</button>
+{% endif %}
 {% if not bande.en_cours %}
 <a href="{{ url_for('bandes.bilan', numero=bande.numero) }}" class="btn-new"><i class="bi bi-clipboard-data"></i> Bilan</a>
 {% endif %}
 {% endblock %}
 
 {% block contenu %}
+{% import '_fiches.html' as fiches %}
+{% set retour = request.path %}
+{% set infos = fiches_infos(bande.saisies + bande.pesees + bande.sorties + traitements) if peut_corriger else {} %}
 {% if bande.en_cours %}
 <div class="bandeau-feu feu-{{ couleur }}"><span class="feu feu-{{ couleur }}"></span> {{ phrase }}</div>
 {% endif %}
@@ -105,7 +111,7 @@
         <thead><tr><th>Du</th><th>Au</th><th>Médicament</th><th>Motif</th><th>Animaux</th></tr></thead>
         <tbody>
         {% for t in traitements %}
-          <tr><td>{{ t.date_debut.strftime('%d/%m') }}</td><td>{{ t.date_fin.strftime('%d/%m') }}</td><td>{{ t.produit.nom }}</td><td>{{ t.motif }}</td><td>{{ t.nombre_animaux|qte }}</td></tr>
+          <tr><td>{{ t.date_debut.strftime('%d/%m') }}</td><td>{{ t.date_fin.strftime('%d/%m') }}</td><td>{{ t.produit.nom }}</td><td>{{ t.motif }}</td><td>{{ t.nombre_animaux|qte }}{% if peut_corriger %} {{ fiches.bouton(infos[t.id], retour) }}{% endif %}</td></tr>
         {% else %}<tr><td colspan="5" class="table-vide">Aucun traitement.</td></tr>{% endfor %}
         </tbody>
       </table></div>
@@ -113,8 +119,10 @@
   </div>
 </div>
 
+{# Lot A1 : chaque saisie, pesée et sortie s'ouvre en fiche préremplie (modifier, archiver ; motif pour corriger) #}
 <div class="card-p mt-3">
-  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-journal-text"></i> Journal de la bande</span></div>
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-journal-text"></i> Journal de la bande</span>
+    {% if peut_corriger %}<span>{% for g in ('saisie', 'pesee', 'sortie') %}{{ fiches.voir_archivees(g, nombre_archivees(g, bande=bande), retour, bande=bande.numero) }} {% endfor %}</span>{% endif %}</div>
   <div class="table-scroll">
     <table>
       <thead><tr><th>Date</th><th>Jour</th><th>Morts</th><th>Aliment</th><th>Pesée</th><th>Sortie</th><th>Saisi par</th><th></th></tr></thead>
@@ -126,11 +134,11 @@
           <td>{{ j.age }}</td>
           <td>{{ s.morts|qte if s else '—' }}</td>
           <td>{% if s and s.aliments %}{{ s.sacs|qte }} sacs · {{ s.kg|qte }} kg{% else %}—{% endif %}</td>
-          <td>{% for p in j.pesees or [] %}{{ p.poids_moyen_g|round|qte }} g ({{ p.nombre_pesees }}){% if peut_corriger %} <a class="btn-edit" href="{{ url_for('bandes.corriger', numero=bande.numero, quoi='pesee', ident=p.id) }}" title="Corriger"><i class="bi bi-pencil"></i></a>{% endif %}<br>{% else %}—{% endfor %}</td>
-          <td>{% for o in j.sorties or [] %}{{ o.nombre|qte }} · {{ o.motif }} ({{ o.destinataire }}){% if o.lot %} · lot <a href="{{ url_for('tracabilite.lot', numero=o.lot.numero) }}">{{ o.lot.numero }}</a>{% if not o.lot.annule %} <a class="btn-edit" href="{{ url_for('tracabilite.lot', numero=o.lot.numero) }}" title="Étiquettes QR du lot"><i class="bi bi-qr-code"></i></a>{% endif %}{% endif %}{% if peut_corriger %} <a class="btn-edit" href="{{ url_for('bandes.corriger', numero=bande.numero, quoi='sortie', ident=o.id) }}" title="Corriger"><i class="bi bi-pencil"></i></a>{% endif %}<br>{% else %}—{% endfor %}</td>
+          <td>{% for p in j.pesees or [] %}{{ p.poids_moyen_g|round|qte }} g ({{ p.nombre_pesees }}){% if peut_corriger %} {{ fiches.bouton(infos[p.id], retour) }}{% endif %}<br>{% else %}—{% endfor %}</td>
+          <td>{% for o in j.sorties or [] %}{{ o.nombre|qte }} · {{ o.motif }} ({{ o.destinataire }}){% if o.lot %} · lot <a href="{{ url_for('tracabilite.lot', numero=o.lot.numero) }}">{{ o.lot.numero }}</a>{% if not o.lot.annule %} <a class="btn-edit" href="{{ url_for('tracabilite.lot', numero=o.lot.numero) }}" title="Étiquettes QR du lot"><i class="bi bi-qr-code"></i></a>{% endif %}{% endif %}{% if peut_corriger %} {{ fiches.bouton(infos[o.id], retour) }}{% endif %}<br>{% else %}—{% endfor %}</td>
           <td>{% set agent = (s and s.saisi_par_agent) or (j.pesees or [])|selectattr('saisi_par_agent')|list or (j.sorties or [])|selectattr('saisi_par_agent')|list %}
             {{ "Agent pour l'éleveur" if agent else 'Éleveur' }}</td>
-          <td>{% if s and peut_corriger %}<a class="btn-edit" href="{{ url_for('bandes.corriger', numero=bande.numero, quoi='saisie', ident=j.date.isoformat()) }}" title="Corriger"><i class="bi bi-pencil"></i></a>{% endif %}</td>
+          <td>{% if s and peut_corriger %}{{ fiches.bouton(infos[s.id], retour) }}{% endif %}</td>
         </tr>
       {% else %}
         <tr><td colspan="8" class="table-vide">Aucune saisie pour l'instant.</td></tr>
@@ -159,6 +167,29 @@
       <div class="modal-footer">
         <button type="button" class="btn-annuler" onclick="fermer('fen-cloture')">Retour</button>
         <button type="submit" class="btn-enregistrer">Clôturer</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+{# Lot A1 : l'administrateur archive une bande restée vide (créée par erreur) ; elle reste conservée et se restaure #}
+{% if current_user.profil.value == 'ADMIN' %}
+<div class="modal-overlay" id="fen-archiver" hidden role="dialog" aria-modal="true">
+  <div class="modal-box" style="max-width:460px;">
+    <form method="post" action="{{ url_for('fiches.entite', genre='bande', numero=bande.numero) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="retour" value="{{ request.path }}">
+      <div class="modal-head"><span class="modal-head-title">🗄️ Archiver {{ bande.numero }}</span>
+        <button type="button" class="modal-close" data-fermer aria-label="Fermer">✕</button></div>
+      <div class="modal-body">
+        <p>Elle sera masquée des listes et des calculs, et conservée. Seule une bande sans aucune saisie peut être archivée.</p>
+        <label class="form-label" for="motif-archive">Motif<span class="req">*</span></label>
+        <input class="form-control" id="motif-archive" name="motif" maxlength="300" required placeholder="ex. créée en double">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-annuler" data-fermer>✕ Fermer</button>
+        <button type="submit" class="btn-enregistrer">🗄️ Archiver</button>
       </div>
     </form>
   </div>

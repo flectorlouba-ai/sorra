@@ -60,15 +60,14 @@
              value="{{ val('convention_date', op.convention_date.isoformat() if op and op.convention_date else '') }}">
     </div>
   </div>
+  <button type="submit" class="btn-gros mt-3">{{ 'Enregistrer la modification' if op else 'Enregistrer' }}</button>
   {% if op %}
-  {% set act = (saisie.get('actif') == 'on') if saisie else op.actif %}
-  <div class="form-group">
-    <label class="coche"><input type="checkbox" name="actif" {% if act %}checked{% endif %}> Opérateur actif</label>
-    <div class="form-hint">Un opérateur ne se supprime pas : décochez pour le désactiver.</div>
+  {# Lot A1 : « Archiver » remplace « Désactiver » ; un opérateur archivé se restaure #}
+  <div class="barre-ajout">
+    {% if op.actif %}<button type="submit" class="btn-archiver-lien" name="archiver" value="1" formnovalidate>🗄️ Archiver</button>
+    {% else %}<span class="badge badge-off">🗄️ Archivé</span> <button type="submit" class="btn-enregistrer" name="restaurer" value="1" formnovalidate>↩️ Restaurer</button>{% endif %}
   </div>
   {% endif %}
-
-  <button type="submit" class="btn-gros mt-3">Enregistrer</button>
   {% if not op %}<div class="note-numero">Le numéro est donné automatiquement.</div>{% endif %}
 </form>
 {% endblock %}

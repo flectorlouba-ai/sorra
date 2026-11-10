@@ -5,7 +5,7 @@ Une ferme ne se supprime pas (statut « Suspendue ») ; un bâtiment non plus
 le terrain et son numéro (EST-001) est `numero_metier`.
 """
 from app import db
-from app.models.base import SaisieTerrainMixin, maintenant
+from app.models.base import ArchivableMixin, SaisieTerrainMixin, maintenant
 
 
 class SourcePosition:
@@ -13,7 +13,7 @@ class SourcePosition:
     MANUELLE = 'MANUELLE'
 
 
-class Ferme(SaisieTerrainMixin, db.Model):
+class Ferme(ArchivableMixin, SaisieTerrainMixin, db.Model):
     __tablename__ = 'ferme'
     __perimetre__ = 'province_id'
     __perimetre_ferme__ = 'id'
@@ -74,7 +74,7 @@ class Ferme(SaisieTerrainMixin, db.Model):
         return f'<Ferme {self.numero_metier}>'
 
 
-class Batiment(db.Model):
+class Batiment(ArchivableMixin, db.Model):
     __tablename__ = 'batiment'
     __table_args__ = (db.UniqueConstraint('ferme_id', 'code'),)
 

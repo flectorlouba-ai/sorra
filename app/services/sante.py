@@ -76,7 +76,7 @@ TYPES_AUDIO = {'.webm': 'audio/webm', '.ogg': 'audio/ogg', '.m4a': 'audio/mp4'}
 
 def declarations_visibles(user):
     """Transmises aux seuls vétérinaires de la province ; l'éleveur voit les siennes ; l'ADMIN tout."""
-    q = Declaration.query
+    q = Declaration.query.filter(Declaration.archive_le.is_(None))          # lot A : archivées masquées
     if user.profil == Profil.ADMIN:
         return q
     if user.profil == Profil.VETO:
@@ -277,7 +277,7 @@ def fin_delai_attente(bande, jour=None):
     """Dernier jour du délai d'attente avant abattage (None si aucun en cours)."""
     jour = jour or date.today()
     fins = [t.date_fin + timedelta(days=t.produit.delai_attente_jours or 0)
-            for t in Traitement.query.filter_by(bande_id=bande.id) if t.produit.delai_attente_jours]
+            for t in Traitement.query.filter_by(bande_id=bande.id, archive_le=None) if t.produit.delai_attente_jours]
     fins = [f for f in fins if f >= jour]
     return max(fins) if fins else None
 

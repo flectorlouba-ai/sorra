@@ -1,7 +1,7 @@
 """Visites techniques de l'agent (lot 12) : planifiées, puis compte rendu (constats,
 recommandations, position GPS, photo), lu par l'éleveur dans « 👤 Moi → 📋 Mes visites »."""
 from app import db
-from app.models.base import SaisieTerrainMixin
+from app.models.base import ArchivableMixin, SaisieTerrainMixin
 
 
 class StatutVisite:
@@ -10,7 +10,7 @@ class StatutVisite:
     ANNULEE = 'ANNULEE'
 
 
-class Visite(SaisieTerrainMixin, db.Model):
+class Visite(ArchivableMixin, SaisieTerrainMixin, db.Model):
     __tablename__ = 'visite'
     __perimetre_ferme__ = 'ferme_id'
 

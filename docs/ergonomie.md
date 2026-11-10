@@ -406,6 +406,53 @@ Tailles et contrastes sont vérifiés au navigateur sur toutes les pages gardée
 
   Les teintes claires restent pour les feux, les pastilles et la mascotte. Le titre « Sorties de cette bande » passe à 12 px. Captures avant / après : `docs/captures/contrastes/`.
 
+## K. Règle des formulaires (lot A1)
+
+**Un écran = une liste + « ＋ Ajouter ».** Le formulaire s'ouvre **toujours en fenêtre**. Un seul composant par style (`.modal-overlay > .modal-box`, `static/js/fenetre.js`) :
+- **terrain** : une feuille qui monte du bas, avec une poignée (glisser vers le bas pour fermer), ✕, et le fond grisé qui la referme ;
+- **bureau** : une fenêtre au centre.
+
+Quand on arrive sur un écran pour saisir (Pesée, Sortie…), la fenêtre d'ajout est **ouverte d'office** ; ✕ la ferme sur la liste. Un écran sans liste derrière (vaccin, traitement, J'ai payé, J'ai acheté, panne, poulet malade, compte rendu) ramène à son écran de liste. La **saisie du jour reste à 2 clics** : sa carte est sur l'accueil de l'éleveur (et sur « Saisir pour » de l'agent) ; ses saisies passées s'ouvrent en fiche.
+
+**Une ligne touchée** ouvre la même fiche **préremplie**, avec « Enregistrer la modification » · « 🗄️ Archiver » · ✕ (`templates/_fiches.html`, `services/fiches.py`). Le formulaire est déjà dans la page : il s'ouvre et s'envoie **sans réseau** (file d'attente du téléphone).
+
+**ARCHIVER remplace SUPPRIMER.**
+- L'élément archivé est masqué des listes et **exclu des calculs** (`models/base.py` : masquage de toutes les requêtes), mais **conservé**.
+- Lien « 🗄️ Voir les archivées (n) » sous chaque liste ; « ↩️ Restaurer » pour l'agent de la ferme ou l'ADMIN.
+- Journal : ARCHIVAGE et RESTAURATION, avec l'avant / après et le motif.
+- **Aucune suppression physique.**
+- Les écrans de bureau (catalogue, opérateurs, utilisateurs, listes, bâtiments) : « 🗄️ Archiver » / « ↩️ Restaurer » remplace la case « actif » ; la colonne `actif` reste et suit l'archivage.
+- Fermes et bandes : l'ADMIN archive seulement une ferme ou une bande **restée vide** (créée par erreur), avec un motif ; « 🗄️ Archivées » sur leur liste.
+
+**Qui modifie quoi.**
+- Chacun modifie ou archive **ses propres saisies** tant que la bande est ouverte. La ligne modifiée porte ✏️ ; la fiche dit « Saisie par … · modifiée N fois ».
+- **Bande terminée** : lecture seule, « 🔒 Cette bande est terminée. Pour corriger, appelez votre agent. » + 📞. Seul un profil habilité (agent de la ferme, ADMIN) corrige, **avec un motif**.
+- **Correction par une autre personne** (point 3 validé) : la saisie du jour garde la règle des deux versions (lot 12) ; ailleurs, motif obligatoire, avant / après au journal, et un message « Votre agent a corrigé… » dans « À vérifier ».
+- **Sortie** (point 4 validé) : archiver une sortie dont le lot a été reçu est refusé ; sinon la sortie est archivée et son lot annulé (la restauration le réactive).
+- Achat de poussins déjà mis en bande, signalement déjà suivi par le vétérinaire, bâtiment avec une bande en cours : non archivables.
+
+**Écrans à la règle (lot A1).**
+
+| Style | Écran | Liste | Ajout en fenêtre | Fiche (modifier / archiver) |
+|---|---|---|---|---|
+| Terrain | Saisie du jour | 3 dernières saisies (accueil) | carte de l'accueil (2 clics) | ✓ |
+| Terrain | Pesées | pesées de la bande | ✓ ouverte d'office | ✓ |
+| Terrain | Sorties / ventes | sorties de la bande | ✓ ouverte d'office | ✓ |
+| Terrain | Vaccins et soins | « Déjà faits » | ✓ | ✓ |
+| Terrain | Dépenses (Mon argent) | mouvements | ✓ | ✓ (dépense, vente, achat) |
+| Terrain | Achats (Mon stock) | derniers achats | ✓ | ✓ |
+| Terrain | Entretien | pannes, « Faits récemment » | ✓ (panne) | ✓ |
+| Terrain | Signalements | mes signalements | ✓ | ✓ |
+| Terrain (agent) | Visites / comptes rendus | fiche de la ferme | ✓ | ✓ |
+| Bureau | Fiche de bande (journal) | saisies, pesées, sorties, traitements | — | ✓ (bouton ✏️) |
+| Bureau | Fermes, bandes | listes | pages existantes | 🗄️ ADMIN (vides) |
+| Bureau | Bâtiments, catalogue, utilisateurs, listes | tableaux | fenêtre au centre | « Archiver » remplace « Désactiver » |
+| Bureau | Opérateurs | liste | page existante | « Archiver » / « Restaurer » |
+
+**Autres écrans, pas encore à la règle** (à reprendre dans un lot suivant) : création et modification d'une ferme et d'un opérateur (pages entières), livraisons de l'État (confirmation, « reçu en moins »), ouverture d'une bande et rattrapage, clôture, tâches d'entretien (ADMIN), aides, paramètres, provinces, consentement BCEG, biosécurité, nouvel éleveur, planification des visites, réception de l'opérateur, alertes et décisions du vétérinaire, À vérifier.
+
+**Petits défauts corrigés (relevés au dossier).** Pastilles des bâtiments à 44 px ; numéro de ferme sous le nom à 12,8 px (« J'ai acheté », « J'ai payé », « Mes produits ») ; bouton « Retour à l'accueil » des pages d'erreur à 13,6 px ; « ✓ envoyé » en vert foncé (5,2) ; numéro de bande en majuscules dans « À vérifier ».
+
 ## Liste de contrôle d'un écran (à cocher dans chaque rapport de lot)
 
 - [ ] Un seul bouton mis en avant ?

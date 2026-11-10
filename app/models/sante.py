@@ -6,7 +6,7 @@ reste visible de l'éleveur qui l'a faite). Une alerte n'est visible de la DGE
 qu'une fois CONFIRMÉE par un vétérinaire ; jamais du public.
 """
 from app import db
-from app.models.base import SaisieTerrainMixin, HorodatageMixin, maintenant
+from app.models.base import ArchivableMixin, SaisieTerrainMixin, HorodatageMixin, maintenant
 
 
 class StatutAlerte:
@@ -31,7 +31,7 @@ class OrigineAlerte:
                 RECEPTION: 'Morts à la réception du lot'}
 
 
-class Declaration(SaisieTerrainMixin, db.Model):
+class Declaration(ArchivableMixin, SaisieTerrainMixin, db.Model):
     __tablename__ = 'declaration'
     __perimetre_ferme__ = 'ferme_id'
 
@@ -118,7 +118,7 @@ class CalendrierVaccinal(db.Model):
     produit = db.relationship('Produit', lazy='joined')
 
 
-class Vaccination(SaisieTerrainMixin, db.Model):
+class Vaccination(ArchivableMixin, SaisieTerrainMixin, db.Model):
     __tablename__ = 'vaccination'
 
     bande_id        = db.Column(db.Uuid, db.ForeignKey('bande.id'), nullable=False, index=True)
@@ -136,7 +136,7 @@ class Vaccination(SaisieTerrainMixin, db.Model):
     calendrier = db.relationship('CalendrierVaccinal')
 
 
-class Traitement(SaisieTerrainMixin, db.Model):
+class Traitement(ArchivableMixin, SaisieTerrainMixin, db.Model):
     __tablename__ = 'traitement'
 
     bande_id        = db.Column(db.Uuid, db.ForeignKey('bande.id'), nullable=False, index=True)

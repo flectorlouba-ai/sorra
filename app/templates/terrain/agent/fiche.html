@@ -27,4 +27,18 @@
   <div class="info-ligne">🏦 BCEG : {{ 'financée' if ferme.financee_bceg else 'non financée' }}</div>
   <div class="info-ligne">📋 Dernière visite : {% if derniere %}le {{ derniere.faite_le.strftime('%d/%m/%Y') }} · {{ derniere.objet|lower }}{% else %}aucune{% endif %}</div>
 </div>
+{% if visites %}
+{# Lot A1 : comptes rendus touchables (modifier, archiver) #}
+{% import '_fiches.html' as fiches %}
+{% set infos = fiches_infos(visites) %}
+<section class="carte" data-liste="visites">
+  <h2 class="sorties-titre">Comptes rendus</h2>
+  <ul class="liste-fiches">
+    {% for v in visites %}
+    <li>{% call fiches.ligne(infos[v.id], request.path) %}📋 <strong>{{ v.faite_le.strftime('%d/%m') }}</strong> · {{ v.objet|lower }}{% endcall %}</li>
+    {% endfor %}
+  </ul>
+  {{ fiches.voir_archivees('visite', n_visites_archivees, request.path, ferme=ferme.numero) }}
+</section>
+{% endif %}
 {% endblock %}

@@ -1,5 +1,5 @@
 {% extends '_base.html' %}
-{% from '_macros.html' import badge_statut, tete_fenetre, pied_fenetre %}
+{% from '_macros.html' import badge_statut, tete_fenetre, pied_fenetre, pied_archivable %}
 {% block titre %}{{ ferme.numero }} — {{ ferme.nom }}{% endblock %}
 {% block sous_titre %}Fermes{% endblock %}
 {% block icone %}house-door{% endblock %}
@@ -9,6 +9,9 @@
 {% block actions %}
 {% if peut_modifier %}
 <a href="{{ url_for('fermes.modifier', numero=ferme.numero) }}" class="btn-new"><i class="bi bi-pencil"></i> Modifier</a>
+{% endif %}
+{% if current_user.profil.value == 'ADMIN' %}
+<button type="button" class="btn-ghost" onclick="ouvrir('fen-archiver')">🗄️ Archiver</button>
 {% endif %}
 {% endblock %}
 
@@ -87,7 +90,7 @@
       <tbody>
       {% for b in ferme.batiments %}
         <tr {% if not b.actif %}class="ligne-inactive"{% endif %}>
-          <td><strong>{{ b.code }}</strong>{% if b.nom %} — {{ b.nom }}{% endif %}{% if not b.actif %} <span class="badge badge-off">Inactif</span>{% endif %}</td>
+          <td><strong>{{ b.code }}</strong>{% if b.nom %} — {{ b.nom }}{% endif %}{% if not b.actif %} <span class="badge badge-off">🗄️ Archivé</span>{% endif %}</td>
           <td>{{ '{:,}'.format(b.capacite).replace(',', ' ') }}</td>
           <td>{% set e = etats[b.id] %}{% if e.etat == 'bande' %}<a href="{{ url_for('bandes.fiche', numero=e.bande.numero) }}">{{ e.bande.numero }}</a>{% elif e.etat == 'vide' %}<span class="td-sous">vide sanitaire · {{ e.jours }} j</span>{% else %}—{% endif %}</td>
           <td style="text-align:right;">
@@ -355,12 +358,34 @@
           <input class="form-control" id="b-nom" name="nom" maxlength="120" placeholder="Facultatif">
           <div class="form-hint">Le code (B1, B2…) est donné automatiquement.</div>
         </div>
-        <div class="form-group" id="bloc-b-actif" hidden>
-          <label class="coche"><input type="checkbox" name="actif" id="b-actif"> Bâtiment actif</label>
-          <div class="form-hint">Un bâtiment inactif ne compte plus dans les places de la ferme.</div>
+        <div class="form-group">
+          <div class="form-hint">Un bâtiment archivé ne compte plus dans les places de la ferme ; il se restaure.</div>
         </div>
       </div>
-      {{ pied_fenetre('fen-batiment') }}
+      {{ pied_archivable('fen-batiment') }}
+    </form>
+  </div>
+</div>
+{% endif %}
+
+{# Lot A1 : l'administrateur archive une ferme restée vide (créée par erreur) ; elle reste conservée et se restaure #}
+{% if current_user.profil.value == 'ADMIN' %}
+<div class="modal-overlay" id="fen-archiver" hidden role="dialog" aria-modal="true">
+  <div class="modal-box" style="max-width:460px;">
+    <form method="post" action="{{ url_for('fiches.entite', genre='ferme', numero=ferme.numero) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="retour" value="{{ request.path }}">
+      <div class="modal-head"><span class="modal-head-title">🗄️ Archiver {{ ferme.numero }}</span>
+        <button type="button" class="modal-close" data-fermer aria-label="Fermer">✕</button></div>
+      <div class="modal-body">
+        <p>Elle sera masquée des listes et des calculs, et conservée. Seule une ferme sans aucune saisie peut être archivée.</p>
+        <label class="form-label" for="motif-archive">Motif<span class="req">*</span></label>
+        <input class="form-control" id="motif-archive" name="motif" maxlength="300" required placeholder="ex. créée en double">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-annuler" data-fermer>✕ Fermer</button>
+        <button type="submit" class="btn-enregistrer">🗄️ Archiver</button>
+      </div>
     </form>
   </div>
 </div>
@@ -379,12 +404,11 @@ function ouvrirBatiment(btn) {
     document.getElementById('fen-batiment-titre').textContent = 'Bâtiment ' + b.code;
     document.getElementById('b-capacite').value = b.capacite;
     document.getElementById('b-nom').value = b.nom;
-    document.getElementById('bloc-b-actif').hidden = false;
-    document.getElementById('b-actif').checked = b.actif;
+    etatFenetre('fen-batiment', b.actif ? 'actif' : 'archive');
   } else {
     f.action = "{{ url_for('fermes.ajouter_batiment', numero=ferme.numero) }}";
     document.getElementById('fen-batiment-titre').textContent = 'Nouveau bâtiment';
-    document.getElementById('bloc-b-actif').hidden = true;
+    etatFenetre('fen-batiment', 'nouveau');
   }
   ouvrir('fen-batiment');
   document.getElementById('b-capacite').focus();

@@ -1,5 +1,5 @@
 {% extends '_base.html' %}
-{% from '_macros.html' import tete_fenetre, pied_fenetre %}
+{% from '_macros.html' import tete_fenetre, pied_fenetre, pied_archivable %}
 {% block titre %}Utilisateurs{% endblock %}
 {% block icone %}people-fill{% endblock %}
 {% block page_sous_titre %}Comptes, profils et provinces de rattachement{% endblock %}
@@ -23,7 +23,7 @@
   <span class="filter-label">Comptes</span>
   <select name="statut" class="filter-sel" onchange="this.form.submit()">
     <option value="actifs" {% if filtre.statut == 'actifs' %}selected{% endif %}>Actifs</option>
-    <option value="inactifs" {% if filtre.statut == 'inactifs' %}selected{% endif %}>Désactivés</option>
+    <option value="inactifs" {% if filtre.statut == 'inactifs' %}selected{% endif %}>Archivés</option>
     <option value="tous" {% if filtre.statut == 'tous' %}selected{% endif %}>Tous</option>
   </select>
 </form>
@@ -38,7 +38,7 @@
         <td>{{ u.nom_complet }}</td>
         <td>{{ u.profil.libelle }}</td>
         <td>{% if u.est_national %}Toutes{% elif u.profil.value == 'ELEVEUR' %}{{ u.fermes|map(attribute='numero_ferme')|join(', ') or '—' }}{% else %}{{ u.provinces|map(attribute='nom')|join(', ') or '—' }}{% endif %}</td>
-        <td>{% if not u.actif %}<span class="badge badge-off">Désactivé</span>
+        <td>{% if not u.actif %}<span class="badge badge-off">🗄️ Archivé</span>
             {% elif u.est_bloque %}<span class="badge badge-warn">Bloqué</span>
             {% else %}<span class="badge badge-ok">Actif</span>{% endif %}</td>
         <td style="text-align:right;white-space:nowrap;">
@@ -153,15 +153,12 @@
               <input class="form-control" id="mot_de_passe" name="mot_de_passe" type="text" autocomplete="off" minlength="{{ longueur_min }}">
               <div class="form-hint" id="aide-mdp">Au moins {{ longueur_min }} caractères. La personne le changera à sa première connexion.</div>
             </div>
-            <div class="form-group" id="bloc-actif" hidden>
-              <span class="form-label">Compte</span>
-              <label class="coche mt-1"><input type="checkbox" name="actif" id="actif"> Compte actif</label>
-              <div class="form-hint">Décocher pour désactiver le compte : la personne ne pourra plus se connecter.</div>
-            </div>
+            {# Lot A1 : « Archiver » (pied de la fenêtre) remplace « Désactiver » : la personne ne peut plus se connecter #}
+            <input type="hidden" name="actif" id="actif" value="on">
           </div>
         </div>
       </div>
-      {{ pied_fenetre('fen-user') }}
+      {{ pied_archivable('fen-user') }}
     </form>
   </div>
 </div>
@@ -211,7 +208,7 @@ function ouvrirCreation() {
   document.getElementById('fen-user-titre').textContent = 'Nouvel utilisateur';
   document.getElementById('bloc-identifiant').hidden = false;
   document.getElementById('identifiant').required = true;
-  document.getElementById('bloc-actif').hidden = true;
+  etatFenetre('fen-user', 'nouveau');
   document.getElementById('mot_de_passe').required = true;
   document.getElementById('label-mdp').innerHTML = 'Mot de passe provisoire<span class="req">*</span>';
   document.getElementById('aide-mdp').textContent = 'Au moins {{ longueur_min }} caractères. La personne le changera à sa première connexion.';
@@ -230,11 +227,10 @@ function ouvrirModification(btn) {
   ['nom', 'prenom', 'email', 'telephone', 'profil', 'operateur_id'].forEach(function (k) { document.getElementById(k).value = u[k]; });
   cocherProvinces(u.provinces);
   cocherFermes(u.fermes);
-  document.getElementById('bloc-actif').hidden = false;
-  document.getElementById('actif').checked = u.actif;
   document.getElementById('mot_de_passe').required = false;
   document.getElementById('label-mdp').textContent = 'Nouveau mot de passe provisoire';
   document.getElementById('aide-mdp').textContent = 'Laisser vide pour ne pas le changer.';
+  etatFenetre('fen-user', u.actif ? 'actif' : 'archive');
   majProvinces();
   ouvrir('fen-user');
 }
