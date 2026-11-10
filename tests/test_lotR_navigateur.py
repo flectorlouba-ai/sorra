@@ -61,6 +61,19 @@ def connexion(page, url, ident):
         page.wait_for_load_state('networkidle')
 
 
+def ouvrir(page, url):
+    """Le serveur de développement coupe parfois une grande réponse (connexion réinitialisée) : un second essai."""
+    for essai in range(2):
+        try:
+            page.goto(url, wait_until='commit')
+            page.wait_for_load_state('load')
+            page.wait_for_load_state('networkidle')
+            return
+        except Exception:
+            if essai:
+                raise
+
+
 def deborde(page):
     return page.evaluate('document.documentElement.scrollWidth > document.documentElement.clientWidth + 1')
 
@@ -77,8 +90,7 @@ def test_aucun_debordement_horizontal(serveur, ident):
         for chemin in ['/'] + liens[1:]:
             for largeur in LARGEURS:
                 page.set_viewport_size({'width': largeur, 'height': 900})
-                page.goto(serveur + chemin)
-                page.wait_for_load_state('networkidle')
+                ouvrir(page, serveur + chemin)
                 assert not deborde(page), f'{ident} {chemin} déborde à {largeur} px'
                 if largeur < 900:
                     assert page.evaluate("getComputedStyle(document.querySelector('.btns-fonctions')).display") == 'flex'

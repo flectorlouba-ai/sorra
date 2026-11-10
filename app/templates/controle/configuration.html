@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Configuration{% endblock %}
 {% block icone %}gear{% endblock %}
 {% block page_sous_titre %}Référentiels, listes, paramètres, catalogue, formules, aides{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <div class="modules-grid">
   {% for t in tuiles %}
   <a href="{{ t.lien }}" class="module-card mc-blue"><i class="bi bi-{{ t.icone }}"></i><div class="mc-title">{{ t.titre }}</div><div class="mc-sub">{{ t.sous_titre }}</div></a>

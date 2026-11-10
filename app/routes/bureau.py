@@ -12,7 +12,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font
 
 from app import db, indicateurs as ind
-from app.models import Ferme, Profil, Province
+from app.models import Ferme, Profil, Province, Utilisateur
 from app.models.bande import Bande, StatutBande
 from app.services import mes_indicateurs, pilotage, conformite
 from app.services.journal import enregistrer, Action
@@ -59,14 +59,16 @@ def raisons_alerte(ferme, infos, user):
 
 
 def tableau_de_bord(user):
-    fermes = filtre_perimetre(Ferme.query, utilisateur=user).order_by(Ferme.numero_metier).all()
+    # Lot K : l'auditeur voit la carte nationale (lecture seule, sans chiffre financier) ; son périmètre de données reste vide
+    lecteur = Utilisateur.query.filter_by(profil=Profil.DGE, actif=True).first() if user.profil == Profil.AUDITEUR else None
+    fermes = filtre_perimetre(Ferme.query, utilisateur=lecteur or user).order_by(Ferme.numero_metier).all()
     d = mes_indicateurs.pour(user) or {'cartes': [], 'courbes': []}
     production = ind.production_fermes(fermes)
     pid = None
     if not user.est_national:
         provinces = {f.province_id for f in fermes} | set(user.province_ids)
         pid = next(iter(provinces)) if len(provinces) == 1 else None
-    carte = pilotage.carte(user, pid, largeur=640, hauteur=460, details=True) if fermes else None
+    carte = pilotage.carte(lecteur or user, pid, largeur=640, hauteur=460, details=True) if fermes else None
     alertes, synthese = [], []
     for f in fermes:
         infos = pilotage.infos_ferme(f, production)
@@ -95,6 +97,10 @@ def tableau_de_bord(user):
         conforme = ('ELEVEUR-1', conformite.spec('ELEVEUR', 1), conformite.eleveur_accueil(user))
     elif user.profil == Profil.AGENT:
         conforme = ('AGENT-1', conformite.spec('AGENT', 1), conformite.agent_accueil(user, mes_actions))
+    elif user.profil == Profil.ADMIN:
+        conforme = ('ADMIN-1', conformite.spec('ADMIN', 1), conformite.admin_accueil(user))
+    elif user.profil == Profil.AUDITEUR:
+        conforme = ('AUDITEUR-1', conformite.spec('AUDITEUR', 1), conformite.auditeur_verifications(user))
     return {'cartes': d['cartes'], 'courbes': d['courbes'], 'carte': carte, 'alertes': alertes, 'synthese': synthese,
             'fermes': fermes, 'mes_actions': mes_actions, 'conforme': conforme}
 
@@ -260,7 +266,7 @@ def _profils_de(f, vus=None):
         return None, False
     vus.add(id(f))
     login = getattr(getattr(f, '__code__', None), 'co_name', '') == 'decorated_view'
-    for c in (f.__closure__ or []):
+    for c in (getattr(f, '__closure__', None) or []):
         try:
             v = c.cell_contents
         except ValueError:
@@ -289,7 +295,7 @@ def droits():
         lignes.append({'adresse': regle.rule, 'methodes': ' '.join(sorted(m for m in regle.methods if m in ('GET', 'POST'))),
                        'profils': ', '.join(sorted(p.value for p in profils)) if profils else ('tout compte connecté' if login else 'public'),
                        'doc': ((vue.__doc__ or '').strip().splitlines() or [''])[0][:120] if vue else ''})
-    return render_template('bureau/droits.html', lignes=lignes)
+    return render_template('bureau/droits.html', lignes=lignes, conforme=('ADMIN-3', conformite.spec('ADMIN', 3), conformite.admin_droits(current_user)))
 
 
 @bureau_bp.route('/exports')
@@ -297,7 +303,7 @@ def droits():
 def exports():
     from app.models import JournalAudit
     lignes = JournalAudit.query.filter(JournalAudit.action == Action.EXPORT).order_by(JournalAudit.horodatage.desc()).limit(300).all()
-    return render_template('bureau/exports.html', lignes=lignes)
+    return render_template('bureau/exports.html', lignes=lignes, conforme=('AUDITEUR-5', conformite.spec('AUDITEUR', 5), conformite.auditeur_exports(current_user, lignes)))
 
 
 @bureau_bp.route('/recherche')
@@ -313,7 +319,7 @@ def recherche():
                   .order_by(JournalAudit.horodatage.desc()).limit(300).all())
         enregistrer(Action.RECHERCHE, table='journal', detail=f'Recherche « {q[:80]} » : {len(lignes)} résultat(s)')
         db.session.commit()
-    return render_template('bureau/recherche.html', q=q, lignes=lignes)
+    return render_template('bureau/recherche.html', q=q, lignes=lignes, conforme=('AUDITEUR-6', conformite.spec('AUDITEUR', 6), conformite.auditeur_recherche(current_user, q, lignes)))
 
 
 @bureau_bp.route('/visites')

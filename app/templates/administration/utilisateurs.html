@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% from '_macros.html' import tete_fenetre, pied_fenetre, pied_archivable %}
 {% block titre %}Utilisateurs{% endblock %}
 {% block icone %}people-fill{% endblock %}
@@ -9,6 +10,7 @@
 {% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <form class="filters-bar" method="get">
   <span class="filter-label">Profil</span>
   <select name="profil" class="filter-sel" onchange="this.form.submit()">

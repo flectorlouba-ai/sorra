@@ -14,7 +14,12 @@ Règles : `docs/regles_lots.md`. Décisions prises seul : `docs/decisions_autono
 | T — notifications push, actions agent, fiche papier | `b50ee43` | 551 | oui | 2026-11-10-b50ee43 | clés VAPID + cron `notifications-envoyer` à poser sur le serveur (voir `rapport_T.md`) |
 | Activation démo (10/11) | — | — | faite | 2026-11-10-b50ee43 | `.env` sauvegardé (600), clés VAPID et `SORRA_DEMO_COMPTES=1` ajoutés par redirection (jamais affichés), cron `*/15` de `performyl2-demo` → `/var/log/performyl2-demo/notifications.log`, service actif, encadré démo et activation des notifications vérifiés |
 | G | — | — | — | — | en pause (rien de commencé au 10/11) ; reprend après K |
-| K — conformité aux maquettes | | | | | |
+| K — étape 1 (correspondance, captures avant) | `33fd308` | — | sans objet | — | — |
+| K1 — bureau DGE + vétérinaire | `b7b943f` | 586 | oui | 2026-11-10-b7b943f | 16 écrans conformes, 9 colonnes « — » justifiées (voir `tests/test_conformite.ECARTS`) |
+| K3 — bureau éleveur + agent | `1595e4d` | 618 | oui | 2026-11-10-1595e4d | 16 écrans conformes ; bilan PDF et régime fiscal de Mon argent = lot G (K4) |
+| K2 — bureau administrateur + auditeur | (fusion K2) | 644 | oui | (version au déploiement) | 13 écrans conformes ; « Modifié le » de la matrice des droits « — » |
+| K4 — téléphone éleveur | | | | | |
+| K5 — téléphone agent, opérateur, GPS, notifications, actions | | | | | |
 | F | | | | | |
 | B | | | | | |
 | M | | | | | |

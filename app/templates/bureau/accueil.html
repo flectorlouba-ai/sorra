@@ -30,11 +30,11 @@
   </div>
 </div>
 
-{% if d.conforme and current_user.profil.value in ('AGENT', 'ELEVEUR') %}
+{% if d.conforme and current_user.profil.value in ('AGENT', 'ELEVEUR', 'ADMIN', 'AUDITEUR') %}
 {# Lot K : le tableau de l'accueil du cahier (agent : 🎯 Mes actions ; éleveur : Mes alertes et rappels) #}
 {{ tableau(d.conforme[0], d.conforme[1], d.conforme[2]) }}
 {% endif %}
-{% if d.mes_actions is defined and current_user.profil.value in ('DGE', 'ADMIN') %}
+{% if d.mes_actions is defined and current_user.profil.value == 'DGE' %}
 <div class="table-wrap mb-3" data-mes-actions><div class="table-scroll"><table>
   <thead><tr><th>🎯 Mes actions</th><th>Ferme</th><th>Demandée par</th><th>Échéance</th><th>Priorité</th><th>État</th></tr></thead>
   <tbody>{% for a in d.mes_actions %}
@@ -47,7 +47,7 @@
 <div class="courbes-hebdo">{% for c in d.courbes %}{{ courbe_hebdo(c) }}{% endfor %}</div>
 {% if d.courbes %}<div class="td-sous mt-1 mb-3">Une semaine sans donnée laisse un trou dans la courbe : elle n'est jamais comptée comme zéro.</div>{% endif %}
 
-{% if d.conforme and current_user.profil.value not in ('AGENT', 'ELEVEUR') %}
+{% if d.conforme and current_user.profil.value not in ('AGENT', 'ELEVEUR', 'ADMIN', 'AUDITEUR') %}
 {# Lot K : tableau de synthèse du cahier (titre, colonnes, clic) #}
 {{ tableau(d.conforme[0], d.conforme[1], d.conforme[2]) }}
 {% endif %}

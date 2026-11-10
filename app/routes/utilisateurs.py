@@ -115,7 +115,9 @@ def index():
     fermes = [{'id': str(fe.id), 'numero': fe.numero_metier, 'nom': fe.nom,
                'province_id': fe.province_id}
               for fe in Ferme.query.order_by(Ferme.numero_metier)]
+    from app.services import conformite
     return render_template('administration/utilisateurs.html',
+                           conforme=('ADMIN-2', conformite.spec('ADMIN', 2), conformite.admin_utilisateurs(current_user, utilisateurs)),
                            utilisateurs=utilisateurs, profils=list(Profil), fermes=fermes,
                            operateurs=Operateur.query.filter_by(actif=True).order_by(Operateur.nom).all(),
                            provinces=Province.query.order_by(Province.ordre).all(),

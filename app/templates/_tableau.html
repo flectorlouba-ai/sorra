@@ -28,7 +28,7 @@
     </div>
     <div class="fiche-lecture-seule" data-lecture-seule hidden>Lecture seule : vous n'avez pas le droit de modifier cet élément.</div>
     <div class="fiche-actions">
-      {% if t.peut_modifier %}<button type="submit" class="btn btn-primary" name="action" value="modifier" data-bouton="modifier">Enregistrer la modification</button>{% endif %}
+      {% if t.peut_modifier %}<button type="submit" class="btn btn-primary" name="action" value="modifier" data-bouton="modifier">{{ t.libelle_modifier }}</button>{% endif %}
       {% if t.peut_archiver %}<button type="button" class="btn btn-outline-danger" data-confirmer data-bouton="archiver">Archiver</button>{% endif %}
       <button type="button" class="btn btn-outline-secondary" data-fermer>Fermer</button>
     </div>

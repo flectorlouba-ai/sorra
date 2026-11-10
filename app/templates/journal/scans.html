@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Journal des scans{% endblock %}
 {% block icone %}qr-code-scan{% endblock %}
 {% block page_sous_titre %}Chaque lot lu à la réception, accepté ou refusé — {{ pagination.total }} ligne{{ 's' if pagination.total != 1 }}{% endblock %}
@@ -8,6 +9,7 @@
 {% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <form class="filters-bar" method="get">
   <select name="operateur" class="filter-sel" onchange="this.form.submit()">
     <option value="">Tous les opérateurs</option>

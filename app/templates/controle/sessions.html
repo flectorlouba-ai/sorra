@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Sessions{% endblock %}
 {% block icone %}pc-display{% endblock %}
 {% block page_sous_titre %}Sessions ouvertes · pilotage : fermées après {{ 30 }} min d'inactivité (paramètre) · éleveur et agent : jamais{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <div class="table-wrap"><div class="table-scroll"><table>
   <thead><tr><th>Utilisateur</th><th>Profil</th><th>Appareil</th><th>Adresse</th><th>Ouverte le</th><th>Dernière activité</th><th></th></tr></thead>
   <tbody>{% for s in sessions %}
