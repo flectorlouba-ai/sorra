@@ -146,3 +146,56 @@ def ouvertes(utilisateur_id=None):
 
 def expire_par_inactivite(user):
     return user.profil not in PILOTAGE_SANS_EXPIRATION
+
+
+# ── Lot S : limite de débit sur la connexion ───────────────────────────
+import os as _os
+import time as _time
+from collections import deque as _deque
+
+_TENTATIVES = {}            # adresse → horodatages des tentatives (par processus ; suffisant pour freiner une attaque)
+LIMITE_TENTATIVES, LIMITE_FENETRE_S = 30, 600
+
+
+def connexion_trop_frequente(adresse):
+    """Vrai si plus de LIMITE_TENTATIVES tentatives de connexion depuis cette adresse en LIMITE_FENETRE_S secondes."""
+    now = _time.time()
+    d = _TENTATIVES.setdefault(adresse or '?', _deque())
+    while d and now - d[0] > LIMITE_FENETRE_S:
+        d.popleft()
+    d.append(now)
+    return len(d) > LIMITE_TENTATIVES
+
+
+def oublier_tentatives():
+    _TENTATIVES.clear()
+
+
+# ── Lot S : mots de passe courants ───────────────────────────────────────
+_COURANTS = None
+
+
+def mot_de_passe_courant(mdp):
+    """Vrai si le mot de passe figure dans la liste des mots de passe les plus courants (app/utils/mots_de_passe_courants.txt)
+    ou s'il est trop simple (un seul caractère répété, suite de chiffres)."""
+    global _COURANTS
+    if _COURANTS is None:
+        chemin = _os.path.join(_os.path.dirname(__file__), '..', 'utils', 'mots_de_passe_courants.txt')
+        try:
+            _COURANTS = {l.strip().lower() for l in open(chemin, encoding='utf-8') if l.strip()}
+        except OSError:
+            _COURANTS = set()
+    m = (mdp or '').strip().lower()
+    if m in _COURANTS or m.replace(' ', '') in _COURANTS:
+        return True
+    if len(set(m)) <= 2 or m.isdigit() and m in '01234567890123456789' * 2:
+        return True
+    return False
+
+
+# ── Lot S : appareil inconnu ─────────────────────────────────────────────
+
+def appareil_inconnu(user):
+    """Vrai si ce compte n'a jamais ouvert de session depuis un appareil de ce type (système · navigateur)."""
+    a = _appareil()
+    return not SessionUtilisateur.query.filter(SessionUtilisateur.utilisateur_id == user.id, SessionUtilisateur.appareil == a).first()

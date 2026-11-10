@@ -112,6 +112,8 @@ def _listes_de_depart():
 def app(tmp_path):
     app = create_app('testing')
     app.instance_path = str(tmp_path)   # fichiers d'import : jamais dans le dossier du projet
+    from app.services import securite as _securite
+    _securite.oublier_tentatives()      # lot S : la limite de débit de la connexion ne traverse pas les tests
     with app.app_context():
         db.create_all()
         for i, (code, nom) in enumerate(PROVINCES_GABON, start=1):
