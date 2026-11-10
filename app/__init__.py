@@ -150,6 +150,8 @@ def create_app(env='default'):
     from flask_login import current_user as _utilisateur
     app.jinja_env.globals['fiches_infos'] = lambda objets: fiches_infos(objets, _utilisateur)
     app.jinja_env.globals['nombre_archivees'] = nombre_archivees
+    from app.services.conformite import spec as _cahier
+    app.jinja_env.globals['cahier'] = _cahier                  # lot K : le cahier de conformité dans les gabarits
     app.jinja_env.filters['date_locale'] = date_locale
     app.jinja_env.filters['qte'] = quantite
 

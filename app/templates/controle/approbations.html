@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Paramètres à approuver{% endblock %}
 {% block icone %}check2-circle{% endblock %}
 {% block page_sous_titre %}Quatre yeux : l'ancienne valeur s'applique jusqu'à l'approbation · jamais par l'auteur{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 {% for p in a_decider %}
 <div class="card-p mb-3" id="proposition-{{ p.id }}">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-sliders"></i> {{ p.libelle }}</span>
@@ -31,6 +33,7 @@
   <div class="card-p-body">{% for p in mes_propositions %}<div>{{ p.libelle }} : {{ p.avant }} → <strong>{{ p.apres }}</strong> <span class="td-sous">(une autre personne doit approuver)</span></div>{% endfor %}</div></div>
 {% endif %}
 
+<details class="vue-detaillee"><summary>Historique des décisions (vue détaillée)</summary>
 <div class="table-wrap"><div class="table-scroll"><table>
   <thead><tr><th>Décidé le</th><th>Réglage</th><th>Avant → après</th><th>Proposé par</th><th>Décision</th></tr></thead>
   <tbody>{% for p in historique %}
@@ -38,4 +41,5 @@
       <td>{{ p.auteur.nom_complet }}</td><td><span class="badge {{ 'badge-ok' if p.statut == 'APPROUVEE' else 'badge-off' }}">{{ p.libelle_statut }}</span> {{ p.decideur.nom_complet if p.decideur else '' }}{% if p.motif_decision %} — {{ p.motif_decision }}{% endif %}</td></tr>
   {% else %}<tr><td colspan="5" class="table-vide">Aucune décision pour l'instant.</td></tr>{% endfor %}</tbody>
 </table></div></div>
+</details>
 {% endblock %}

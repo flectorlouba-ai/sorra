@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Recherche de lots{% endblock %}
 {% block icone %}diagram-3{% endblock %}
 {% block page_sous_titre %}D'où viennent les poulets (amont) et où sont-ils partis (aval) · chaque recherche est inscrite au journal{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <form class="filters-bar" method="get">
   <input type="search" name="q" class="filter-search" value="{{ q }}" placeholder="N° de lot, de bande, de livraison, ou fournisseur" aria-label="Rechercher" style="flex:1 1 240px">
   <button type="submit" class="btn-filter"><i class="bi bi-search"></i></button>

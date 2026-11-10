@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Surveillance{% endblock %}
 {% block icone %}sign-stop{% endblock %}
 {% block page_sous_titre %}Bandes dont les sorties sont bloquées · seul un vétérinaire lève un blocage{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 {% if a_verifier %}
 <div class="card-p mb-3" id="a-verifier">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-exclamation-diamond"></i> Sorties reçues après le blocage · à vérifier</span></div>

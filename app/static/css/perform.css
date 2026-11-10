@@ -988,3 +988,27 @@ body.bureau .interrupteur.toujours .curseur{opacity:.6;}
 body.bureau .carte-titre{font-weight:700;margin-bottom:4px;}
 body.bureau .choix-cases{display:flex;gap:8px;flex-wrap:wrap;}
 body.bureau .case-choix input{margin-right:4px;}
+
+/* ── Lot K : tableau conforme au cahier et fiche générique ── */
+.outils-tableau .titre-tableau{margin-right:auto;font-weight:800;font-size:.85rem;color:var(--noir);}
+.tableau-conforme .filtres-conformes{padding:0 10px;margin-bottom:.5rem;}
+.tableau-conforme .filtres-conformes select{max-width:200px;}
+.tableau-conforme .filtres-conformes input[type=search]{max-width:240px;}
+.tableau-conforme tbody tr.tr-click:hover{background:var(--off);}
+.fiche-conforme{display:flex;flex-direction:column;flex:1;min-height:0;}
+.fiche-conforme .fiche-champs{display:grid;grid-template-columns:1fr 1fr;gap:.55rem .9rem;padding:1rem 1.2rem;overflow-y:auto;flex:1;min-height:0;}
+@media (max-width:700px){.fiche-conforme .fiche-champs{grid-template-columns:1fr;}}
+.fiche-champ{display:flex;flex-direction:column;gap:.2rem;font-size:.78rem;min-width:0;}
+.fiche-champ>span{font-weight:700;color:var(--gris5);}
+.fiche-champ>span small{font-weight:500;color:var(--gris8);text-transform:lowercase;}
+.fiche-champ output{display:block;background:var(--off);border:1px solid var(--grise);border-radius:7px;padding:.4rem .6rem;color:var(--noir);min-height:2.1rem;}
+.fiche-champ .form-control,.fiche-champ .form-select{font-size:.82rem;}
+.fiche-lecture-seule{margin:0 1.2rem .4rem;font-size:.75rem;color:var(--gris5);background:var(--off);border-radius:7px;padding:.4rem .7rem;}
+.fiche-conforme .fiche-actions{padding:.75rem 1.2rem;border-top:1px solid var(--grise);display:flex;justify-content:flex-end;gap:.6rem;flex-shrink:0;background:var(--blanc);flex-wrap:wrap;}
+.fiche-conforme .fiche-confirmer{margin:0 1.2rem;}
+.fiche-pied{padding:.4rem 1.2rem .7rem;font-size:.7rem;color:var(--gris8);flex-shrink:0;}
+.fiche-pied:empty{display:none;}
+.vue-detaillee{margin-top:1rem;}
+.vue-detaillee>summary{cursor:pointer;font-weight:700;font-size:.8rem;color:var(--noir3);padding:.4rem 0;}
+.dash-carte-seule{grid-template-columns:1fr;margin-bottom:1rem;}
+.dash-carte-seule .carte-fermes{max-height:360px;}

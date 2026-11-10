@@ -1,10 +1,12 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Rapports{% endblock %}
 {% block icone %}file-earmark-text{% endblock %}
 {% block page_titre %}📑 Rapports{% endblock %}
 {% block page_sous_titre %}Rapports produits le 1ᵉʳ du mois et à la demande : national, provincial, ferme, agent, bilans de bande · chaque génération et chaque téléchargement sont au journal{% endblock %}
 {% block actions %}{% if peut_generer %}<button type="button" class="bp" data-ouvrir="fen-generer">＋ Générer un rapport</button>{% endif %}{% endblock %}
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <form class="filters-bar" method="get">
   <select name="type" class="filter-sel" onchange="this.form.submit()">
     <option value="">Tous les types</option>
@@ -12,6 +14,7 @@
   </select>
 </form>
 <div class="td-sous mb-2">🎯 <a href="{{ url_for('actions.liste', nouvelle=1, origine='RAPPORT', intitule='Suite au rapport') }}" data-creer-action>Créer une action à partir d'un rapport</a></div>
+<details class="vue-detaillee"><summary>Vue détaillée des rapports</summary>
 <div class="table-wrap"><div class="table-scroll"><table>
   <thead><tr><th>Période</th><th>Type</th><th>Périmètre</th><th>Généré le</th><th>Par</th><th>Pages</th><th>Fichier</th></tr></thead>
   <tbody>{% for r in rapports %}
@@ -20,6 +23,7 @@
       <td>{{ r.pages or '—' }}</td><td><a class="btn-edit" href="{{ url_for('actions.telecharger', ident=r.id) }}"><i class="bi bi-file-earmark-pdf"></i> PDF</a></td></tr>
   {% else %}<tr><td colspan="7" class="table-vide">Aucun rapport gardé.</td></tr>{% endfor %}</tbody>
 </table></div></div>
+</details>
 {% if peut_generer %}
 <div class="modal-overlay" id="fen-generer" hidden role="dialog" aria-modal="true">
   <div class="modal-box" style="max-width:520px;">

@@ -1,14 +1,15 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% from '_macros.html' import tete_fenetre, pied_fenetre %}
 {% block titre %}Vaccins et traitements{% endblock %}
 {% block sous_titre %}Santé animale{% endblock %}
 {% block icone %}capsule{% endblock %}
 {% block page_sous_titre %}Calendrier vaccinal de référence, vaccins en retard, délais d'attente{% endblock %}
 {% block actions %}
-{% if peut_modifier %}<button type="button" class="btn-new" onclick="ouvrirEntree()"><i class="bi bi-plus-lg"></i> Ajouter au calendrier</button>{% endif %}
 {% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 {% if not valide %}
 <div class="flash-item warning"><i class="bi bi-exclamation-triangle"></i>
   Calendrier de départ courant pour le poulet de chair : <strong>à valider par les vétérinaires</strong>.

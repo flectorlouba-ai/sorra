@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Saisies à vérifier{% endblock %}
 {% block icone %}check2-square{% endblock %}
 {% block page_sous_titre %}Deux personnes, deux versions : rien n'est perdu · la version de l'éleveur compte jusqu'à votre décision{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 {% if par_province is not none %}
 <div class="card-p mb-3" id="par-province">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-map"></i> À trancher par province</span>
@@ -52,6 +54,7 @@
 <div class="empty-note mb-3"><i class="bi bi-check-circle"></i> Aucune saisie à trancher.</div>
 {% endfor %}
 
+<details class="vue-detaillee"><summary>Autres vérifications (vue détaillée)</summary>
 <div class="table-wrap"><div class="table-scroll">
   <table>
     <thead><tr><th>Reçue le</th><th>Quoi</th><th>Ferme</th><th>Ce qui s'est passé</th><th>Par</th><th></th></tr></thead>
@@ -75,4 +78,5 @@
     </tbody>
   </table>
 </div></div>
+</details>
 {% endblock %}

@@ -12,7 +12,9 @@
     {% for e, nom in {'RETARD': 'En retard', 'A_FAIRE': 'À faire', 'EN_COURS': 'En cours', 'FAITE': 'Faites'}.items() %}<option value="{{ e }}" {% if etat == e %}selected{% endif %}>{{ nom }}</option>{% endfor %}
   </select>
 </form>
-<div class="table-wrap"><div class="table-scroll"><table data-tableau-actions>
+<div class="table-wrap">
+  <div class="outils-tableau"><span class="titre-tableau">Plans d'actions de la DGE</span><span data-nb-lignes>{{ actions|length }} ligne(s)</span>
+    <button type="button" class="pr2" data-imprimer>🖨️ Imprimer</button><button type="button" class="xl" data-excel>⬇️ Excel</button></div><div class="table-scroll"><table data-tableau-actions>
   <thead><tr><th>N°</th><th>Action</th><th>Origine</th><th>Périmètre</th><th>Responsable</th><th>Échéance</th><th>Priorité</th><th>Avancement</th><th>État</th></tr></thead>
   <tbody>{% for a in actions %}
     <tr class="ligne-action" data-action="{{ a.id }}" data-etat="{{ a.etat }}" onclick="ouvrirAction(this)"

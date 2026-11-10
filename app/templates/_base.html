@@ -58,7 +58,7 @@
       {% if _b_sous_titre %}<div class="page-sub">{{ _b_sous_titre|safe }}</div>{% endif %}
       <span class="bp-zone" style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         {{ _b_actions|safe }}
-        {% if not _b_actions and _b_active and _b_active.bouton and _b_active.bouton.lien %}<a class="bp" href="{{ _b_active.bouton.lien }}" data-bouton-creation>{{ _b_active.bouton.libelle }}</a>{% endif %}
+        {% if _b_active and _b_active.bouton and _b_active.bouton.lien and _b_active.bouton.libelle not in _b_actions %}<a class="bp" href="{{ _b_active.bouton.lien }}" data-bouton-creation{% if _b_active.bouton.ouvrir and _b_active.bouton.ici %} data-ouvrir-creation="{{ _b_active.bouton.ouvrir }}"{% endif %}>{{ _b_active.bouton.libelle }}</a>{% endif %}
       </span>
     </div>
     {% endif %}

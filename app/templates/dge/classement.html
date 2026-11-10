@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Classement des fermes{% endblock %}
 {% block icone %}trophy{% endblock %}
 {% block page_sous_titre %}Score sur 100 · bandes clôturées des 12 derniers mois · bandes incomplètes ignorées{% endblock %}
@@ -6,6 +7,7 @@
 {% block actions %}<a class="btn-ghost" href="{{ url_for('dge.classement_csv', province=province or '', cohorte=cohorte or '') }}"><i class="bi bi-download"></i> Export CSV</a>{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <form class="filters-bar" method="get">
   <select name="province" class="filter-sel" onchange="this.form.submit()" aria-label="Province">
     <option value="">Toutes les provinces</option>
@@ -20,6 +22,7 @@
 <div class="td-sous mb-2" data-poids>Pondérations : {% for c, t in criteres %}{{ t }} {{ r.poids[c] }}{{ ' · ' if not loop.last }}{% endfor %}
   — pondérations et barème modifiables dans Paramètres (<code>classement.*</code>), avec l'accord d'une autre personne.</div>
 {% if r.ignorees %}<div class="flash-item warning" data-ignorees><i class="bi bi-exclamation-triangle"></i>{{ r.ignorees }} bande{{ 's' if r.ignorees > 1 }} incomplète{{ 's' if r.ignorees > 1 }} ignorée{{ 's' if r.ignorees > 1 }} (moins de {{ seuil }} % des jours saisis, ou sans pesée).</div>{% endif %}
+<details class="vue-detaillee"><summary>Vue détaillée du classement (notes par critère)</summary>
 <div class="table-wrap"><div class="table-scroll">
   <table>
     <thead><tr><th>Rang</th><th>Ferme</th><th>Score</th>{% for c, t in criteres %}<th>{{ t }}</th>{% endfor %}<th>Bandes</th></tr></thead>
@@ -38,6 +41,7 @@
     </tbody>
   </table>
 </div></div>
+</details>
 {% if r.non_classees %}
 <div class="card-p mt-3" id="non-classees">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-question-circle"></i> Non classées</span></div>

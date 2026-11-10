@@ -21,8 +21,12 @@ def approbations_ecran():
     historique = Proposition.query.filter(Proposition.statut != StatutProposition.EN_ATTENTE) \
         .order_by(Proposition.decide_le.desc()).limit(50).all()
     mes_propositions = Proposition.query.filter_by(statut=StatutProposition.EN_ATTENTE, propose_par=current_user.id).all()
-    return render_template('controle/approbations.html', a_decider=approbations.a_decider(current_user),
-                           mes_propositions=mes_propositions, historique=historique)
+    from app.services import conformite
+    a_decider = approbations.a_decider(current_user)
+    cle = 'VETO-8' if current_user.profil == Profil.VETO else 'ADMIN-5'
+    return render_template('controle/approbations.html', a_decider=a_decider, mes_propositions=mes_propositions, historique=historique,
+                           conforme=(cle, conformite.spec(cle.split('-')[0], int(cle.split('-')[1])),
+                                     conformite.validations(current_user, a_decider, mes_propositions, historique, cle)))
 
 
 @controle_bp.route('/approbations/<int:ident>', methods=['POST'])

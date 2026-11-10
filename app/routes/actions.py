@@ -134,7 +134,10 @@ def rapports():
     if type_ in TypeRapport.LIBELLES:
         q = q.filter(Rapport.type == type_)
     from app.services.dge import mois_termines
-    return render_template('actions/rapports.html', rapports=q.order_by(Rapport.genere_le.desc()).limit(300).all(),
+    from app.services import conformite
+    rapports = q.order_by(Rapport.genere_le.desc()).limit(300).all()
+    return render_template('actions/rapports.html', rapports=rapports,
+                           conforme=('DGE-7', conformite.spec('DGE', 7), conformite.dge_rapports(current_user, rapports)) if current_user.profil in (Profil.DGE, Profil.ADMIN) else None,
                            type=type_, types=TypeRapport.LIBELLES, mois=mois_termines(12),
                            fermes=filtre_perimetre(Ferme.query).order_by(Ferme.numero_metier).all(),
                            agents=Utilisateur.query.filter_by(profil=Profil.AGENT, actif=True).order_by(Utilisateur.nom).all()

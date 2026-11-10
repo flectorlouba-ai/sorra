@@ -1,9 +1,12 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Diagnostics{% endblock %}
 {% block icone %}search-heart{% endblock %}
 {% block page_titre %}🔬 Diagnostics{% endblock %}
 {% block page_sous_titre %}Alertes qualifiées par les services vétérinaires et leur suite{% endblock %}
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
+<details class="vue-detaillee"><summary>Vue détaillée</summary>
 <div class="table-wrap"><div class="table-scroll"><table>
   <thead><tr><th>N°</th><th>Ferme</th><th>Bande</th><th>Origine</th><th>Diagnostic</th><th>Prélèvement</th><th>Réponse à l'éleveur</th><th>Le</th><th>État</th></tr></thead>
   <tbody>{% for a in alertes %}{% set d = a.diagnostics[0] if a.diagnostics else None %}
@@ -13,4 +16,5 @@
       <td>{{ a.modifie_le|date_locale('%d/%m/%Y') }}</td><td>{{ a.libelle_statut }}</td></tr>
   {% else %}<tr><td colspan="9" class="table-vide">Aucun diagnostic.</td></tr>{% endfor %}</tbody>
 </table></div></div>
+</details>
 {% endblock %}

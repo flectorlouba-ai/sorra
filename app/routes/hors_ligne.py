@@ -206,7 +206,10 @@ def conflits():
             return render_template('terrain/agent/a_verifier.html', a_trancher=a_trancher, a_voir=a_voir, G=G,
                                    en_retard=verifications.en_retard, choix_sortie=verifications.CHOIX_SORTIE,
                                    motifs=[v for v, _ in ld_choices('motifs_verification')])
-    return render_template('hors_ligne/conflits.html', a_trancher=a_trancher, conflits=autres, G=G,
+    from app.services import conformite
+    cle = 'AGENT-6' if current_user.profil == Profil.AGENT else 'DGE-5'
+    conforme = (cle, conformite.spec(cle.split('-')[0], int(cle.split('-')[1])), conformite.dge_arbitrages(current_user, a_trancher + autres))
+    return render_template('hors_ligne/conflits.html', conforme=conforme, a_trancher=a_trancher, conflits=autres, G=G,
                            par_province=par_province, province=province,
                            en_retard=verifications.en_retard, choix_sortie=verifications.CHOIX_SORTIE)
 
