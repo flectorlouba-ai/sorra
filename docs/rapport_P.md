@@ -17,4 +17,4 @@
   mot de passe obligatoire. Moi → Mon guide (PDF).
 - **Ordinateur, `admin`** : Paramètres → File de synchronisation (envoyer une saisie en mode avion depuis le téléphone pour la voir).
 
-Déployé sur la démo : voir `docs/rapport_suite.md`.
+Déployé sur la démo : **oui** — version 2026-11-10-db36077.

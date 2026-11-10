@@ -24,7 +24,19 @@ Règles : `docs/regles_lots.md`. Décisions prises seul : `docs/decisions_autono
 | B — imports Excel / CSV | `594f224` | 731 | oui | 2026-11-10-594f224 | migration 0032 ; 3 modèles |
 | M — BCEG et MAEDR | `2438f27` | 734 | oui | 2026-11-10-2438f27 | migration 0033 ; compte MAEDR à créer dans la démo |
 | S — sécurité | `db5c48c` | 740 | oui | 2026-11-10-db5c48c | clé GPG et destination distante à poser par le propriétaire |
-| P — code du terrain, synchronisation, guides | (fusion P) | | oui | (version au déploiement) | migration 0034 |
+| P — code du terrain, synchronisation, guides | `db36077` | 743 | oui | 2026-11-10-db36077 | migration 0034 |
+
+## Bilan au 10/11/2026 (fin de la file du prompt unique)
+Tous les lots sont livrés, testés (743 tests, 1 ignoré) et déployés : dernière version **2026-11-10-db36077**.
+Migrations 0028 → 0034. Conformité : `docs/conformite/rapport_conformite.html` (0 non conforme).
+
+### Reste à faire par le propriétaire (serveur, hors git)
+- `.env` de la démo : fait (clés VAPID, `SORRA_DEMO_COMPTES=1`, cron `notifications-envoyer`).
+- Lot S : déposer `/etc/sorra/sauvegarde.pub` (clé publique GPG) et `/etc/sorra/sauvegarde.conf` (`DISTANT=`) ; installer `pip-audit`
+  dans le venv du poste.
+- Jeu de démonstration : ajouter des ventes de poulets et une bande de ponte (`deploiement/demo/donnees_demo.json`) pour que
+  Mon argent, le bilan et Mes œufs se présentent pleins ; créer un compte MAEDR.
+- Suite possible : CSP par nonces (retirer `'unsafe-inline'`), colonnes « Biosécurité » et « Évolution » du classement.
 
 ## Décisions les plus importantes
 (voir `docs/decisions_autonomes.md`)
