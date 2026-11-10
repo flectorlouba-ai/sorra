@@ -24,7 +24,7 @@ def _fermes():
 def _ferme(fermes):
     voulue = request.values.get('ferme')
     if voulue:
-        return next((f for f in fermes if f.numero == voulue), None)
+        return next((f for f in fermes if voulue in (f.numero, f.numero_terrain)), None)
     return fermes[0] if len(fermes) == 1 else None
 
 

@@ -29,7 +29,7 @@ CREATEURS = (Profil.ADMIN, Profil.DGE, Profil.AGENT)
 
 def charger(numero):
     """Ferme du périmètre de l'utilisateur, sinon 404 (inconnue) ou 403 (hors périmètre)."""
-    ferme = Ferme.query.filter_by(numero_metier=numero).first()
+    ferme = Ferme.query.filter(Ferme.du_numero(numero)).first()
     if ferme is None:
         abort(404)
     if filtre_perimetre(Ferme.query.filter(Ferme.id == ferme.id)).first() is None:

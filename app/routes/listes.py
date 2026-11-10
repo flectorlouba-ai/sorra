@@ -31,6 +31,7 @@ CATEGORIES = {
     'souches':               'Souches des bandes (chair et ponte)',
     'motifs_position':       "Raisons de garder ou de corriger la position d'une ferme",
     'motifs_visite_eloignee': 'Raisons d\'une visite faite loin de la ferme',
+    'motifs_doublon':        "Raisons : ce n'est pas la même ferme (ferme créée tout près d'une autre)",
 }
 
 

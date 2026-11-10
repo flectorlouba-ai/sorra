@@ -113,7 +113,7 @@ PAGES_OPERATEUR = ['accueil.index', 'operateur.scanner', 'operateur.attendus', '
 PAGES_AGENT_TERRAIN = ['terrain.tournee', 'terrain.fermes', 'terrain.saisir', 'terrain.stock', 'terrain.nouvel_eleveur',
                        'terrain.moi', 'terrain.presentation', 'hors_ligne.conflits', 'aides.liste',
                        'eleveur.achat', 'argent.payer', 'entretien.ecran', 'entretien.panne', 'bandes.ouvrir',
-                       'bandes.rattrapage']
+                       'bandes.rattrapage', 'terrain.nouvelle_ferme', 'terrain.ferme_provisoire']   # lot E-b
 # Pages que l'agent et l'opérateur peuvent ouvrir mais qui ne sont PAS gardées sur le téléphone : la sécurité du
 # compte (en ligne par nature), la création d'une ferme (avec du réseau seulement, jusqu'au lot 19 bis), et les
 # écrans de la « Version bureau » de l'agent (pilotage, sur ordinateur). Vérifié par tests/test_lot19ter.py.

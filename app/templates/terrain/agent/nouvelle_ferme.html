@@ -1,0 +1,179 @@
+{% extends '_base.html' %}
+{% block aide %}ag_nouvel{% endblock %}
+{% block titre %}Nouvelle ferme{% endblock %}
+{% block page_titre %}🆕 Nouvelle ferme{% endblock %}
+{% block page_sous_titre %}Marche aussi sans réseau : la ferme sera envoyée plus tard{% endblock %}
+{% block contenu %}
+{# Lot E-b : création d'une ferme par l'agent, avec ou sans réseau. Sans réseau, le téléphone donne un numéro
+   provisoire (P-xxxx) ; le serveur donne le vrai numéro à l'arrivée et rattache les saisies faites entre-temps. #}
+{% import '_fiches.html' as fiches %}
+{% call fiches.fenetre('fen-ferme-terrain', '🆕 Nouvel éleveur et sa ferme', retour=url_for('terrain.nouvel_eleveur')) %}
+<form method="post" class="form-terrain" novalidate id="form-ferme-terrain" data-hors-ligne="Nouvelle ferme"
+      data-retour-garde="{{ url_for('terrain.ferme_provisoire') }}" data-seuil="{{ seuil_doublon }}" data-precision-max="{{ precision_max }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="ferme_id" id="ferme_id">
+  <input type="hidden" name="numero_terrain" id="numero_terrain">
+  <input type="hidden" name="identifiant" id="identifiant">
+  <input type="hidden" name="provisoire" id="provisoire">
+  <input type="hidden" name="latitude" id="lat"><input type="hidden" name="longitude" id="lon"><input type="hidden" name="precision" id="prec">
+  <input type="hidden" name="places" id="places-par-batiment">
+  <div class="saisie-envoyee" data-sans-reseau hidden>📶 Pas de réseau : la ferme sera envoyée plus tard. Vous pouvez continuer.</div>
+  {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  <div class="etapes-barre"><span class="etape-point actif">1. La personne</span><span class="etape-point">2. La ferme</span><span class="etape-point">3. Le compte</span></div>
+
+  <fieldset class="etape" data-etape="1">
+    <div class="form-group"><label class="form-label" for="eleveur_nom">Nom de l'éleveur</label>
+      <input class="form-control" id="eleveur_nom" name="eleveur_nom" maxlength="100" value="{{ saisie.get('eleveur_nom', '') }}"></div>
+    <div class="form-group"><label class="form-label" for="eleveur_prenom">Prénom</label>
+      <input class="form-control" id="eleveur_prenom" name="eleveur_prenom" maxlength="100" value="{{ saisie.get('eleveur_prenom', '') }}"></div>
+    <div class="form-group"><label class="form-label" for="telephone">Téléphone</label>
+      <input class="form-control" id="telephone" name="telephone" type="tel" inputmode="tel" maxlength="30" value="{{ saisie.get('telephone', '') }}"></div>
+    <button type="button" class="btn-gros" data-aller="2">Suivant ›</button>
+  </fieldset>
+
+  <fieldset class="etape" data-etape="2" hidden>
+    <div class="carte carte-calme" id="position-ferme">📍 Position : recherche… (restez dehors)</div>
+    {% if provinces|length > 1 %}
+    <div class="form-group"><label class="form-label" for="province_id">Province</label>
+      <select class="form-control" id="province_id" name="province_id">{% for p in provinces %}<option value="{{ p.id }}">{{ p.nom }}</option>{% endfor %}</select></div>
+    {% elif provinces %}<input type="hidden" name="province_id" id="province_id" value="{{ provinces[0].id }}">{% endif %}
+    <div class="form-group"><label class="form-label" for="localite">Village ou lieu-dit</label>
+      <input class="form-control" id="localite" name="localite" list="liste-localites" maxlength="120" value="{{ saisie.get('localite', '') }}">
+      <datalist id="liste-localites"></datalist></div>
+    <div class="form-group"><label class="form-label" for="nom">Nom de la ferme</label>
+      <input class="form-control" id="nom" name="nom" maxlength="150" value="{{ saisie.get('nom', '') }}" placeholder="ex. Ferme d'Esther"></div>
+    <input type="hidden" name="exploitant_nom" id="exploitant_nom">
+    <div class="compteur">
+      <div class="compteur-libelle">Bâtiments</div>
+      <div class="compteur-boutons">
+        <button type="button" class="compteur-moins" aria-label="Moins">−</button>
+        <input type="number" name="nb_batiments" id="nb_batiments" value="{{ saisie.get('nb_batiments') or 1 }}" min="1" max="30" inputmode="numeric" class="compteur-valeur">
+        <button type="button" class="compteur-plus" aria-label="Plus">+</button>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label" for="places_total">Places au total</label>
+      <input class="form-control" id="places_total" inputmode="numeric" value="{{ saisie.get('places_total', '') }}" placeholder="ex. 1500"></div>
+    <div class="form-group"><label class="form-label" for="bandes_par_an">Bandes par an</label>
+      <input class="form-control" id="bandes_par_an" name="bandes_par_an" inputmode="numeric" value="{{ saisie.get('bandes_par_an') or bandes_defaut }}"></div>
+    <div class="encadre-orange" id="doublon" hidden data-doublon>
+      <strong>🤔 Une ferme existe déjà tout près</strong>
+      <div id="doublon-texte"></div>
+      <div class="form-label mt-2">Est-ce la même ferme ?</div>
+      <a class="btn-gros" id="doublon-oui" href="#">Oui → ajouter ce nouvel éleveur à cette ferme</a>
+      <div class="form-label mt-2">Non, c'est une autre ferme, parce que :</div>
+      <div class="choix-cases">{% for m in motifs_doublon %}<label class="case-choix"><input type="radio" name="motif_doublon" value="{{ m }}"><span>{{ m }}</span></label>{% endfor %}</div>
+      <input class="form-control mt-1" name="motif_doublon_autre" maxlength="300" placeholder="Autre raison (facultatif)">
+    </div>
+    <button type="button" class="btn-gros" data-aller="3">Suivant ›</button>
+  </fieldset>
+
+  <fieldset class="etape" data-etape="3" hidden>
+    <div class="carte centre">
+      <div class="carte-phrase" id="voir-numero">Ferme P-0000</div>
+      <div class="carte-sous" data-numero-provisoire>numéro provisoire : le vrai numéro arrive avec le réseau</div>
+    </div>
+    <div class="carte-provisoire" data-a-noter>
+      <div class="form-label">🔑 Le compte de l'éleveur (notez-le maintenant)</div>
+      <div>Identifiant : <strong class="mono" id="voir-identifiant">—</strong></div>
+      <div>Mot de passe provisoire : <strong class="mono mdp-provisoire" id="voir-provisoire"></strong></div>
+      <div class="td-sous">Il ne sera plus affiché après. L'éleveur le changera à sa première connexion.</div>
+    </div>
+    <button type="submit" class="btn-gros btn-vert">Créer la ferme</button>
+  </fieldset>
+</form>
+{% endcall %}
+<script type="application/json" id="fermes-connues">{{ connues|tojson }}</script>
+<script type="application/json" id="localites">{{ localites|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/compteurs.js') }}"></script>
+<script>
+(function () {
+  var form = document.getElementById('form-ferme-terrain');
+  var connues = JSON.parse(document.getElementById('fermes-connues').textContent);
+  var localites = JSON.parse(document.getElementById('localites').textContent);
+  function $(id) { return document.getElementById(id); }
+  // Identité de la ferme et du compte, préparées sur le téléphone (même règle que le serveur)
+  $('ferme_id').value = (crypto.randomUUID ? crypto.randomUUID() : '');
+  var h = new Uint32Array(11); crypto.getRandomValues(h);
+  var numero = 'P-' + String(1000 + h[10] % 9000);
+  $('numero_terrain').value = numero; $('voir-numero').textContent = 'Ferme ' + numero;
+  var LETTRES = 'abcdefghjkmnpqrstuvwxyz23456789', mdp = '';
+  for (var i = 0; i < 10; i++) mdp += LETTRES[h[i] % LETTRES.length];
+  $('provisoire').value = mdp; $('voir-provisoire').textContent = mdp;
+  function propre(t) { return (t || '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9.]/g, ''); }
+  function majCompte() {
+    var id = [propre($('eleveur_prenom').value), propre($('eleveur_nom').value)].filter(Boolean).join('.');
+    $('identifiant').value = id; $('voir-identifiant').textContent = id || '—';
+    $('exploitant_nom').value = [$('eleveur_prenom').value.trim(), $('eleveur_nom').value.trim()].filter(Boolean).join(' ');
+  }
+  ['eleveur_nom', 'eleveur_prenom'].forEach(function (k) { $(k).addEventListener('input', majCompte); });
+  majCompte();
+  // Localités de la province (liste proposée, un nouveau nom reste possible)
+  function majLocalites() {
+    var pid = ($('province_id') || {}).value, dl = $('liste-localites');
+    dl.innerHTML = '';
+    (localites[pid] || []).forEach(function (n) { var o = document.createElement('option'); o.value = n; dl.appendChild(o); });
+  }
+  if ($('province_id')) { $('province_id').addEventListener('change', majLocalites); majLocalites(); }
+  // Réseau
+  function reseau() { document.querySelector('[data-sans-reseau]').hidden = navigator.onLine; }
+  window.addEventListener('online', reseau); window.addEventListener('offline', reseau); reseau();
+  // Position relevée automatiquement
+  var max = parseFloat(form.dataset.precisionMax);
+  if (navigator.geolocation) navigator.geolocation.watchPosition(function (p) {
+    var pr = Math.round(p.coords.accuracy);
+    $('position-ferme').textContent = pr <= max ? '📍 Position relevée ✓ ± ' + pr + ' m' : '📍 Position : ± ' + pr + ' m, la précision s\'améliore dehors…';
+    if (pr <= max) { $('lat').value = p.coords.latitude.toFixed(6); $('lon').value = p.coords.longitude.toFixed(6); $('prec').value = pr; }
+  }, function () { $('position-ferme').textContent = '📍 Position non relevée : la ferme sera « à localiser ».'; },
+  {enableHighAccuracy: true, timeout: 30000, maximumAge: 0});
+  function rad(d) { return d * Math.PI / 180; }
+  function metres(la1, lo1, la2, lo2) {
+    var dla = rad(la2 - la1), dlo = rad(lo2 - lo1);
+    var a = Math.sin(dla / 2) * Math.sin(dla / 2) + Math.cos(rad(la1)) * Math.cos(rad(la2)) * Math.sin(dlo / 2) * Math.sin(dlo / 2);
+    return 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+  // Doublon sur le téléphone : une ferme de l'agent à moins du seuil ?
+  function doublon() {
+    if (!$('lat').value) return null;
+    var la = parseFloat($('lat').value), lo = parseFloat($('lon').value), best = null;
+    connues.forEach(function (f) { var m = metres(la, lo, f.lat, f.lon); if (m <= parseFloat(form.dataset.seuil) && (!best || m < best.m)) best = {f: f, m: m}; });
+    return best;
+  }
+  function aller(n) {
+    document.querySelectorAll('.etape').forEach(function (e) { e.hidden = e.getAttribute('data-etape') !== n; });
+    document.querySelectorAll('.etape-point').forEach(function (p, i) { p.classList.toggle('actif', i < +n); });
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('[data-aller]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var n = b.getAttribute('data-aller');
+      if (n === '2' && (!$('eleveur_nom').value.trim() || !$('telephone').value.trim())) {
+        $(!$('eleveur_nom').value.trim() ? 'eleveur_nom' : 'telephone').focus(); return;
+      }
+      if (n === '3') {
+        if (!$('nom').value.trim()) $('nom').value = 'Ferme ' + ($('eleveur_prenom').value.trim() || $('eleveur_nom').value.trim());
+        var total = parseInt($('places_total').value, 10) || 0, nb = parseInt($('nb_batiments').value, 10) || 1;
+        if (!$('localite').value.trim() || !total) { $(!$('localite').value.trim() ? 'localite' : 'places_total').focus(); return; }
+        $('places-par-batiment').value = Math.ceil(total / nb);
+        var d = doublon(), box = $('doublon');
+        var motif = form.querySelector('input[name=motif_doublon]:checked') || form.querySelector('input[name=motif_doublon_autre]').value.trim();
+        if (d && !motif) {
+          $('doublon-texte').textContent = d.f.numero + ' · ' + (d.f.exploitant || d.f.nom) + ', à ' + Math.round(d.m) + ' m d\'ici.';
+          $('doublon-oui').href = d.f.lien; box.hidden = false; box.scrollIntoView({block: 'center'}); return;
+        }
+      }
+      aller(n);
+    });
+  });
+  // Sans réseau : l'écran suivant (gardé sur le téléphone) affiche la ferme en attente et le compte à noter
+  form.addEventListener('submit', function () {
+    try {
+      sessionStorage.setItem('sorra-ferme-provisoire', JSON.stringify({
+        numero: numero, nom: $('nom').value, eleveur: $('exploitant_nom').value,
+        identifiant: $('identifiant').value, provisoire: $('provisoire').value}));
+    } catch (e) {}
+  });
+})();
+</script>
+{% endblock %}

@@ -73,14 +73,17 @@ def verifier(latitude, longitude, code_province):
             'province_trouvee': None if d == 0 else province_du_point(longitude, latitude)}
 
 
-def dessin(code_province, latitude=None, longitude=None, largeur=260, hauteur=180, marge=8):
-    """Chemins SVG du contour de la province, et position de l'épingle, à l'échelle."""
+def dessin(code_province, latitude=None, longitude=None, largeur=260, hauteur=180, marge=8, rayon_deg=None):
+    """Chemins SVG du contour de la province, et position de l'épingle, à l'échelle. `rayon_deg` : vue zoomée autour
+    du point (lot E-b, punaise : environ 1 km de chaque côté pour 0,01°)."""
     anneaux = contours().get(code_province)
     if not anneaux:
         return None
     xs = [p[0] for a in anneaux for p in a]
     ys = [p[1] for a in anneaux for p in a]
-    if latitude is not None and longitude is not None:
+    if latitude is not None and longitude is not None and rayon_deg:
+        xs, ys = [longitude - rayon_deg, longitude + rayon_deg], [latitude - rayon_deg, latitude + rayon_deg]
+    elif latitude is not None and longitude is not None:
         xs.append(longitude)
         ys.append(latitude)
     x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
@@ -96,4 +99,6 @@ def dessin(code_province, latitude=None, longitude=None, largeur=260, hauteur=18
         pts = [proj(x, y) for x, y in a]
         chemins.append('M' + ' L'.join(f'{x},{y}' for x, y in pts) + ' Z')
     epingle = proj(longitude, latitude) if latitude is not None and longitude is not None else None
-    return {'largeur': largeur, 'hauteur': hauteur, 'chemins': chemins, 'epingle': epingle}
+    # Lot E-b : de quoi convertir un point de la carte en latitude / longitude (punaise à glisser)
+    return {'largeur': largeur, 'hauteur': hauteur, 'chemins': chemins, 'epingle': epingle,
+            'projection': {'x0': x0, 'y1': y1, 'echelle': echelle, 'dx': dx, 'dy': dy}}

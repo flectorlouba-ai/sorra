@@ -17,7 +17,7 @@ visites_bp = Blueprint('visites', __name__)
 
 
 def _ferme(numero):
-    f = filtre_perimetre(Ferme.query.filter(Ferme.numero_metier == numero)).first()
+    f = filtre_perimetre(Ferme.query.filter(Ferme.du_numero(numero))).first()
     if f is None:
         abort(404)
     return f
