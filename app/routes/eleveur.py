@@ -190,7 +190,8 @@ def ma_bande():
     sit = _situation(bandes_en_cours())
     pesees = sorted(sit, key=lambda s: s['pesee'])
     return render_template('eleveur/ma_bande.html', poussins=_poussins_en_attente(_fermes()),
-                           pesee=pesees[0] if pesees else None)
+                           pesee=pesees[0] if pesees else None,
+                           bandes_fiche=[s['bande'] for s in sit])          # lot T : fiche papier de la semaine
 
 
 def bandeau_vaccin(user):

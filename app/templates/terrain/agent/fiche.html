@@ -22,6 +22,7 @@
   {{ tuile({'cle': 'stock', 'ico': '📦', 'nom': 'Stock', 'lien': url_for('terrain.stock', ferme=ferme.numero)}) }}
   {{ tuile({'cle': 'chiffres', 'ico': '📈', 'nom': 'Ses chiffres', 'lien': url_for('bandes.fiche', numero=bande.numero) if bande else url_for('bandes.liste')}) }}
 </div>
+{% if bande %}<a class="btn-gros-secondaire mt-2" href="{{ url_for('notifications.fiche_semaine', numero=bande.numero) }}" target="_blank" data-fiche-semaine="{{ bande.numero }}">🖨️ Imprimer la fiche de la semaine</a>{% endif %}
 <div class="carte carte-infos">
   {% if ferme.capacite_a_completer %}<div class="info-ligne" data-capacite-a-completer>🏗️ <strong>Capacité à compléter</strong> : bâtiments, places, bandes par an</div>{% endif %}
   <div class="info-ligne">{{ '🏛️ Programme POUFA' ~ (' · cohorte ' ~ ferme.cohorte if ferme.cohorte else '') if ferme.programme_poufa else '🏠 Hors programme' }}</div>

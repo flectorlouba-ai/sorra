@@ -25,6 +25,7 @@
   <a class="lien-moi" href="{{ url_for('eleveur.mon_compte') }}" data-moi="compte">🔑 Mon compte <small>téléphone, mot de passe</small></a>
   {% if banque %}<a class="lien-moi" href="{{ url_for('eleveur.ma_banque') }}" data-moi="banque">🏦 Ma banque
     {% if banque_a_repondre %}<span class="pastille-nouveau">nouveau</span>{% else %}<small>BCEG</small>{% endif %}</a>{% endif %}
+  <a class="lien-moi" href="{{ url_for('notifications.mes_notifications') }}" data-moi="notifications">🔔 Mes notifications <small>rappel du soir, alertes</small></a>
   <a class="lien-moi" href="{{ url_for('aides.liste') }}" data-moi="aide">❓ Comment faire ?</a>
   <a class="lien-moi" href="{{ url_for('eleveur.presentation') }}" data-moi="presentation">🎬 Revoir la présentation</a>
   {% with libelle='Se déconnecter' %}{% include 'eleveur/_quitter.html' %}{% endwith %}

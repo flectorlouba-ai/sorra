@@ -10,8 +10,8 @@ Règles : `docs/regles_lots.md`. Décisions prises seul : `docs/decisions_autono
 | L — comptes de démo en un clic | `046d42b` | 504 | oui | 2026-11-10-046d42b | ajouter `SORRA_DEMO_COMPTES=1` au `.env` du serveur (voir `rapport_L.md`) |
 | C — indicateurs | `b7f7723` | 517 | oui | 2026-11-10-b7f7723 | — |
 | R — version ordinateur | `a2ed0f4` | 534 | oui | 2026-11-10-a2ed0f4 | tableaux hors Élevages : colonnes existantes |
-| D | | | | | |
-| T | | | | | |
+| D — bilan, rapports standards, plans d'actions | (fusion D+T) | 8 (lot) | avec T | — | — |
+| T — notifications push, actions agent, fiche papier | (ce commit) | 551 | oui | voir ci-dessous | clés VAPID + cron `notifications-envoyer` à poser sur le serveur (voir `rapport_T.md`) |
 | G | | | | | |
 | F | | | | | |
 | B | | | | | |

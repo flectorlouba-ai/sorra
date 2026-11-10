@@ -121,15 +121,18 @@ def create_app(env='default'):
     # Plans d'actions et rapports standards (lot D)
     from app.routes.actions import actions_bp
     app.register_blueprint(actions_bp)
+    from app.routes.notifications import notifications_bp   # lot T
+    app.register_blueprint(notifications_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
     # ── CLI ──
-    from app.commandes import init_performyl2, rapports_mensuels, demo_exporter, demo_charger
+    from app.commandes import init_performyl2, rapports_mensuels, demo_exporter, demo_charger, notifications_envoyer
     app.cli.add_command(init_performyl2)
     app.cli.add_command(rapports_mensuels)
     app.cli.add_command(demo_exporter)
     app.cli.add_command(demo_charger)
+    app.cli.add_command(notifications_envoyer)
 
     # ── Globals et filtres Jinja2 ──
     from app.utils.permissions import a_profil

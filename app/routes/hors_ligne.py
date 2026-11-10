@@ -19,7 +19,7 @@ hors_ligne_bp = Blueprint('hors_ligne', __name__)
 A_GARDER = ['css/perform.css', 'css/terrain.css', 'polices/polices.css',
             'vendor/bootstrap-5.3.3/css/bootstrap.min.css', 'vendor/bootstrap-icons-1.11.3/bootstrap-icons.min.css',
             'vendor/bootstrap-5.3.3/js/bootstrap.bundle.min.js', 'js/compteurs.js', 'js/hors_ligne.js', 'js/fenetre.js',
-            'js/eleveur.js', 'manifest.webmanifest', 'icones/icone-192.png',
+            'js/eleveur.js', 'js/notifications.js', 'manifest.webmanifest', 'icones/icone-192.png',
             'polices/nunito-latin-400-normal.woff2', 'polices/nunito-latin-600-normal.woff2',
             'polices/nunito-latin-700-normal.woff2', 'polices/nunito-latin-800-normal.woff2',
             'polices/space-grotesk-latin-400-normal.woff2', 'polices/space-grotesk-latin-500-normal.woff2',
@@ -65,7 +65,7 @@ PAGES_ELEVEUR = ['accueil.index', 'eleveur.saisie', 'eleveur.ma_bande', 'eleveur
                  'argent.mon_argent', 'argent.payer', 'eleveur.achat', 'eleveur.stock', 'livraisons.mes_livraisons',
                  'bandes.mes_bandes', 'bandes.ouvrir', 'entretien.ecran', 'entretien.panne', 'eleveur.moi',
                  'eleveur.mon_compte', 'visites.mes_visites', 'sante.mes_declarations', 'eleveur.presentation',
-                 'aides.liste', 'auth.mot_de_passe']
+                 'aides.liste', 'auth.mot_de_passe', 'notifications.mes_notifications']   # lot T
 ALLER = ['peser', 'sortie', 'malade', 'traitement', 'vaccins']
 
 
@@ -109,12 +109,14 @@ def pages_agent(user):
 # Lot 19 : l'opérateur garde son accueil, le scanner (avec les lots attendus) et ses listes ; la réception
 # faite sans réseau part dans la file d'attente et le serveur fait les contrôles à l'arrivée.
 PAGES_OPERATEUR = ['accueil.index', 'operateur.scanner', 'operateur.attendus', 'operateur.receptions',
-                   'auth.mot_de_passe', 'terrain.moi', 'terrain.presentation', 'aides.liste']
+                   'auth.mot_de_passe', 'terrain.moi', 'terrain.presentation', 'aides.liste',
+                   'notifications.mes_notifications']   # lot T
 PAGES_AGENT_TERRAIN = ['terrain.tournee', 'terrain.fermes', 'terrain.saisir', 'terrain.stock', 'terrain.nouvel_eleveur',
                        'terrain.moi', 'terrain.presentation', 'hors_ligne.conflits', 'aides.liste',
                        'eleveur.achat', 'argent.payer', 'entretien.ecran', 'entretien.panne', 'bandes.ouvrir',
                        'bandes.rattrapage', 'terrain.nouvelle_ferme', 'terrain.ferme_provisoire',   # lot E-b
-                       'indicateurs.mes']   # lot C
+                       'indicateurs.mes',   # lot C
+                       'notifications.actions_terrain', 'notifications.mes_notifications']   # lot T
 # Pages que l'agent et l'opérateur peuvent ouvrir mais qui ne sont PAS gardées sur le téléphone : la sécurité du
 # compte (en ligne par nature), la création d'une ferme (avec du réseau seulement, jusqu'au lot 19 bis), et les
 # écrans de la « Version bureau » de l'agent (pilotage, sur ordinateur). Vérifié par tests/test_lot19ter.py.

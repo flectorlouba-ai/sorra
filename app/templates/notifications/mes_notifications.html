@@ -1,0 +1,44 @@
+{% extends '_base.html' %}
+{% block titre %}Mes notifications{% endblock %}
+{% block icone %}bell{% endblock %}
+{% block page_titre %}🔔 Mes notifications{% endblock %}
+{% block page_sous_titre %}Ce dont vous voulez être prévenu sur ce téléphone{% endblock %}
+{% block contenu %}
+{# Lot T : interrupteurs par type ; les alertes sanitaires ne se coupent pas ; heure du rappel 17 / 18 / 19 h. #}
+<div class="{{ 'carte' if terrain else 'card p-3 mb-3' }}" data-etat-notifications>
+  <div class="carte-titre">📱 Ce téléphone</div>
+  <div class="carte-sous" data-notif-etat>
+    {% if not cles %}Les notifications ne sont pas encore activées sur ce serveur.{% else %}{{ n_appareils }} appareil{{ 's' if n_appareils != 1 }} prévenu{{ 's' if n_appareils != 1 }}.{% endif %}
+  </div>
+  <button type="button" class="{{ 'btn-gros btn-vert mt-2' if terrain else 'btn btn-primary mt-2' }}" data-notif-activer hidden>🔔 Être prévenu sur ce téléphone</button>
+  <button type="button" class="{{ 'btn-gros-secondaire mt-2' if terrain else 'btn btn-outline-secondary mt-2' }}" data-notif-couper hidden>🔕 Ne plus être prévenu sur ce téléphone</button>
+  <div class="carte-sous mt-2" data-notif-refuse hidden>Le téléphone refuse les notifications. Autorisez-les dans les réglages du navigateur, puis revenez ici.</div>
+</div>
+
+<form method="post" class="{{ 'form-terrain' if terrain }}" data-form-preferences>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="{{ 'carte' if terrain else 'card p-3 mb-3' }}">
+    <div class="carte-titre">Me prévenir quand…</div>
+    <ul class="liste-interrupteurs">
+      {% for l in lignes %}
+      <li class="interrupteur{{ ' toujours' if l.toujours }}" data-type="{{ l.type }}">
+        <label>
+          <span class="interrupteur-texte">{{ l.icone }} {{ l.nom }}{% if l.sous %}<small>{{ l.sous }}</small>{% endif %}</span>
+          <input type="checkbox" name="type_{{ l.type }}" value="1" {% if l.actif %}checked{% endif %} {% if l.toujours %}disabled{% endif %} role="switch">
+          <span class="curseur" aria-hidden="true"></span>
+        </label>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if avec_rappel %}
+    <div class="form-label mt-3">Heure du rappel de la saisie</div>
+    <div class="choix-cases" data-heure-rappel>
+      {% for h in (17, 18, 19) %}<label class="case-choix"><input type="radio" name="heure" value="{{ h }}" {% if heure == h %}checked{% endif %}><span>{{ h }} h</span></label>{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  <button type="submit" class="{{ 'btn-gros btn-vert' if terrain else 'btn btn-primary' }}">Enregistrer mes choix</button>
+  {% if terrain %}<a class="btn-gros-secondaire mt-2" href="{{ url_for('eleveur.moi') if current_user.profil.value == 'ELEVEUR' else url_for('terrain.moi') }}">← Retour</a>{% endif %}
+</form>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/notifications.js') }}"></script>{% endblock %}

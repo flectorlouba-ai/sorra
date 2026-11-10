@@ -103,6 +103,12 @@ def _nouvelle_alerte(ferme, bande, origine, declaration=None, commentaire=None):
                         bande=bande, origine=origine, declaration=declaration, statut=SA.NOUVELLE)
     a.historique.append(AlerteHistorique(statut=SA.NOUVELLE, commentaire=commentaire))
     db.session.add(a)
+    db.session.flush()
+    try:                                                    # lot T : l'agent, le vétérinaire et la DGE tout de suite
+        from app.services import notifications
+        notifications.alerte_immediate(a)
+    except Exception:
+        pass
     return a
 
 

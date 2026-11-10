@@ -23,6 +23,8 @@
 </div>
 {% endif %}
 <div class="liens-moi">
+  {% if current_user.profil.value == 'AGENT' %}<a class="lien-moi" href="{{ url_for('notifications.actions_terrain') }}" data-moi="actions">🎯 Mes actions</a>{% endif %}
+  <a class="lien-moi" href="{{ url_for('notifications.mes_notifications') }}" data-moi="notifications">🔔 Mes notifications <small>rappels, alertes</small></a>
   <a class="lien-moi" href="{{ url_for('aides.liste') }}" data-moi="aide">❓ Comment faire ?</a>
   <a class="lien-moi" href="{{ url_for('terrain.presentation') }}" data-moi="presentation">🎬 Revoir la présentation</a>
   <a class="lien-moi" href="{{ url_for('auth.mot_de_passe') }}" data-moi="compte">⚙️ Mon compte <small>mot de passe</small></a>

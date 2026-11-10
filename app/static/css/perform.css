@@ -973,3 +973,18 @@ body.bureau .modal-box .form-grid{grid-template-columns:1fr 1fr;}
 .bulle-carte{position:absolute;pointer-events:none;background:var(--noir);color:var(--blanc);border-radius:9px;padding:8px 10px;font-size:11.5px;line-height:1.5;z-index:5;min-width:190px;box-shadow:0 6px 18px rgba(0,0,0,.3);}
 .bulle-carte b{font-size:12.5px;}
 body.bureau td strong{white-space:nowrap;}
+
+/* ── Lot T : « Mes notifications » en version ordinateur ── */
+body.bureau .liste-interrupteurs{list-style:none;margin:8px 0 0;padding:0;max-width:640px;}
+body.bureau .interrupteur label{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--grise);cursor:pointer;}
+body.bureau .interrupteur-texte{font-weight:600;display:flex;flex-direction:column;}
+body.bureau .interrupteur-texte small{font-weight:400;color:var(--gris5);}
+body.bureau .interrupteur input{position:absolute;opacity:0;width:0;height:0;}
+body.bureau .curseur{flex:none;width:44px;height:24px;border-radius:24px;background:var(--grisb);position:relative;transition:background .2s;}
+body.bureau .curseur::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--blanc);box-shadow:0 1px 3px var(--bord);transition:left .2s;}
+body.bureau .interrupteur input:checked + .curseur{background:var(--noir);}
+body.bureau .interrupteur input:checked + .curseur::after{left:23px;}
+body.bureau .interrupteur.toujours .curseur{opacity:.6;}
+body.bureau .carte-titre{font-weight:700;margin-bottom:4px;}
+body.bureau .choix-cases{display:flex;gap:8px;flex-wrap:wrap;}
+body.bureau .case-choix input{margin-right:4px;}
