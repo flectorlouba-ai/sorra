@@ -54,16 +54,6 @@
       </button>
       <p class="login-aide">Mot de passe oublié ? Appelez votre agent.</p>
     </form>
-    {# Lot P : connexion par code (éleveur, agent, opérateur) — l'identifiant est repris du formulaire #}
-    <form method="post" action="{{ url_for('auth.connexion_code') }}" class="login-code" id="form-code" novalidate>
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="identifiant" id="code-identifiant" value="{{ identifiant or '' }}">
-      <div class="login-field" id="zone-code" hidden>
-        <label class="form-label" for="code">Mon code (4 à 6 chiffres)</label>
-        <input type="password" id="code" name="code" class="form-control" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" placeholder="••••">
-      </div>
-      <button type="submit" class="btn-login-code" id="btn-code" data-connexion-code>🔢 Entrer avec mon code</button>
-    </form>
     {% if comptes_demo %}
     {# Lot L : comptes de démonstration en un clic (réglage SORRA_DEMO_COMPTES de la démo seulement).
        Un clic sur une ligne remplit l'identifiant et le mot de passe ; la personne clique ensuite sur « Se connecter ». #}
@@ -88,22 +78,6 @@
 </div>
 
 <script>
-// Lot P : connexion par code — l'identifiant tapé (ou le dernier connu sur ce téléphone) est repris ; le champ du code s'ouvre au premier toucher
-(function () {
-  var ident = document.getElementById('identifiant'), cache = document.getElementById('code-identifiant'), zone = document.getElementById('zone-code');
-  var bouton = document.getElementById('btn-code'), form = document.getElementById('form-code'), code = document.getElementById('code');
-  if (!ident || !form) return;
-  try { if (!ident.value && localStorage.getItem('sorra-identifiant')) ident.value = localStorage.getItem('sorra-identifiant'); } catch (e) {}
-  document.querySelector('form[action$="connexion"], form.login-form, form:not(#form-code)').addEventListener('submit', function () {
-    try { localStorage.setItem('sorra-identifiant', ident.value.trim().toLowerCase()); } catch (e) {}
-  });
-  form.addEventListener('submit', function (e) {
-    cache.value = ident.value.trim().toLowerCase();
-    if (zone.hidden) { e.preventDefault(); zone.hidden = false; code.focus(); return; }
-    if (!/^[0-9]{4,6}$/.test(code.value)) { e.preventDefault(); code.focus(); return; }
-    try { localStorage.setItem('sorra-identifiant', cache.value); } catch (e2) {}
-  });
-})();
 function togglePwd() {
   var f = document.getElementById('mot_de_passe');
   var i = document.getElementById('pwdIcon');

@@ -24,8 +24,7 @@ def test_code_du_terrain_reglage_connexion_et_coupure(client, monde):
     assert JournalAudit.query.filter(JournalAudit.detail == 'Code du terrain réglé').count() == 1
     client.post('/auth/deconnexion')
     # Connexion par code
-    page = client.get('/auth/connexion').get_data(as_text=True)
-    assert 'Entrer avec mon code' in page
+    assert 'Entrer avec mon code' not in client.get('/auth/connexion').get_data(as_text=True)   # bouton retiré (10/11)
     r = client.post('/auth/code', data={'identifiant': 'eleveur1', 'code': '0000'})
     assert r.status_code == 200 and 'Code refusé' in r.get_data(as_text=True) and el.pin_echecs == 1
     r = client.post('/auth/code', data={'identifiant': 'eleveur1', 'code': '2719'})
