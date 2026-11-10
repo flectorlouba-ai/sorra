@@ -77,7 +77,7 @@ def _chiffres(t):
     ], [4.4 * cm] * 4)
 
 
-def rapport_periode(titre, sous_titre, donnees, alertes_sanitaires):
+def rapport_periode(titre, sous_titre, donnees, alertes_sanitaires, complements=None):
     t = donnees['total']
     elements = [Paragraph(titre, TITRE), Paragraph(sous_titre, SOUS), _chiffres(t)]
     if len(donnees['par_province']) > 1:
@@ -111,6 +111,7 @@ def rapport_periode(titre, sous_titre, donnees, alertes_sanitaires):
     elements += [Paragraph('Alertes', SECTION),
                  Paragraph(f'Bandes au feu rouge : {t["feux"]["rouge"]} · au feu orange : {t["feux"]["orange"]} · '
                            f'alertes sanitaires confirmées : {alertes_sanitaires}', TEXTE)]
+    elements += complements or []                      # lot D : production, atteinte, plans d'actions
     return _document(elements)
 
 

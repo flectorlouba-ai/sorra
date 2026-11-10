@@ -110,7 +110,7 @@ def test_rapports_pdf(client, monde):
     db.session.commit()
     r = client.get(f'/pilotage/rapports/bande/{b.numero}.pdf')
     assert r.status_code == 200 and r.data[:4] == b'%PDF'
-    assert len([j for j in _journal('EXPORT') if j.table_nom == 'rapport']) == 4
+    assert len([j for j in _journal('EXPORT') if j.table_nom == 'rapport']) == 5   # + le bilan PDF gardé à la clôture (lot D)
 
 
 # ── Exports ─────────────────────────────────────────────────────────────

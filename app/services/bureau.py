@@ -17,10 +17,10 @@ FONCTIONS = {
         ('commandes', '🛒', 'Commandes', 'agent.commandes', '_n_commandes', None, ('agent.commandes',)),
         ('arbitrages', '⚖️', 'Arbitrages', 'hors_ligne.conflits', '_n_arbitrages', None, ('hors_ligne.',)),
         ('classement', '🏆', 'Classement', 'dge.classement', None, None, ('dge.classement',)),
-        ('rapports', '📑', 'Rapports', 'pilotage.rapports', None, ('＋ Générer un rapport', 'pilotage.rapports'),
-         ('pilotage.rapports', 'pilotage.tableau', 'indicateurs.mes', 'controle.', 'catalogue.', 'parametres.', 'listes.',
+        ('rapports', '📑', 'Rapports', 'actions.rapports', None, None,
+         ('actions.rapports', 'actions.generer', 'pilotage.rapports', 'pilotage.tableau', 'indicateurs.mes', 'controle.', 'catalogue.', 'parametres.', 'listes.',
           'dge.agents', 'operateurs.', 'tracabilite.', 'sante.', 'veto.')),
-        ('actions', '🎯', "Plans d'actions", 'bureau.plans_actions', None, ('＋ Nouvelle action', None), ()),
+        ('actions', '🎯', "Plans d'actions", 'actions.liste', '_n_actions_retard', None, ('actions.',)),
     ],
     Profil.VETO: [
         ('accueil', '🩺', 'Accueil sanitaire', 'bureau.accueil', None, None, ()),
@@ -61,7 +61,7 @@ FONCTIONS = {
         ('bceg', '🏦', 'Consentement BCEG', 'eleveur.ma_banque', None, None, ('eleveur.ma_banque',)),
     ],
     Profil.AGENT: [
-        ('accueil', '🏠', 'Mon accueil', 'bureau.accueil', None, ('＋ Nouvelle visite', None), ()),
+        ('accueil', '🏠', 'Mon accueil', 'bureau.accueil', '_n_actions_retard', None, ('actions.',)),
         ('fermes', '🏘️', 'Mes fermes', 'fermes.liste', '_n_fermes_rouges', ('＋ Nouvelle ferme', 'fermes.nouvelle'), ('fermes.liste', 'fermes.fiche', 'fermes.modifier')),
         ('enrolement', '➕', 'Enrôlement', 'fermes.nouvelle', None, ('＋ Enrôler une ferme', 'fermes.nouvelle'),
          ('fermes.nouvelle', 'agent.nouvel_eleveur')),

@@ -118,6 +118,9 @@ def create_app(env='default'):
     # Version ordinateur, tous profils (lot R)
     from app.routes.bureau import bureau_bp
     app.register_blueprint(bureau_bp)
+    # Plans d'actions et rapports standards (lot D)
+    from app.routes.actions import actions_bp
+    app.register_blueprint(actions_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 

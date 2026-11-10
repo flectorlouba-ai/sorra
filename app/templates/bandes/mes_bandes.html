@@ -41,6 +41,7 @@
     <div class="carte-sous">Bâtiment {{ b.batiment.code }} · du {{ b.date_mise_en_place.strftime('%d/%m/%Y') }}{% if b.date_cloture %} au {{ b.date_cloture.strftime('%d/%m/%Y') }}{% endif %}
       {% if b.bilan %} · mortalité {{ b.bilan.mortalite|qte }} %{% endif %}</div>
   </a>
+  <a class="btn-gros-secondaire mb-2" href="{{ url_for('actions.bilan_bande', numero=b.numero) }}" data-bilan-pdf>📄 Bilan de la bande</a>
   {% endfor %}
   {% if not en_cours and not passees %}<div class="empty-note">Pas encore de bande.</div>{% endif %}
 </div>

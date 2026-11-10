@@ -20,7 +20,8 @@
 {% set fonctions = fonctions_bureau() %}
 <div class="zone-titre">
   <a href="{{ url_for('bureau.accueil') }}" class="logo-texte">{{ logo_poulet() }}<span class="marque">SORRA<small>Suivi et traçabilité de la filière avicole</small></span></a>
-  <h1><i class="bi bi-{% block icone %}grid{% endblock %}"></i> <span>{% block page_titre %}{{ self.titre() }}{% endblock %}</span></h1>
+  {% set _b_titre = self.page_titre()|trim %}{% if false %}{% block icone %}grid{% endblock %}{% block page_titre %}{{ self.titre() }}{% endblock %}{% endif %}
+  <h1>{% if not _b_titre[:2]|trim|length or _b_titre[0]|lower == _b_titre[0]|upper and _b_titre[0] not in '0123456789' %}{% else %}<i class="bi bi-{{ self.icone()|trim }}"></i> {% endif %}<span>{{ _b_titre|safe }}</span></h1>
   <div class="droite">
     <div class="qui"><b>{{ current_user.nom_complet }}</b><span class="role">{{ current_user.profil.libelle }}</span></div>
     {% set cle_aide = aide_pour(self.aide()|trim) %}

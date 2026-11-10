@@ -46,3 +46,11 @@ Chaque ligne : lot · question · choix · autre option · comment revenir en ar
 | R | DGE : paramètres, catalogues et validations | Rangés sous « Rapports » (bouton actif pour les écrans de configuration et de validation ouverts depuis les anciennes adresses) ; pas de 9ᵉ bouton pour rester à la maquette (8) | Bouton dédié | Ajouter une entrée dans `services/bureau.FONCTIONS[DGE]` |
 | R | Écrans d'appoint | « Plans d'actions » : emplacement (lot D) ; « Diagnostics », « Profils et droits » (matrice lue dans le code), « Journal des exports », « Recherche », « Visites », « Mes lots » : nouveaux écrans de lecture sur les données existantes | — | — |
 | R | Alertes de la carte selon le profil | DGE/ADMIN : feu, régularité, cible, écart d'intrants (+ position à vérifier pour l'ADMIN) ; vétérinaire : feu seulement ; auditeur : corrections du mois | Seuils réglables | `routes/bureau.raisons_alerte` |
+| D | Courbe de croissance dans le bilan PDF | Tableau « jour · pesée · attendu · écart » (pas de dessin) | Graphique dessiné | `rapports.contenu_bilan_bande` |
+| D | Rapport provincial | Le rapport national filtré sur la province (même gabarit, complété) | Gabarit à part | — |
+| D | Rapports mensuels automatiques | La commande `rapports-mensuels` (cron du 1ᵉʳ) produit aussi provinces, fermes opérationnelles et agents, en plus du national (lot 18) | Commande séparée | `services/rapports.generer_mensuels` |
+| D | Bilan de bande à la clôture | Produit et gardé automatiquement ; un échec du PDF n'empêche jamais la clôture | Bloquer la clôture | `services/bandes.cloturer` |
+| D | Actions : qui confie à qui | DGE / ADMIN : à un agent ou à soi ; agent : à lui-même seulement | L'agent confie à un autre agent | `services/actions.responsables_possibles` |
+| D | Action en retard | Calculée (échéance passée, non faite) ; pastille sur le bouton Accueil de l'agent et « Plans d'actions » de la DGE ; tableau « 🎯 Mes actions » sur l'accueil ordinateur | Colonne stockée | — |
+| D | « Créer une action » depuis… | Alerte (fiche), visite (tableau de bureau), arbitrage (À vérifier), rapport (lien de la liste) : ouvre la fenêtre préremplie | Fenêtre sur place | — |
+| D | Pages du rapport | Comptées dans le PDF (`/Type /Page`) | Non | — |

@@ -10,7 +10,7 @@
     <tr><td>{{ (v.faite_le or v.date_prevue).strftime('%d/%m/%Y') if (v.faite_le or v.date_prevue) else '—' }}</td>
       <td><a href="{{ url_for('fermes.fiche', numero=v.ferme.numero) }}">{{ v.ferme.numero }}</a> {{ v.ferme.nom }}</td><td>{{ v.agent.nom_complet }}</td><td>{{ v.objet }}</td>
       <td>{% if v.statut != 'FAITE' %}—{% elif e == 'confirmee' %}✓ sur place{% elif e == 'eloignee' %}<span class="badge badge-warn">à {{ (v.distance_m / 1000)|round(1)|qte }} km</span>{% else %}<span class="badge badge-neutre">sans position</span>{% endif %}</td>
-      <td>{{ (v.constats or '')[:80] }}</td><td>{{ v.toutes_recommandations|length }}</td>
+      <td>{{ (v.constats or '')[:80] }}{% if v.statut == 'FAITE' %} <a class="td-sous" href="{{ url_for('actions.liste', nouvelle=1, origine='VISITE', table='visite', id=v.id, ferme=v.ferme.numero, intitule='Suite à la visite du ' ~ v.faite_le.strftime('%d/%m')) }}" data-creer-action>🎯 action</a>{% endif %}</td><td>{{ v.toutes_recommandations|length }}</td>
       <td>{{ (v.score_biosecurite ~ ' %') if v.score_biosecurite is not none else '—' }}</td><td>{{ v.statut|lower }}</td></tr>
   {% else %}<tr><td colspan="9" class="table-vide">Aucune visite.</td></tr>{% endfor %}</tbody>
 </table></div></div>

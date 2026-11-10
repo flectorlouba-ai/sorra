@@ -81,8 +81,12 @@ def tableau_de_bord(user):
         for pt in carte['points']:
             pt['alerte'] = pt['ferme'].id in en_alerte
             pt['raisons'] = next((a['raisons'] for a in alertes if a['ferme'].id == pt['ferme'].id), [])
+    mes_actions = []
+    if user.profil in (Profil.AGENT, Profil.DGE, Profil.ADMIN):
+        from app.services import actions as services_actions
+        mes_actions = [a for a in services_actions.mes_actions(user) if a.archive_le is None and a.etat != 'FAITE'][:12]
     return {'cartes': d['cartes'], 'courbes': d['courbes'], 'carte': carte, 'alertes': alertes, 'synthese': synthese,
-            'fermes': fermes}
+            'fermes': fermes, 'mes_actions': mes_actions}
 
 
 @bureau_bp.route('/')

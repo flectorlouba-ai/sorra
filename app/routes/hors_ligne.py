@@ -119,6 +119,7 @@ PAGES_AGENT_TERRAIN = ['terrain.tournee', 'terrain.fermes', 'terrain.saisir', 't
 # compte (en ligne par nature), la création d'une ferme (avec du réseau seulement, jusqu'au lot 19 bis), et les
 # écrans de la « Version bureau » de l'agent (pilotage, sur ordinateur). Vérifié par tests/test_lot19ter.py.
 EN_LIGNE_SEULEMENT = {'auth.securite', 'auth.mise_en_place', 'fermes.nouvelle', 'bureau.accueil', 'bureau.mes_lots',
+                      'actions.liste', 'actions.rapports',
                       'bureau.version_ordinateur', 'bureau.version_terrain', 'bureau.recherche', 'bureau.exports'}
 VERSION_BUREAU_AGENT = {'operateurs.liste', 'livraisons.liste', 'livraisons.nouvelle', 'bandes.liste', 'sante.vaccins',
                         'pilotage.tableau', 'tracabilite.lots', 'agent.commandes', 'fermes.liste',
@@ -126,7 +127,8 @@ VERSION_BUREAU_AGENT = {'operateurs.liste', 'livraisons.liste', 'livraisons.nouv
                         'indicateurs.niveaux',   # lot C (bureau)
                         'bureau.accueil', 'bureau.plans_actions', 'bureau.diagnostics', 'bureau.droits', 'bureau.exports',
                         'bureau.recherche', 'bureau.visites', 'bureau.mes_lots', 'bureau.version_ordinateur',
-                        'bureau.version_terrain'}   # lot R
+                        'bureau.version_terrain',   # lot R
+                        'actions.liste', 'actions.rapports'}   # lot D
 
 
 def _aides_du_profil(prefixe):

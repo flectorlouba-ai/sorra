@@ -18,6 +18,7 @@
 {% endif %}
 {% if not bande.en_cours %}
 <a href="{{ url_for('bandes.bilan', numero=bande.numero) }}" class="btn-new"><i class="bi bi-clipboard-data"></i> Bilan</a>
+{% if not bande.en_cours and current_user.profil.value != 'VETO' %}<a href="{{ url_for('actions.bilan_bande', numero=bande.numero) }}" class="btn-ghost" data-bilan-pdf><i class="bi bi-file-earmark-pdf"></i> 📄 Bilan (PDF)</a>{% endif %}
 {% endif %}
 {% endblock %}
 

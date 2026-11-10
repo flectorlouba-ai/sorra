@@ -1,0 +1,105 @@
+{% extends '_base.html' %}
+{% from '_macros.html' import tete_fenetre %}
+{% block titre %}Plans d'actions{% endblock %}
+{% block icone %}bullseye{% endblock %}
+{% block page_titre %}🎯 Plans d'actions{% endblock %}
+{% block page_sous_titre %}Actions issues des alertes, des visites, des rapports et des arbitrages · une action en retard est signalée à son responsable{% endblock %}
+{% block actions %}<button type="button" class="bp" onclick="ouvrirAction()" data-nouvelle-action>＋ Nouvelle action</button>{% endblock %}
+{% block contenu %}
+<form class="filters-bar" method="get">
+  <select name="etat" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Tous les états</option>
+    {% for e, nom in {'RETARD': 'En retard', 'A_FAIRE': 'À faire', 'EN_COURS': 'En cours', 'FAITE': 'Faites'}.items() %}<option value="{{ e }}" {% if etat == e %}selected{% endif %}>{{ nom }}</option>{% endfor %}
+  </select>
+</form>
+<div class="table-wrap"><div class="table-scroll"><table data-tableau-actions>
+  <thead><tr><th>N°</th><th>Action</th><th>Origine</th><th>Périmètre</th><th>Responsable</th><th>Échéance</th><th>Priorité</th><th>Avancement</th><th>État</th></tr></thead>
+  <tbody>{% for a in actions %}
+    <tr class="ligne-action" data-action="{{ a.id }}" data-etat="{{ a.etat }}" onclick="ouvrirAction(this)"
+        data-a='{{ {"id": a.id, "intitule": a.intitule, "echeance": a.echeance.isoformat(), "priorite": a.priorite, "responsable": a.responsable_id|string, "avancement": a.avancement, "commentaire": a.commentaire or "", "etat": a.etat, "numero": a.numero, "faite": a.faite_le is not none, "photo": url_for("actions.photo", ident=a.id) if a.photo else ""}|tojson }}'>
+      <td class="td-num">{{ a.numero }}</td><td><strong>{{ a.intitule }}</strong></td><td>{{ a.libelle_origine }}</td><td>{{ a.libelle_perimetre }}</td>
+      <td>{{ a.responsable.nom_complet }}</td><td>{{ a.echeance.strftime('%d/%m/%Y') }} <span class="td-sous">{{ phrase(a) }}</span></td>
+      <td><span class="badge {{ 'badge-danger' if a.priorite == 'HAUTE' else 'badge-warn' if a.priorite == 'MOYENNE' else 'badge-neutre' }}">{{ libelles_priorite[a.priorite] }}</span></td>
+      <td>{{ a.avancement }} %</td>
+      <td><span class="badge {{ {'RETARD': 'badge-danger', 'A_FAIRE': 'badge-neutre', 'EN_COURS': 'badge-info', 'FAITE': 'badge-ok'}[a.etat] }}">{{ a.libelle_etat }}</span></td></tr>
+  {% else %}<tr><td colspan="9" class="table-vide"><i class="bi bi-bullseye"></i>Aucune action.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+
+<div class="modal-overlay" id="fen-action" hidden role="dialog" aria-modal="true" aria-labelledby="fen-action-titre">
+  <div class="modal-box" style="max-width:640px;">
+    <form method="post" id="form-action" enctype="multipart/form-data">
+      {{ tete_fenetre('fen-action', 'Nouvelle action', 'bullseye') }}
+      <div class="modal-body">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="retour" value="{{ request.full_path.rstrip('?') }}">
+        <input type="hidden" name="origine" id="a-origine" value="{{ prerempli.origine }}">
+        <input type="hidden" name="origine_table" value="{{ prerempli.origine_table }}">
+        <input type="hidden" name="origine_id" value="{{ prerempli.origine_id }}">
+        <div class="fiche-qui" id="a-etat" hidden></div>
+        <div class="form-group mb-2"><label class="form-label" for="a-intitule">Action<span class="req">*</span></label>
+          <input class="form-control" id="a-intitule" name="intitule" maxlength="200" required value="{{ prerempli.intitule }}"></div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label" for="a-echeance">Échéance<span class="req">*</span></label>
+            <input class="form-control" type="date" id="a-echeance" name="echeance" required></div>
+          <div class="form-group"><label class="form-label" for="a-priorite">Priorité</label>
+            <select class="form-control" id="a-priorite" name="priorite">{% for p in priorites %}<option value="{{ p }}" {% if p == 'MOYENNE' %}selected{% endif %}>{{ libelles_priorite[p] }}</option>{% endfor %}</select></div>
+          <div class="form-group"><label class="form-label" for="a-responsable">Responsable</label>
+            <select class="form-control" id="a-responsable" name="responsable_id">{% for r in responsables %}<option value="{{ r.id }}">{{ r.nom_complet }}{{ ' (moi)' if r.id == current_user.id }}</option>{% endfor %}</select></div>
+          <div class="form-group"><label class="form-label" for="a-ferme">Ferme</label>
+            <select class="form-control" id="a-ferme" name="ferme"><option value="">— {{ 'national' if provinces else 'aucune' }} —</option>{% for f in fermes %}<option value="{{ f.numero }}" {% if prerempli.ferme == f.numero %}selected{% endif %}>{{ f.numero }} · {{ f.nom }}</option>{% endfor %}</select></div>
+          {% if provinces %}<div class="form-group"><label class="form-label" for="a-province">Province (sans ferme)</label>
+            <select class="form-control" id="a-province" name="province_id"><option value="">—</option>{% for p in provinces %}<option value="{{ p.id }}">{{ p.nom }}</option>{% endfor %}</select></div>{% endif %}
+          <div class="form-group" id="bloc-avancement" hidden><label class="form-label" for="a-avancement">Avancement (%)</label>
+            <input class="form-control" type="number" id="a-avancement" name="avancement" min="0" max="100" step="10"></div>
+          <div class="form-group span2"><label class="form-label" for="a-commentaire">Commentaire</label>
+            <textarea class="form-control" id="a-commentaire" name="commentaire" rows="2" maxlength="1000"></textarea></div>
+          <div class="form-group span2" id="bloc-photo" hidden><label class="form-label" for="a-photo">Photo de clôture</label>
+            <input class="form-control" type="file" id="a-photo" name="photo" accept="image/*"><a id="a-photo-lien" href="#" target="_blank" hidden>voir la photo</a></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn-archiver-lien" name="action" value="archiver" data-si="actif" hidden>🗄️ Archiver</button>
+        <button type="button" class="btn-annuler" onclick="fermer('fen-action')">✕ Fermer</button>
+        <button type="submit" class="btn-enregistrer" name="action" value="rouvrir" data-si="faite" hidden>↩️ Rouvrir</button>
+        <button type="submit" class="btn-enregistrer" name="action" value="cloturer" data-si="actif" hidden style="background:var(--vert)">✓ Marquer faite</button>
+        <button type="submit" class="btn-enregistrer" name="action" value="modifier" data-si="nouveau actif">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function ouvrirAction(tr) {
+  var f = document.getElementById('form-action');
+  f.reset();
+  var etat = document.getElementById('a-etat');
+  if (tr) {
+    var a = JSON.parse(tr.dataset.a);
+    f.action = "{{ url_for('actions.modifier', ident=0) }}".replace('/0', '/' + a.id);
+    document.getElementById('fen-action-titre').textContent = a.numero + ' · ' + (a.faite ? 'action faite' : 'modifier');
+    document.getElementById('a-intitule').value = a.intitule;
+    document.getElementById('a-echeance').value = a.echeance;
+    document.getElementById('a-priorite').value = a.priorite;
+    if (document.getElementById('a-responsable').querySelector('[value="' + a.responsable + '"]')) document.getElementById('a-responsable').value = a.responsable;
+    document.getElementById('a-avancement').value = a.avancement;
+    document.getElementById('a-commentaire').value = a.commentaire;
+    document.getElementById('bloc-avancement').hidden = false; document.getElementById('bloc-photo').hidden = false;
+    var lien = document.getElementById('a-photo-lien'); lien.hidden = !a.photo; lien.href = a.photo || '#';
+    etat.hidden = false; etat.textContent = 'État : ' + {RETARD: 'en retard', A_FAIRE: 'à faire', EN_COURS: 'en cours', FAITE: 'faite'}[a.etat];
+    etatFenetre('fen-action', a.faite ? 'faite' : 'actif');
+  } else {
+    f.action = "{{ url_for('actions.creer') }}";
+    document.getElementById('fen-action-titre').textContent = 'Nouvelle action';
+    document.getElementById('bloc-avancement').hidden = true; document.getElementById('bloc-photo').hidden = true;
+    etat.hidden = true;
+    var d = new Date(); d.setDate(d.getDate() + 7);
+    document.getElementById('a-echeance').value = d.toISOString().slice(0, 10);
+    document.getElementById('a-intitule').value = {{ prerempli.intitule|tojson }};
+    etatFenetre('fen-action', 'nouveau');
+  }
+  ouvrir('fen-action');
+}
+{% if ouvrir %}ouvrirAction();{% endif %}
+</script>
+{% endblock %}
