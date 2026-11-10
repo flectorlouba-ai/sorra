@@ -17,23 +17,8 @@
 </div>
 <div class="carte carte-nouvelle-ferme" data-nouvelle-ferme>
   <div class="carte-titre">🆕 Nouvelle ferme</div>
-  <div class="reseau-requis" data-reseau-requis>📶 <strong>Avec du réseau seulement</strong> : la création d'une ferme sans réseau arrivera plus tard.</div>
-  <div class="hors-reseau-garde" data-sans-reseau hidden>📵 Pas de réseau en ce moment : revenez ici quand le téléphone capte.</div>
-  <a class="btn-gros mt-2" href="{{ url_for('fermes.nouvelle') }}" data-lien-nouvelle-ferme>Enregistrer une nouvelle ferme</a>
+  <div class="carte-sous">Marche aussi sans réseau : la ferme sera envoyée plus tard.</div>
+  <a class="btn-gros mt-2" href="{{ url_for('terrain.nouvelle_ferme') }}" data-lien-nouvelle-ferme>Enregistrer une nouvelle ferme</a>
 </div>
 {% endblock %}
-{% block scripts %}
-<script>
-(function () {
-  function maj() {
-    var hors = !navigator.onLine;
-    document.querySelector('[data-sans-reseau]').hidden = !hors;
-    var lien = document.querySelector('[data-lien-nouvelle-ferme]');
-    lien.classList.toggle('desactive', hors);
-    lien.setAttribute('aria-disabled', hors ? 'true' : 'false');
-  }
-  document.querySelector('[data-lien-nouvelle-ferme]').addEventListener('click', function (e) { if (!navigator.onLine) e.preventDefault(); });
-  window.addEventListener('online', maj); window.addEventListener('offline', maj); maj();
-})();
-</script>
-{% endblock %}
+

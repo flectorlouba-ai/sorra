@@ -167,7 +167,7 @@ def test_stock_en_mots_sans_pourcentage(client, terrain):
 def test_nouvel_eleveur_ferme_enregistree_ou_nouvelle_avec_reseau(client, terrain):
     connecter(client, 'agent1')
     page = texte(client.get('/terrain/nouvel-eleveur'))
-    assert 'Ferme déjà enregistrée' in page and 'Nouvelle ferme' in page and 'Avec du réseau seulement' in page
+    assert 'Ferme déjà enregistrée' in page and 'Nouvelle ferme' in page and 'Marche aussi sans réseau' in page   # lot E-b
     page = texte(client.get(f'/fermes/{terrain["f"].numero}/eleveurs/nouveau'))
     assert '1. La personne' in page and '2. La ferme' in page and '3. Le compte' in page and 'data-hors-ligne=' in page
     assert 'Avec du réseau seulement' in texte(client.get('/fermes/nouvelle'))

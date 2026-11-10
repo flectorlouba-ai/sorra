@@ -101,6 +101,10 @@ def _listes_de_depart():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     listes.update(module.LISTES)
+    spec = importlib.util.spec_from_file_location('migration_0027', chemin.with_name('0027_ferme_hors_ligne.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    listes.update(module.LISTES)
     return listes
 
 

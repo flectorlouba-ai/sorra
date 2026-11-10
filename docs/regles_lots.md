@@ -1,6 +1,6 @@
 # SORRA — Règles communes à tous les lots (à relire au début de chaque lot)
 
-Ordre des lots : **0 Préparation → E-b → C → R → D → T → G → F → B → M → S → P**.
+Ordre des lots : **0 Préparation → E-b → L (comptes de démonstration, prioritaire) → C → R → D → T → G → F → B → M → S → P**.
 À la reprise après un arrêt : relire ce fichier et le dernier rapport (`docs/rapport_suite.md`), puis reprendre au
 premier lot non fusionné.
 

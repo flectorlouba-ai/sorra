@@ -1,0 +1,71 @@
+{% extends '_base.html' %}
+{% block aide %}ag_nouvel{% endblock %}
+{% block titre %}Ferme en attente d'envoi{% endblock %}
+{% block page_titre %}🆕 Ferme en attente d'envoi{% endblock %}
+{% block page_sous_titre %}Tout part ensemble quand le réseau revient{% endblock %}
+{% block contenu %}
+{# Lot E-b : écran gardé sur le téléphone. La ferme créée sans réseau (P-xxxx) vient du téléphone (sessionStorage) ;
+   les saisies faites ici sont adressées au numéro provisoire et rattachées à la vraie ferme par le serveur. #}
+<div id="aucune" class="carte carte-calme centre"><div class="carte-phrase">Aucune ferme en attente</div>
+  <div class="carte-sous">Les fermes créées sans réseau apparaissent ici jusqu'à leur envoi.</div></div>
+<div id="provisoire" hidden>
+  <div class="carte centre" data-ferme-provisoire>
+    <div class="carte-phrase" id="pf-titre">Ferme P-0000</div>
+    <div class="carte-sous">numéro provisoire · <span class="a-verifier">◷ En attente d'envoi</span></div>
+  </div>
+  <div class="carte-provisoire" data-a-noter>
+    <div class="form-label">🔑 Compte de <span id="pf-eleveur"></span></div>
+    <div>Identifiant : <strong class="mono" id="pf-identifiant">—</strong></div>
+    <div>Mot de passe provisoire : <strong class="mono mdp-provisoire" id="pf-mdp"></strong></div>
+    <div class="td-sous">Notez-le : il ne sera plus affiché après.</div>
+  </div>
+  <div class="tuiles">
+    <a class="tuile" href="#visite-provisoire" data-ouvrir="fen-visite-provisoire"><span class="tuile-ico">📋</span><span class="tuile-nom">Faire la visite</span></a>
+    <a class="tuile" href="#depense-provisoire" data-ouvrir="fen-depense-provisoire"><span class="tuile-ico">💸</span><span class="tuile-nom">Dépense pour <span class="pf-prenom"></span></span></a>
+    <a class="tuile" href="{{ url_for('accueil.index') }}"><span class="tuile-ico">🏠</span><span class="tuile-nom">Retour à l'accueil</span></a>
+  </div>
+</div>
+{% import '_fiches.html' as fiches %}
+{% call fiches.fenetre('fen-visite-provisoire', '📋 Visite', ouverte=False) %}
+<form method="post" class="form-terrain" novalidate data-hors-ligne="Visite · ferme provisoire" data-action-provisoire="visite"
+      data-retour-garde="{{ url_for('terrain.ferme_provisoire') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="form-label">Pourquoi cette visite ?</div>
+  <div class="choix-cases">{% for o in objets %}<label class="case-choix"><input type="radio" name="objet" value="{{ o }}" {% if loop.first %}checked{% endif %}><span>{{ o }}</span></label>{% endfor %}</div>
+  <div class="form-group"><label class="form-label" for="pf-constats">Ce que vous avez vu</label>
+    <textarea class="form-control" id="pf-constats" name="constats" rows="3" maxlength="500"></textarea></div>
+  <button type="submit" class="btn-gros btn-vert">Envoyer le compte rendu</button>
+</form>
+{% endcall %}
+{% call fiches.fenetre('fen-depense-provisoire', '💸 Dépense pour l\'éleveur', ouverte=False) %}
+<form method="post" class="form-terrain" novalidate data-hors-ligne="Dépense · ferme provisoire" data-action-provisoire="depense"
+      data-retour-garde="{{ url_for('terrain.ferme_provisoire') }}" action="{{ url_for('argent.payer') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="ferme" class="pf-numero">
+  <div class="form-label">Pour quoi ?</div>
+  <div class="choix-cases">{% for valeur, icone, nom in categories %}<label class="case-choix"><input type="radio" name="categorie" value="{{ valeur }}"><span>{{ icone }}<br>{{ nom }}</span></label>{% endfor %}</div>
+  <div class="form-group"><label class="form-label" for="pf-montant">Montant (FCFA)</label>
+    <input class="form-control champ-gros" id="pf-montant" name="montant" inputmode="numeric"></div>
+  <button type="submit" class="btn-gros btn-vert">Enregistrer</button>
+</form>
+{% endcall %}
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var d = null;
+  try { d = JSON.parse(sessionStorage.getItem('sorra-ferme-provisoire') || 'null'); } catch (e) {}
+  if (!d || !d.numero) return;
+  document.getElementById('aucune').hidden = true;
+  document.getElementById('provisoire').hidden = false;
+  document.getElementById('pf-titre').textContent = 'Ferme ' + d.numero + (d.nom ? ' · ' + d.nom : '');
+  document.getElementById('pf-eleveur').textContent = d.eleveur || '';
+  document.getElementById('pf-identifiant').textContent = d.identifiant || '—';
+  document.getElementById('pf-mdp').textContent = d.provisoire || '';
+  document.querySelectorAll('.pf-prenom').forEach(function (e) { e.textContent = (d.eleveur || '').split(' ')[0]; });
+  document.querySelectorAll('.pf-numero').forEach(function (e) { e.value = d.numero; });
+  // Les saisies partent au numéro provisoire : le serveur les rattache à la vraie ferme
+  document.querySelector('[data-action-provisoire=visite]').action = '/fermes/' + encodeURIComponent(d.numero) + '/visites/compte-rendu';
+})();
+</script>
+{% endblock %}

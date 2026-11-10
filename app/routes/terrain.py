@@ -194,7 +194,7 @@ def fermes():
 
 
 def _ma_ferme(numero):
-    f = filtre_perimetre(Ferme.query).filter(Ferme.numero_metier == numero).first()
+    f = filtre_perimetre(Ferme.query).filter(Ferme.du_numero(numero)).first()
     if f is None:
         abort(404)
     return f
@@ -314,7 +314,74 @@ def position(numero):
     return render_template('terrain/agent/position.html', ferme=ferme, erreur=erreur, hors_province=hors_province,
                            saisie=request.form, precision_max=positions.precision_max_m(),
                            seuil_km=positions.seuil_quatre_yeux_m() / 1000,
-                           motifs=[v for v, _ in ld_choices('motifs_position')])
+                           motifs=[v for v, _ in ld_choices('motifs_position')],
+                           dessin=__import__('app.services.geo', fromlist=['dessin']).dessin(
+                               ferme.province.code, ferme.latitude, ferme.longitude, largeur=320, hauteur=230,
+                               rayon_deg=0.01 if ferme.a_une_position else None))
+
+
+# ── Nouvelle ferme, avec ou sans réseau (lot E-b) ───────────────────────
+
+@terrain_bp.route('/nouvelle-ferme', methods=['GET', 'POST'])
+@profil_requis(Profil.AGENT)
+def nouvelle_ferme():
+    _terrain_agent()
+    from app.models import Province, Localite
+    from app.services import fermes as regles_fermes, hors_ligne, positions, parametres
+    provinces = sorted(current_user.provinces, key=lambda p: p.ordre)
+    erreur = None
+    if request.method == 'POST':
+        f = request.form
+        province = next((p for p in provinces if str(p.id) == f.get('province_id')), provinces[0] if provinces else None)
+        try:
+            if province is None:
+                raise regles_fermes.RegleFermeTerrain('Aucune province ne vous est attribuée : appelez la DGE.')
+            ferme, eleveur, provisoire, doublons = regles_fermes.creer_ferme_terrain(
+                province, current_user, f, sans_reseau=hors_ligne.actif(), appareil=request.headers.get('X-Appareil'))
+            nom_terrain = ferme.numero_terrain or ferme.numero
+            motif = (f.get('motif_doublon_autre') or '').strip() or f.get('motif_doublon')
+            if doublons:                                  # le serveur revérifie sur toutes les fermes
+                proche, m = doublons[0]
+                hors_ligne.signaler(ferme, f'Ferme peut-être en double : {ferme.numero}',
+                                    f'{nom_terrain} ({ferme.numero}) ressemble à {proche.numero} ({proche.localite.nom}, '
+                                    f'{positions.texte_distance(m)}). Même ferme ou pas ?'
+                                    + (f" L'agent a répondu « non » : {motif}." if motif else ''), current_user)
+            db.session.commit()
+            if hors_ligne.actif():
+                flash(f'{nom_terrain} est devenue {ferme.numero} ✓', 'success')
+                return redirect(url_for('terrain.fiche', numero=ferme.numero))
+            return render_template('agent/eleveur_cree.html', ferme=ferme, eleveur=eleveur, provisoire=provisoire)
+        except regles_fermes.RegleFermeTerrain as e:
+            db.session.rollback()
+            erreur = str(e)
+        except Exception as e:                            # éleveur déjà inscrit, etc.
+            from app.services.agent import RegleAgent
+            if not isinstance(e, RegleAgent):
+                raise
+            db.session.rollback()
+            erreur = str(e)
+    localites = {p.id: [l.nom for l in Localite.query.filter_by(province_id=p.id, actif=True).order_by(Localite.nom)]
+                 for p in provinces}
+    connues = [{'numero': fe.numero, 'nom': fe.nom, 'exploitant': fe.exploitant_nom, 'lat': fe.latitude,
+                'lon': fe.longitude, 'lien': url_for('agent.nouvel_eleveur', numero=fe.numero)}
+               for fe in filtre_perimetre(Ferme.query) if fe.a_une_position]
+    return render_template('terrain/agent/nouvelle_ferme.html', provinces=provinces, localites=localites,
+                           connues=connues, erreur=erreur, saisie=request.form,
+                           seuil_doublon=int(parametres.obtenir('gps.doublon_m', 200)),
+                           precision_max=positions.precision_max_m(),
+                           bandes_defaut=parametres.obtenir('production.bandes_par_an_defaut', 6),
+                           motifs_doublon=[v for v, _ in ld_choices('motifs_doublon')])
+
+
+@terrain_bp.route('/ferme-provisoire')
+@profil_requis(Profil.AGENT)
+def ferme_provisoire():
+    """Écran gardé sur le téléphone : la ferme créée sans réseau (P-xxxx), le compte à noter, et de quoi saisir pour
+    l'éleveur en attendant l'envoi (compte rendu de visite, dépense). Les données viennent du téléphone."""
+    _terrain_agent()
+    from app.services import argent, visites
+    return render_template('terrain/agent/ferme_provisoire.html', objets=visites.objets(),
+                           categories=argent.categories())
 
 
 # ── Stock et commandes ──────────────────────────────────────────────────

@@ -44,6 +44,21 @@
   <form method="post" class="form-terrain mt-2" novalidate data-hors-ligne="Position corrigée · {{ ferme.nom }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="action" value="main">
+    {% if dessin %}{# Lot E-b : punaise à glisser du doigt sur la carte de la province (aucun fond en ligne) #}
+    <div class="punaise-carte" data-punaise data-projection='{{ dessin.projection|tojson }}'
+         {% if ferme.a_une_position %}data-lat="{{ ferme.latitude }}" data-lon="{{ ferme.longitude }}"{% endif %}>
+      <svg viewBox="0 0 {{ dessin.largeur }} {{ dessin.hauteur }}" role="img" aria-label="Carte autour de la ferme : glissez la punaise" id="svg-punaise">
+        <rect x="0" y="0" width="{{ dessin.largeur }}" height="{{ dessin.hauteur }}" class="punaise-fond"/>
+        {% for i in range(1, 8) %}<line x1="{{ dessin.largeur * i / 8 }}" y1="0" x2="{{ dessin.largeur * i / 8 }}" y2="{{ dessin.hauteur }}" class="punaise-grille"/>{% endfor %}
+        {% for i in range(1, 6) %}<line x1="0" y1="{{ dessin.hauteur * i / 6 }}" x2="{{ dessin.largeur }}" y2="{{ dessin.hauteur * i / 6 }}" class="punaise-grille"/>{% endfor %}
+        {% for c in dessin.chemins %}<path d="{{ c }}" class="mini-carte-province"/>{% endfor %}
+        {% if dessin.epingle %}<circle cx="{{ dessin.epingle[0] }}" cy="{{ dessin.epingle[1] }}" r="5" class="punaise-ancienne"/>{% endif %}
+        <g id="punaise" transform="translate({{ (dessin.epingle or [dessin.largeur / 2, dessin.hauteur / 2])|join(',') }})">
+          <circle r="16" class="punaise-zone"/><text y="-2" text-anchor="middle" class="punaise-icone">📍</text></g>
+      </svg>
+      <div class="carte-sous">☝️ Glissez la punaise · <strong id="punaise-ecart">—</strong></div>
+    </div>
+    {% endif %}
     <div class="form-grid">
       <div class="form-group"><label class="form-label" for="lat-main">Latitude</label>
         <input class="form-control" id="lat-main" name="latitude_main" inputmode="decimal" placeholder="ex. 0,3921"></div>
@@ -62,6 +77,36 @@
 {% endcall %}
 {% endblock %}
 {% block scripts %}
+<script>
+(function () {
+  // Lot E-b : la punaise remplit la latitude et la longitude (même projection que la carte du serveur)
+  var zone = document.querySelector('[data-punaise]');
+  if (!zone) return;
+  var pr = JSON.parse(zone.dataset.projection), svg = document.getElementById('svg-punaise'), pin = document.getElementById('punaise');
+  var la0 = parseFloat(zone.dataset.lat), lo0 = parseFloat(zone.dataset.lon), prise = false;
+  function rad(d) { return d * Math.PI / 180; }
+  function metres(la1, lo1, la2, lo2) {
+    var dla = rad(la2 - la1), dlo = rad(lo2 - lo1);
+    var a = Math.sin(dla / 2) * Math.sin(dla / 2) + Math.cos(rad(la1)) * Math.cos(rad(la2)) * Math.sin(dlo / 2) * Math.sin(dlo / 2);
+    return 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+  function poser(e) {
+    var pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+    var p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    pin.setAttribute('transform', 'translate(' + p.x.toFixed(1) + ',' + p.y.toFixed(1) + ')');
+    var lon = pr.x0 + (p.x - pr.dx) / pr.echelle, lat = pr.y1 - (p.y - pr.dy) / pr.echelle;
+    document.getElementById('lat-main').value = lat.toFixed(5).replace('.', ',');
+    document.getElementById('lon-main').value = lon.toFixed(5).replace('.', ',');
+    if (!isNaN(la0)) {
+      var m = metres(la0, lo0, lat, lon);
+      document.getElementById('punaise-ecart').textContent = '↗️ Déplacée de ' + (m < 1000 ? Math.round(m) + ' m' : (m / 1000).toLocaleString('fr-FR', {maximumFractionDigits: 1}) + ' km');
+    }
+  }
+  svg.addEventListener('pointerdown', function (e) { prise = true; svg.setPointerCapture(e.pointerId); poser(e); });
+  svg.addEventListener('pointermove', function (e) { if (prise) poser(e); });
+  svg.addEventListener('pointerup', function () { prise = false; });
+})();
+</script>
 <script>
 (function () {
   var form = document.getElementById('form-position'), garder = document.getElementById('pos-garder');

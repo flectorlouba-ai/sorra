@@ -179,6 +179,11 @@ Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple pl
 - Envoyé sans réseau et hors de la province : la position est gardée et marquée « à vérifier » chez la DGE.
 - La distance d'une visite à la ferme est calculée sur le téléphone, puis recalculée par le serveur à l'arrivée.
 
+### Nouvelle ferme sans réseau (lot E-b)
+- L'écran « Nouvelle ferme » et l'écran « Ferme en attente d'envoi » sont gardés sur le téléphone.
+- Le téléphone tire l'identifiant de la ferme et un numéro provisoire **P-xxxx** ; la ferme part en premier dans la file, puis les saisies adressées à `P-xxxx`, que le serveur rattache à la vraie ferme (il garde le numéro provisoire).
+- Doublon : le téléphone compare avec les fermes de l'agent (200 m) ; le serveur recompare avec toutes les fermes et signale un doublon dans « À vérifier ».
+
 ### Session (lot 15)
 - L'éleveur et l'agent ne sont **jamais déconnectés par inactivité** : des jours sans réseau ne doivent pas faire perdre la session.
 - Si l'ADMIN ferme la session (téléphone perdu), l'envoi suivant reçoit la réponse « connexion ». Les saisies restent sur le téléphone et partent après la reconnexion, au nom de leur auteur (lot 13).

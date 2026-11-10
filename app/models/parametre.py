@@ -118,6 +118,8 @@ PARAMETRES_DEFAUT = [
      "Au-delà de cette distance de la ferme, la visite demande une explication (km)."),
     ('gps.correction_quatre_yeux_km', '1', TypeParametre.DECIMAL,
      'Une position corrigée à la main de plus de cette distance passe par les quatre yeux (km).'),
+    ('gps.doublon_m', '200', TypeParametre.ENTIER,
+     "Une ferme créée à moins de cette distance d'une autre est signalée comme doublon possible (mètres)."),
 ]
 
 

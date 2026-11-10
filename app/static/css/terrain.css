@@ -752,3 +752,11 @@ a.desactive{opacity:.45;pointer-events:none;}
 .theme-terrain .encadre-orange{background:var(--e-orange-pale);border:1px solid var(--e-orange-bord);border-radius:14px;padding:12px;margin:8px 0;color:var(--e-nuit);}
 .theme-terrain .consigne-position{font-weight:800;margin:6px 0;}
 .theme-terrain button.btn-gros:disabled{opacity:.45;}
+/* Lot E-b : punaise à glisser (correction de la position) */
+.theme-terrain .punaise-carte{background:var(--e-blanc);border:1px solid var(--e-trait);border-radius:16px;padding:8px;margin:8px 0;}
+.theme-terrain .punaise-carte svg{width:100%;height:auto;touch-action:none;cursor:crosshair;}
+.theme-terrain .punaise-zone{fill:transparent;}
+.theme-terrain .punaise-icone{font-size:22px;}
+.theme-terrain .punaise-ancienne{fill:var(--e-gris);opacity:.5;}
+.theme-terrain .punaise-fond{fill:var(--e-bleu-pale);}
+.theme-terrain .punaise-grille{stroke:var(--e-bleu-bord);stroke-width:1;}

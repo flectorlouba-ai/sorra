@@ -48,6 +48,14 @@ class Ferme(ArchivableMixin, SaisieTerrainMixin, db.Model):
     bandes_par_an        = db.Column(db.Integer, nullable=True, default=6, server_default='6')
     # Lot E : position gardée hors de la province (ou corrigée loin) : à vérifier par la DGE
     position_a_verifier  = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
+    # Lot E-b : numéro provisoire donné par le téléphone (ferme créée sans réseau) ; les saisies envoyées après coup
+    # à ce numéro sont rattachées à la ferme
+    numero_terrain       = db.Column(db.String(12), nullable=True, unique=True)
+
+    @classmethod
+    def du_numero(cls, numero):
+        """Condition : la ferme de ce numéro, vrai (EST-013) ou provisoire de terrain (P-0412)."""
+        return db.or_(cls.numero_metier == numero, cls.numero_terrain == numero)
 
     province = db.relationship('Province')
     responsable = db.relationship('Utilisateur', foreign_keys=[responsable_id])
