@@ -18,7 +18,8 @@
 <div class="carte carte-haut feu-{{ x.couleur }}">{{ poulet(x.couleur, taille=78) }}
   <div><div class="carte-jour">Jour {{ v.age }} · {{ x.code }}</div>
     <div class="carte-phrase">{{ x.phrase }}</div>
-    <div class="carte-sous"><span class="num">{{ v.effectif_present|qte }}</span> poulets présents</div></div>
+    <div class="carte-sous"><span class="num">{{ v.effectif_present|qte }}</span> poulets présents</div>
+    {% if x.oeufs %}<div class="carte-sous" data-ponte>🥚 {% if x.oeufs.taux is not none %}taux de ponte {{ x.oeufs.taux|qte }} % · {% endif %}{{ x.oeufs.plateaux }} plateau{{ 'x' if x.oeufs.plateaux != 1 }} en stock{% if x.oeufs.chute %} · <strong>chute de ponte −{{ x.oeufs.chute }} %</strong>{% endif %}</div>{% endif %}</div>
 </div>
 {% if x.raison == 'mortalite' %}
 <div class="conseil" style="margin-bottom:10px"><strong>{{ v.morts_jour|qte }} morts {{ "aujourd'hui" if v.jour_considere == today else 'hier' }}</strong>

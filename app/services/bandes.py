@@ -204,7 +204,7 @@ def _controle_jour(bande, jour, user):
         raise RegleBande('Ce jour est trop ancien : demandez à votre agent de le saisir.')
 
 
-def saisir(bande, jour, morts, aliments, user, ajouter=False):
+def saisir(bande, jour, morts, aliments, user, ajouter=False, oeufs=None, casses=None):
     """`aliments` : {produit: sacs}. Renvoie (saisie, avertissements).
     Lève RegleBande, ou DejaEnvoye si une saisie existe déjà ce jour-là."""
     _controle_jour(bande, jour, user)
@@ -226,6 +226,11 @@ def saisir(bande, jour, morts, aliments, user, ajouter=False):
     if existante is None:
         db.session.add(s)
     s.morts += morts
+    if bande.ponte:                                            # lot F : œufs ramassés / cassés (None = rien de noté)
+        if oeufs is not None:
+            s.oeufs_ramasses = (s.oeufs_ramasses or 0) + oeufs if ajouter else oeufs
+        if casses is not None:
+            s.oeufs_casses = (s.oeufs_casses or 0) + casses if ajouter else casses
     for produit, sacs in aliments.items():
         if not sacs:
             continue

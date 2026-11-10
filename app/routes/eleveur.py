@@ -119,7 +119,15 @@ def accueil(user):
     from app.services import visites
     visite = visites.prochaine([f.id for f in fermes])
     rouges = [s for s in sit if s['couleur'] == 'rouge']
-    return {'fermes': fermes, 'situation': sit, 'pire': pire, 'etat': etat, 'tuiles': tuiles,
+    from app.services import oeufs as services_oeufs                 # lot F : tuile des œufs si une bande pond
+    pontes = services_oeufs.bandes_de_ponte(fermes)
+    oeufs = None
+    if pontes:
+        sit_o = services_oeufs.situation(pontes[0])
+        oeufs = {'cle': 'oeufs', 'ico': '🥚', 'nom': 'Mes œufs', 'lien': url_for('eleveur.oeufs'),
+                 'sous': f"{sit_o['plateaux']} plateau{'x' if sit_o['plateaux'] != 1 else ''} en stock" + (f" · ponte {sit_o['taux']:g} %" if sit_o['taux'] is not None else ''),
+                 'pastille': '⚠️' if sit_o['chute'] else None, 'pastille_classe': 'rouge' if sit_o['chute'] else ''}
+    return {'fermes': fermes, 'situation': sit, 'pire': pire, 'etat': etat, 'tuiles': tuiles, 'oeufs': oeufs,
             'reponse_veto': bool(reponses),
             'visite': {'qui': visite.agent.prenom or visite.agent.nom, 'quand': visites.quand(visite.date_prevue),
                        'objet': visite.objet} if visite else None,
@@ -540,3 +548,40 @@ def recu(numero):
     if chemin is None:
         abort(404)
     return send_file(chemin)
+
+
+# ── Lot F : œufs d'une bande de ponte ────────────────────────────────────
+
+@eleveur_bp.route('/oeufs')
+@profil_requis(Profil.ELEVEUR, Profil.AGENT)
+def oeufs():
+    """🥚 Mes œufs : stock en plateaux, taux de ponte, ventes (fiches du lot A1), « ＋ J'ai vendu des œufs », réforme."""
+    from app.services import oeufs as regles_oeufs
+    fermes = _fermes() if current_user.profil == Profil.ELEVEUR else \
+        filtre_perimetre(Ferme.query).filter(Ferme.du_numero(request.args.get('ferme') or '')).all()
+    pontes = regles_oeufs.bandes_de_ponte(fermes)
+    if not pontes:
+        return _sans_bande('🥚 Mes œufs') if current_user.profil == Profil.ELEVEUR else abort(404)
+    bande = next((b for b in pontes if b.numero == request.args.get('bande')), pontes[0])
+    sit = regles_oeufs.situation(bande)
+    return render_template('eleveur/oeufs.html', bande=bande, pontes=pontes, s=sit, par_plateau=regles_oeufs.par_plateau(),
+                           bandeau=session.pop('vente_oeufs', None))
+
+
+@eleveur_bp.route('/oeufs/<numero>/vendre', methods=['POST'])
+@profil_requis(Profil.ELEVEUR, Profil.AGENT)
+def vendre_oeufs(numero):
+    from app.services import oeufs as regles_oeufs
+    bande = filtre_perimetre(Bande.query).filter(Bande.numero_metier == numero).first_or_404()
+    f = request.form
+    try:
+        jour = date.fromisoformat(f.get('jour')) if f.get('jour') else date.today()
+        montant = f.get('montant', '').replace(' ', '').replace(',', '.')
+        v = regles_oeufs.vendre(bande, jour, int(f.get('plateaux') or 0), int(f.get('oeufs') or 0),
+                                int(float(montant)) if montant else None, f.get('acheteur'), current_user)
+        db.session.commit()
+        session['vente_oeufs'] = {'numero': v.numero, 'oeufs': v.oeufs, 'montant': v.montant_fcfa}
+    except (regles_oeufs.RegleOeufs, ValueError) as e:
+        db.session.rollback()
+        flash(str(e) if str(e) else 'Saisie invalide.', 'danger')
+    return redirect(url_for('eleveur.oeufs', bande=bande.numero))

@@ -1,0 +1,64 @@
+{% extends '_base.html' %}
+{% import '_fiches.html' as fiches %}
+{% block aide %}oeufs{% endblock %}
+{% block titre %}Mes œufs{% endblock %}
+{% block icone %}egg{% endblock %}
+{% block page_titre %}🥚 Mes œufs{% endblock %}
+{% block page_sous_titre %}Bande {{ bande.batiment.code }} · {{ bande.numero }}{% endblock %}
+{% block contenu %}
+{# Lot F : stock en plateaux, taux de ponte, ventes ; « ＋ J'ai vendu des œufs » en feuille (hors ligne) ; réforme = clôture. #}
+{% if bandeau %}<div class="flash-item success">Enregistré ✓ — vente de {{ bandeau.oeufs }} œufs{% if bandeau.montant %} · {{ bandeau.montant|qte }} FCFA{% endif %}</div>{% endif %}
+{% if pontes|length > 1 %}
+<nav class="pastilles-bat" aria-label="Choisir la bande">
+  {% for b in pontes %}<a class="pastille-bat{{ ' active' if b.id == bande.id }}" href="{{ url_for('eleveur.oeufs', bande=b.numero) }}">{{ b.batiment.code }}</a>{% endfor %}
+</nav>
+{% endif %}
+<div class="chiffres-argent" data-stock-oeufs>
+  <div class="chiffre-argent gagne"><small>🥚 En stock</small><span class="num">{{ s.plateaux }}</span><small>plateau{{ 'x' if s.plateaux != 1 }}{% if s.reste %} + {{ s.reste }} œuf{{ 's' if s.reste > 1 }}{% endif %}</small></div>
+  <div class="chiffre-argent"><small>Ponte aujourd'hui</small><span class="num">{{ (s.taux|qte ~ ' %') if s.taux is not none else '—' }}</span></div>
+  <div class="chiffre-argent{{ ' negatif' if s.chute }}"><small>Ponte 7 jours</small><span class="num">{{ (s.taux_7j|qte ~ ' %') if s.taux_7j is not none else '—' }}</span></div>
+</div>
+{% if s.chute %}<div class="encadre-orange" data-chute-ponte>⚠️ <strong>Chute de ponte : −{{ s.chute }} %</strong> sur 7 jours. Votre agent est prévenu. Vérifiez l'eau, l'aliment, la lumière et la santé des poules.</div>{% endif %}
+<div class="carte-sous centre">{{ s.stock|qte }} œufs en stock · un plateau = {{ par_plateau }} œufs</div>
+
+<button type="button" class="btn-gros btn-vert mb-2" data-ouvrir="fen-vente-oeufs" data-vendre-oeufs>＋ J'ai vendu des œufs</button>
+{% call fiches.fenetre('fen-vente-oeufs', '🥚 Vente d\'œufs', ouverte=False) %}
+<form method="post" action="{{ url_for('eleveur.vendre_oeufs', numero=bande.numero) }}" class="form-terrain" novalidate
+      data-hors-ligne="Vente d'œufs · {{ bande.batiment.code }}" data-retour-garde="{{ url_for('eleveur.oeufs') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="compteur"><div class="compteur-libelle">Plateaux vendus</div>
+    <div class="compteur-boutons"><button type="button" class="compteur-moins" aria-label="Moins">−</button>
+      <input type="number" name="plateaux" value="0" min="0" inputmode="numeric" class="compteur-valeur"><button type="button" class="compteur-plus" aria-label="Plus">+</button></div></div>
+  <div class="compteur"><div class="compteur-libelle">Œufs à l'unité</div>
+    <div class="compteur-boutons"><button type="button" class="compteur-moins" aria-label="Moins">−</button>
+      <input type="number" name="oeufs" value="0" min="0" max="{{ par_plateau - 1 }}" inputmode="numeric" class="compteur-valeur"><button type="button" class="compteur-plus" aria-label="Plus">+</button></div></div>
+  <div class="form-group"><label class="form-label" for="vo-montant">Prix total (FCFA)</label>
+    <input class="form-control champ-gros" id="vo-montant" name="montant" inputmode="numeric" placeholder="—"></div>
+  <div class="form-group"><label class="form-label" for="vo-acheteur">À qui ? <span class="form-hint">facultatif</span></label>
+    <input class="form-control" id="vo-acheteur" name="acheteur" maxlength="150"></div>
+  <div class="form-group"><label class="form-label" for="vo-jour">Quel jour ?</label>
+    <input class="form-control" id="vo-jour" name="jour" type="date" value="{{ today.isoformat() }}" max="{{ today.isoformat() }}"></div>
+  <button type="submit" class="btn-gros btn-vert">Enregistrer la vente</button>
+</form>
+{% endcall %}
+
+{% if s.ventes %}
+{% set infos = fiches_infos(s.ventes) %}
+<section class="carte" data-liste="ventes-oeufs">
+  <h2 class="sorties-titre">Mes ventes d'œufs</h2>
+  <ul class="liste-fiches">
+    {% for v in s.ventes %}{% set i = infos[v.id] %}
+    <li>{% call fiches.ligne(i, request.path) %}🥚 <strong>{{ v.oeufs|qte }} œufs</strong>{% if v.acheteur %} · {{ v.acheteur }}{% endif %}
+      <small>{{ v.date.strftime('%d/%m') }} · {{ (v.montant_fcfa|qte ~ ' FCFA') if v.montant_fcfa else 'prix non noté' }}</small>{% endcall %}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{{ fiches.voir_archivees('vente_oeufs', nombre_archivees('vente_oeufs', bande=bande), request.path, bande=bande.numero) }}
+
+<div class="carte mt-2" data-reforme>
+  <div class="carte-titre">Fin de la bande</div>
+  <div class="carte-sous">Quand les poules ne pondent plus assez, la bande est réformée : elle se clôture avec le motif « Réforme » depuis sa fiche.</div>
+  <a class="btn-gros-secondaire mt-2" href="{{ url_for('bandes.fiche', numero=bande.numero) }}#cloturer">Réformer la bande</a>
+</div>
+{% endblock %}

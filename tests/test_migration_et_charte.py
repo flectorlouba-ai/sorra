@@ -28,7 +28,7 @@ def test_migration_sur_base_vide(tmp_path, monkeypatch):
     c = sqlite3.connect(base)
     codes = [r[0] for r in c.execute('select code from province order by ordre')]
     assert codes == ['EST', 'HOG', 'MOG', 'NGO', 'NYA', 'OGI', 'OGL', 'OGM', 'WNT']
-    assert c.execute('select count(*) from parametre').fetchone()[0] == 62   # lot G/K4 : 3 (fiscalité) ; lot T : 2 (notifications) ; lot E-b : gps.doublon_m ; lot E : 3 (gps) ; lot A3 : 5 (production, ponte) ; lot 19 ter : contact.telephone_dge ; lot 19 : 8 (réception) ; barème du classement : 6 ; lot 18 : 6 ; (lot 17 : aucun nouveau) lot 15 : profils_2fa, delai_rouge_heures ; lot 16 : seuil_ecart_stock_pct
+    assert c.execute('select count(*) from parametre').fetchone()[0] == 64   # lot F : 2 (ponte) ; lot G/K4 : 3 (fiscalité) ; lot T : 2 (notifications) ; lot E-b : gps.doublon_m ; lot E : 3 (gps) ; lot A3 : 5 (production, ponte) ; lot 19 ter : contact.telephone_dge ; lot 19 : 8 (réception) ; barème du classement : 6 ; lot 18 : 6 ; (lot 17 : aucun nouveau) lot 15 : profils_2fa, delai_rouge_heures ; lot 16 : seuil_ecart_stock_pct
     c.execute("insert into journal_audit (horodatage, action) values ('2026-01-01', 'EXPORT')")
     c.commit()
     for ordre in ("update journal_audit set action='X'", 'delete from journal_audit'):

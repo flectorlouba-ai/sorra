@@ -145,6 +145,8 @@ class SaisieJour(ArchivableMixin, SaisieTerrainMixin, db.Model):
     bande_id        = db.Column(db.Uuid, db.ForeignKey('bande.id'), nullable=False, index=True)
     date            = db.Column(db.Date, nullable=False)
     morts           = db.Column(db.Integer, nullable=False, default=0)
+    oeufs_ramasses  = db.Column(db.Integer, nullable=True)      # lot F : bande de ponte (None = rien de noté)
+    oeufs_casses    = db.Column(db.Integer, nullable=True)
     saisi_par_agent = db.Column(db.Boolean, nullable=False, default=False)
     a_verifier      = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())  # lot 12
 

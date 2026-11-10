@@ -11,7 +11,8 @@ from app.services.journal import enregistrer, Action
 SENSIBLES = ('bandes.seuil_', 'bandes.ecart_courbe', 'bandes.courbe_poids', 'intrants.seuil_', 'sante.',
              'verifications.', 'classement.', 'securite.profils_2fa', 'stock.seuil_', 'reception.',
              'production.poids_', 'production.rendement_', 'production.objectif_',   # lot A3
-             'fiscalite.')   # lot G / K4 : seuils fiscaux estimés
+             'fiscalite.',   # lot G / K4 : seuils fiscaux estimés
+             'ponte.chute_pct')   # lot F : chute de ponte
 SANITAIRES = ('sante.', 'bandes.seuil_', 'bandes.ecart_courbe', 'bandes.courbe_poids', 'reception.')
 
 

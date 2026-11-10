@@ -53,6 +53,7 @@
     {% for t in e.tuiles %}
     {{ tuile(t) }}
     {% endfor %}
+    {% if e.oeufs %}{{ tuile(e.oeufs, 'tuile-large') }}{% endif %}
     {% set t = e.entretien %}
     <a class="tuile tuile-large" href="{{ t.lien }}" data-tuile="{{ t.cle }}">
       {% if t.pastille %}<span class="pastille {{ t.pastille_classe or '' }}">{{ t.pastille|qte }}</span>{% endif %}
