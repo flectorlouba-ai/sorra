@@ -831,14 +831,4 @@ a.desactive{opacity:.45;pointer-events:none;}
 .theme-terrain .btn-login-code{width:100%;min-height:54px;border-radius:16px;border:2px solid var(--e-bleu);background:var(--e-blanc);color:var(--e-bleu-fonce);font:inherit;font-weight:900;font-size:1.05rem;margin-top:10px;}
 
 /* ── Lot L (retouche) : les comptes de démonstration visibles sans défiler — panneau à côté de la carte sur grand écran ── */
-.page-connexion .login-scene{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;align-items:flex-start;width:100%;max-width:960px;}
-.page-connexion .comptes-demo-panneau{margin-top:8px;width:100%;max-width:380px;}
-@media (min-width:900px){
-  .page-connexion .login-scene{flex-wrap:nowrap;}
-  .page-connexion .comptes-demo-panneau{margin-top:150px;max-width:420px;}
-  .page-connexion .comptes-demo-panneau .comptes-demo-titre{font-size:1rem;}
-}
-@media (max-height:700px) and (min-width:900px){
-  .page-connexion.theme-terrain .login-head-logo{width:64px;height:64px;}
-  .page-connexion .comptes-demo-panneau{margin-top:60px;}
 }
