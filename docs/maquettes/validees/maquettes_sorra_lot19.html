@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SORRA — Maquettes lot 19 : opérateur et traçabilité aval</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Space Grotesk","Segoe UI",Arial,sans-serif;background:#eef4ff;color:#0c2461}
+.kente{height:8px;background:repeating-linear-gradient(90deg,#0c2461 0 18px,#fff 18px 30px,#1241a8 30px 48px,#93c5fd 48px 60px)}
+.head{background:#0c2461;color:#fff;padding:12px 20px}
+.head h1{margin:0;font-size:19px}.head p{margin:4px 0 0;font-size:12px;color:#93c5fd}
+.tabs{background:#fff;display:flex;gap:4px;padding:0 14px;border-bottom:1px solid #dbe6fb;overflow-x:auto}
+.tab{padding:11px 12px;font-size:13px;color:#3b6fd4;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;font-weight:500}
+.tab.on{color:#0c2461;border-bottom-color:#1241a8;font-weight:700}
+.stage{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;padding:22px}
+.pane{display:none}.pane.on{display:flex}
+.cap{max-width:300px;font-size:13px;line-height:1.6;color:#334155;background:#fff;border-left:4px solid #1241a8;padding:12px 14px;border-radius:6px;align-self:flex-start}
+.cap b{color:#0c2461}
+/* téléphone pilotage */
+.ph{width:330px;border:10px solid #0c2461;border-radius:34px;background:#f0f5ff;overflow:hidden;box-shadow:0 8px 24px rgba(12,36,97,.2)}
+.ph .k{height:5px;background:repeating-linear-gradient(90deg,#0c2461 0 12px,#fff 12px 20px,#1241a8 20px 32px,#93c5fd 32px 40px)}
+.ph .bar{background:#0c2461;color:#fff;padding:9px 12px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700}
+.ph .bar .x{margin-left:auto;font-size:11px;color:#93c5fd;font-weight:500}
+.ph .demo{background:#fbbf24;color:#1a1100;font-size:10px;text-align:center;padding:2px;font-weight:700}
+.ph .c{padding:12px;min-height:540px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{height:100px;border-radius:12px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;font-weight:700;font-size:13px;box-shadow:0 3px 8px rgba(12,36,97,.18)}
+.tile i{font-size:24px;margin-bottom:6px}
+.t1{background:linear-gradient(135deg,#f59e0b,#ea6c0a);color:#1a1100;grid-column:span 2;height:110px;font-size:16px}
+.t2{background:linear-gradient(135deg,#1e3a8a,#071640)}.t3{background:linear-gradient(135deg,#1a56db,#1241a8)}
+.cnt{position:absolute;top:7px;right:8px;background:#fff;color:#0c2461;border-radius:10px;font-size:11px;padding:1px 7px}
+.box{background:#fff;border-radius:12px;padding:11px 12px;margin-top:10px;font-size:13px;box-shadow:0 2px 6px rgba(12,36,97,.08)}
+.box h4{margin:0 0 6px;font-size:13px;color:#1241a8}
+.li{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #eef2fb;font-size:12.5px}
+.li:last-child{border-bottom:none}
+.li small{display:block;color:#64748b;font-size:11px}
+.pill{font-size:10.5px;font-weight:700;border-radius:10px;padding:2px 8px;display:inline-block}
+.pr{background:#fee2e2;color:#991b1b}.po{background:#fef3c7;color:#7a4800}.pg{background:#dcfce7;color:#166534}.pb{background:#e0eaff;color:#1241a8}.pz{background:#f1f5f9;color:#475569}
+.cam{height:300px;border-radius:14px;background:#111827;position:relative;display:flex;align-items:center;justify-content:center}
+.frame{width:190px;height:190px;border:3px solid #fbbf24;border-radius:14px;position:relative}
+.frame:after{content:"";position:absolute;left:8px;right:8px;top:50%;height:2px;background:#ef4444;box-shadow:0 0 8px #ef4444}
+.qr{width:130px;height:130px;margin:27px auto;background:repeating-conic-gradient(#e5e7eb 0 25%,#111827 0 50%) 0 0/22px 22px;opacity:.85}
+.btn{display:block;width:100%;border:none;border-radius:10px;padding:11px;font-family:inherit;font-weight:700;font-size:14px;margin-top:9px;cursor:pointer}
+.bp{background:#1241a8;color:#fff}.bs{background:#e0eaff;color:#0c2461}.bg{background:#16a34a;color:#fff}.bd{background:#dc2626;color:#fff}.bo{background:#f59e0b;color:#1a1100}
+.ok{color:#16a34a}.ko{color:#dc2626}.wa{color:#d97706}
+.chk{font-size:12.5px;line-height:1.9}
+.inp{border:1px solid #c7d6f2;border-radius:8px;padding:8px 10px;font-size:15px;width:100%;font-family:inherit;background:#fbfdff;font-weight:700}
+.lab{font-size:11.5px;color:#475569;font-weight:600;margin:8px 0 3px}
+.cmpx{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;font-size:11px}
+.cmpx div{background:#f8fbff;border:1px solid #dbe6fb;border-radius:8px;padding:6px}
+.cmpx b{display:block;font-size:16px}
+.red{background:#fee2e2;border:2px solid #dc2626;border-radius:14px;padding:16px;text-align:center}
+.red i{font-size:40px;color:#dc2626}
+.orange{background:#fef3c7;border:2px solid #f59e0b;border-radius:14px;padding:14px;text-align:center}
+/* bureau */
+.desk{width:860px;max-width:100%;background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(12,36,97,.12);overflow:hidden}
+.desk .bar{background:#0c2461;color:#fff;padding:10px 16px;font-weight:700;display:flex;gap:10px;align-items:center}
+.desk .bar span{margin-left:auto;font-size:12px;color:#93c5fd;font-weight:500}
+.desk .c{padding:16px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpi{border:1px solid #dbe6fb;border-radius:10px;padding:10px 12px}
+.kpi b{font-size:24px;display:block}.kpi small{color:#64748b;font-size:11.5px}
+.kb{height:7px;border-radius:4px;background:#e2e8f0;margin-top:6px;overflow:hidden}.kb i{display:block;height:100%}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:12px}
+th{background:#f0f5ff;text-align:left;padding:7px;color:#1241a8;border-bottom:2px solid #dbe6fb}
+td{padding:7px;border-bottom:1px solid #eef2fb}
+/* éleveur */
+.el{width:330px;border:10px solid #1b2a5e;border-radius:34px;background:#fbf8f2;overflow:hidden;font-family:Nunito,sans-serif;color:#1b2a5e;box-shadow:0 8px 24px rgba(27,42,94,.2)}
+.el .t{background:#fff;padding:11px 14px;font-weight:800;border-bottom:1px solid #eee;display:flex;justify-content:space-between}
+.el .c{padding:14px;min-height:540px}
+.card{background:#fff;border:1px solid #ebe5d8;border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.card .big{font-size:20px;font-weight:800}
+.stepper{display:flex;gap:4px;align-items:center;font-size:11.5px;margin-top:8px;flex-wrap:wrap}
+.stepper span{background:#e7f6ee;color:#2fa36b;border-radius:10px;padding:3px 8px;font-weight:800}
+.stepper span.w{background:#f1f1f1;color:#8a8f9e}
+/* public */
+.pub{width:330px;border:10px solid #1b2a5e;border-radius:34px;background:#fbf8f2;overflow:hidden;font-family:Nunito,sans-serif;color:#1b2a5e}
+.tl{border-left:3px solid #2fa36b;margin-left:8px;padding-left:14px}
+.tl div{margin-bottom:12px;position:relative;font-size:13.5px}
+.tl div:before{content:"";position:absolute;left:-21px;top:4px;width:11px;height:11px;border-radius:50%;background:#2fa36b}
+.tl small{display:block;color:#6b7594}
+.q{max-width:1100px;margin:0 auto 30px;background:#fff;border-left:4px solid #f59e0b;padding:12px 16px;font-size:13px;line-height:1.7;font-family:"Segoe UI",Arial,sans-serif;color:#334155}
+</style>
+</head>
+<body>
+<div class="kente"></div>
+<div class="head"><h1>🐔 SORRA — Lot 19 : opérateur (abattoir) et traçabilité aval</h1><p>Fonctions 58, 63, 65, 66 du cahier des charges · charte YL.1 côté opérateur, « illustrée douce » côté éleveur et page publique</p></div>
+<div class="tabs" id="tabs"></div>
+
+<div class="stage">
+
+<!-- 1 accueil -->
+<div class="pane" data-t="1. Accueil opérateur">
+<div class="ph"><div class="k"></div><div class="demo">DÉMONSTRATION — données fictives</div><div class="bar">🐔 SORRA <span class="x">Abattoir d'Owendo · OPE-0003</span></div><div class="c">
+<div class="tiles"><div class="tile t1"><i class="bi bi-qr-code-scan"></i>Scanner un lot</div>
+<div class="tile t2"><i class="bi bi-truck"></i>Lots attendus<span class="cnt">2</span></div>
+<div class="tile t3"><i class="bi bi-inbox"></i>Mes réceptions</div></div>
+<div class="box"><h4><i class="bi bi-calendar-event"></i> Attendus cette semaine</h4>
+<div class="li"><div><b>EST-003-B4-S1</b><small>600 poulets · ferme EST-003 · sortie le 09/11</small></div><span class="pill pb">en route</span></div>
+<div class="li"><div><b>NGO-001-B2-S1</b><small>1 200 poulets · prévu le 12/11</small></div><span class="pill pz">annoncé</span></div></div>
+<div class="box"><h4><i class="bi bi-exclamation-triangle"></i> À traiter</h4><div class="li"><div>Réception EST-002-B5-S1 sous réserve<small>Attend l'avis du vétérinaire</small></div><span class="pill po">réserve</span></div></div>
+</div></div>
+<div class="cap"><b>Accueil de l'opérateur</b>, pensé pour le téléphone (on reçoit au quai, pas au bureau). Le scan est la grande tuile : <b>1 toucher</b>. « Lots attendus » = les sorties déclarées par les fermes vers cet abattoir, pas encore reçues. Un opérateur ne voit QUE les lots qui lui sont destinés.</div>
+</div>
+
+<!-- 2 scan -->
+<div class="pane" data-t="2. Scanner">
+<div class="ph"><div class="k"></div><div class="bar"><i class="bi bi-arrow-left"></i> Scanner un lot</div><div class="c">
+<div class="cam"><div class="frame"><div class="qr"></div></div></div>
+<div style="text-align:center;font-size:13px;margin-top:10px">Placez le QR de la caisse ou du bon de sortie dans le cadre.</div>
+<div class="lab">Le QR ne passe pas ? Tapez le numéro :</div><input class="inp" placeholder="EST-003-B4-S1">
+<button class="btn bs"><i class="bi bi-keyboard"></i> Chercher ce numéro</button>
+<div style="font-size:11px;color:#64748b;margin-top:8px"><i class="bi bi-journal-text"></i> Chaque scan est inscrit au journal, même refusé.</div>
+</div></div>
+<div class="cap"><b>Scan par la caméra</b> du téléphone (fonctionne grâce au HTTPS). <b>Saisie du numéro à la main</b> en secours : étiquette abîmée, caméra cassée. Le résultat s'affiche tout seul : vert (on peut recevoir), orange (réserve), rouge (refusé).</div>
+</div>
+
+<!-- 3 OK -->
+<div class="pane" data-t="3. Lot reconnu">
+<div class="ph"><div class="k"></div><div class="bar"><i class="bi bi-arrow-left"></i> Réception du lot</div><div class="c">
+<div class="box" style="margin-top:0;border-left:5px solid #16a34a"><div style="font-size:16px;font-weight:700"><i class="bi bi-check-circle-fill ok"></i> EST-003-B4-S1</div><div style="font-size:12px;color:#64748b">Ferme EST-003 (Estuaire) · bande B4 · J42 · sortie le 09/11 07:40</div></div>
+<div class="box"><h4>Contrôles automatiques</h4><div class="chk">
+<i class="bi bi-check-lg ok"></i> QR connu, jamais reçu<br>
+<i class="bi bi-check-lg ok"></i> Destiné à cet abattoir<br>
+<i class="bi bi-check-lg ok"></i> Vaccins obligatoires faits (Newcastle, Gumboro)<br>
+<i class="bi bi-check-lg ok"></i> Aucun traitement en délai d'attente<br>
+<i class="bi bi-check-lg ok"></i> Bande non bloquée par le vétérinaire<br>
+<i class="bi bi-check-lg ok"></i> Pesée de moins de 7 jours</div></div>
+<div class="box"><h4>Ce que vous recevez</h4>
+<div class="lab">Poulets vivants reçus</div><input class="inp" value="598">
+<div class="lab">Morts à l'arrivée</div><input class="inp" value="2">
+<div class="lab">Poids total (kg)</div><input class="inp" value="1 226">
+<button class="btn bg"><i class="bi bi-check2"></i> Valider la réception</button></div>
+</div></div>
+<div class="cap"><b>Les « événements vérifiables » (fonction 63)</b> sont contrôlés automatiquement, l'opérateur n'a rien à chercher. Il saisit seulement <b>3 chiffres</b> : vivants, morts à l'arrivée, poids. Champs vides au départ (règle « case vide ≠ zéro »), « 0 » doit être tapé.<br><br>Liste des contrôles : <b>à valider par les vétérinaires</b> (réglable, quatre yeux).</div>
+</div>
+
+<!-- 4 écart -->
+<div class="pane" data-t="4. Écart à la réception">
+<div class="ph"><div class="k"></div><div class="bar"><i class="bi bi-arrow-left"></i> Réception du lot</div><div class="c">
+<div class="cmpx"><div>Annoncé<b>600</b>poulets</div><div>Reçu<b>585</b>vivants</div><div style="border-color:#f59e0b;background:#fffbeb">Morts arrivée<b class="wa">15</b>2,5 %</div></div>
+<div class="orange" style="margin-top:12px"><i class="bi bi-exclamation-triangle-fill" style="font-size:30px;color:#d97706"></i><div style="font-weight:700;margin-top:4px">Écart de 15 poulets</div><div style="font-size:12.5px">Morts à l'arrivée : 2,5 % (seuil 2 %)</div></div>
+<div class="lab">Explication (obligatoire)</div><input class="inp" style="font-weight:500;font-size:13px" value="Camion bloqué 3 h au péage, forte chaleur">
+<button class="btn bo"><i class="bi bi-check2"></i> Valider avec l'écart</button>
+<div style="font-size:11.5px;color:#64748b;margin-top:10px">Prévenus automatiquement : l'agent de la ferme, le vétérinaire de la zone (au-delà du seuil), la DGE (arbitrages). L'écart n'est jamais corrigé en silence.</div>
+</div></div>
+<div class="cap"><b>Contrôle des écarts (fonction 58).</b> Écart de nombre ou morts à l'arrivée au-delà du seuil (2 %, déjà noté à faire valider) : la réception reste possible mais <b>avec une explication obligatoire</b>, et l'écart remonte. Les chiffres de la ferme ne sont <b>jamais modifiés</b> : on garde « annoncé » et « reçu » côte à côte, comme la règle des conflits du lot 12.</div>
+</div>
+
+<!-- 5 refusé -->
+<div class="pane" data-t="5. QR refusé">
+<div class="ph"><div class="k"></div><div class="bar"><i class="bi bi-arrow-left"></i> Scanner un lot</div><div class="c">
+<div class="red"><i class="bi bi-x-octagon-fill"></i><div style="font-size:17px;font-weight:700;margin-top:6px">Lot refusé</div><div style="font-size:13.5px;margin-top:4px">Ce lot a <b>déjà été reçu</b> le 07/11 à 10:12 par l'Abattoir d'Owendo.</div></div>
+<div class="box"><h4>Les autres refus possibles</h4><div class="chk" style="line-height:1.7">
+<i class="bi bi-x-lg ko"></i> QR inconnu (n'existe pas dans SORRA)<br>
+<i class="bi bi-x-lg ko"></i> Lot clos ou annulé<br>
+<i class="bi bi-x-lg ko"></i> Lot destiné à un autre opérateur<br>
+<i class="bi bi-x-lg ko"></i> ⛔ Ventes bloquées par le vétérinaire</div></div>
+<button class="btn bd"><i class="bi bi-telephone"></i> Appeler l'agent de la ferme</button>
+<button class="btn bs">Scanner un autre lot</button>
+<div style="font-size:11px;color:#64748b;margin-top:8px"><i class="bi bi-journal-text"></i> Scan refusé inscrit au journal (qui, quand, quel QR, pourquoi). 3 refus du même QR → alerte DGE.</div>
+</div></div>
+<div class="cap"><b>Unicité et non-réutilisation (fonction 65).</b> Un QR ne peut être reçu qu'une fois. Le message dit <b>pourquoi</b> en clair, et propose quoi faire. Un QR présenté plusieurs fois après refus = tentative possible de fraude → alerte DGE.</div>
+</div>
+
+<!-- 6 réserve -->
+<div class="pane" data-t="6. Événement manquant">
+<div class="ph"><div class="k"></div><div class="bar"><i class="bi bi-arrow-left"></i> Réception du lot</div><div class="c">
+<div class="box" style="margin-top:0;border-left:5px solid #f59e0b"><div style="font-size:16px;font-weight:700"><i class="bi bi-exclamation-circle-fill wa"></i> EST-002-B5-S1</div><div style="font-size:12px;color:#64748b">Ferme EST-002 · 600 poulets</div></div>
+<div class="box"><h4>Contrôles automatiques</h4><div class="chk">
+<i class="bi bi-check-lg ok"></i> QR connu, jamais reçu<br>
+<i class="bi bi-check-lg ok"></i> Destiné à cet abattoir<br>
+<i class="bi bi-x-lg ko"></i> <b>Traitement en délai d'attente</b> : amprolium, fin du délai le 12/11<br>
+<i class="bi bi-check-lg ok"></i> Bande non bloquée</div></div>
+<div class="orange"><div style="font-weight:700">Réception sous réserve</div><div style="font-size:12.5px;margin-top:4px">Vous pouvez décharger, mais <b>le lot ne peut pas être abattu</b> avant l'avis du vétérinaire.</div></div>
+<button class="btn bo">Recevoir sous réserve</button>
+<button class="btn bs">Refuser le lot</button>
+</div></div>
+<div class="cap"><b>Lot non validable (fonction 63).</b> Les camions arrivent quand même : on ne peut pas laisser des poulets vivants sur le quai. Deux choix : <b>recevoir sous réserve</b> (le lot est bloqué jusqu'à l'avis du vétérinaire, qui le libère ou le refuse) ou <b>refuser</b>. Le lot n'est « validé » que quand tous les contrôles sont verts.</div>
+</div>
+
+<!-- 7 indicateurs -->
+<div class="pane" data-t="7. Indicateurs de traçabilité (DGE)">
+<div class="desk"><div class="bar"><i class="bi bi-diagram-3"></i> Indicateurs de traçabilité <span>National · octobre 2026</span></div><div class="c">
+<div class="kpis">
+<div class="kpi"><b>91 %</b><small>lots sortis avec QR</small><div class="kb"><i style="width:91%;background:#16a34a"></i></div></div>
+<div class="kpi"><b>78 %</b><small>ventes rattachées à un lot</small><div class="kb"><i style="width:78%;background:#f59e0b"></i></div></div>
+<div class="kpi"><b>64 %</b><small>lots reçus et scannés par l'aval</small><div class="kb"><i style="width:64%;background:#f59e0b"></i></div></div>
+<div class="kpi"><b>2,1 %</b><small>écart moyen à la réception</small><div class="kb"><i style="width:21%;background:#1241a8"></i></div></div></div>
+<table><tr><th>Province</th><th>Lots sortis</th><th>Avec QR</th><th>Reçus et scannés</th><th>Écarts &gt; seuil</th><th>Refus de scan</th></tr>
+<tr><td>Estuaire</td><td>48</td><td>47 (98 %)</td><td>39 (81 %)</td><td>2</td><td>1</td></tr>
+<tr><td>Woleu-Ntem</td><td>22</td><td>19 (86 %)</td><td>10 (45 %)</td><td>1</td><td>0</td></tr>
+<tr><td>Haut-Ogooué</td><td>17</td><td>15 (88 %)</td><td>9 (53 %)</td><td>0</td><td><span class="pill pr">3</span></td></tr>
+<tr><td colspan="6" style="color:#64748b">… 6 autres provinces</td></tr></table>
+<div style="font-size:12px;color:#64748b;margin-top:10px">« Reçus et scannés » dépend de l'adhésion des abattoirs : c'est l'indicateur qui montrera l'intégration de l'aval (fonction 67, évolutive). Dans le rapport mensuel automatique (lot 18).</div>
+</div></div>
+<div class="cap"><b>Fonction 66.</b> 4 chiffres clés et un tableau par province, dans la tuile « Tableau de bord » de la DGE (pas de nouvelle tuile) et dans le rapport mensuel. Les mêmes chiffres agrégés serviront au MAEDR (lot 20).</div>
+</div>
+
+<!-- 8 journal scans -->
+<div class="pane" data-t="8. Journal des scans">
+<div class="desk"><div class="bar"><i class="bi bi-journal-text"></i> Journal des scans <span>ADMIN · AUDITEUR · DGE</span></div><div class="c">
+<table><tr><th>Date</th><th>Opérateur</th><th>QR / numéro</th><th>Résultat</th><th>Motif</th></tr>
+<tr><td>09/11 10:41</td><td>Abattoir d'Owendo</td><td>EST-003-B4-S1</td><td><span class="pill pg">reçu</span></td><td>598 vivants, 2 morts</td></tr>
+<tr><td>09/11 09:12</td><td>Abattoir de Franceville</td><td>HO-006-B1-S2</td><td><span class="pill pr">refusé</span></td><td>déjà reçu le 07/11</td></tr>
+<tr><td>09/11 09:10</td><td>Abattoir de Franceville</td><td>HO-006-B1-S2</td><td><span class="pill pr">refusé</span></td><td>déjà reçu le 07/11</td></tr>
+<tr><td>09/11 09:05</td><td>Abattoir de Franceville</td><td>HO-006-B1-S2</td><td><span class="pill pr">refusé</span></td><td>déjà reçu · <b>alerte DGE</b></td></tr>
+<tr><td>08/11 16:20</td><td>Abattoir d'Owendo</td><td>EST-002-B5-S1</td><td><span class="pill po">sous réserve</span></td><td>délai d'attente traitement</td></tr>
+<tr><td>08/11 11:02</td><td>Marché Mont-Bouët</td><td>XXX-998</td><td><span class="pill pr">refusé</span></td><td>QR inconnu</td></tr></table>
+<div style="margin-top:10px;font-size:12px"><i class="bi bi-download"></i> Export (inscrit au journal des exports) · filtres : opérateur, résultat, période</div>
+</div></div>
+<div class="cap">Chaque scan, accepté ou refusé, est tracé. C'est la preuve de traçabilité pour l'audit, et la détection des fraudes (même QR présenté plusieurs fois).</div>
+</div>
+
+<!-- 9 éleveur -->
+<div class="pane" data-t="9. Côté éleveur">
+<div class="el"><div class="t"><span>🐔 Ventes et sorties</span><span>?</span></div><div class="c">
+<div class="card"><div style="font-size:13px;color:#6b7594">Sortie du 09/11 · Bâtiment 1</div><div class="big">600 poulets → Abattoir d'Owendo</div>
+<div class="stepper"><span>✓ Partis</span>›<span>✓ Reçus par l'abattoir</span></div>
+<div style="font-size:13px;margin-top:8px">L'abattoir a compté <b>598 vivants</b> et 2 morts au transport.</div></div>
+<div class="card"><div style="font-size:13px;color:#6b7594">Sortie du 08/11 · Bâtiment 2</div><div class="big">600 poulets → Abattoir d'Owendo</div>
+<div class="stepper"><span>✓ Partis</span>›<span class="w">◷ En attente du vétérinaire</span></div>
+<div style="font-size:13px;margin-top:8px">L'abattoir attend l'avis du vétérinaire (médicament donné il y a peu).</div></div>
+<div class="card"><div style="font-size:13px;color:#6b7594">Sortie du 05/11</div><div class="big">150 poulets → Marché Akébé</div><div class="stepper"><span>✓ Partis</span></div></div>
+</div></div>
+<div class="cap"><b>L'éleveur voit simplement si ses poulets sont arrivés</b> : « ✓ Reçus par l'abattoir » et le nombre compté. Jamais de mot technique (« réception sous réserve », « événement vérifiable »). Pas de nouvelle tuile, pas de clic en plus : c'est dans l'écran Ventes et sorties existant.</div>
+</div>
+
+<!-- 10 public -->
+<div class="pane" data-t="10. Page publique du QR">
+<div class="pub"><div class="t" style="background:#fff;padding:11px 14px;font-weight:800;border-bottom:1px solid #eee">🐔 SORRA · Origine du produit</div><div class="c" style="padding:16px">
+<div style="background:#e7f6ee;border-radius:14px;padding:12px;text-align:center;font-weight:800;color:#2fa36b">✓ Produit tracé de la ferme à l'abattoir</div>
+<div style="margin:14px 0 6px;font-weight:800">Son parcours</div>
+<div class="tl"><div>Poussins arrivés à la ferme<small>28/09 · Estuaire</small></div><div>Vaccinés (Newcastle, Gumboro)<small>Calendrier respecté</small></div><div>Élevés 42 jours<small>Suivi quotidien</small></div><div>Sortis de la ferme<small>09/11 · 600 poulets</small></div><div><b>Reçus à l'abattoir</b><small>09/11 · Abattoir d'Owendo · contrôle validé</small></div></div>
+<div style="font-size:11.5px;color:#6b7594;margin-top:8px">Aucune donnée personnelle de l'éleveur n'est affichée.</div>
+</div></div>
+<div class="cap">La page publique (déjà faite) gagne l'étape <b>« Reçus à l'abattoir »</b> quand le lot est reçu et validé. Toujours sans nom ni téléphone de l'éleveur.</div>
+</div>
+
+</div>
+
+<div class="q"><b>À trancher</b> — 1) <b>Réception sous réserve</b> quand un contrôle manque (écran 6) plutôt qu'un refus sec : d'accord ? · 2) Seuil des <b>morts à l'arrivée</b> : 2 % (déjà prévu, à faire valider par les vétérinaires) · 3) <b>Alerte DGE après 3 scans refusés</b> du même QR · 4) Les <b>marchés et acheteurs</b> (pas seulement les abattoirs) peuvent-ils aussi scanner ? Je propose oui, avec le même écran, sans les contrôles sanitaires bloquants.</div>
+
+<script>
+const panes=[...document.querySelectorAll(".pane")];const tabs=document.getElementById("tabs");
+panes.forEach((p,i)=>{const t=document.createElement("div");t.className="tab"+(i?"":" on");t.textContent=p.dataset.t;t.onclick=()=>{panes.forEach(x=>x.classList.remove("on"));document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));p.classList.add("on");t.classList.add("on")};tabs.appendChild(t)});
+panes[0].classList.add("on");
+</script>
+</body>
+</html>

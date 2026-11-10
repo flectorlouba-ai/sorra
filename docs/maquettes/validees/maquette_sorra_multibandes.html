@@ -1,0 +1,186 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SORRA — Plusieurs bandes</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap">
+<style>
+:root{
+  --nuit:#1b2a5e;--bleu:#2a7de1;--ciel:#e8f3ff;--soleil:#f7c948;--prairie:#2fa36b;
+  --bec:#f08a24;--crete:#e5484d;--creme:#fbf8f2;--gris:#6b7594;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#eef2f8;font-family:"Nunito","Segoe UI",sans-serif;color:var(--nuit);padding:20px}
+h1{font-family:"Nunito",sans-serif;font-weight:800;font-size:26px;margin:0}
+.intro{font-size:14px;margin:4px 0 16px;max-width:880px;color:#4a5578}
+.wrap{display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start}
+.ph{width:340px;border:9px solid #1f2430;border-radius:34px;overflow:hidden;background:var(--creme);flex:none;box-shadow:0 12px 30px rgba(27,42,94,.18)}
+.top{background:linear-gradient(160deg,#2a7de1,#1b4fae);padding:12px 16px 16px;position:relative}
+.top .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:20px;color:#fff;letter-spacing:.3px}
+.top .hi{font-weight:700;font-size:15px;color:#dceaff;margin-top:4px}
+.cloud{display:none}
+.in{padding:14px}
+.hero{background:#fff;border-radius:18px;padding:12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(27,42,94,.08);margin-bottom:12px;transition:background .3s;border:1px solid #edf0f6}
+.hero .t{font-weight:800;font-size:18px;line-height:1.15}
+.hero .s{font-weight:700;font-size:14px}
+.prog{background:#fff;border-radius:18px;padding:12px;margin-bottom:12px;box-shadow:0 2px 10px rgba(27,42,94,.08);border:1px solid #edf0f6}
+.bar{height:12px;background:#f3ead0;border-radius:8px;position:relative;margin:30px 6px 8px}
+.fill{height:100%;background:var(--soleil);border-radius:8px;width:51%}
+.runner{position:absolute;top:-30px;left:51%;transform:translateX(-50%)}
+.prog .lbl{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--gris)}
+.streak{display:inline-flex;align-items:center;gap:6px;background:#fff1e3;color:#b85c0a;border-radius:20px;padding:4px 10px;font-weight:800;font-size:13px}
+.todo{background:#fff8e1;border-radius:18px;padding:10px 12px;margin:0 0 12px;font-weight:800;border:1px solid #f5e3a8}
+.todo div{font-weight:600;font-size:14px;color:#6b5310}
+.cpt{background:#fff;border-radius:18px;padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;box-shadow:0 2px 10px rgba(27,42,94,.08);border:1px solid #edf0f6}
+.cpt .l{font-weight:700;font-size:15px}
+.cpt .l small{display:block;font-weight:600;font-size:12px;color:var(--gris)}
+.ctl{margin-left:auto;display:flex;align-items:center;gap:10px}
+.rd{width:44px;height:44px;border-radius:50%;font-weight:800;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:transform .08s}
+.rd:active{transform:scale(.92)}
+.mn{background:#eef2f8;color:var(--nuit)}
+.pl{background:var(--bleu);color:#fff;box-shadow:0 3px 8px rgba(42,125,225,.35)}
+.v{font-weight:800;font-size:28px;min-width:36px;text-align:center}
+.bounce{animation:bounce .25s}
+@keyframes bounce{0%{transform:scale(1)}40%{transform:scale(1.2)}100%{transform:scale(1)}}
+.send{width:100%;background:var(--prairie);color:#fff;font-family:"Nunito",sans-serif;font-weight:800;font-size:20px;border:none;border-radius:16px;padding:15px;box-shadow:0 6px 14px rgba(47,163,107,.35);cursor:pointer;transition:transform .08s}
+.send:active{transform:scale(.98)}
+.row2{display:flex;gap:10px;margin-top:12px}
+.sec{flex:1;background:#fff;border:1.5px solid #d8e2f2;border-radius:14px;padding:10px;text-align:center;font-weight:700;color:var(--bleu);cursor:pointer}
+.ok{position:absolute;inset:0;background:rgba(251,248,242,.96);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:5;text-align:center}
+.ok .big{font-weight:800;font-size:24px}
+.ok .sub{font-weight:700;font-size:15px;margin-top:4px;color:var(--gris)}
+.hop{animation:hop .45s ease-in-out 2}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.pop{animation:pop .4s ease-out}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+.conf{position:absolute;width:8px;height:8px;border-radius:50%;animation:spark 1s ease-out forwards}
+@keyframes spark{0%{transform:scale(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0}}
+.panel{flex:1;min-width:280px;max-width:520px}
+.card{background:#fff;border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:0 2px 10px rgba(27,42,94,.08)}
+.card h3{margin:0 0 8px;font-size:18px;font-weight:800}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btns button{font-family:"Nunito";font-weight:700;border:1.5px solid #d8e2f2;border-radius:12px;padding:8px 12px;cursor:pointer;background:#fff}
+.sw{display:flex;gap:8px;flex-wrap:wrap}
+.sw span{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
+.sw i{width:24px;height:24px;border-radius:7px;display:inline-block;border:1px solid rgba(0,0,0,.08)}
+.stars{font-size:32px;letter-spacing:4px}
+.stars b{color:var(--soleil)}
+.relative{position:relative}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+<style>
+.grid{display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start}
+.scr{width:340px}
+.scr h2{font-size:16px;font-weight:800;margin:0 0 3px}
+.scr p.c{font-size:13px;color:#4a5578;margin:0 0 10px;min-height:36px}
+.ph{width:320px}
+.ttl{font-weight:800;font-size:19px;margin:2px 0 10px}
+.lab{font-size:12px;color:var(--gris);font-weight:700;margin:6px 0 4px}
+.fld{background:#fff;border:1.5px solid #d8e2f2;border-radius:12px;padding:11px 12px;font-size:16px;font-weight:700;margin-bottom:8px}
+.choice{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.choice div{flex:1;min-width:70px;text-align:center;border:1.5px solid #d8e2f2;border-radius:14px;padding:10px 6px;background:#fff;font-size:13px;font-weight:700}
+.choice .on{border:2px solid var(--bleu);background:#e8f1ff;color:var(--bleu)}
+.picto{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.picto div{background:#fff;border:1.5px solid #d8e2f2;border-radius:14px;padding:8px 4px;text-align:center;font-size:11.5px;font-weight:700}
+.picto div span{display:block;font-size:24px}
+.picto .on{border:2px solid var(--crete);background:#fff0f0;color:#a12a2e}
+.photo{display:flex;gap:8px;margin-bottom:10px}
+.photo div{flex:1;height:70px;border-radius:12px;background:#e9edf5;display:flex;align-items:center;justify-content:center;font-size:24px}
+.photo .add{border:2px dashed #b9c5dc;background:#fff;color:var(--bleu);font-size:30px}
+.btn2{display:block;width:100%;border-radius:16px;padding:14px;text-align:center;font-weight:800;font-size:18px;color:#fff;margin-top:8px}
+.ghost{display:block;width:100%;border-radius:14px;padding:12px;text-align:center;font-weight:800;font-size:16px;color:var(--bleu);background:#fff;border:1.5px solid #d8e2f2;margin-top:8px}
+.toast{background:var(--nuit);color:#fff;border-radius:14px;padding:10px 12px;font-weight:700;font-size:14px;display:flex;align-items:center;margin-top:10px}
+.toast b{margin-left:auto;color:var(--soleil)}
+.hist div{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #eef1f6;font-weight:600}
+.small{font-size:12px;color:var(--gris);font-weight:600}
+.badge{display:inline-block;font-size:12px;font-weight:800;border-radius:12px;padding:3px 10px}
+.net{background:#fff4e5;color:#9a5a0b;border-radius:12px;padding:8px 10px;font-size:13px;font-weight:700;margin-bottom:10px}
+.login{background:linear-gradient(170deg,#2a7de1,#1b4fae);min-height:560px;padding:30px 20px;color:#fff;text-align:center}
+.login .fld{color:var(--nuit);text-align:left}
+</style>
+</head><style>
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.pill{flex:none;display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #d8e2f2;border-radius:22px;padding:6px 10px;font-weight:800;font-size:13px;cursor:pointer;position:relative}
+.pill.on{border:2px solid var(--bleu);background:#e8f1ff;color:var(--bleu)}
+.dot{width:12px;height:12px;border-radius:50%}
+.todo-dot{position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:var(--bec);border:2px solid #fff}
+.note2{max-width:860px;background:#fff;border-radius:14px;padding:12px 16px;font-size:14px;line-height:1.65;box-shadow:0 2px 10px rgba(27,42,94,.08)}
+</style></head><body><h1>SORRA — l'éleveur avec plusieurs bandes</h1>
+<div class="intro">Une bande par bâtiment, plusieurs bâtiments en même temps. Touchez les pastilles en haut du téléphone pour changer de bande. Le point orange signale une bande pas encore saisie aujourd'hui.</div>
+<div class="wrap"><div class="ph relative">
+<div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean ! 👋</div></div>
+<div class="in">
+ <div class="pills" id="pills"></div>
+ <div class="todo">📋 À faire aujourd'hui · toute la ferme
+  <div>B1 : ⚖️ peser 10 poulets</div><div>B2 : 💉 vaccin Gumboro</div><div>B2 : envoyer la saisie du jour</div></div>
+ <div id="view"></div>
+</div></div>
+<div class="note2"><b>Règles</b><br>
+• <b>Une bande par bâtiment</b> (« tout plein, tout vide ») ; un compartiment séparé = un bâtiment (B1-A, B1-B).<br>
+• <b>Pastilles en haut</b> : une par bâtiment, colorées selon le feu de sa bande (vert, orange, rouge, gris si vide). L'ordre : bandes à saisir d'abord.<br>
+• <b>Point orange</b> sur la pastille : la saisie du jour de cette bande n'est pas encore envoyée.<br>
+• <b>« À faire aujourd'hui » commun</b> à toute la ferme, chaque ligne préfixée par le bâtiment ; un toucher ouvre la bonne bande.<br>
+• <b>Saisies toujours séparées par bande</b> : morts, aliment, pesées, sorties, vaccins ne se mélangent jamais.<br>
+• Après « Envoyer », si une autre bande reste à saisir : « Bien reçu ! Il reste B2 à saisir → » au lieu du retour à l'accueil.<br>
+• Avec un seul bâtiment, les pastilles n'apparaissent pas : l'écran reste celui d'aujourd'hui.
+</div></div>
+<script>function chick(state){
+  const st=state||"vert";
+  const body = st==="rouge" ? "#fde7ea" : "#ffffff";
+  let eyes, mouth="", extra="";
+  if(st==="vert"){
+    eyes='<path d="M62 46 q5 -6 10 0" stroke="#2b3550" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M80 46 q5 -6 10 0" stroke="#2b3550" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+    extra='<circle cx="60" cy="58" r="5" fill="#ffb3c1" opacity=".8"/><circle cx="96" cy="58" r="5" fill="#ffb3c1" opacity=".8"/>';
+  }else if(st==="orange"){
+    eyes='<circle cx="67" cy="47" r="4.5" fill="#1b2a5e"/><circle cx="85" cy="47" r="4.5" fill="#1b2a5e"/><path d="M60 37 l12 4" stroke="#2b3550" stroke-width="2.5" stroke-linecap="round"/><path d="M92 37 l-12 4" stroke="#2b3550" stroke-width="2.5" stroke-linecap="round"/>';
+    extra='<path d="M104 30 q4 8 0 12 q-4 -4 0 -12z" fill="#9fd0ff" stroke="#2b3550" stroke-width="2"/>';
+  }else{
+    eyes='<path d="M62 43 l9 9 M71 43 l-9 9" stroke="#2b3550" stroke-width="2.5" stroke-linecap="round"/><path d="M80 43 l9 9 M89 43 l-9 9" stroke="#2b3550" stroke-width="2.5" stroke-linecap="round"/>';
+    extra='<rect x="96" y="58" width="8" height="26" rx="4" fill="#fff" stroke="#2b3550" stroke-width="3" transform="rotate(25 100 70)"/><circle cx="94" cy="83" r="5" fill="#e5484d" stroke="#2b3550" stroke-width="3"/>';
+  }
+  return `
+  <ellipse cx="62" cy="112" rx="34" ry="5" fill="#1b2a5e" opacity=".15"/>
+  <path d="M50 96 v12 M44 108 h12 M70 96 v12 M64 108 h12" stroke="#f08a24" stroke-width="5" stroke-linecap="round"/>
+  <path d="M22 70 q-10 -26 10 -30 q-4 14 8 18z" fill="${body}" stroke="#2b3550" stroke-width="2.5" stroke-linejoin="round"/>
+  <ellipse cx="62" cy="72" rx="38" ry="28" fill="${body}" stroke="#2b3550" stroke-width="2.5"/>
+  <path d="M44 72 q14 18 30 4 q-12 -2 -20 -14z" fill="#9fd0ff" stroke="#2b3550" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="76" cy="46" r="24" fill="${body}" stroke="#2b3550" stroke-width="2.5"/>
+  <path d="M64 24 q-2 -14 8 -10 q2 -10 10 -4 q8 -6 10 6 q-12 2 -28 8z" fill="#e5484d" stroke="#2b3550" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M96 48 l14 6 l-14 6z" fill="#f08a24" stroke="#2b3550" stroke-width="2.2" stroke-linejoin="round"/>
+  <path d="M94 62 q4 10 -2 14 q-6 -6 2 -14z" fill="#e5484d" stroke="#2b3550" stroke-width="3" />
+  ${eyes}${extra}`;
+}
+function chickSmall(){ /* poussin pour la barre */
+  return `<ellipse cx="60" cy="72" rx="32" ry="28" fill="#f7c948" stroke="#2b3550" stroke-width="3"/>
+  <circle cx="70" cy="44" r="22" fill="#f7c948" stroke="#2b3550" stroke-width="3"/>
+  <circle cx="76" cy="40" r="5" fill="#1b2a5e"/><path d="M90 46 l14 5 l-14 5z" fill="#f08a24" stroke="#2b3550" stroke-width="2.5"/>
+  <path d="M50 98 v12 M70 98 v12" stroke="#f08a24" stroke-width="3" stroke-linecap="round"/>`;
+}
+
+function poussin(){return `<ellipse cx="60" cy="72" rx="32" ry="28" fill="#f7c948" stroke="#2b3550" stroke-width="3"/><circle cx="70" cy="44" r="22" fill="#f7c948" stroke="#2b3550" stroke-width="3"/><circle cx="76" cy="40" r="5" fill="#2b3550"/><path d="M90 46 l14 5 l-14 5z" fill="#f08a24" stroke="#2b3550" stroke-width="2"/><path d="M50 98 v12 M70 98 v12" stroke="#f08a24" stroke-width="4" stroke-linecap="round"/>`}
+
+function poussin(){return `<ellipse cx="60" cy="72" rx="32" ry="28" fill="#f7c948" stroke="#2b3550" stroke-width="3"/><circle cx="70" cy="44" r="22" fill="#f7c948" stroke="#2b3550" stroke-width="3"/><circle cx="76" cy="40" r="5" fill="#2b3550"/><path d="M90 46 l14 5 l-14 5z" fill="#f08a24" stroke="#2b3550" stroke-width="2"/><path d="M50 98 v12 M70 98 v12" stroke="#f08a24" stroke-width="4" stroke-linecap="round"/>`}
+const B=[
+ {b:"B1",j:23,st:"vert",col:"#2fa36b",done:true,phr:"Vos poulets grossissent bien !",n:982,pct:51,food:"Croissance"},
+ {b:"B2",j:5,st:"orange",col:"#f08a24",done:false,phr:"Un peu plus de morts que d'habitude",n:1460,pct:11,food:"Démarrage"},
+ {b:"B3",j:0,st:"gris",col:"#b8c0d4",done:true,phr:"Vide sanitaire depuis 6 jours",n:0,pct:0,food:""}];
+let cur=1;
+function render(){
+ document.getElementById("pills").innerHTML=B.map((x,i)=>`<div class="pill ${i===cur?"on":""}" data-i="${i}"><span class="dot" style="background:${x.col}"></span>${x.b}${x.j?` · J${x.j}`:" · vide"}${x.done?"":'<span class="todo-dot"></span>'}</div>`).join("");
+ const x=B[cur];
+ let h;
+ if(x.st==="gris"){
+  h=`<div class="hero"><svg width="70" height="70" viewBox="0 0 120 120" data-chick="vert"></svg><div><div class="t">Bâtiment ${x.b}</div><div class="s" style="color:var(--gris)">${x.phr}</div></div></div>
+  <div class="hero" style="display:block"><b>Dernière bande (B3-04)</b><div class="stars"><b>★</b><b>★</b><b style="color:#ddd">★</b></div><div class="small">Mortalité 3,8 % · 2,1 kg par poulet</div></div>
+  <div class="ghost">🐣 Ouvrir une bande ici</div>`;
+ }else{
+  h=`<div class="hero"><svg width="70" height="70" viewBox="0 0 120 120" data-chick="${x.st}"></svg><div><div class="t">Jour ${x.j} · ${x.b}</div><div class="s" style="color:${x.col}">${x.phr}</div><div class="small">${x.n.toLocaleString("fr-FR")} poulets présents</div></div></div>
+  <div class="prog"><div style="display:flex;justify-content:space-between;align-items:center"><b>Votre bande grandit</b><span class="streak">🔥 ${x.j} jours</span></div>
+  <div class="bar"><div class="fill" style="width:${x.pct}%"></div><div class="runner" style="left:${Math.max(x.pct,4)}%"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="poussin"></svg></div></div>
+  <div class="lbl"><span>🐣 Jour 0</span><span>Jour 45</span></div></div>
+  <div class="cpt"><div class="l">Morts aujourd'hui</div><div class="ctl"><span class="rd mn">−</span><span class="v">${x.done?2:0}</span><span class="rd pl">+</span></div></div>
+  <div class="cpt"><div class="l">Sacs d'aliment<small>${x.food} · sac de 25 kg</small></div><div class="ctl"><span class="rd mn">−</span><span class="v">${x.done?3:2}</span><span class="rd pl">+</span></div></div>
+  ${x.done?'<div class="hero" style="display:block;text-align:center;color:var(--prairie);font-weight:800">✓ Saisie du jour envoyée</div>':'<button class="send">Envoyer ✓</button>'}
+  <div class="row2"><div class="sec">⚖️ Peser</div><div class="sec">🚚 Sortie</div></div>`;
+ }
+ document.getElementById("view").innerHTML=h;
+ document.querySelectorAll("[data-chick]").forEach(e=>{const s=e.dataset.chick;e.innerHTML=s==="poussin"?poussin():chick(s)});
+ document.querySelectorAll(".pill").forEach(p=>p.onclick=()=>{cur=+p.dataset.i;render()});
+}
+render();
+</script></body></html>

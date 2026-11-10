@@ -1,0 +1,230 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SORRA — Écrans de l'éleveur (version épurée)</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap">
+<style>
+:root{
+  --nuit:#1b2a5e;--bleu:#2a7de1;--ciel:#e8f3ff;--soleil:#f7c948;--prairie:#2fa36b;
+  --bec:#f08a24;--crete:#e5484d;--creme:#fbf8f2;--gris:#6b7594;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#eef2f8;font-family:"Nunito","Segoe UI",sans-serif;color:var(--nuit);padding:20px}
+h1{font-family:"Nunito",sans-serif;font-weight:800;font-size:26px;margin:0}
+.intro{font-size:14px;margin:4px 0 16px;max-width:880px;color:#4a5578}
+.wrap{display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start}
+.ph{width:340px;border:9px solid #1f2430;border-radius:34px;overflow:hidden;background:var(--creme);flex:none;box-shadow:0 12px 30px rgba(27,42,94,.18)}
+.top{background:linear-gradient(160deg,#2a7de1,#1b4fae);padding:12px 16px 16px;position:relative}
+.top .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:20px;color:#fff;letter-spacing:.3px}
+.top .hi{font-weight:700;font-size:15px;color:#dceaff;margin-top:4px}
+.cloud{display:none}
+.in{padding:14px}
+.hero{background:#fff;border-radius:18px;padding:12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(27,42,94,.08);margin-bottom:12px;transition:background .3s;border:1px solid #edf0f6}
+.hero .t{font-weight:800;font-size:18px;line-height:1.15}
+.hero .s{font-weight:700;font-size:14px}
+.prog{background:#fff;border-radius:18px;padding:12px;margin-bottom:12px;box-shadow:0 2px 10px rgba(27,42,94,.08);border:1px solid #edf0f6}
+.bar{height:12px;background:#f3ead0;border-radius:8px;position:relative;margin:30px 6px 8px}
+.fill{height:100%;background:var(--soleil);border-radius:8px;width:51%}
+.runner{position:absolute;top:-30px;left:51%;transform:translateX(-50%)}
+.prog .lbl{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--gris)}
+.streak{display:inline-flex;align-items:center;gap:6px;background:#fff1e3;color:#b85c0a;border-radius:20px;padding:4px 10px;font-weight:800;font-size:13px}
+.todo{background:#fff8e1;border-radius:18px;padding:10px 12px;margin:0 0 12px;font-weight:800;border:1px solid #f5e3a8}
+.todo div{font-weight:600;font-size:14px;color:#6b5310}
+.cpt{background:#fff;border-radius:18px;padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;box-shadow:0 2px 10px rgba(27,42,94,.08);border:1px solid #edf0f6}
+.cpt .l{font-weight:700;font-size:15px}
+.cpt .l small{display:block;font-weight:600;font-size:12px;color:var(--gris)}
+.ctl{margin-left:auto;display:flex;align-items:center;gap:10px}
+.rd{width:44px;height:44px;border-radius:50%;font-weight:800;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:transform .08s}
+.rd:active{transform:scale(.92)}
+.mn{background:#eef2f8;color:var(--nuit)}
+.pl{background:var(--bleu);color:#fff;box-shadow:0 3px 8px rgba(42,125,225,.35)}
+.v{font-weight:800;font-size:28px;min-width:36px;text-align:center}
+.bounce{animation:bounce .25s}
+@keyframes bounce{0%{transform:scale(1)}40%{transform:scale(1.2)}100%{transform:scale(1)}}
+.send{width:100%;background:var(--prairie);color:#fff;font-family:"Nunito",sans-serif;font-weight:800;font-size:20px;border:none;border-radius:16px;padding:15px;box-shadow:0 6px 14px rgba(47,163,107,.35);cursor:pointer;transition:transform .08s}
+.send:active{transform:scale(.98)}
+.row2{display:flex;gap:10px;margin-top:12px}
+.sec{flex:1;background:#fff;border:1.5px solid #d8e2f2;border-radius:14px;padding:10px;text-align:center;font-weight:700;color:var(--bleu);cursor:pointer}
+.ok{position:absolute;inset:0;background:rgba(251,248,242,.96);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:5;text-align:center}
+.ok .big{font-weight:800;font-size:24px}
+.ok .sub{font-weight:700;font-size:15px;margin-top:4px;color:var(--gris)}
+.hop{animation:hop .45s ease-in-out 2}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.pop{animation:pop .4s ease-out}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+.conf{position:absolute;width:8px;height:8px;border-radius:50%;animation:spark 1s ease-out forwards}
+@keyframes spark{0%{transform:scale(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0}}
+.panel{flex:1;min-width:280px;max-width:520px}
+.card{background:#fff;border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:0 2px 10px rgba(27,42,94,.08)}
+.card h3{margin:0 0 8px;font-size:18px;font-weight:800}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btns button{font-family:"Nunito";font-weight:700;border:1.5px solid #d8e2f2;border-radius:12px;padding:8px 12px;cursor:pointer;background:#fff}
+.sw{display:flex;gap:8px;flex-wrap:wrap}
+.sw span{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
+.sw i{width:24px;height:24px;border-radius:7px;display:inline-block;border:1px solid rgba(0,0,0,.08)}
+.stars{font-size:32px;letter-spacing:4px}
+.stars b{color:var(--soleil)}
+.relative{position:relative}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+<style>
+.grid{display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start}
+.scr{width:340px}
+.scr h2{font-size:16px;font-weight:800;margin:0 0 3px}
+.scr p.c{font-size:13px;color:#4a5578;margin:0 0 10px;min-height:36px}
+.ph{width:320px}
+.ttl{font-weight:800;font-size:19px;margin:2px 0 10px}
+.lab{font-size:12px;color:var(--gris);font-weight:700;margin:6px 0 4px}
+.fld{background:#fff;border:1.5px solid #d8e2f2;border-radius:12px;padding:11px 12px;font-size:16px;font-weight:700;margin-bottom:8px}
+.choice{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.choice div{flex:1;min-width:70px;text-align:center;border:1.5px solid #d8e2f2;border-radius:14px;padding:10px 6px;background:#fff;font-size:13px;font-weight:700}
+.choice .on{border:2px solid var(--bleu);background:#e8f1ff;color:var(--bleu)}
+.picto{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.picto div{background:#fff;border:1.5px solid #d8e2f2;border-radius:14px;padding:8px 4px;text-align:center;font-size:11.5px;font-weight:700}
+.picto div span{display:block;font-size:24px}
+.picto .on{border:2px solid var(--crete);background:#fff0f0;color:#a12a2e}
+.photo{display:flex;gap:8px;margin-bottom:10px}
+.photo div{flex:1;height:70px;border-radius:12px;background:#e9edf5;display:flex;align-items:center;justify-content:center;font-size:24px}
+.photo .add{border:2px dashed #b9c5dc;background:#fff;color:var(--bleu);font-size:30px}
+.btn2{display:block;width:100%;border-radius:16px;padding:14px;text-align:center;font-weight:800;font-size:18px;color:#fff;margin-top:8px}
+.ghost{display:block;width:100%;border-radius:14px;padding:12px;text-align:center;font-weight:800;font-size:16px;color:var(--bleu);background:#fff;border:1.5px solid #d8e2f2;margin-top:8px}
+.toast{background:var(--nuit);color:#fff;border-radius:14px;padding:10px 12px;font-weight:700;font-size:14px;display:flex;align-items:center;margin-top:10px}
+.toast b{margin-left:auto;color:var(--soleil)}
+.hist div{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #eef1f6;font-weight:600}
+.small{font-size:12px;color:var(--gris);font-weight:600}
+.badge{display:inline-block;font-size:12px;font-weight:800;border-radius:12px;padding:3px 10px}
+.net{background:#fff4e5;color:#9a5a0b;border-radius:12px;padding:8px 10px;font-size:13px;font-weight:700;margin-bottom:10px}
+.login{background:linear-gradient(170deg,#2a7de1,#1b4fae);min-height:560px;padding:30px 20px;color:#fff;text-align:center}
+.login .fld{color:var(--nuit);text-align:left}
+</style><body>
+<h1>SORRA — les écrans de l'éleveur, version épurée</h1><div class="intro">Version plus sobre : poulet discret, icônes au trait (comme PERFORM YL.1) au lieu des émojis, couleurs réservées aux états. 14 écrans, du premier lancement à la page publique du QR code. Données fictives.</div><div class="grid">
+<div class="scr"><h2>1. Connexion</h2><p class="c">Gros champs, mot de passe visible d'un geste. (Le code PIN viendra plus tard.)</p><div class="ph relative"><div class="login"><svg width="72" height="72" viewBox="0 0 120 120" data-chick="vert"></svg><div style="font-weight:800;font-size:30px;margin-top:6px">SORRA</div>
+<div style="color:#dceaff;font-weight:600;margin-bottom:22px">Suivi et traçabilité de la filière avicole</div>
+<div class="lab" style="color:#dceaff;text-align:left">Identifiant</div><div class="fld">jmba</div>
+<div class="lab" style="color:#dceaff;text-align:left">Mot de passe</div><div class="fld">•••••••••• <span style="float:right"><i class="bi bi-eye"></i></span></div>
+<div class="btn2" style="background:var(--prairie);margin-top:16px">Se connecter</div>
+<div style="margin-top:14px;font-size:13px;color:#dceaff">Mot de passe oublié ? Appelez votre agent.</div></div></div></div>
+<div class="scr"><h2>2. Livraison à confirmer</h2><p class="c">En haut de l'accueil dès qu'une livraison arrive. Un geste : « Tout reçu ».</p><div class="ph relative"><div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean</div></div><div class="in"><div class="ttl"><i class="bi bi-box-seam"></i> Livraison à confirmer</div>
+<div class="hero" style="display:block"><div class="small">08/11 · Couvoir de l'Estuaire</div>
+<div style="font-weight:800;font-size:22px;margin-top:4px">1 000 poussins</div><div style="font-weight:800;font-size:18px">40 sacs d'aliment démarrage</div></div>
+<div class="cpt"><div class="l">Poussins morts à l'arrivée</div><div class="ctl"><span class="rd mn">−</span><span class="v">3</span><span class="rd pl">+</span></div></div>
+<div class="btn2" style="background:var(--prairie)">✓ Tout reçu</div>
+<div class="ghost">J'ai reçu moins</div>
+<div class="toast">✓ Reçue — merci !<b>Annuler (8)</b></div></div></div></div>
+<div class="scr"><h2>3. J'ai reçu moins</h2><p class="c">Quantités préremplies, l'éleveur corrige avec + et −, puis choisit la raison.</p><div class="ph relative"><div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean</div></div><div class="in"><div class="ttl">Qu'avez-vous reçu ?</div>
+<div class="cpt"><div class="l">Poussins<small>livrés : 1 000</small></div><div class="ctl"><span class="rd mn">−</span><span class="v" style="font-size:22px">1 000</span><span class="rd pl">+</span></div></div>
+<div class="cpt"><div class="l">Sacs d'aliment<small>livrés : 40</small></div><div class="ctl"><span class="rd mn">−</span><span class="v">36</span><span class="rd pl">+</span></div></div>
+<div class="lab">Pourquoi 4 sacs en moins ?</div>
+<div class="choice"><div class="on">Manquant</div><div>Abîmé</div><div>Autre</div></div>
+<div class="btn2" style="background:var(--bleu)">Envoyer</div></div></div></div>
+<div class="scr"><h2>4. Ouvrir une bande</h2><p class="c">Les poussins reçus sont proposés automatiquement ; on choisit le bâtiment.</p><div class="ph relative"><div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean</div></div><div class="in"><div class="ttl"><i class="bi bi-egg"></i> Nouveaux poussins</div>
+<div class="hero" style="display:block"><div class="small">Livraison du 08/11 · reçue ✓</div><div style="font-weight:800;font-size:26px">997 poussins</div><div class="small">1 000 reçus − 3 morts à l'arrivée</div></div>
+<div class="lab">Dans quel bâtiment ?</div>
+<div class="choice"><div class="on">B1<br><span class="small">1 500 places</span></div><div style="opacity:.5">B2<br><span class="small">vide sanitaire</span></div></div>
+<div class="lab">Poids moyen d'un poussin (facultatif)</div><div class="fld">40 g</div>
+<div class="btn2" style="background:var(--prairie)">Commencer la bande</div>
+<div class="small" style="text-align:center;margin-top:8px">Fin prévue le 23/12</div></div></div></div>
+<div class="scr"><h2>5. Ma bande aujourd'hui</h2><p class="c">L'écran de tous les jours : moins de 30 secondes.</p><div class="ph relative"><div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean</div></div><div class="in"><div class="hero"><svg width="46" height="46" viewBox="0 0 120 120" data-chick="vert"></svg><div><div class="t">Jour 23 · B1</div><div class="s" style="color:var(--prairie)">Vos poulets grossissent bien !</div><div class="small">982 poulets présents</div></div></div>
+<div class="prog"><div style="display:flex;justify-content:space-between;align-items:center"><b>Votre bande grandit</b><span class="streak"><i class="bi bi-fire"></i> 23 jours</span></div>
+<div class="bar"><div class="fill"></div></div>
+<div class="lbl"><span>Jour 0</span><span>Jour 23 sur 45</span><span>Jour 45</span></div></div>
+<div class="todo"><i class="bi bi-list-check"></i> À faire aujourd'hui<div><i class="bi bi-speedometer2"></i> Peser 10 poulets</div><div><i class="bi bi-eyedropper"></i> Demain : vaccin Gumboro</div></div>
+<div class="cpt"><div class="l">Morts aujourd'hui</div><div class="ctl"><span class="rd mn">−</span><span class="v">2</span><span class="rd pl">+</span></div></div>
+<div class="cpt"><div class="l">Sacs d'aliment<small>Croissance · sac de 25 kg</small></div><div class="ctl"><span class="rd mn">−</span><span class="v">3</span><span class="rd pl">+</span></div></div>
+<button class="send">Envoyer ✓</button>
+<div class="row2"><div class="sec"><i class="bi bi-speedometer2"></i> Peser</div><div class="sec"><i class="bi bi-truck"></i> Sortie</div></div></div></div></div>
+<div class="scr"><h2>6. Bien reçu !</h2><p class="c">Après l'envoi, 2 secondes de fête… seulement quand tout va bien.</p><div class="ph relative"><div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean</div></div><div class="in"><div style="text-align:center;padding:40px 0 20px"><svg width="64" height="64" viewBox="0 0 120 120" data-chick="vert"></svg>
+<div style="font-weight:800;font-size:28px;margin-top:8px">Bien reçu !</div>
+<div style="font-weight:700;color:var(--gris);margin-top:4px"><i class="bi bi-fire"></i> 24 jours d'affilée</div>
+<div class="badge" style="background:#e7f6ee;color:#1d7a4e;margin-top:14px">Nouveau record personnel !</div></div>
+<div class="hist" style="background:#fff;border-radius:16px;padding:8px 12px"><div><span>Aujourd'hui · 2 morts · 3 sacs</span><span style="color:var(--prairie)">✓</span></div><div><span>Hier · 1 mort · 3 sacs</span><span style="color:var(--prairie)">✓</span></div></div></div></div></div>
+<div class="scr"><h2>7. Pesée</h2><p class="c">Il pèse 10 poulets ensemble ; le système fait la moyenne.</p><div class="ph relative"><div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean</div></div><div class="in"><div class="ttl"><i class="bi bi-speedometer2"></i> Pesée du jour 23</div>
+<div class="cpt"><div class="l">Poulets pesés</div><div class="ctl"><span class="rd mn">−</span><span class="v">10</span><span class="rd pl">+</span></div></div>
+<div class="lab">Poids total sur la balance</div><div class="fld" style="font-size:26px">9,8 kg</div>
+<div class="hero" style="display:block;text-align:center"><div class="small">Poids moyen</div><div style="font-weight:800;font-size:32px">980 g</div>
+<div style="color:var(--prairie);font-weight:800">Dans la courbe ✓ · <i class="bi bi-graph-up-arrow"></i> +210 g en 7 jours</div></div>
+<div class="btn2" style="background:var(--bleu)">Enregistrer la pesée</div></div></div></div>
+<div class="scr"><h2>8. Sortie de poulets</h2><p class="c">Vers un abattoir, une vente ou autre.</p><div class="ph relative"><div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean</div></div><div class="in"><div class="ttl"><i class="bi bi-truck"></i> Sortie de poulets</div>
+<div class="lab">Pour qui ?</div><div class="choice"><div class="on">Abattoir</div><div>Vente</div><div>Autre</div></div>
+<div class="lab">Destinataire</div><div class="fld">Abattoir de Ntoum ▾</div>
+<div class="cpt"><div class="l">Nombre de poulets</div><div class="ctl"><span class="rd mn">−</span><span class="v" style="font-size:22px">500</span><span class="rd pl">+</span></div></div>
+<div class="lab">Poids total</div><div class="fld">1 100 kg</div>
+<div class="btn2" style="background:var(--bleu)">Enregistrer la sortie</div>
+<div class="small" style="text-align:center;margin-top:8px">Il restera 482 poulets dans la bande</div></div></div></div>
+<div class="scr"><h2>9. Signaler un poulet malade</h2><p class="c">Photos et images à toucher : rien à écrire.</p><div class="ph relative"><div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean</div></div><div class="in"><div class="ttl"><i class="bi bi-heart-pulse"></i> Poulet malade</div>
+<div class="lab">Prenez 1 à 3 photos</div><div class="photo"><div><i class="bi bi-image"></i></div><div><i class="bi bi-image"></i></div><div class="add">+</div></div>
+<div class="lab">Qu'avez-vous vu ?</div>
+<div class="picto"><div class="on"><span><i class="bi bi-exclamation-octagon"></i></span>Morts soudaines</div><div class="on"><span><i class="bi bi-emoji-dizzy"></i></span>Abattus</div><div><span><i class="bi bi-slash-circle"></i></span>Ne mangent plus</div><div><span><i class="bi bi-droplet"></i></span>Diarrhée</div><div><span><i class="bi bi-lungs"></i></span>Respirent mal</div><div><span><i class="bi bi-feather"></i></span>Plumes ébouriffées</div></div>
+<div class="cpt"><div class="l">Poulets touchés</div><div class="ctl"><span class="rd mn">−</span><span class="v">15</span><span class="rd pl">+</span></div></div>
+<div class="ghost"><i class="bi bi-mic"></i> Ajouter un message vocal</div>
+<div class="btn2" style="background:var(--crete)">Envoyer au vétérinaire</div></div></div></div>
+<div class="scr"><h2>10. Quand ça ne va pas</h2><p class="c">Feu rouge : le poulet est malade, le ton est sérieux, l'aide passe devant.</p><div class="ph relative"><div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean</div></div><div class="in"><div class="hero" style="background:#fff0f1;border-color:#f5c2c6"><svg width="46" height="46" viewBox="0 0 120 120" data-chick="rouge"></svg><div><div class="t">Jour 12 · B1</div><div class="s" style="color:var(--crete)">Beaucoup de morts aujourd'hui</div><div class="small">15 morts · 1,5 %</div></div></div>
+<div class="hero" style="display:block;background:#fff0f1;border-color:#f5c2c6;color:#8f1f24;font-weight:700">Votre agent Paul et le vétérinaire sont prévenus.</div>
+<div class="btn2" style="background:var(--crete)"><i class="bi bi-heart-pulse"></i> Signaler un poulet malade</div>
+<div class="ghost"><i class="bi bi-telephone"></i> Appeler mon agent</div>
+<div class="todo" style="margin-top:12px"><i class="bi bi-list-check"></i> Conseil<div>Isolez les poulets malades et ne vendez pas avant l'avis du vétérinaire.</div></div></div></div></div>
+<div class="scr"><h2>11. Vaccin du jour</h2><p class="c">Le calendrier vient à lui : il confirme en un geste.</p><div class="ph relative"><div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean</div></div><div class="in"><div class="ttl"><i class="bi bi-eyedropper"></i> Vaccin du jour</div>
+<div class="hero" style="display:block"><div class="small">Jour 14 · B1</div><div style="font-weight:800;font-size:22px">Gumboro</div><div class="small">Dans l'eau de boisson · 982 poulets</div></div>
+<div class="lab">Flacons utilisés</div>
+<div class="cpt"><div class="l">Gumboro 1 000 doses</div><div class="ctl"><span class="rd mn">−</span><span class="v">1</span><span class="rd pl">+</span></div></div>
+<div class="btn2" style="background:var(--prairie)">✓ C'est fait</div>
+<div class="ghost">Pas encore fait</div>
+<div class="small" style="text-align:center;margin-top:8px">Stock à la ferme : 2 flacons</div></div></div></div>
+<div class="scr"><h2>12. Bande terminée</h2><p class="c">Bilan en étoiles, puis vide sanitaire.</p><div class="ph relative"><div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean</div></div><div class="in"><div style="text-align:center;padding:14px 0 8px"><svg width="56" height="56" viewBox="0 0 120 120" data-chick="vert"></svg>
+<div class="stars"><b>★</b><b>★</b><b>★</b></div>
+<div style="font-weight:800;font-size:22px">Votre meilleure bande !</div>
+<div class="small">Bande B1-06 · 45 jours</div></div>
+<div class="kpis" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<div class="cpt" style="display:block;margin:0"><div class="small">Mortalité</div><div style="font-weight:800;font-size:22px">2,1 %</div></div>
+<div class="cpt" style="display:block;margin:0"><div class="small">Poids moyen</div><div style="font-weight:800;font-size:22px">2,3 kg</div></div>
+<div class="cpt" style="display:block;margin:0"><div class="small">Poulets vendus</div><div style="font-weight:800;font-size:22px">968</div></div>
+<div class="cpt" style="display:block;margin:0"><div class="small">Série record</div><div style="font-weight:800;font-size:22px"><i class="bi bi-fire"></i> 45</div></div></div>
+<div class="ghost" style="margin-top:12px">Voir mes bandes passées</div></div></div></div>
+<div class="scr"><h2>13. Pas de réseau</h2><p class="c">Les saisies sont gardées et partent seules au retour du réseau.</p><div class="ph relative"><div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean</div></div><div class="in"><div class="net"><i class="bi bi-wifi-off"></i> Pas de réseau — vos saisies sont gardées sur le téléphone.</div>
+<div class="hero"><svg width="46" height="46" viewBox="0 0 120 120" data-chick="vert"></svg><div><div class="t">Jour 24 · B1</div><div class="s" style="color:var(--prairie)">Tout va bien</div></div></div>
+<div class="hist" style="background:#fff;border-radius:16px;padding:8px 12px">
+<div><span>Aujourd'hui · 1 mort · 3 sacs</span><span style="color:var(--bec)">◷ en attente</span></div>
+<div><span>Pesée · 1,05 kg</span><span style="color:var(--bec)">◷ en attente</span></div>
+<div><span>Hier · 2 morts · 3 sacs</span><span style="color:var(--prairie)">✓ envoyé</span></div></div>
+<div class="small" style="text-align:center;margin-top:10px">Envoi automatique dès que le réseau revient.</div></div></div></div>
+<div class="scr"><h2>14. Page publique du QR code</h2><p class="c">Ce que voit le consommateur en scannant l'étiquette, sans compte.</p><div class="ph relative"><div style="background:linear-gradient(170deg,#2fa36b,#1f7a50);padding:22px 18px;color:#fff;text-align:center"><svg width="56" height="56" viewBox="0 0 120 120" data-chick="vert"></svg>
+<div style="font-weight:800;font-size:24px;margin-top:4px">Produit au Gabon</div><div style="font-weight:700;color:#d9f4e6">Consommons gabonais </div></div>
+<div class="in"><div class="hero" style="display:block">
+<div class="small">Élevé par</div><div style="font-weight:800;font-size:20px">Ferme Nkok</div>
+<div style="font-weight:700">Nkok · Estuaire</div>
+<div class="small" style="margin-top:8px">Sorti de la ferme le 05/12/2026</div>
+<div class="small">Lot EST-001-B1-07-S2</div></div>
+<div class="small" style="text-align:center;margin-top:6px">Ce QR code n'est pas un certificat sanitaire.</div>
+<div style="text-align:center;margin-top:14px;font-weight:800;color:var(--bleu)">SORRA</div></div></div></div>
+</div><script>function chick(state){
+  const st=state||"vert";
+  const body = st==="rouge" ? "#fde7ea" : "#ffffff";
+  let eyes, mouth="", extra="";
+  if(st==="vert"){
+    eyes='<path d="M62 46 q5 -6 10 0" stroke="#2b3550" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M80 46 q5 -6 10 0" stroke="#2b3550" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+    extra='<circle cx="60" cy="58" r="5" fill="#ffb3c1" opacity=".8"/><circle cx="96" cy="58" r="5" fill="#ffb3c1" opacity=".8"/>';
+  }else if(st==="orange"){
+    eyes='<circle cx="67" cy="47" r="4.5" fill="#1b2a5e"/><circle cx="85" cy="47" r="4.5" fill="#1b2a5e"/><path d="M60 37 l12 4" stroke="#2b3550" stroke-width="2.5" stroke-linecap="round"/><path d="M92 37 l-12 4" stroke="#2b3550" stroke-width="2.5" stroke-linecap="round"/>';
+    extra='<path d="M104 30 q4 8 0 12 q-4 -4 0 -12z" fill="#9fd0ff" stroke="#2b3550" stroke-width="2"/>';
+  }else{
+    eyes='<path d="M62 43 l9 9 M71 43 l-9 9" stroke="#2b3550" stroke-width="2.5" stroke-linecap="round"/><path d="M80 43 l9 9 M89 43 l-9 9" stroke="#2b3550" stroke-width="2.5" stroke-linecap="round"/>';
+    extra='<rect x="96" y="58" width="8" height="26" rx="4" fill="#fff" stroke="#2b3550" stroke-width="3" transform="rotate(25 100 70)"/><circle cx="94" cy="83" r="5" fill="#e5484d" stroke="#2b3550" stroke-width="3"/>';
+  }
+  return `
+  <ellipse cx="62" cy="112" rx="34" ry="5" fill="#1b2a5e" opacity=".15"/>
+  <path d="M50 96 v12 M44 108 h12 M70 96 v12 M64 108 h12" stroke="#f08a24" stroke-width="5" stroke-linecap="round"/>
+  <path d="M22 70 q-10 -26 10 -30 q-4 14 8 18z" fill="${body}" stroke="#2b3550" stroke-width="2.5" stroke-linejoin="round"/>
+  <ellipse cx="62" cy="72" rx="38" ry="28" fill="${body}" stroke="#2b3550" stroke-width="2.5"/>
+  <path d="M44 72 q14 18 30 4 q-12 -2 -20 -14z" fill="#9fd0ff" stroke="#2b3550" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="76" cy="46" r="24" fill="${body}" stroke="#2b3550" stroke-width="2.5"/>
+  <path d="M64 24 q-2 -14 8 -10 q2 -10 10 -4 q8 -6 10 6 q-12 2 -28 8z" fill="#e5484d" stroke="#2b3550" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M96 48 l14 6 l-14 6z" fill="#f08a24" stroke="#2b3550" stroke-width="2.2" stroke-linejoin="round"/>
+  <path d="M94 62 q4 10 -2 14 q-6 -6 2 -14z" fill="#e5484d" stroke="#2b3550" stroke-width="3" />
+  ${eyes}${extra}`;
+}
+function chickSmall(){ /* poussin pour la barre */
+  return `<ellipse cx="60" cy="72" rx="32" ry="28" fill="#f7c948" stroke="#2b3550" stroke-width="3"/>
+  <circle cx="70" cy="44" r="22" fill="#f7c948" stroke="#2b3550" stroke-width="3"/>
+  <circle cx="76" cy="40" r="5" fill="#1b2a5e"/><path d="M90 46 l14 5 l-14 5z" fill="#f08a24" stroke="#2b3550" stroke-width="2.5"/>
+  <path d="M50 98 v12 M70 98 v12" stroke="#f08a24" stroke-width="3" stroke-linecap="round"/>`;
+}
+
+function poussin(){return `<ellipse cx="60" cy="72" rx="32" ry="28" fill="#f7c948" stroke="#2b3550" stroke-width="3"/><circle cx="70" cy="44" r="22" fill="#f7c948" stroke="#2b3550" stroke-width="3"/><circle cx="76" cy="40" r="5" fill="#2b3550"/><path d="M90 46 l14 5 l-14 5z" fill="#f08a24" stroke="#2b3550" stroke-width="2"/><path d="M50 98 v12 M70 98 v12" stroke="#f08a24" stroke-width="4" stroke-linecap="round"/>`}
+document.querySelectorAll("[data-chick]").forEach(e=>{const s=e.dataset.chick;e.innerHTML=s==="poussin"?poussin():chick(s)});
+</script></body></html>

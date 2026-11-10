@@ -1,0 +1,188 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SORRA — Accueil de l'éleveur : maquettes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap"><style>
+:root{
+  --nuit:#1b2a5e;--bleu:#2a7de1;--ciel:#e8f3ff;--soleil:#f7c948;--prairie:#2fa36b;
+  --bec:#f08a24;--crete:#e5484d;--creme:#fbf8f2;--gris:#6b7594;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#eef2f8;font-family:"Nunito","Segoe UI",sans-serif;color:var(--nuit);padding:20px}
+h1{font-family:"Nunito",sans-serif;font-weight:800;font-size:26px;margin:0}
+.intro{font-size:14px;margin:4px 0 16px;max-width:880px;color:#4a5578}
+.wrap{display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start}
+.ph{width:340px;border:9px solid #1f2430;border-radius:34px;overflow:hidden;background:var(--creme);flex:none;box-shadow:0 12px 30px rgba(27,42,94,.18)}
+.top{background:linear-gradient(160deg,#2a7de1,#1b4fae);padding:12px 16px 16px;position:relative}
+.top .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:20px;color:#fff;letter-spacing:.3px}
+.top .hi{font-weight:700;font-size:15px;color:#dceaff;margin-top:4px}
+.cloud{display:none}
+.in{padding:14px}
+.hero{background:#fff;border-radius:18px;padding:12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(27,42,94,.08);margin-bottom:12px;transition:background .3s;border:1px solid #edf0f6}
+.hero .t{font-weight:800;font-size:18px;line-height:1.15}
+.hero .s{font-weight:700;font-size:14px}
+.prog{background:#fff;border-radius:18px;padding:12px;margin-bottom:12px;box-shadow:0 2px 10px rgba(27,42,94,.08);border:1px solid #edf0f6}
+.bar{height:12px;background:#f3ead0;border-radius:8px;position:relative;margin:30px 6px 8px}
+.fill{height:100%;background:var(--soleil);border-radius:8px;width:51%}
+.runner{position:absolute;top:-30px;left:51%;transform:translateX(-50%)}
+.prog .lbl{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--gris)}
+.streak{display:inline-flex;align-items:center;gap:6px;background:#fff1e3;color:#b85c0a;border-radius:20px;padding:4px 10px;font-weight:800;font-size:13px}
+.todo{background:#fff8e1;border-radius:18px;padding:10px 12px;margin:0 0 12px;font-weight:800;border:1px solid #f5e3a8}
+.todo div{font-weight:600;font-size:14px;color:#6b5310}
+.cpt{background:#fff;border-radius:18px;padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;box-shadow:0 2px 10px rgba(27,42,94,.08);border:1px solid #edf0f6}
+.cpt .l{font-weight:700;font-size:15px}
+.cpt .l small{display:block;font-weight:600;font-size:12px;color:var(--gris)}
+.ctl{margin-left:auto;display:flex;align-items:center;gap:10px}
+.rd{width:44px;height:44px;border-radius:50%;font-weight:800;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:transform .08s}
+.rd:active{transform:scale(.92)}
+.mn{background:#eef2f8;color:var(--nuit)}
+.pl{background:var(--bleu);color:#fff;box-shadow:0 3px 8px rgba(42,125,225,.35)}
+.v{font-weight:800;font-size:28px;min-width:36px;text-align:center}
+.bounce{animation:bounce .25s}
+@keyframes bounce{0%{transform:scale(1)}40%{transform:scale(1.2)}100%{transform:scale(1)}}
+.send{width:100%;background:var(--prairie);color:#fff;font-family:"Nunito",sans-serif;font-weight:800;font-size:20px;border:none;border-radius:16px;padding:15px;box-shadow:0 6px 14px rgba(47,163,107,.35);cursor:pointer;transition:transform .08s}
+.send:active{transform:scale(.98)}
+.row2{display:flex;gap:10px;margin-top:12px}
+.sec{flex:1;background:#fff;border:1.5px solid #d8e2f2;border-radius:14px;padding:10px;text-align:center;font-weight:700;color:var(--bleu);cursor:pointer}
+.ok{position:absolute;inset:0;background:rgba(251,248,242,.96);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:5;text-align:center}
+.ok .big{font-weight:800;font-size:24px}
+.ok .sub{font-weight:700;font-size:15px;margin-top:4px;color:var(--gris)}
+.hop{animation:hop .45s ease-in-out 2}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.pop{animation:pop .4s ease-out}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+.conf{position:absolute;width:8px;height:8px;border-radius:50%;animation:spark 1s ease-out forwards}
+@keyframes spark{0%{transform:scale(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0}}
+.panel{flex:1;min-width:280px;max-width:520px}
+.card{background:#fff;border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:0 2px 10px rgba(27,42,94,.08)}
+.card h3{margin:0 0 8px;font-size:18px;font-weight:800}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btns button{font-family:"Nunito";font-weight:700;border:1.5px solid #d8e2f2;border-radius:12px;padding:8px 12px;cursor:pointer;background:#fff}
+.sw{display:flex;gap:8px;flex-wrap:wrap}
+.sw span{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700}
+.sw i{width:24px;height:24px;border-radius:7px;display:inline-block;border:1px solid rgba(0,0,0,.08)}
+.stars{font-size:32px;letter-spacing:4px}
+.stars b{color:var(--soleil)}
+.relative{position:relative}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+.grid{display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start}
+.scr{width:340px}
+.scr h2{font-size:16px;font-weight:800;margin:0 0 3px}
+.scr p.c{font-size:13px;color:#4a5578;margin:0 0 10px;min-height:36px}
+.ph{width:320px}
+.ttl{font-weight:800;font-size:19px;margin:2px 0 10px}
+.lab{font-size:12px;color:var(--gris);font-weight:700;margin:6px 0 4px}
+.fld{background:#fff;border:1.5px solid #d8e2f2;border-radius:12px;padding:11px 12px;font-size:16px;font-weight:700;margin-bottom:8px}
+.choice{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.choice div{flex:1;min-width:70px;text-align:center;border:1.5px solid #d8e2f2;border-radius:14px;padding:10px 6px;background:#fff;font-size:13px;font-weight:700}
+.choice .on{border:2px solid var(--bleu);background:#e8f1ff;color:var(--bleu)}
+.picto{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.picto div{background:#fff;border:1.5px solid #d8e2f2;border-radius:14px;padding:8px 4px;text-align:center;font-size:11.5px;font-weight:700}
+.picto div span{display:block;font-size:24px}
+.picto .on{border:2px solid var(--crete);background:#fff0f0;color:#a12a2e}
+.photo{display:flex;gap:8px;margin-bottom:10px}
+.photo div{flex:1;height:70px;border-radius:12px;background:#e9edf5;display:flex;align-items:center;justify-content:center;font-size:24px}
+.photo .add{border:2px dashed #b9c5dc;background:#fff;color:var(--bleu);font-size:30px}
+.btn2{display:block;width:100%;border-radius:16px;padding:14px;text-align:center;font-weight:800;font-size:18px;color:#fff;margin-top:8px}
+.ghost{display:block;width:100%;border-radius:14px;padding:12px;text-align:center;font-weight:800;font-size:16px;color:var(--bleu);background:#fff;border:1.5px solid #d8e2f2;margin-top:8px}
+.toast{background:var(--nuit);color:#fff;border-radius:14px;padding:10px 12px;font-weight:700;font-size:14px;display:flex;align-items:center;margin-top:10px}
+.toast b{margin-left:auto;color:var(--soleil)}
+.hist div{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #eef1f6;font-weight:600}
+.small{font-size:12px;color:var(--gris);font-weight:600}
+.badge{display:inline-block;font-size:12px;font-weight:800;border-radius:12px;padding:3px 10px}
+.net{background:#fff4e5;color:#9a5a0b;border-radius:12px;padding:8px 10px;font-size:13px;font-weight:700;margin-bottom:10px}
+.login{background:linear-gradient(170deg,#2a7de1,#1b4fae);min-height:560px;padding:30px 20px;color:#fff;text-align:center}
+.login .fld{color:var(--nuit);text-align:left}
+</style><style>
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{position:relative;background:#fff;border-radius:18px;padding:14px 10px;text-align:center;box-shadow:0 2px 10px rgba(27,42,94,.08);border:1px solid #edf0f6;cursor:pointer;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .08s}
+.tile:active{transform:scale(.97)}
+.tile .ic{font-size:30px;line-height:1}
+.tile .nm{font-weight:800;font-size:15px;margin-top:6px}
+.tile .sb{font-size:11.5px;color:var(--gris);font-weight:700}
+.tile.big{grid-column:1/3;flex-direction:row;gap:12px;justify-content:flex-start;padding:14px 16px;background:var(--prairie);color:#fff;border:none;box-shadow:0 6px 14px rgba(47,163,107,.35)}
+.tile.big .ic{font-size:36px}.tile.big .nm{font-size:20px;margin:0}.tile.big .sb{color:#e3f7ec}
+.tile.red{background:#fff0f1;border-color:#f5c2c6;color:#a12a2e}
+.tile.call{background:#e8f1ff;border-color:#cfe0fb;color:var(--bleu)}
+.bdg{position:absolute;top:8px;right:8px;background:var(--bec);color:#fff;font-size:11px;font-weight:800;border-radius:10px;padding:2px 8px}
+.bdg.r{background:var(--crete)}.bdg.b{background:var(--bleu)}
+.status{display:flex;align-items:center;gap:10px;background:#fff;border-radius:16px;padding:8px 12px;margin-bottom:12px;border:1px solid #edf0f6}
+.status .t{font-weight:800;font-size:14px}
+.alertbar{background:#fff0f1;border:1px solid #f5c2c6;color:#a12a2e;border-radius:14px;padding:10px 12px;font-weight:800;font-size:14px;margin-bottom:12px;cursor:pointer}
+.back{display:inline-block;font-weight:800;color:var(--bleu);margin-bottom:8px;cursor:pointer}
+.clicks{position:absolute;right:12px;top:14px;background:var(--nuit);color:#fff;border-radius:12px;padding:5px 10px;font-size:12px;font-weight:800;z-index:9}
+.sect{font-size:12px;font-weight:800;color:var(--gris);letter-spacing:.4px;margin:12px 2px 6px}
+.list .tile{flex-direction:row;justify-content:flex-start;gap:12px;min-height:58px;padding:10px 14px;text-align:left}
+.list{display:grid;gap:8px}
+.list .tile .ic{font-size:26px}
+.chev{margin-left:auto;color:#b9c5dc;font-size:22px;font-weight:800}
+.paths{max-width:880px;background:#fff;border-radius:14px;padding:12px 16px;font-size:14px;line-height:1.6;box-shadow:0 2px 10px rgba(27,42,94,.08)}
+.paths table{border-collapse:collapse;width:100%;font-size:13px}.paths td,.paths th{border-bottom:1px solid #eef1f6;padding:6px 4px;text-align:left}
+.paths th{color:var(--gris)}
+</style><style>
+.sub{display:grid;gap:10px}
+.sub .tile{flex-direction:row;justify-content:flex-start;gap:12px;min-height:64px;padding:12px 14px;text-align:left}
+.sub .tile .ic{font-size:28px}
+.sub .tile .nm{margin:0;font-size:16px}
+.callbtn{background:#fff;color:var(--bleu);border-radius:20px;padding:6px 10px;font-weight:800;font-size:13px;position:absolute;right:12px;top:16px;cursor:pointer}
+.legend{font-size:12px;color:var(--gris);margin-top:8px}
+.clicks{top:auto!important;bottom:10px;right:10px}
+</style></head><body><h1>SORRA — l'accueil de l'éleveur avec 8 tuiles</h1>
+<div class="intro">Maquette cliquable. Les actions sont regroupées par thème ; chaque tuile ouvre un écran de grosses cases. Le compteur noir compte les écrans ouverts et les validations ; les choix faits dans un même écran (bâtiment, produit, signe) sont de simples touchers et ne comptent pas, comme pour la panne au lot 10.</div>
+<div class="wrap"><div class="ph relative" style="width:330px"><div class="top"><div class="brand"><svg width="30" height="30" viewBox="0 0 120 120" data-chick="vert"></svg>SORRA</div><div class="hi">Bonjour Jean ! 👋</div><span class="callbtn" style="right:78px">📞 Paul</span><span class="callbtn" id="moi">👤 Moi</span></div><div class="in" id="v"></div><div class="clicks" id="cnt">0 clic</div></div>
+<div class="paths" style="flex:1;min-width:300px"><b>Les 8 tuiles</b>
+<table><tr><th>Tuile</th><th>Contient</th><th>Clics</th></tr>
+<tr><td>✏️ Saisie du jour</td><td>morts, aliment, bâtiments ; pesée et vaccin du jour en raccourci quand prévus</td><td>2</td></tr>
+<tr><td>🐔 Ma bande</td><td>Nouvelle bande · Peser · Mes bandes (bilans, étoiles)</td><td>3</td></tr>
+<tr><td>🚚 Ventes et sorties</td><td>abattoir, vente, autre ; prix reçu ; alerte délai d'attente</td><td>2</td></tr>
+<tr><td>💉 Vaccins et soins</td><td>vaccin du jour en haut (C'est fait) · Traitement · Mes signalements</td><td>2 (vaccin) · 3</td></tr>
+<tr><td>🩺 Poulet malade</td><td>photos, signes, message vocal</td><td>2</td></tr>
+<tr><td>📦 Mes produits</td><td>livraison à confirmer (Tout reçu) · J'ai acheté · Mon stock · Mes livraisons</td><td>2 · 3</td></tr>
+<tr><td>💰 Mon argent</td><td>Gagné / Dépensé / Reste · J'ai payé · résultat des bandes</td><td>1 · 3</td></tr>
+<tr><td>🔧 Entretien</td><td>tâches Fait ✓ · panne · C'est réparé</td><td>2 · 3</td></tr></table>
+<p style="margin:8px 0 0"><b>En haut :</b> 📞 Paul (appeler l'agent, 1 clic) et 👤 Moi (Ma ferme, Mon compte, partage BCEG, aide et tutoriel, déconnexion).<br><b>Au-dessus des tuiles, seulement si besoin :</b> bandeau rouge (feu rouge → Signaler), bandeau orange (saisies en attente de réseau), visite prévue dans la ligne d'état.<br>Les choix faits dans un même écran (bâtiment, produit, signe) sont des touchers et ne comptent pas comme des clics.</p></div></div>
+<script>function chick(state){
+  const st=state||"vert";
+  const body = st==="rouge" ? "#fde7ea" : "#ffffff";
+  let eyes, mouth="", extra="";
+  if(st==="vert"){
+    eyes='<path d="M62 46 q5 -6 10 0" stroke="#2b3550" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M80 46 q5 -6 10 0" stroke="#2b3550" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+    extra='<circle cx="60" cy="58" r="5" fill="#ffb3c1" opacity=".8"/><circle cx="96" cy="58" r="5" fill="#ffb3c1" opacity=".8"/>';
+  }else if(st==="orange"){
+    eyes='<circle cx="67" cy="47" r="4.5" fill="#1b2a5e"/><circle cx="85" cy="47" r="4.5" fill="#1b2a5e"/><path d="M60 37 l12 4" stroke="#2b3550" stroke-width="2.5" stroke-linecap="round"/><path d="M92 37 l-12 4" stroke="#2b3550" stroke-width="2.5" stroke-linecap="round"/>';
+    extra='<path d="M104 30 q4 8 0 12 q-4 -4 0 -12z" fill="#9fd0ff" stroke="#2b3550" stroke-width="2"/>';
+  }else{
+    eyes='<path d="M62 43 l9 9 M71 43 l-9 9" stroke="#2b3550" stroke-width="2.5" stroke-linecap="round"/><path d="M80 43 l9 9 M89 43 l-9 9" stroke="#2b3550" stroke-width="2.5" stroke-linecap="round"/>';
+    extra='<rect x="96" y="58" width="8" height="26" rx="4" fill="#fff" stroke="#2b3550" stroke-width="3" transform="rotate(25 100 70)"/><circle cx="94" cy="83" r="5" fill="#e5484d" stroke="#2b3550" stroke-width="3"/>';
+  }
+  return `
+  <ellipse cx="62" cy="112" rx="34" ry="5" fill="#1b2a5e" opacity=".15"/>
+  <path d="M50 96 v12 M44 108 h12 M70 96 v12 M64 108 h12" stroke="#f08a24" stroke-width="5" stroke-linecap="round"/>
+  <path d="M22 70 q-10 -26 10 -30 q-4 14 8 18z" fill="${body}" stroke="#2b3550" stroke-width="2.5" stroke-linejoin="round"/>
+  <ellipse cx="62" cy="72" rx="38" ry="28" fill="${body}" stroke="#2b3550" stroke-width="2.5"/>
+  <path d="M44 72 q14 18 30 4 q-12 -2 -20 -14z" fill="#9fd0ff" stroke="#2b3550" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="76" cy="46" r="24" fill="${body}" stroke="#2b3550" stroke-width="2.5"/>
+  <path d="M64 24 q-2 -14 8 -10 q2 -10 10 -4 q8 -6 10 6 q-12 2 -28 8z" fill="#e5484d" stroke="#2b3550" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M96 48 l14 6 l-14 6z" fill="#f08a24" stroke="#2b3550" stroke-width="2.2" stroke-linejoin="round"/>
+  <path d="M94 62 q4 10 -2 14 q-6 -6 2 -14z" fill="#e5484d" stroke="#2b3550" stroke-width="3" />
+  ${eyes}${extra}`;
+}
+function chickSmall(){ /* poussin pour la barre */
+  return `<ellipse cx="60" cy="72" rx="32" ry="28" fill="#f7c948" stroke="#2b3550" stroke-width="3"/>
+  <circle cx="70" cy="44" r="22" fill="#f7c948" stroke="#2b3550" stroke-width="3"/>
+  <circle cx="76" cy="40" r="5" fill="#1b2a5e"/><path d="M90 46 l14 5 l-14 5z" fill="#f08a24" stroke="#2b3550" stroke-width="2.5"/>
+  <path d="M50 98 v12 M70 98 v12" stroke="#f08a24" stroke-width="3" stroke-linecap="round"/>`;
+}
+
+
+const S={"saisie": "<div class=\"ttl\">✏️ Saisie du jour</div><div class=\"choice\"><div>B1 ✓</div><div class=\"on\">B2 · à faire</div></div>\n<div class=\"cpt\"><div class=\"l\">Morts aujourd'hui</div><div class=\"ctl\"><span class=\"rd mn\">−</span><span class=\"v\">1</span><span class=\"rd pl\">+</span></div></div>\n<div class=\"cpt\"><div class=\"l\">Sacs d'aliment<small>Démarrage · 25 kg</small></div><div class=\"ctl\"><span class=\"rd mn\">−</span><span class=\"v\">2</span><span class=\"rd pl\">+</span></div></div>\n<button class=\"send\" style=\"background:var(--prairie)\" data-done=\"Saisie envoyée\">Envoyer ✓</button><div class=\"todo\" style=\"margin-top:12px\">⚖️ Pesée prévue aujourd'hui dans B1 <span class=\"sec\" style=\"display:inline-block;padding:4px 10px;margin-left:6px\" data-go=\"pesee\">Peser</span></div>", "bande": "<div class=\"ttl\">🐔 Ma bande</div><div class=\"sub\"><div class=\"tile\" data-go=\"poussins\"><span class=\"bdg\">997</span><span class=\"ic\">🐣</span><div><div class=\"nm\">Nouvelle bande</div><div class=\"sb\">997 poussins à installer</div></div></div><div class=\"tile\" data-go=\"pesee\"><span class=\"ic\">⚖️</span><div><div class=\"nm\">Peser</div><div class=\"sb\">B1 aujourd'hui</div></div></div><div class=\"tile\" data-go=\"mesbandes\"><span class=\"ic\">📈</span><div><div class=\"nm\">Mes bandes</div><div class=\"sb\">suivi, bilans, étoiles</div></div></div></div>", "poussins": "<div class=\"ttl\">🐣 997 poussins</div><div class=\"lab\">Dans quel bâtiment ? (toucher)</div><div class=\"choice\"><div class=\"on\">B3<br><span class=\"small\">vide</span></div><div style=\"opacity:.5\">B1<br><span class=\"small\">en cours</span></div></div><button class=\"send\" style=\"background:var(--prairie)\" data-done=\"Bande ouverte\">Commencer la bande</button>", "pesee": "<div class=\"ttl\">⚖️ Pesée · B1</div><div class=\"cpt\"><div class=\"l\">Poulets pesés</div><div class=\"ctl\"><span class=\"rd mn\">−</span><span class=\"v\">10</span><span class=\"rd pl\">+</span></div></div><div class=\"fld\" style=\"font-size:24px\">9,8 kg</div><button class=\"send\" style=\"background:var(--bleu)\" data-done=\"Pesée enregistrée · +210 g\">Enregistrer</button>", "sortie": "<div class=\"ttl\">🚚 Sortie</div><div class=\"choice\"><div class=\"on\">Abattoir</div><div>Vente</div><div>Autre</div></div><div class=\"fld\">Abattoir de Ntoum ▾</div><div class=\"cpt\"><div class=\"l\">Poulets</div><div class=\"ctl\"><span class=\"rd mn\">−</span><span class=\"v\" style=\"font-size:22px\">500</span><span class=\"rd pl\">+</span></div></div><div class=\"lab\">Combien avez-vous reçu ? (facultatif)</div><div class=\"fld\">1 250 000 FCFA</div><button class=\"send\" style=\"background:var(--bleu)\" data-done=\"Sortie enregistrée\">Enregistrer</button>", "mesbandes": "<div class=\"ttl\">📈 Mes bandes</div><div class=\"hero\"><svg width=\"46\" height=\"46\" viewBox=\"0 0 120 120\" data-chick=\"vert\"></svg><div><div class=\"t\">B1 · jour 23</div><div class=\"small\">982 poulets · 980 g</div></div></div><div class=\"hero\" style=\"display:block\"><div class=\"small\">B1-06 · terminée</div><div class=\"stars\"><b>★</b><b>★</b><b>★</b></div></div>", "sante": "<div class=\"ttl\">🩺 Santé</div><div class=\"hero\" style=\"display:block\"><div class=\"small\">Vaccin de demain · B2</div><div style=\"font-weight:800;font-size:18px\">Gumboro</div></div><div class=\"sub\"><div class=\"tile red\" data-go=\"malade\"><span class=\"ic\">🩺</span><div><div class=\"nm\">Poulet malade</div><div class=\"sb\">prévenir le vétérinaire</div></div></div><div class=\"tile \" data-go=\"vaccin\"><span class=\"bdg\">demain</span><span class=\"ic\">💉</span><div><div class=\"nm\">Vaccins</div><div class=\"sb\">demain : Gumboro</div></div></div><div class=\"tile \" data-go=\"traitement\"><span class=\"ic\">💊</span><div><div class=\"nm\">Traitement</div><div class=\"sb\">enregistrer un médicament</div></div></div></div>", "malade": "<div class=\"ttl\">🩺 Poulet malade</div><div class=\"picto\"><div class=\"on\"><span>💀</span>Morts soudaines</div><div><span>😴</span>Abattus</div><div><span>🍽️</span>Ne mangent plus</div><div><span>💧</span>Diarrhée</div><div><span>😮‍💨</span>Respirent mal</div><div><span>🪶</span>Plumes</div></div><div class=\"photo\"><div class=\"add\">📷</div></div><button class=\"send\" style=\"background:var(--crete)\" data-done=\"Envoyé au vétérinaire\">Envoyer au vétérinaire</button>", "vaccin": "<div class=\"ttl\">💉 Vaccins et soins</div><div class=\"hero\" style=\"display:block\"><div class=\"small\">Vaccin de demain · B2</div><div style=\"font-weight:800;font-size:20px\">Gumboro</div><div class=\"small\">dans l'eau de boisson</div><button class=\"send\" style=\"margin-top:8px;font-size:17px;padding:10px\" data-done=\"Vaccin enregistré\">✓ C'est fait</button></div><div class=\"sub\"><div class=\"tile\" data-go=\"traitement\"><span class=\"ic\">💊</span><div><div class=\"nm\">Traitement</div><div class=\"sb\">enregistrer un médicament</div></div></div><div class=\"tile\" data-go=\"signal\"><span class=\"bdg b\">1</span><span class=\"ic\">💬</span><div><div class=\"nm\">Mes signalements</div><div class=\"sb\">réponse du vétérinaire</div></div></div></div>", "traitement": "<div class=\"ttl\">💊 Traitement</div><div class=\"choice\"><div class=\"on\">Antibiotique A</div><div>Vitamines</div></div><div class=\"cpt\"><div class=\"l\">Jours</div><div class=\"ctl\"><span class=\"rd mn\">−</span><span class=\"v\">5</span><span class=\"rd pl\">+</span></div></div><button class=\"send\" style=\"background:var(--bleu)\" data-done=\"Traitement enregistré\">Enregistrer</button>", "produits": "<div class=\"ttl\">📦 Mes produits</div><div class=\"hero\" style=\"display:block\"><div class=\"small\">À confirmer · livraison du 08/11</div><div style=\"font-weight:800\">1 000 poussins · 40 sacs</div><button class=\"send\" style=\"margin-top:8px;font-size:17px;padding:10px\" data-done=\"Livraison confirmée\">✓ Tout reçu</button></div><div class=\"sub\"><div class=\"tile \" data-go=\"achat\"><span class=\"ic\">🛒</span><div><div class=\"nm\">J'ai acheté</div><div class=\"sb\">aliment, vaccin, poussins…</div></div></div><div class=\"tile \" data-go=\"stock\"><span class=\"ic\">🧺</span><div><div class=\"nm\">Mon stock</div><div class=\"sb\">État et achats</div></div></div><div class=\"tile \" data-go=\"livs\"><span class=\"ic\">📦</span><div><div class=\"nm\">Mes livraisons</div><div class=\"sb\">historique</div></div></div></div>", "achat": "<div class=\"ttl\">🛒 J'ai acheté</div><div class=\"lab\">Quoi ? (toucher)</div><div class=\"choice\"><div class=\"on\">Aliment croissance</div><div>Gumboro</div><div>Autre…</div></div><div class=\"cpt\"><div class=\"l\">Sacs</div><div class=\"ctl\"><span class=\"rd mn\">−</span><span class=\"v\">10</span><span class=\"rd pl\">+</span></div></div><button class=\"send\" style=\"background:var(--bleu)\" data-done=\"Achat enregistré\">Enregistrer</button>", "stock": "<div class=\"ttl\">🧺 Mon stock</div><div class=\"hist\" style=\"background:#fff;border-radius:16px;padding:8px 12px\"><div><span>Aliment croissance</span><span>22 sacs</span></div><div><span>Gumboro</span><span>2 flacons</span></div><div><span>Poussins en attente</span><span>997</span></div></div>", "livs": "<div class=\"ttl\">📦 Mes livraisons</div><div class=\"hist\" style=\"background:#fff;border-radius:16px;padding:8px 12px\"><div><span>08/11 · poussins</span><span>reçue ✓</span></div><div><span>02/11 · aliment</span><span>reçue ✓</span></div></div>", "argent": "<div class=\"ttl\">💰 Mon argent · novembre</div><div class=\"tiles\" style=\"grid-template-columns:1fr 1fr 1fr;margin-bottom:12px\"><div class=\"tile\" style=\"min-height:70px;cursor:default\"><div class=\"sb\">Gagné</div><div class=\"nm\" style=\"color:var(--prairie)\">1,25 M</div></div><div class=\"tile\" style=\"min-height:70px;cursor:default\"><div class=\"sb\">Dépensé</div><div class=\"nm\" style=\"color:var(--crete)\">0,48 M</div></div><div class=\"tile\" style=\"min-height:70px;cursor:default\"><div class=\"sb\">Reste</div><div class=\"nm\">0,77 M</div></div></div><div class=\"sub\"><div class=\"tile \" data-go=\"paye\"><span class=\"ic\">💸</span><div><div class=\"nm\">J'ai payé</div><div class=\"sb\">salaire, essence, transport…</div></div></div></div>", "paye": "<div class=\"ttl\">💸 J'ai payé</div><div class=\"lab\">Pour quoi ? (toucher)</div><div class=\"picto\"><div class=\"on\"><span>👷</span>Main-d'œuvre</div><div><span>⚡</span>Électricité</div><div><span>⛽</span>Carburant</div><div><span>🚚</span>Transport</div><div><span>💧</span>Eau</div><div><span>🔧</span>Réparation</div></div><div class=\"fld\">50 000 FCFA</div><button class=\"send\" style=\"background:var(--bleu)\" data-done=\"Dépense enregistrée\">Enregistrer</button>", "entretien": "<div class=\"ttl\">🔧 Entretien</div><div class=\"task\" style=\"display:flex;align-items:center;gap:10px;background:#fff;border-radius:16px;padding:12px;margin-bottom:10px;border:1px solid #edf0f6\"><span style=\"font-size:26px\">💧</span><div style=\"font-weight:800\">Laver les abreuvoirs<div class=\"small\">B1 et B2 · chaque jour</div></div><span class=\"send\" style=\"width:auto;margin-left:auto;font-size:14px;padding:8px 12px\" data-done=\"Tâche faite\">Fait ✓</span></div><div class=\"sub\"><div class=\"tile red\" data-go=\"panne\"><span class=\"ic\">⚠️</span><div><div class=\"nm\">Quelque chose est en panne</div><div class=\"sb\"></div></div></div></div>", "panne": "<div class=\"ttl\">⚠️ Qu'est-ce qui ne marche pas ? (toucher)</div><div class=\"picto\"><div class=\"on\"><span>🔥</span>Chauffage</div><div><span>💧</span>Eau</div><div><span>⚡</span>Électricité</div><div><span>🌀</span>Ventilation</div><div><span>🍽️</span>Mangeoires</div><div><span>🏠</span>Bâtiment</div></div><button class=\"send\" style=\"background:var(--crete)\" data-done=\"Panne envoyée à Paul\">Envoyer à mon agent</button>", "signal": "<div class=\"ttl\">💬 Mes signalements</div><div class=\"hero\" style=\"display:block\"><div class=\"small\">05/11 · B2 · morts soudaines</div><div style=\"font-weight:800;color:var(--prairie)\">✓ Vu par le vétérinaire</div><div class=\"small\" style=\"margin-top:6px\">« Augmentez la ventilation, je passe vendredi. » — Dr Ella</div></div>", "moi": "<div class=\"ttl\">👤 Moi</div><div class=\"hero\" style=\"display:block\"><div class=\"small\">Ma ferme</div><div style=\"font-weight:800\">Ferme Nkok · EST-001</div><div class=\"small\">3 bâtiments · 4 500 places</div></div><div class=\"sub\"><div class=\"tile\"><span class=\"ic\">🔑</span><div><div class=\"nm\">Mon compte</div><div class=\"sb\">mot de passe, code PIN</div></div></div><div class=\"tile\"><span class=\"ic\">🏦</span><div><div class=\"nm\">Partage avec la BCEG</div><div class=\"sb\">oui / non</div></div></div><div class=\"tile\"><span class=\"ic\">❓</span><div><div class=\"nm\">Comment faire ?</div><div class=\"sb\">aide et tutoriel</div></div></div><div class=\"tile\"><span class=\"ic\">🚪</span><div><div class=\"nm\">Se déconnecter</div></div></div></div>"};const HOME="<div class=\"status\"><svg width=\"44\" height=\"44\" viewBox=\"0 0 120 120\" data-chick=\"vert\"></svg><div><div class=\"t\">2 bâtiments · tout va bien</div><div class=\"small\">B1 jour 23 · B2 jour 5 · visite de Paul jeudi</div></div></div>\n<div class=\"tiles\">\n<div class=\"tile big\" data-go=\"saisie\"><span class=\"ic\">✏️</span><div style=\"text-align:left\"><div class=\"nm\">Saisie du jour</div><div class=\"sb\">B2 à faire · + pesée B1</div></div><span class=\"bdg\" style=\"background:#fff;color:var(--prairie)\">1</span></div>\n<div class=\"tile\" data-go=\"bande\"><span class=\"bdg b\">997</span><span class=\"ic\">🐔</span><div class=\"nm\">Ma bande</div><div class=\"sb\">poussins, pesée, bilans</div></div>\n<div class=\"tile\" data-go=\"sortie\"><span class=\"ic\">🚚</span><div class=\"nm\">Ventes et sorties</div><div class=\"sb\">abattoir, vente</div></div>\n<div class=\"tile\" data-go=\"vaccin\"><span class=\"bdg\">demain</span><span class=\"ic\">💉</span><div class=\"nm\">Vaccins et soins</div><div class=\"sb\">vaccins, traitements</div></div>\n<div class=\"tile red\" data-go=\"malade\"><span class=\"ic\">🩺</span><div class=\"nm\">Poulet malade</div><div class=\"sb\" style=\"color:#a12a2e\">prévenir le vétérinaire</div></div>\n<div class=\"tile\" data-go=\"produits\"><span class=\"bdg\">1</span><span class=\"ic\">📦</span><div class=\"nm\">Mes produits</div><div class=\"sb\">livraisons, achats, stock</div></div>\n<div class=\"tile\" data-go=\"argent\"><span class=\"ic\">💰</span><div class=\"nm\">Mon argent</div><div class=\"sb\">dépenses, gains</div></div>\n<div class=\"tile\" style=\"grid-column:1/3;flex-direction:row;gap:12px\" data-go=\"entretien\"><span class=\"bdg\">2</span><span class=\"ic\">🔧</span><div style=\"text-align:left\"><div class=\"nm\" style=\"margin:0\">Entretien</div><div class=\"sb\">2 tâches · signaler une panne</div></div></div>\n</div>";
+let n=0,stack=[];const v=document.getElementById("v"),cnt=document.getElementById("cnt");
+function paint(){document.querySelectorAll("[data-chick]").forEach(e=>e.innerHTML=chick(e.dataset.chick))}
+function setc(){cnt.textContent=n+(n>1?" clics":" clic")}
+function bind(){v.querySelectorAll("[data-go]").forEach(t=>t.onclick=(e)=>{e.stopPropagation();n++;setc();go(t.dataset.go)});
+ v.querySelectorAll("[data-done]").forEach(b=>b.onclick=(e)=>{e.stopPropagation();n++;setc();v.innerHTML='<div style="text-align:center;padding:50px 0"><svg width="110" height="110" viewBox="0 0 120 120" data-chick="vert"></svg><div class="ttl" style="margin-top:8px">'+b.dataset.done+' ✓</div><div class="small">en '+n+' clic'+(n>1?'s':'')+'</div><div class="ghost" id="bk">Retour à l\'accueil</div></div>';paint();document.getElementById("bk").onclick=home});
+ v.querySelectorAll(".choice div,.picto div").forEach(c=>c.onclick=()=>{c.parentNode.querySelectorAll("div").forEach(x=>x.classList.remove("on"));c.classList.add("on")});
+ const bk=v.querySelector(".back");if(bk)bk.onclick=()=>{stack.pop();const p=stack.pop();p?go(p):home()};}
+function home(){n=0;setc();stack=[];v.innerHTML=HOME;paint();bind()}
+function go(k){stack.push(k);v.innerHTML='<span class="back">‹ Retour</span>'+S[k];paint();bind()}
+document.getElementById("moi").onclick=()=>{n=1;setc();go("moi")};
+home();
+</script></body></html>
