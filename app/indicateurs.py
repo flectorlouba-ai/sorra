@@ -561,3 +561,149 @@ def production_fermes(fermes, jour=None):
                           'carcasse': reelle * rendement,
                           'part_nationale': reelle * 100 / objectif if objectif else None}
     return resultat
+
+
+# ── Lot C : mortalité et viabilité à 5 niveaux, séries hebdomadaires sur 52 semaines ──
+# Une seule source : toutes les formules du lot C sont ici. Une semaine sans donnée vaut None (un trou dans la courbe),
+# jamais zéro.
+
+def mortalite_viabilite(bandes):
+    """Mortalité et viabilité d'un ensemble de bandes (bande, ferme, cohorte, province, national) :
+    mortalité = morts cumulés / mis en place ; viabilité = 100 − mortalité. None sans poussin mis en place."""
+    mis = morts = 0
+    for b in bandes:
+        v = calculer(b)
+        mis += v['mis_en_place']
+        morts += v['morts_cumules']
+    if not mis:
+        return {'bandes': len(bandes), 'mis_en_place': 0, 'morts': 0, 'mortalite': None, 'viabilite': None}
+    mortalite = morts * 100 / mis
+    return {'bandes': len(bandes), 'mis_en_place': mis, 'morts': morts, 'mortalite': mortalite,
+            'viabilite': 100 - mortalite}
+
+
+def semaines(n=52, jour=None):
+    """Les n dernières semaines (lundi, dimanche), la plus ancienne d'abord ; la dernière contient `jour`."""
+    jour = jour or date.today()
+    lundi = jour - timedelta(days=jour.weekday())
+    return [(lundi - timedelta(weeks=i), lundi - timedelta(weeks=i) + timedelta(days=6)) for i in range(n - 1, -1, -1)]
+
+
+def _dans(d, semaine):
+    return semaine[0] <= d <= semaine[1]
+
+
+def serie_mortalite_hebdo(bandes, sem=None):
+    """% de morts de la semaine sur l'effectif présent au début de la semaine ; None sans aucune saisie la semaine."""
+    sem = sem or semaines()
+    serie = []
+    for s in sem:
+        morts = effectif = 0
+        saisie = False
+        for b in bandes:
+            if b.date_mise_en_place > s[1] or (b.date_cloture and b.date_cloture < s[0]):
+                continue
+            du_jour = [x for x in b.saisies if _dans(x.date, s)]
+            if not du_jour:
+                continue
+            saisie = True
+            morts += sum(x.morts for x in du_jour)
+            avant = [x for x in b.saisies if x.date < s[0]]
+            sortis = sum(o.nombre for o in b.sorties_comptees if o.date < s[0])
+            effectif += b.effectif_initial - b.morts_avant_suivi - sum(x.morts for x in avant) - sortis
+        serie.append(morts * 100 / effectif if saisie and effectif > 0 else None)
+    return serie
+
+
+def serie_poids_hebdo(bandes, sem=None):
+    """Poids moyen (g) des pesées de la semaine, pondéré par le nombre de poulets pesés ; None sans pesée."""
+    sem = sem or semaines()
+    serie = []
+    for s in sem:
+        pesees = [p for b in bandes if not b.ponte for p in b.pesees if _dans(p.date, s)]
+        n = sum(p.nombre_pesees for p in pesees)
+        serie.append(sum(p.poids_moyen_g * p.nombre_pesees for p in pesees) / n if n else None)
+    return serie
+
+
+def serie_regularite_hebdo(bandes, sem=None):
+    """% de jours saisis sur les jours attendus (bandes en cours) dans la semaine ; None sans jour attendu."""
+    sem = sem or semaines()
+    serie = []
+    for s in sem:
+        attendus = saisis = 0
+        for b in bandes:
+            debut, fin = max(s[0], debut_suivi(b)), min(s[1], b.date_cloture or date.today(), date.today())
+            if fin < debut:
+                continue
+            jours = (fin - debut).days + 1
+            attendus += jours
+            saisis += len({x.date for x in b.saisies if debut <= x.date <= fin})
+        serie.append(saisis * 100 / attendus if attendus else None)
+    return serie
+
+
+def serie_somme_hebdo(elements, sem=None):
+    """Somme par semaine de (date, valeur) ; None pour une semaine sans élément."""
+    sem = sem or semaines()
+    serie = []
+    for s in sem:
+        valeurs = [v for d, v in elements if d is not None and _dans(d, s) and v is not None]
+        serie.append(sum(valeurs) if valeurs else None)
+    return serie
+
+
+def serie_compte_hebdo(dates, sem=None, debut=None):
+    """Nombre d'événements par semaine. Avant le début du suivi (`debut`, sinon le premier événement) : None (trou) ;
+    ensuite, 0 est une vraie mesure (aucun événement cette semaine-là)."""
+    sem = sem or semaines()
+    dates = [d for d in dates if d is not None]
+    debut = debut or (min(dates) if dates else None)
+    serie = []
+    for s in sem:
+        if debut is None or s[1] < debut:
+            serie.append(None)
+        else:
+            serie.append(sum(1 for d in dates if _dans(d, s)))
+    return serie
+
+
+def serie_production_hebdo(bandes, sem=None):
+    """Poids vif sorti (t) par semaine des bandes de chair ; None si aucune bande de chair n'était en cours."""
+    sem = sem or semaines()
+    serie = []
+    for s in sem:
+        actives = [b for b in bandes if not b.ponte and b.date_mise_en_place <= s[1]
+                   and (b.date_cloture is None or b.date_cloture >= s[0])]
+        if not actives:
+            serie.append(None)
+            continue
+        serie.append(sum(o.poids_total_kg for b in actives for o in b.sorties_comptees if _dans(o.date, s)) / 1000)
+    return serie
+
+
+def serie_fermes_actives_hebdo(bandes, sem=None):
+    """Nombre d'élevages ayant au moins une saisie dans la semaine ; None avant la première saisie."""
+    sem = sem or semaines()
+    toutes = [x.date for b in bandes for x in b.saisies]
+    debut = min(toutes) if toutes else None
+    serie = []
+    for s in sem:
+        if debut is None or s[1] < debut:
+            serie.append(None)
+        else:
+            serie.append(len({b.ferme_id for b in bandes for x in b.saisies if _dans(x.date, s)}))
+    return serie
+
+
+def participation(fermes, jour=None):
+    """Lot C2 : participation à l'objectif national d'un ensemble de fermes (ferme, cohorte, province, national) :
+    production réelle 12 mois (poids vif, t) et équivalent carcasse, cible (programme), atteinte, part nationale."""
+    p = production_fermes(fermes, jour)
+    reelle = sum(x['reelle'] for x in p.values())
+    cible = sum(x['cible'] or 0 for x in p.values())
+    objectif = objectif_national_t()
+    atteinte = taux_atteinte(sum(p[f.id]['reelle'] for f in fermes if f.programme_poufa), cible)
+    return {'reelle': reelle, 'carcasse': reelle * rendement_carcasse(), 'cible': cible or None,
+            'atteinte': atteinte, 'couleur': couleur_atteinte(atteinte),
+            'part_nationale': reelle * 100 / objectif if objectif else None}

@@ -114,6 +114,14 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | **Raisons d'un « non »** : Voisin · Autre bâtiment · Autre exploitant · Autre | Listes → « Raisons : ce n'est pas la même ferme » |
 | **Saisies possibles sur une ferme provisoire** : visite et dépense | `terrain/agent/ferme_provisoire.html` |
 
+## Lot C — indicateurs (DGE, vétérinaires)
+
+| Point | Où le changer |
+|---|---|
+| **Formules** : mortalité = morts / mis en place ; viabilité = 100 − mortalité ; mortalité hebdomadaire = morts de la semaine / effectif au début de la semaine | `app/indicateurs.py` |
+| **Indicateurs par profil** (5 à 8 chacun, 3 avec courbe) : éleveur (viabilité, aliment, IC, objectif ; courbes mortalité, poids moyen, gagné), agent (mortalité, visites, alertes, écarts ; courbes mortalité, régularité, visites), vétérinaire (alertes, mortalité de la zone, vaccinations en retard, bandes bloquées, délai de réponse — aucune donnée financière), DGE (production, mortalité, élevages, provinces ≥ 80 %, écarts, carcasse), admin (comptes, profils, validations, échecs) | `services/mes_indicateurs.py` |
+| **Semaine sans donnée** = trou dans la courbe, jamais zéro | `indicateurs.semaines` et séries |
+
 ## Test terrain
 
 L'écran de l'éleveur doit être **testé par 3 à 5 vrais éleveurs** avant d'être figé (`docs/ergonomie.md`, section E) : 8 tuiles, saisie du jour avec « — », « Aucun mort », « Comme hier ».

@@ -32,3 +32,9 @@ Chaque ligne : lot · question · choix · autre option · comment revenir en ar
 | L | Source des comptes | Lus **en base** à chaque affichage (comptes actifs), jamais une liste écrite dans le code | Liste dans le code | — |
 | L | Mot de passe public | Lu dans `SORRA_DEMO_MDP` du `.env`, à défaut la valeur publique déjà dans `deployer_serveur.sh` | Toujours dans le `.env` | Retirer la valeur par défaut dans `config.py` |
 | L | Version du service worker | Automatique : l'empreinte change avec le gabarit de connexion | Numéro à la main | — |
+| C | Mortalité hebdomadaire | Morts de la semaine / effectif présent au début de la semaine ; semaine sans aucune saisie = trou | Mortalité cumulée | `indicateurs.serie_mortalite_hebdo` |
+| C | Compteurs hebdomadaires (alertes, visites, échecs) | Avant le début du suivi : trou ; ensuite 0 est une vraie mesure | Toujours trou si 0 | `indicateurs.serie_compte_hebdo` |
+| C | Cohorte à 5 niveaux | 4 groupes : Cohorte 1, Cohorte 2, Programme sans cohorte, Hors programme | Cohortes seulement | `routes/indicateurs._cohorte` |
+| C | Écran des 5 niveaux pour l'éleveur | Non (il a « Mes indicateurs » et sa cible) ; c'est un écran de bureau | Niveau « ferme » seul pour l'éleveur | Rajouter ELEVEUR dans `LECTEURS` et une page gardée sur le téléphone |
+| C | Seuils des couleurs des courbes | Aucune couleur par seuil sur les courbes (valeurs seulement) ; les seuils viendront avec les tableaux de bord du lot R | Seuils dès maintenant | — |
+| C | Admin : « sessions et sécurité » | Pas d'indicateur de sessions ouvertes (pas de table des sessions aujourd'hui) : échecs de connexion et opérations sensibles à la place | — | Lot S |

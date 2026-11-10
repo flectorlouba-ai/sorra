@@ -3,6 +3,7 @@
 {% block page_titre %}👤 Moi{% endblock %}
 {% block page_sous_titre %}{{ current_user.nom_complet }}{% endblock %}
 {% block contenu %}
+{% if current_user.profil.value == 'AGENT' %}<a class="btn-gros-secondaire mb-2" href="{{ url_for('indicateurs.mes') }}" data-mes-indicateurs-lien>📈 Mes indicateurs</a>{% endif %}
 {# Moi de l'agent et de l'opérateur (lot 19 ter). « Version bureau » : agent, sur ordinateur seulement. #}
 <div class="ma-ferme">
   <div class="ma-ferme-titre">{{ current_user.profil.libelle }}</div>

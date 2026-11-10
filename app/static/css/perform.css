@@ -852,3 +852,26 @@ body.fenetre-ouverte{overflow:hidden;}
 .encadres-carte{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.6rem;}
 .encadre-carte{flex:1;min-width:240px;border:1px solid var(--grise);border-radius:8px;padding:.5rem .7rem;font-size:.75rem;}
 .encadre-carte strong{display:block;margin-bottom:.2rem;}
+
+/* Lot C : indicateurs clés et courbes hebdomadaires (SVG local) */
+.cartes-indicateurs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;margin-bottom:.9rem;}
+.carte-indicateur{background:var(--blanc);border-radius:10px;padding:.6rem .8rem;border-top:4px solid var(--noir3);box-shadow:0 2px 6px rgba(0,0,0,.06);min-width:0;}
+.carte-indicateur small{display:block;color:var(--gris5);font-weight:600;font-size:.7rem;}
+.carte-indicateur b{display:block;font-size:1.3rem;color:var(--noir);word-break:break-word;}
+.carte-indicateur span{display:block;font-size:.68rem;color:var(--gris8);}
+.carte-indicateur.alerte{border-top-color:var(--rouge);}
+.courbes-hebdo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.6rem;}
+.courbe-hebdo{background:var(--blanc);border-radius:10px;padding:.6rem .8rem;margin:0;box-shadow:0 2px 6px rgba(0,0,0,.06);min-width:0;}
+.courbe-hebdo figcaption{display:flex;align-items:baseline;gap:.4rem;font-size:.8rem;}
+.courbe-hebdo figcaption small{color:var(--gris8);font-size:.68rem;}
+.courbe-derniere{margin-left:auto;font-weight:900;color:var(--noir3);}
+.courbe-hebdo svg{width:100%;height:90px;display:block;margin:.3rem 0;}
+.courbe-axe{stroke:var(--grise);stroke-width:1;}
+.courbe-trait{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;}
+.courbe-bleu .courbe-trait,.courbe-bleu .courbe-point{stroke:var(--noir3);fill:var(--noir3);}
+.courbe-rouge .courbe-trait,.courbe-rouge .courbe-point{stroke:var(--rouge);fill:var(--rouge);}
+.courbe-orange .courbe-trait,.courbe-orange .courbe-point{stroke:var(--att-encre);fill:var(--att-encre);}
+.courbe-vert .courbe-trait,.courbe-vert .courbe-point{stroke:var(--ok-encre);fill:var(--ok-encre);}
+.courbe-trait{fill:none!important;}
+.courbe-bornes{display:flex;justify-content:space-between;font-size:.62rem;color:var(--gris8);}
+.fil-niveaux{font-size:.8rem;margin-bottom:.6rem;}

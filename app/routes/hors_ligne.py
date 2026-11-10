@@ -61,7 +61,7 @@ def jeton():
 
 # Lot 13 : toutes les pages de l'éleveur sont gardées par le téléphone (service worker) à chaque
 # ouverture de l'accueil avec du réseau. Une seule liste, vérifiée par tests/test_pages_hors_ligne.py.
-PAGES_ELEVEUR = ['accueil.index', 'eleveur.saisie', 'eleveur.ma_bande', 'eleveur.soins', 'eleveur.produits',
+PAGES_ELEVEUR = ['accueil.index', 'eleveur.saisie', 'eleveur.ma_bande', 'eleveur.soins', 'eleveur.produits', 'indicateurs.mes',
                  'argent.mon_argent', 'argent.payer', 'eleveur.achat', 'eleveur.stock', 'livraisons.mes_livraisons',
                  'bandes.mes_bandes', 'bandes.ouvrir', 'entretien.ecran', 'entretien.panne', 'eleveur.moi',
                  'eleveur.mon_compte', 'visites.mes_visites', 'sante.mes_declarations', 'eleveur.presentation',
@@ -113,14 +113,16 @@ PAGES_OPERATEUR = ['accueil.index', 'operateur.scanner', 'operateur.attendus', '
 PAGES_AGENT_TERRAIN = ['terrain.tournee', 'terrain.fermes', 'terrain.saisir', 'terrain.stock', 'terrain.nouvel_eleveur',
                        'terrain.moi', 'terrain.presentation', 'hors_ligne.conflits', 'aides.liste',
                        'eleveur.achat', 'argent.payer', 'entretien.ecran', 'entretien.panne', 'bandes.ouvrir',
-                       'bandes.rattrapage', 'terrain.nouvelle_ferme', 'terrain.ferme_provisoire']   # lot E-b
+                       'bandes.rattrapage', 'terrain.nouvelle_ferme', 'terrain.ferme_provisoire',   # lot E-b
+                       'indicateurs.mes']   # lot C
 # Pages que l'agent et l'opérateur peuvent ouvrir mais qui ne sont PAS gardées sur le téléphone : la sécurité du
 # compte (en ligne par nature), la création d'une ferme (avec du réseau seulement, jusqu'au lot 19 bis), et les
 # écrans de la « Version bureau » de l'agent (pilotage, sur ordinateur). Vérifié par tests/test_lot19ter.py.
 EN_LIGNE_SEULEMENT = {'auth.securite', 'auth.mise_en_place', 'fermes.nouvelle'}
 VERSION_BUREAU_AGENT = {'operateurs.liste', 'livraisons.liste', 'livraisons.nouvelle', 'bandes.liste', 'sante.vaccins',
                         'pilotage.tableau', 'tracabilite.lots', 'agent.commandes', 'fermes.liste',
-                        'catalogue.index', 'catalogue.fournisseurs'}   # lot A2 : lecture du catalogue (bureau)
+                        'catalogue.index', 'catalogue.fournisseurs',   # lot A2 : lecture du catalogue (bureau)
+                        'indicateurs.niveaux'}   # lot C (bureau)
 
 
 def _aides_du_profil(prefixe):

@@ -1,0 +1,28 @@
+{# Lot C : courbe hebdomadaire sur 52 semaines, dessinée sur place (SVG, aucune bibliothèque externe).
+   Une semaine sans donnée (None) coupe la ligne : c'est un trou, jamais un zéro. #}
+{% macro courbe_hebdo(c, largeur=300, hauteur=90) -%}
+{%- set connues = c.points|map(attribute=1)|reject('none')|list -%}
+{%- set haut = (connues|max) if connues else 1 -%}
+{%- set bas = [(connues|min) if connues else 0, 0]|min -%}
+{%- set etendue = (haut - bas) or 1 -%}
+<figure class="courbe-hebdo courbe-{{ c.couleur }}" data-courbe="{{ c.nom }}">
+  <figcaption><strong>{{ c.nom }}</strong> <small>{{ c.unite }} · 52 semaines</small>
+    <span class="courbe-derniere">{{ (('%.' ~ c.decimales ~ 'f') % c.derniere)|replace('.', ',') if c.derniere is not none else '—' }}</span></figcaption>
+  <svg viewBox="0 0 {{ largeur }} {{ hauteur }}" role="img" aria-label="{{ c.nom }} sur 52 semaines" preserveAspectRatio="none">
+    <line x1="0" y1="{{ hauteur - 4 }}" x2="{{ largeur }}" y2="{{ hauteur - 4 }}" class="courbe-axe"/>
+    {%- set ns = namespace(segment=[]) -%}
+    {%- for semaine, v in c.points -%}
+      {%- set x = (loop.index0 / 51 * (largeur - 6) + 3)|round(1) -%}
+      {%- if v is none -%}
+        {%- if ns.segment|length > 1 %}<polyline points="{{ ns.segment|join(' ') }}" class="courbe-trait"/>{% elif ns.segment|length == 1 %}<circle cx="{{ ns.segment[0].split(',')[0] }}" cy="{{ ns.segment[0].split(',')[1] }}" r="2" class="courbe-point"/>{% endif -%}
+        {%- set ns.segment = [] -%}
+      {%- else -%}
+        {%- set y = (hauteur - 6 - (v - bas) / etendue * (hauteur - 14))|round(1) -%}
+        {%- set ns.segment = ns.segment + [x ~ ',' ~ y] -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if ns.segment|length > 1 %}<polyline points="{{ ns.segment|join(' ') }}" class="courbe-trait"/>{% elif ns.segment|length == 1 %}<circle cx="{{ ns.segment[0].split(',')[0] }}" cy="{{ ns.segment[0].split(',')[1] }}" r="2" class="courbe-point"/>{% endif %}
+  </svg>
+  <div class="courbe-bornes"><span>{{ c.points[0][0].strftime('%d/%m/%y') }}</span><span>{% if connues %}min {{ (('%.' ~ c.decimales ~ 'f') % (connues|min))|replace('.', ',') }} · max {{ (('%.' ~ c.decimales ~ 'f') % (connues|max))|replace('.', ',') }}{% else %}pas encore de donnée{% endif %}</span><span>cette semaine</span></div>
+</figure>
+{%- endmacro %}
