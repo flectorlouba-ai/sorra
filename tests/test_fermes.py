@@ -9,7 +9,8 @@ from tests.conftest import creer_utilisateur, connecter, province, creer_ferme
 
 def form(**champs):
     d = {'nom': 'Ferme Mba', 'exploitant_nom': 'Jean Mba', 'exploitant_telephone': '+241 77 12 34 56',
-         'province_id': str(province('EST').id), 'localite_id': ''}
+         'province_id': str(province('EST').id), 'localite_id': '',
+         'programme_poufa': 'oui', 'nb_batiments': '1', 'places': '1000', 'bandes_par_an': '6'}   # lot A3
     d.update(champs)
     return d
 

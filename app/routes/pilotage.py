@@ -63,7 +63,9 @@ def tableau():
 @profil_requis(*NATIONAL)
 def carte():
     pid = request.args.get('province', type=int)
-    return render_template('pilotage/carte.html', carte=pilotage.carte(current_user, pid), province=pid,
+    programme = request.args.get('programme', '')
+    return render_template('pilotage/carte.html', carte=pilotage.carte(current_user, pid, programme=programme),
+                           province=pid, programme=programme,
                            provinces=Province.query.order_by(Province.ordre).all())
 
 

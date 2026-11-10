@@ -31,6 +31,7 @@
 {% if v.partiels %}<div class="flash-item info"><i class="bi bi-info-circle"></i>Bande de rattrapage : indicateurs partiels (aliment et pesées d'avant la mise en service inconnus).</div>{% endif %}
 {% if capacite_depassee %}<div class="flash-item warning"><i class="bi bi-exclamation-triangle"></i>{{ bande.effectif_initial|qte }} poussins mis en place pour {{ bande.batiment.capacite|qte }} places.</div>{% endif %}
 
+<div class="ligne-info" data-type-bande>{{ bande.libelle_type }}{% if bande.souche %} · souche {{ bande.souche }}{% endif %} · poussins : {{ bande.origine_poussins or 'origine non renseignée' }}</div>
 <div class="cartes-chiffres">
   <div class="carte-chiffre"><div class="cc-libelle">Poulets présents</div><div class="cc-valeur">{{ v.effectif_present|qte }}</div>
     <div class="cc-sous">sur {{ bande.effectif_initial|qte }} mis en place</div></div>
@@ -38,10 +39,10 @@
     <div class="cc-sous">viabilité {{ (v.viabilite or 0)|round(2)|qte }} % · {{ v.morts_cumules|qte }} morts
       {% if v.incomplet %}<br><span class="a-verifier">incomplet : {{ v.jours_non_saisis }} jour{{ 's' if v.jours_non_saisis > 1 }} non saisi{{ 's' if v.jours_non_saisis > 1 }}</span>{% endif %}</div></div>
   <div class="carte-chiffre"><div class="cc-libelle">Croissance</div>
-    <div class="cc-valeur">{% if v.gmq is not none %}{{ v.gmq|round(1)|qte }} g/j{% else %}—{% endif %}</div>
+    <div class="cc-valeur">{% if v.ponte %}sans objet{% elif v.gmq is not none %}{{ v.gmq|round(1)|qte }} g/j{% else %}—{% endif %}</div>
     <div class="cc-sous">{% if v.poids_moyen_g %}poids moyen {{ v.poids_moyen_g|round|qte }} g{% else %}pas encore de pesée{% endif %}</div></div>
   <div class="carte-chiffre"><div class="cc-libelle">Indice de consommation</div>
-    <div class="cc-valeur">{% if v.indice_consommation is not none and v.indice_consommation > 0 %}{{ v.indice_consommation|round(2)|qte }}{% else %}—{% endif %}</div>
+    <div class="cc-valeur">{% if v.ponte %}sans objet{% elif v.indice_consommation is not none and v.indice_consommation > 0 %}{{ v.indice_consommation|round(2)|qte }}{% else %}—{% endif %}</div>
     <div class="cc-sous">{% if v.poids_vif_produit %}{{ v.poids_vif_produit|round(1)|qte }} kg de poids vif produit{% else %}pesée nécessaire{% endif %}
       {% if v.incomplet %}<br><span class="a-verifier">incomplet</span>{% endif %}</div></div>
 </div>
@@ -51,6 +52,7 @@
     <div class="card-p h-100">
       <div class="card-p-head"><span class="card-p-title"><i class="bi bi-graph-up"></i> Courbe de croissance</span></div>
       <div class="card-p-body">
+        {% if v.ponte %}<div class="empty-note">Bande de ponte : la courbe de croissance du chair est sans objet.</div>{% else %}
         <svg class="courbe" viewBox="0 0 {{ courbe.largeur }} {{ courbe.hauteur }}" role="img" aria-label="Courbe de croissance">
           {% for y, g in courbe.poids %}<line class="courbe-grille" x1="{{ courbe.marge }}" x2="{{ courbe.largeur - courbe.marge }}" y1="{{ y }}" y2="{{ y }}"/><text class="courbe-texte" x="2" y="{{ y + 3 }}">{{ g }}</text>{% endfor %}
           {% for x, a in courbe.graduations %}<text class="courbe-texte" x="{{ x - 4 }}" y="{{ courbe.hauteur - courbe.marge + 14 }}">J{{ a }}</text>{% endfor %}
@@ -59,6 +61,7 @@
           {% for x, y in courbe.points %}<circle class="courbe-point" cx="{{ x }}" cy="{{ y }}" r="3"/>{% endfor %}
         </svg>
         <div class="legende"><span class="legende-reelle"></span> poids moyen réel (g) <span class="legende-attendue"></span> courbe attendue</div>
+        {% endif %}
       </div>
     </div>
   </div>

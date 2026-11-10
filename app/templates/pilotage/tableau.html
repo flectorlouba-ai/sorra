@@ -11,6 +11,11 @@
     {% for p in provinces %}<option value="{{ p.id }}" {% if f.province == p.id|string %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
   </select>
   {% endif %}
+  <select name="programme" class="filter-sel" onchange="this.form.submit()" data-filtre-programme>
+    <option value="">Programme et hors programme</option>
+    <option value="programme" {% if f.programme == 'programme' %}selected{% endif %}>Programme POUFA</option>
+    <option value="hors" {% if f.programme == 'hors' %}selected{% endif %}>Hors programme</option>
+  </select>
   <select name="cohorte" class="filter-sel" onchange="this.form.submit()">
     <option value="">Toutes les cohortes</option>
     <option value="1" {% if f.cohorte == '1' %}selected{% endif %}>Cohorte 1</option>
@@ -36,6 +41,13 @@
   <div class="carte-chiffre"><div class="cc-libelle">Poulets sortis</div><div class="cc-valeur">{{ t.sortis_tetes|qte }}</div><div class="cc-sous">{{ t.sortis_kg|round|qte }} kg · {{ (t.sortis_kg / 1000)|round(2)|qte }} t</div></div>
   <div class="carte-chiffre"><div class="cc-libelle">Aliment consommé</div><div class="cc-valeur">{{ (t.aliment_kg / 1000)|round(2)|qte }} t</div><div class="cc-sous">{{ t.aliment_kg|round|qte }} kg</div></div>
   <div class="carte-chiffre"><div class="cc-libelle">Régularité des saisies</div><div class="cc-valeur">{{ t.regularite|round|qte if t.regularite is not none else '—' }} %</div><div class="cc-sous">{{ alertes }} alerte{{ 's' if alertes != 1 }} sanitaire{{ 's' if alertes != 1 }} en cours</div></div>
+  {% set pr = t.production %}
+  <div class="carte-chiffre" id="production" data-production><div class="cc-libelle">Production 12 mois (poids vif)</div>
+    <div class="cc-valeur">{{ pr.reelle_totale|round(1)|qte }} t</div>
+    <div class="cc-sous">{{ pr.part_nationale|round(2)|qte if pr.part_nationale is not none else '—' }} % de l'objectif de {{ pr.objectif|round|qte }} t · ≈ {{ pr.carcasse|round(1)|qte }} t de carcasse</div></div>
+  <div class="carte-chiffre" data-atteinte-programme><div class="cc-libelle">Atteinte de la cible (programme)</div>
+    <div class="cc-valeur">{% if pr.couleur %}<span class="pastille-atteinte {{ pr.couleur }}">{{ pr.atteinte|round|int }} %</span>{% else %}—{% endif %}</div>
+    <div class="cc-sous">{{ pr.reelle_programme|round(1)|qte }} t sur {{ pr.cible|round(1)|qte }} t de cible · hors programme à part : {{ pr.fermes_hors }} ferme{{ 's' if pr.fermes_hors != 1 }}, {{ pr.reelle_hors|round(1)|qte }} t</div></div>
   <div class="carte-chiffre" id="incomplets"><div class="cc-libelle">Jours non saisis</div><div class="cc-valeur">{{ t.jours_non_saisis|qte }}</div>
     <div class="cc-sous">jamais comptés comme 0 · mortalité et IC incomplets pour {{ t.bandes_incompletes }} bande{{ 's' if t.bandes_incompletes != 1 }} sur {{ t.bandes }}</div></div>
 </div>

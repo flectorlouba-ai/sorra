@@ -102,6 +102,8 @@ def _lire(f, liv=None):
         d['ferme'] = next((fe for fe in fermes if fe.numero_metier == f.get('ferme')), None)
         if d['ferme'] is None:
             erreurs.append('Choisissez la ferme.')
+        elif not d['ferme'].programme_poufa:                       # lot A3
+            erreurs.append(HORS_PROGRAMME)
     try:
         d['date'] = date.fromisoformat(f.get('date_livraison', ''))
         if d['date'] > date.today():
@@ -391,6 +393,9 @@ def mes_livraisons():
     livraisons = (regles.livraisons_de_l_etat(filtre_perimetre(Livraison.query))
                   .order_by(Livraison.date_livraison.desc(), Livraison.numero_metier.desc()).all())
     return render_template('livraisons/mes_livraisons.html', livraisons=livraisons)
+
+
+HORS_PROGRAMME = "Cette ferme est hors programme : pas de livraison ni de commande de l'État."
 
 
 def noms_fournisseurs():

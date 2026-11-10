@@ -52,6 +52,21 @@
     {% endfor %}
   </div>
 
+  <div class="form-label mt-1">Quelle production ?</div>
+  <div class="choix-cases" data-type-production>
+    {% set tp = saisie.get('type_production') or 'CHAIR' %}
+    <label class="case-choix"><input type="radio" name="type_production" value="CHAIR" {% if tp == 'CHAIR' %}checked{% endif %}><span>🐔<br>Chair</span></label>
+    <label class="case-choix"><input type="radio" name="type_production" value="PONTE" {% if tp == 'PONTE' %}checked{% endif %}><span>🥚<br>Ponte</span></label>
+  </div>
+  {% if souches %}
+  <div class="form-group">
+    <label class="form-label" for="souche">Souche <span class="form-hint">facultatif</span></label>
+    <select class="form-control" id="souche" name="souche">
+      <option value="">—</option>
+      {% for s in souches %}<option value="{{ s }}" {% if saisie.get('souche') == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+  </div>
+  {% endif %}
   <div class="compteur">
     <div class="compteur-libelle">Poussins mis en place</div>
     <div class="compteur-boutons">

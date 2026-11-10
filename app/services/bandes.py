@@ -149,6 +149,17 @@ def ouvrir(ferme, batiment, ligne, effectif, jour, poids_g, auteur):
     return bande
 
 
+def typer(bande, type_production, souche):
+    """Lot A3 : chair (par défaut) ou ponte, souche facultative. Une bande de ponte dure plus longtemps."""
+    from app.models.bande import TypeProduction
+    from app.models.liste_deroulante import ld_choices
+    bande.type_production = type_production if type_production in TypeProduction.TOUS else TypeProduction.CHAIR
+    bande.souche = souche if souche in [v for v, _ in ld_choices('souches')] else None
+    if bande.ponte:
+        bande.date_fin_prevue = bande.date_mise_en_place + timedelta(
+            days=int(parametres.obtenir('bandes.duree_ponte_jours', 504)))
+
+
 def ouvrir_rattrapage(ferme, batiment, jour, effectif, morts_cumules, poids_g, auteur):
     """Bande déjà en cours avant la mise en service : indicateurs partiels."""
     _controle_batiment(ferme, batiment)

@@ -9,6 +9,11 @@
     <option value="">Tout le Gabon</option>
     {% for p in provinces %}<option value="{{ p.id }}" {% if province == p.id %}selected{% endif %}>{{ p.nom }}</option>{% endfor %}
   </select>
+  <select name="programme" class="filter-sel" onchange="this.form.submit()" data-filtre-programme>
+    <option value="">Programme et hors programme</option>
+    <option value="programme" {% if programme == 'programme' %}selected{% endif %}>Programme POUFA</option>
+    <option value="hors" {% if programme == 'hors' %}selected{% endif %}>Hors programme</option>
+  </select>
   <span class="legende"><span class="feu feu-petit feu-vert"></span> vert <span class="feu feu-petit feu-orange"></span> orange
     <span class="feu feu-petit feu-rouge"></span> rouge <span class="feu feu-petit feu-gris"></span> sans bande</span>
 </form>

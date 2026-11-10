@@ -535,8 +535,10 @@
 "poids_initial_g": 40,
 "rang": 1,
 "rattrapage": false,
+"souche": null,
 "statut": "CLOTUREE",
-"statut_synchro": "SYNCHRONISE"
+"statut_synchro": "SYNCHRONISE",
+"type_production": "CHAIR"
 },
 {
 "appareil_id": null,
@@ -563,8 +565,10 @@
 "poids_initial_g": 40,
 "rang": 1,
 "rattrapage": false,
+"souche": null,
 "statut": "EN_COURS",
-"statut_synchro": "SYNCHRONISE"
+"statut_synchro": "SYNCHRONISE",
+"type_production": "CHAIR"
 },
 {
 "appareil_id": null,
@@ -609,8 +613,10 @@
 "poids_initial_g": 40,
 "rang": 90,
 "rattrapage": false,
+"souche": null,
 "statut": "CLOTUREE",
-"statut_synchro": "SYNCHRONISE"
+"statut_synchro": "SYNCHRONISE",
+"type_production": "CHAIR"
 },
 {
 "appareil_id": null,
@@ -655,8 +661,10 @@
 "poids_initial_g": 40,
 "rang": 91,
 "rattrapage": false,
+"souche": null,
 "statut": "CLOTUREE",
-"statut_synchro": "SYNCHRONISE"
+"statut_synchro": "SYNCHRONISE",
+"type_production": "CHAIR"
 },
 {
 "appareil_id": null,
@@ -701,8 +709,10 @@
 "poids_initial_g": 40,
 "rang": 90,
 "rattrapage": false,
+"souche": null,
 "statut": "CLOTUREE",
-"statut_synchro": "SYNCHRONISE"
+"statut_synchro": "SYNCHRONISE",
+"type_production": "CHAIR"
 },
 {
 "appareil_id": null,
@@ -747,8 +757,10 @@
 "poids_initial_g": 40,
 "rang": 91,
 "rattrapage": false,
+"souche": null,
 "statut": "CLOTUREE",
-"statut_synchro": "SYNCHRONISE"
+"statut_synchro": "SYNCHRONISE",
+"type_production": "CHAIR"
 },
 {
 "appareil_id": null,
@@ -793,8 +805,10 @@
 "poids_initial_g": 40,
 "rang": 90,
 "rattrapage": false,
+"souche": null,
 "statut": "CLOTUREE",
-"statut_synchro": "SYNCHRONISE"
+"statut_synchro": "SYNCHRONISE",
+"type_production": "CHAIR"
 },
 {
 "appareil_id": null,
@@ -839,8 +853,10 @@
 "poids_initial_g": 40,
 "rang": 90,
 "rattrapage": false,
+"souche": null,
 "statut": "CLOTUREE",
-"statut_synchro": "SYNCHRONISE"
+"statut_synchro": "SYNCHRONISE",
+"type_production": "CHAIR"
 },
 {
 "appareil_id": null,
@@ -867,8 +883,10 @@
 "poids_initial_g": 40,
 "rang": 1,
 "rattrapage": true,
+"souche": null,
 "statut": "EN_COURS",
-"statut_synchro": "SYNCHRONISE"
+"statut_synchro": "SYNCHRONISE",
+"type_production": "CHAIR"
 },
 {
 "appareil_id": null,
@@ -895,8 +913,40 @@
 "poids_initial_g": 40,
 "rang": 1,
 "rattrapage": true,
+"souche": null,
 "statut": "EN_COURS",
-"statut_synchro": "SYNCHRONISE"
+"statut_synchro": "SYNCHRONISE",
+"type_production": "CHAIR"
+},
+{
+"appareil_id": null,
+"archive_le": null,
+"archive_par": null,
+"batiment_id": 7,
+"bilan": null,
+"cloturee_par": null,
+"cree_le": "2026-11-10T01:34:50.896012",
+"cree_par": null,
+"date_cloture": null,
+"date_fin_prevue": "2028-01-28",
+"date_mise_en_place": "2026-09-11",
+"effectif_initial": 900,
+"ferme_id": "a42b31e3-f812-4e06-9e68-c706f64eb946",
+"id": "4c3c4039-ad63-4706-80ba-b686a9e5fd59",
+"modifie_le": "2026-11-10T01:34:50.907730",
+"modifie_par": null,
+"morts_avant_suivi": 12,
+"motif_cloture": null,
+"numero_metier": "HOG-001-B3-01",
+"numero_provisoire": false,
+"ouverte_sans_desinfection": false,
+"poids_initial_g": 38,
+"rang": 1,
+"rattrapage": true,
+"souche": null,
+"statut": "EN_COURS",
+"statut_synchro": "SYNCHRONISE",
+"type_production": "PONTE"
 }
 ],
 "bande_poussins": [
@@ -1253,6 +1303,13 @@
 "id": 18,
 "prefixe": "ACH",
 "type": "ACHAT"
+},
+{
+"annee": 0,
+"dernier_numero": 1,
+"id": 19,
+"prefixe": "HOG-001-B3",
+"type": "BANDE"
 }
 ],
 "conflit_hors_ligne": [
@@ -1504,6 +1561,7 @@
 "appareil_id": null,
 "archive_le": null,
 "archive_par": null,
+"bandes_par_an": 6,
 "cohorte": 1,
 "cree_le": "2026-11-09T19:20:04.547001",
 "cree_par": null,
@@ -1523,6 +1581,7 @@
 "numero_metier": "EST-001",
 "numero_provisoire": false,
 "observations": null,
+"programme_poufa": true,
 "province_id": 1,
 "reference_ami": null,
 "responsable_id": null,
@@ -1535,6 +1594,7 @@
 "appareil_id": null,
 "archive_le": null,
 "archive_par": null,
+"bandes_par_an": 6,
 "cohorte": 1,
 "cree_le": "2026-11-09T19:20:04.609250",
 "cree_par": null,
@@ -1554,6 +1614,7 @@
 "numero_metier": "EST-002",
 "numero_provisoire": false,
 "observations": null,
+"programme_poufa": true,
 "province_id": 1,
 "reference_ami": null,
 "responsable_id": null,
@@ -1566,6 +1627,7 @@
 "appareil_id": null,
 "archive_le": null,
 "archive_par": null,
+"bandes_par_an": 6,
 "cohorte": 2,
 "cree_le": "2026-11-09T19:20:04.637212",
 "cree_par": null,
@@ -1585,6 +1647,7 @@
 "numero_metier": "EST-003",
 "numero_provisoire": false,
 "observations": null,
+"programme_poufa": true,
 "province_id": 1,
 "reference_ami": null,
 "responsable_id": null,
@@ -1597,6 +1660,7 @@
 "appareil_id": null,
 "archive_le": null,
 "archive_par": null,
+"bandes_par_an": 6,
 "cohorte": 2,
 "cree_le": "2026-11-09T19:20:04.663437",
 "cree_par": null,
@@ -1616,6 +1680,7 @@
 "numero_metier": "HOG-001",
 "numero_provisoire": false,
 "observations": null,
+"programme_poufa": true,
 "province_id": 2,
 "reference_ami": null,
 "responsable_id": null,
@@ -1628,7 +1693,8 @@
 "appareil_id": null,
 "archive_le": null,
 "archive_par": null,
-"cohorte": 1,
+"bandes_par_an": 6,
+"cohorte": null,
 "cree_le": "2026-11-09T19:20:04.699468",
 "cree_par": null,
 "exploitant_nom": "Exploitant Mouele",
@@ -1641,12 +1707,13 @@
 "latitude": "0.39",
 "localite_id": 6,
 "longitude": "9.45",
-"modifie_le": "2026-11-09T19:20:04.699473",
+"modifie_le": "2026-11-10T01:34:50.837685",
 "modifie_par": null,
 "nom": "Ferme Mouele",
 "numero_metier": "HOG-002",
 "numero_provisoire": false,
 "observations": null,
+"programme_poufa": false,
 "province_id": 2,
 "reference_ami": null,
 "responsable_id": null,
@@ -1659,6 +1726,7 @@
 "appareil_id": null,
 "archive_le": null,
 "archive_par": null,
+"bandes_par_an": null,
 "cohorte": null,
 "cree_le": "2026-11-09T19:21:09.886919",
 "cree_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
@@ -1672,12 +1740,13 @@
 "latitude": "0.3921",
 "localite_id": 1,
 "longitude": "9.6103",
-"modifie_le": "2026-11-10T10:37:41.045257",
+"modifie_le": "2026-11-10T01:34:50.859067",
 "modifie_par": "390e9611-ff2b-4567-a3d5-89f42211dbd8",
 "nom": "Ferme Test GPS",
 "numero_metier": "EST-004",
 "numero_provisoire": false,
 "observations": null,
+"programme_poufa": false,
 "province_id": 1,
 "reference_ami": null,
 "responsable_id": null,

@@ -86,6 +86,16 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | **Écart d'inventaire** : sur le Programme seulement (livré − utilisé − (compté − stock Externe)), en % du livré Programme | `models/agent.InventaireStock.ecart` |
 | **Catalogue** : la DGE peut créer et modifier les articles et les fournisseurs (comme l'ADMIN) | `routes/catalogue.ECRIVAINS` |
 
+## Lot A3 — programme, production (DGE)
+
+| Point | Où le changer |
+|---|---|
+| **Paramètres de production** (quatre yeux) : poids de sortie 2,1 kg, rendement carcasse 75 %, objectif national 100 000 t / an | Paramètres (ADMIN), clés `production.` |
+| **Cible d'une ferme** = places × bandes par an × poids de sortie (programme seulement) ; **atteinte** : vert ≥ 80 %, orange 50–80 %, rouge < 50 % | `app/indicateurs.py` (`cible_t`, `couleur_atteinte`) |
+| **Production réelle** : poids vif des sorties des bandes de chair sur 12 mois glissants (toutes les sorties) | `indicateurs.production_reelle_t` |
+| **Souches** proposées : Cobb 500, Ross 308, Arbor Acres, Hubbard, ISA Brown, Lohmann Brown | Listes → « Souches » |
+| **Bande de ponte** : 72 semaines ; indicateurs du chair « sans objet » ; saisie des œufs au lot F | `bandes.duree_ponte_jours` |
+
 ## Test terrain
 
 L'écran de l'éleveur doit être **testé par 3 à 5 vrais éleveurs** avant d'être figé (`docs/ergonomie.md`, section E) : 8 tuiles, saisie du jour avec « — », « Aucun mort », « Comme hier ».

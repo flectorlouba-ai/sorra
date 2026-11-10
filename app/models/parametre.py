@@ -101,6 +101,16 @@ PARAMETRES_DEFAUT = [
      'Bilan : 2 étoiles si la mortalité est au plus de ce % (sinon 1 étoile, jamais 0). À valider par les vétérinaires.'),
     ('sante.conseil_feu_rouge', "Isolez les poulets malades et ne vendez pas avant l'avis du vétérinaire.", TypeParametre.TEXTE,
      "Conseil affiché à l'éleveur quand le feu de sa bande est rouge. À faire valider par les services vétérinaires."),
+] + [
+    # Lot A3 — production (quatre yeux), aussi ajoutés par la migration 0025
+    ('production.poids_sortie_kg', '2.1', TypeParametre.DECIMAL,
+     "Poids vif moyen d'un poulet de chair à la sortie (kg), pour la production théorique. Quatre yeux."),
+    ('production.rendement_carcasse_pct', '75', TypeParametre.DECIMAL,
+     "Rendement carcasse (% du poids vif), pour l'équivalent carcasse. Quatre yeux."),
+    ('production.objectif_national_t', '100000', TypeParametre.ENTIER,
+     'Objectif national de production de poulet de chair (tonnes de poids vif par an). Quatre yeux.'),
+    ('production.bandes_par_an_defaut', '6', TypeParametre.ENTIER, "Bandes par an proposées à la création d'une ferme."),
+    ('bandes.duree_ponte_jours', '504', TypeParametre.JOURS, "Durée prévue d'une bande de ponte (72 semaines)."),
 ]
 
 

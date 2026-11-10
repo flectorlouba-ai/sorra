@@ -224,7 +224,16 @@ def calculer(bande, jour=None):
     # et la mortalité cumulée comme l'indice de consommation sont alors « incomplets »
     v['jours_non_saisis'] = max(0, v['jours_ecoules'] - v['jours_saisis'])
     v['incomplet'] = v['jours_non_saisis'] > 0
+    # Lot A3 : bande de ponte — les indicateurs de croissance du chair sont « sans objet »
+    v['ponte'] = bande.type_production == 'PONTE'
+    if v['ponte']:
+        for cle in SANS_OBJET_PONTE:
+            if cle in v:
+                v[cle] = None
     return v
+
+
+SANS_OBJET_PONTE = ('gmq', 'indice_consommation', 'poids_vif_produit')
 
 
 # ── Feu tricolore, phrases, « À faire aujourd'hui » ─────────────────────
@@ -255,7 +264,7 @@ def phrase(bande, couleur, raison, valeurs):
     if raison == 'saisie':
         return 'Vous n\'avez pas envoyé hier'
     p = valeurs['derniere_pesee']
-    if p is not None:
+    if p is not None and not bande.ponte:
         if dans_la_courbe(p.poids_moyen_g, age(bande, p.date)):
             return 'Vos poulets grossissent bien'
         return 'Vos poulets sont un peu légers'
@@ -468,3 +477,87 @@ def tracabilite(sorties, receptions, refus_scan, seuil_morts):
             'destines': len(destines), 'recus': len(recus), 'recus_pct': pct(len(recus), len(destines)),
             'ecart_moyen_pct': sum(ecarts) / len(ecarts) if ecarts else None,
             'ecarts_hors_seuil': len(hors_seuil), 'refus': refus_scan}
+
+
+# ── Production et objectif national (lot A3) ────────────────────────────
+
+def _parametre_nombre(cle, defaut):
+    try:
+        return float(str(parametres.obtenir(cle, defaut)).replace(',', '.'))
+    except ValueError:
+        return float(defaut)
+
+
+def poids_sortie_kg():
+    return _parametre_nombre('production.poids_sortie_kg', 2.1)
+
+
+def rendement_carcasse():
+    return _parametre_nombre('production.rendement_carcasse_pct', 75) / 100
+
+
+def objectif_national_t():
+    return _parametre_nombre('production.objectif_national_t', 100000)
+
+
+def production_theorique_t(places, bandes_par_an, poids_kg=None):
+    """Tonnes de poids vif par an : places × bandes par an × poids de sortie."""
+    if not places or not bandes_par_an:
+        return None
+    return places * bandes_par_an * (poids_kg if poids_kg is not None else poids_sortie_kg()) / 1000
+
+
+def cible_t(ferme):
+    """Cible de la ferme : sa production théorique, seulement si elle est au programme POUFA."""
+    if not ferme.programme_poufa:
+        return None
+    return production_theorique_t(ferme.capacite, ferme.bandes_par_an)
+
+
+def production_reelle_t(fermes, jour=None, jours=365):
+    """{ferme_id: tonnes} de poids vif sorti des bandes de chair sur les 12 derniers mois (sorties comptées,
+    ni archivées ni mises de côté)."""
+    from app import db
+    from app.models.bande import Bande, Sortie, TypeProduction
+    jour = jour or date.today()
+    ids = [f.id for f in fermes]
+    if not ids:
+        return {}
+    lignes = (db.session.query(Bande.ferme_id, db.func.sum(Sortie.poids_total_kg))
+              .join(Sortie, Sortie.bande_id == Bande.id)
+              .filter(Bande.ferme_id.in_(ids), Bande.type_production == TypeProduction.CHAIR,
+                      Sortie.archive_le.is_(None), Sortie.mise_de_cote.is_(False),
+                      Sortie.date > jour - timedelta(days=jours), Sortie.date <= jour)
+              .group_by(Bande.ferme_id).all())
+    return {fid: float(kg or 0) / 1000 for fid, kg in lignes}
+
+
+def taux_atteinte(reelle, cible):
+    if not cible:
+        return None
+    return (reelle or 0) * 100 / cible
+
+
+def couleur_atteinte(taux):
+    """Pastille : vert ≥ 80 %, orange 50–80 %, rouge < 50 % ; None sans cible."""
+    if taux is None:
+        return None
+    return 'vert' if taux >= 80 else 'orange' if taux >= 50 else 'rouge'
+
+
+def production_fermes(fermes, jour=None):
+    """{ferme_id: {cible, reelle, atteinte, couleur, theorique, carcasse, part_nationale}} — une seule source pour
+    la liste des fermes, les tableaux de bord et la carte."""
+    reelles = production_reelle_t(fermes, jour)
+    objectif = objectif_national_t()
+    rendement = rendement_carcasse()
+    resultat = {}
+    for f in fermes:
+        cible = cible_t(f)
+        reelle = reelles.get(f.id, 0)
+        atteinte = taux_atteinte(reelle, cible)
+        resultat[f.id] = {'theorique': production_theorique_t(f.capacite, f.bandes_par_an), 'cible': cible,
+                          'reelle': reelle, 'atteinte': atteinte, 'couleur': couleur_atteinte(atteinte),
+                          'carcasse': reelle * rendement,
+                          'part_nationale': reelle * 100 / objectif if objectif else None}
+    return resultat

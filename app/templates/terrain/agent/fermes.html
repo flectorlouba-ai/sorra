@@ -7,7 +7,8 @@
 {% for x in fermes %}
   <a class="carte carte-lien carte-ferme ferme-{{ x.couleur }}" href="{{ url_for('terrain.fiche', numero=x.ferme.numero) }}" data-ferme="{{ x.ferme.numero }}">
     <div class="carte-titre-ligne"><span class="carte-titre"><span class="pastille-feu feu-{{ x.couleur if x.couleur in ('rouge', 'orange') else 'vert' }}"></span> {{ x.ferme.numero }} · {{ x.ferme.nom }}</span></div>
-    <div class="carte-sous">{{ x.ferme.exploitant_nom }} · {{ x.ferme.localite.nom }}</div>
+    <div class="carte-sous">{{ x.ferme.exploitant_nom }} · {{ x.ferme.localite.nom }}{% if not x.ferme.programme_poufa %} · hors programme{% endif %}</div>
+    {% if x.ferme.capacite_a_completer %}<div class="carte-sous" data-capacite-a-completer>🏗️ Capacité à compléter</div>{% endif %}
     {% if x.phrases %}<ul class="phrases-ferme">{% for c, p in x.phrases[:3] %}<li class="phrase-{{ c }}">{{ p }}</li>{% endfor %}</ul>
     {% else %}<div class="phrases-ferme phrase-vert">🟢 Tout va bien</div>{% endif %}
   </a>
