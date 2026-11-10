@@ -124,3 +124,6 @@ Chaque ligne : lot · question · choix · autre option · comment revenir en ar
 | B | Portée du moteur | Trois modèles d'import (bandes en reprise, saisies, dépenses) réutilisant les règles existantes ; l'import POUFA des fermes (lot 0) reste en place ; d'autres modèles s'ajoutent dans `imports.MODELES` | Réécrire l'import des fermes | `services/imports` |
 | B | Annulation d'un lot | Archive chaque enregistrement créé (archive_le), jamais de suppression ; motif obligatoire ; journal | Suppression | — |
 | B | Fichier en attente | Gardé dans la session (5 Mo au plus) entre l'aperçu et l'import ; rien n'est écrit sur le disque | Dossier temporaire | — |
+| M | Ce que voit le MAEDR | Agrégats par province seulement (aucune ferme nommée : ni synthèse, ni alertes, ni point sur la carte) + les rapports soumis par la DGE | Vue DGE en lecture | `routes/bureau.tableau_de_bord` |
+| M | Visa de diffusion | États SOUMIS / VALIDE / REFUSE sur le rapport ; soumission réservée à la DGE (rapports nationaux et provinciaux), visa réservé au MAEDR, motif obligatoire au refus ; journal APPROBATION / REFUS | Circuit à plusieurs niveaux | `services/maedr` |
+| M | Écrans BCEG / MAEDR | Hors cahier (45 écrans) : même gabarit et mêmes règles (titre, colonnes, Excel / Imprimer, fiche) avec une spécification locale (`SPEC_BCEG`, `SPEC_MAEDR`, `SPEC_VISAS`) | Écrans libres | — |

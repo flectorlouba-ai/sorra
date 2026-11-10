@@ -31,12 +31,26 @@ class Rapport(db.Model):
     genere_le   = db.Column(db.DateTime(timezone=True), nullable=False, default=maintenant)
     genere_par  = db.Column(db.Uuid, db.ForeignKey('utilisateur.id'), nullable=True)
     automatique = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
+    # Lot M : diffusion — soumis au visa du MAEDR, validé ou refusé
+    diffusion   = db.Column(db.String(12), nullable=True)
+    soumis_le   = db.Column(db.DateTime(timezone=True), nullable=True)
+    soumis_par  = db.Column(db.Uuid, db.ForeignKey('utilisateur.id'), nullable=True)
+    vise_le     = db.Column(db.DateTime(timezone=True), nullable=True)
+    vise_par    = db.Column(db.Uuid, db.ForeignKey('utilisateur.id'), nullable=True)
+    motif_visa  = db.Column(db.String(300), nullable=True)
 
     province = db.relationship('Province')
     ferme = db.relationship('Ferme')
     agent = db.relationship('Utilisateur', foreign_keys=[agent_id])
     bande = db.relationship('Bande')
     auteur = db.relationship('Utilisateur', foreign_keys=[genere_par])
+    viseur = db.relationship('Utilisateur', foreign_keys=[vise_par])
+
+    LIBELLES_DIFFUSION = {None: 'Interne', 'SOUMIS': 'Soumis au MAEDR', 'VALIDE': 'Diffusable (visa MAEDR)', 'REFUSE': 'Refusé par le MAEDR'}
+
+    @property
+    def libelle_diffusion(self):
+        return self.LIBELLES_DIFFUSION.get(self.diffusion, self.diffusion)
 
     @property
     def libelle_type(self):

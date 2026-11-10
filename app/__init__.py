@@ -125,6 +125,8 @@ def create_app(env='default'):
     app.register_blueprint(notifications_bp)
     from app.routes.imports import imports_bp               # lot B
     app.register_blueprint(imports_bp, url_prefix='/imports')
+    from app.routes.maedr import maedr_bp                   # lot M
+    app.register_blueprint(maedr_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 

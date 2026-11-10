@@ -294,4 +294,6 @@ def visibles(user):
         cond.append(Rapport.agent_id == user.id)
     if user.profil == Profil.VETO:
         cond.append(Rapport.type.in_((TypeRapport.NATIONAL, TypeRapport.PROVINCE)))
+    if user.profil == Profil.MAEDR:                                          # lot M : seulement ce que la DGE a soumis
+        cond.append(Rapport.diffusion.in_(('SOUMIS', 'VALIDE', 'REFUSE')))
     return q.filter(db.or_(*cond)) if cond else q.filter(db.false())

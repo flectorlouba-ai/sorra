@@ -27,8 +27,6 @@ TITRES = {('ELEVEUR', 3): 'Mes saisies · bande', ('ELEVEUR', 4): 'Mon argent mo
 ECARTS = {
     ('DGE', 6, 'colonne:Biosécurité'): 'critère absent du barème actuel (D77 : contrôles opérationnels) ; la colonne existe et affiche « — » ; sera alimentée au lot M',
     ('DGE', 6, 'colonne:Évolution'): 'les classements ne sont pas encore gardés d’un mois sur l’autre ; « — » ; lot M',
-    ('DGE', 7, 'colonne:Diffusion'): 'diffusion et visa MAEDR = lot M ; « — »',
-    ('DGE', 7, 'colonne:Validé MAEDR'): 'visa MAEDR = lot M ; « — »',
     ('DGE', 4, 'colonne:Bande'): 'la commande ne vise pas encore une bande (champ à venir avec les commandes par bande) ; « — »',
     ('DGE', 4, 'colonne:Mise en place'): 'date de mise en place prévue : champ à venir ; « — »',
     ('VETO', 6, 'colonne:Lots retenus'): 'rapprochement blocage ↔ lots reçus sous réserve : lot M ; « — »',
