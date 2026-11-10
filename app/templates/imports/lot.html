@@ -1,0 +1,23 @@
+{% extends '_base.html' %}
+{% block titre %}Import n° {{ lot.id }}{% endblock %}
+{% block icone %}upload{% endblock %}
+{% block page_titre %}⬆️ Import n° {{ lot.id }}{% endblock %}
+{% block page_sous_titre %}{{ modele.nom }} · {{ lot.fichier }} · {{ lot.cree_le|date_locale('%d/%m/%Y %H:%M') }} · {{ lot.auteur.nom_complet }}{% endblock %}
+{% block actions %}<a class="btn-ghost" href="{{ url_for('imports.rapport', ident=lot.id) }}">⬇️ Rapport Excel</a> <a class="btn-ghost" href="{{ url_for('imports.index') }}">‹ Imports</a>{% endblock %}
+{% block contenu %}
+<div class="kpis"><div class="carte-indicateur"><small>Lignes du fichier</small><b>{{ lot.nb_lignes }}</b></div>
+  <div class="carte-indicateur"><small>Importées</small><b>{{ lot.nb_importees }}</b></div>
+  <div class="carte-indicateur{{ ' alerte' if lot.annule_le }}"><small>État</small><b>{{ 'Annulé' if lot.annule_le else 'Importé' }}</b>{% if lot.annule_le %}<span>{{ lot.motif_annulation }}</span>{% endif %}</div></div>
+<div class="table-wrap" data-import-lignes><div class="table-scroll"><table>
+  <thead><tr><th>Ligne</th><th>Résultat</th><th>Numéro créé</th><th>Erreurs</th></tr></thead>
+  <tbody>{% for r in lignes %}<tr><td class="td-num">{{ r.ligne }}</td><td>{% if r.ok %}<span class="badge badge-ok">importée</span>{% else %}<span class="badge badge-danger">refusée</span>{% endif %}</td>
+    <td>{{ r.numero or '—' }}</td><td>{{ r.erreurs|join(' ; ') or '—' }}</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% if not lot.annule_le and lot.nb_importees %}
+<form method="post" action="{{ url_for('imports.annuler', ident=lot.id) }}" class="card p-3 mt-3" data-annuler-lot>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label class="form-label" for="motif">Annuler ce lot : tout ce qu'il a créé est archivé (jamais supprimé). Motif obligatoire.</label>
+  <div class="d-flex gap-2"><input class="form-control" id="motif" name="motif" maxlength="300" required><button type="submit" class="btn btn-outline-danger">Annuler le lot</button></div>
+</form>
+{% endif %}
+{% endblock %}
