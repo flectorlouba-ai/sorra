@@ -256,8 +256,50 @@ def auditeur(user):
         _courbe('Scans refusés', 'par semaine', ind.serie_compte_hebdo(refuses, debut=depuis), 'rouge', 0)]}
 
 
+def bceg(user):
+    """Lot M : la banque voit les fermes financées qui ont donné leur accord — effectifs, mortalité, recettes, bénéfice."""
+    from app.services import maedr
+    s = maedr.situation_bceg(user)
+    bandes = _bandes(user)
+    from app.services import argent
+    mvts = argent.mouvements([f.id for f in s['fermes']]) if s['fermes'] else []
+    ventes = [(m['date'], m['montant']) for m in mvts if m['signe'] > 0 and m['montant']]
+    mv = ind.mortalite_viabilite([b for b in bandes if b.statut == StatutBande.EN_COURS])
+    return {'cartes': [
+        _carte('Fermes financées', str(s['financees'])),
+        _carte('Avec accord de l’éleveur', str(len(s['fermes'])), 'les seules visibles ici'),
+        _carte('Bandes en cours', str(mv['bandes'])),
+        _carte('Mortalité', _pct(mv['mortalite'], 2)),
+        _carte('Recettes 12 mois', _nombre(s['recettes'], 0, ' FCFA')),
+        _carte('Bénéfice 12 mois', _nombre(s['benefice'], 0, ' FCFA'), alerte=s['benefice'] < 0)], 'courbes': [
+        _courbe('Mortalité des fermes financées (%)', '% par semaine', ind.serie_mortalite_hebdo(bandes), 'rouge', 2),
+        _courbe('Recettes par semaine (FCFA)', 'FCFA', ind.serie_somme_hebdo(ventes), 'vert', 0),
+        _courbe('Production hebdomadaire (t)', 't par semaine', ind.serie_production_hebdo(bandes), 'bleu', 2)]}
+
+
+def maedr_(user):
+    """Lot M : le ministère ne voit que des agrégats nationaux et les rapports à viser."""
+    from app.services import maedr
+    from app.models.bande import Bande
+    lignes = maedr.agregats_maedr()
+    bandes = Bande.query.filter(db.or_(Bande.date_cloture.is_(None), Bande.date_cloture >= date.today() - timedelta(days=365))).all()
+    mv = ind.mortalite_viabilite([b for b in bandes if b.statut == StatutBande.EN_COURS])
+    prod = sum(l['production'] or 0 for l in lignes)
+    cible = sum(l['cible'] or 0 for l in lignes)
+    return {'cartes': [
+        _carte('Production nationale 12 mois', _nombre(prod, 1, ' t'), f'cible {_nombre(cible, 1, " t")}'),
+        _carte('Atteinte de la cible', _pct(100 * prod / cible, 0) if cible else '—'),
+        _carte('Provinces couvertes', str(len(lignes))),
+        _carte('Élevages', str(sum(l['fermes'] for l in lignes)), f'{sum(l["actives"] for l in lignes)} opérationnels'),
+        _carte('Mortalité nationale', _pct(mv['mortalite'], 2)),
+        _carte('Rapports à viser', str(maedr.n_a_viser()), alerte=maedr.n_a_viser() > 0)], 'courbes': [
+        _courbe('Production hebdomadaire (t)', 't par semaine', ind.serie_production_hebdo(bandes), 'bleu', 2),
+        _courbe('Mortalité nationale (%)', '% par semaine', ind.serie_mortalite_hebdo(bandes), 'rouge', 2),
+        _courbe('Élevages actifs', 'avec au moins une saisie', ind.serie_fermes_actives_hebdo(bandes), 'vert', 0)]}
+
+
 PAR_PROFIL = {Profil.ELEVEUR: eleveur, Profil.AGENT: agent, Profil.VETO: veterinaire, Profil.DGE: dge,
-              Profil.ADMIN: administrateur, Profil.AUDITEUR: auditeur}
+              Profil.ADMIN: administrateur, Profil.AUDITEUR: auditeur, Profil.BCEG: bceg, Profil.MAEDR: maedr_}
 
 
 def pour(user):

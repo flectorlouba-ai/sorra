@@ -359,11 +359,14 @@ def dge_rapports(user, rapports):
     lignes = []
     for r in rapports:
         cell = {'Période': r.periode, 'Type': r.libelle_type, 'Périmètre': r.cible, 'Généré le': _d(_date_de(r.genere_le)),
-                'Pages': str(r.pages) if r.pages else '—', 'Diffusion': '—', 'Validé MAEDR': '—',
+                'Pages': str(r.pages) if r.pages else '—', 'Diffusion': r.libelle_diffusion, 'Validé MAEDR': _d(_date_de(r.vise_le)) if r.diffusion == 'VALIDE' else '—',
                 'Fichier': _lien(url_for('actions.telecharger', ident=r.id), '📄 PDF')}
-        lignes.append(ligne(cell, str(r.id), lien=url_for('actions.telecharger', ident=r.id), jour=_date_de(r.genere_le),
+        soumettable = r.type in ('NATIONAL', 'PROVINCE') and r.diffusion != 'VALIDE' and user.profil in (Profil.DGE, Profil.ADMIN)
+        lignes.append(ligne(cell, str(r.id), valeurs={**{k: _texte(v) for k, v in cell.items()}},
+                            action=url_for('bureau.fiche_conforme', cle='DGE-7', ident=str(r.id)), droits=['modifier'] if soumettable else [],
+                            pied=pied(r), titre=f'{r.periode} · {r.libelle_type}', jour=_date_de(r.genere_le),
                             province=r.province.nom if getattr(r, 'province', None) else None))
-    return Tableau(lignes, vide='Aucun rapport gardé.')
+    return Tableau(lignes, peut_modifier=True, vide='Aucun rapport gardé.', libelle_modifier='Soumettre au visa MAEDR')
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -1560,3 +1563,91 @@ def _lancer_verification(user, form):
 
 GESTES.update({'ADMIN-2': _utilisateur, 'ADMIN-4': _parametre_admin, 'ADMIN-6': _session})
 CREATIONS.update({'ADMIN-6': _fermer_sessions_compte, 'ADMIN-3': _proposer_droits, 'AUDITEUR-1': _lancer_verification, 'AUDITEUR-3': _lancer_verification})
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Lot M — BCEG et MAEDR (hors cahier : même gabarit, mêmes règles)
+# ══════════════════════════════════════════════════════════════════════
+
+SPEC_BCEG = {'fonction': '🏦 Fermes financées', 'bouton': None, 'titre': "Fermes financées avec l'accord de l'éleveur",
+             'colonnes': ['N°', 'Ferme', 'Province', 'Accord', 'Bande en cours', 'Effectif', 'Mortalité', 'Recettes 12 mois', 'Dépenses 12 mois', 'Bénéfice', 'Marge', 'Bilan'],
+             'champs': [(c, 'A' if c in ('N°', 'Ferme', 'Province', 'Accord', 'Bande en cours', 'Bilan') else 'C', '') for c in
+                        ['N°', 'Ferme', 'Province', 'Accord', 'Bande en cours', 'Effectif', 'Mortalité', 'Recettes 12 mois', 'Dépenses 12 mois', 'Bénéfice', 'Marge', 'Bilan']],
+             'clic': 'Lecture seule ; ouvre le bilan PDF', 'indicateurs': [], 'courbes': [], 'carte': True, 'image': ''}
+SPEC_MAEDR = {'fonction': '🏛️ Situation nationale', 'bouton': None, 'titre': 'Situation par province (agrégats)',
+              'colonnes': ['Province', 'Élevages', 'Opérationnels', 'Bandes en cours', 'Production 12 mois', 'Cible', 'Atteinte', 'Mortalité'],
+              'champs': [(c, 'A' if c == 'Province' else 'C', '') for c in ['Province', 'Élevages', 'Opérationnels', 'Bandes en cours', 'Production 12 mois', 'Cible', 'Atteinte', 'Mortalité']],
+              'clic': 'Lecture seule', 'indicateurs': [], 'courbes': [], 'carte': True, 'image': ''}
+SPEC_VISAS = {'fonction': '📑 Rapports à viser', 'bouton': None, 'titre': 'Rapports soumis par la DGE au visa du MAEDR',
+              'colonnes': ['Période', 'Type', 'Périmètre', 'Généré le', 'Soumis le', 'Diffusion', 'Visé le', 'Motif', 'Fichier'],
+              'champs': [('Période', 'A', ''), ('Type', 'A', ''), ('Périmètre', 'A', ''), ('Généré le', 'A', ''), ('Soumis le', 'A', ''),
+                         ('Diffusion', 'S', ''), ('Visé le', 'A', ''), ('Motif', 'S', ''), ('Fichier', 'A', '')],
+              'clic': 'Valider la diffusion ou refuser (motif)', 'indicateurs': [], 'courbes': [], 'carte': False, 'image': ''}
+
+
+def bceg_fermes(user):
+    from app.services import maedr
+    s = maedr.situation_bceg(user)
+    lignes = []
+    for l in s['lignes']:
+        f, i = l['ferme'], l['infos']
+        cell = {'N°': f.numero, 'Ferme': f.nom, 'Province': f.province.nom, 'Accord': '✓ en cours', 'Bande en cours': l['bande'].numero if l['bande'] else '—',
+                'Effectif': _n(i['effectif']), 'Mortalité': _pct(i['mortalite'], 2), 'Recettes 12 mois': _n(l['recettes']), 'Dépenses 12 mois': _n(l['depenses']),
+                'Bénéfice': _n(l['benefice']), 'Marge': _pct(l['marge'], 1), 'Bilan': _lien(url_for('argent.bilan_pdf', ferme=f.numero), '📄 PDF')}
+        lignes.append(ligne(cell, str(f.id), lien=url_for('argent.bilan', ferme=f.numero), province=f.province.nom))
+    return Tableau(lignes, vide="Aucune ferme financée n'a donné son accord : la banque ne voit rien d'autre.")
+
+
+def maedr_provinces(user):
+    from app.services import maedr
+    lignes = []
+    for l in maedr.agregats_maedr():
+        cell = {'Province': l['province'].nom, 'Élevages': str(l['fermes']), 'Opérationnels': str(l['actives']), 'Bandes en cours': str(l['bandes']),
+                'Production 12 mois': _n(l['production'], 1, ' t'), 'Cible': _n(l['cible'], 1, ' t'), 'Atteinte': _pct(l['atteinte'], 0), 'Mortalité': _pct(l['mortalite'], 2)}
+        lignes.append(ligne(cell, l['province'].id, province=l['province'].nom))
+    return Tableau(lignes, vide='Aucune donnée.')
+
+
+def maedr_visas(user, rapports):
+    lignes = []
+    for r in rapports:
+        cell = {'Période': r.periode, 'Type': r.libelle_type, 'Périmètre': r.cible, 'Généré le': _d(_date_de(r.genere_le)), 'Soumis le': _d(_date_de(r.soumis_le)),
+                'Diffusion': _badge(r.libelle_diffusion, {'SOUMIS': 'warn', 'VALIDE': 'ok', 'REFUSE': 'off'}.get(r.diffusion, 'neutre')),
+                'Visé le': _d(_date_de(r.vise_le)) if r.vise_le else '—', 'Motif': r.motif_visa or '—', 'Fichier': _lien(url_for('actions.telecharger', ident=r.id), '📄 PDF')}
+        droits = ['modifier'] if r.diffusion == 'SOUMIS' and user.profil == Profil.MAEDR else []
+        lignes.append(ligne(cell, str(r.id), valeurs={**{k: _texte(v) for k, v in cell.items()}, 'Diffusion': '', 'Motif': ''},
+                            action=url_for('bureau.fiche_conforme', cle='MAEDR-2', ident=str(r.id)), droits=droits, pied=pied(r),
+                            titre=f'Visa · {r.periode} {r.libelle_type}', jour=_date_de(r.soumis_le), archivee=r.diffusion != 'SOUMIS'))
+    choix = {'Diffusion': [('valider', 'Valider la diffusion'), ('refuser', 'Refuser (motif obligatoire)')]}
+    return Tableau(lignes, choix=choix, peut_modifier=True, vide='Aucun rapport soumis.', libelle_modifier='Viser')
+
+
+def _visa(ident, user, form, action):
+    from app.services import maedr
+    r = db.session.get(Rapport_, int(ident))
+    if r is None:
+        raise RegleConformite('Rapport introuvable.')
+    d = form.get('Diffusion')
+    if d not in ('valider', 'refuser'):
+        raise RegleConformite('Choisissez : valider ou refuser.')
+    try:
+        maedr.viser(r, user, d == 'valider', form.get('Motif'))
+    except maedr.RegleMaedr as e:
+        raise RegleConformite(str(e))
+    return 'Diffusion validée.' if d == 'valider' else 'Diffusion refusée.'
+
+
+def _soumettre(ident, user, form, action):
+    from app.services import maedr
+    r = db.session.get(Rapport_, int(ident))
+    if r is None:
+        raise RegleConformite('Rapport introuvable.')
+    try:
+        maedr.soumettre(r, user)
+    except maedr.RegleMaedr as e:
+        raise RegleConformite(str(e))
+    return 'Rapport soumis au visa du MAEDR.'
+
+
+from app.models.rapport import Rapport as Rapport_  # noqa: E402
+GESTES.update({'MAEDR-2': _visa, 'DGE-7': _soumettre})

@@ -22,6 +22,11 @@ A, D = Profil.ADMIN, Profil.DGE
 # existe (aucune tuile morte) ; la table tuile → écran → lot est dans docs/pilotage.md.
 
 
+def _n_visas(user):
+    from app.services import maedr
+    return maedr.n_a_viser() if user.profil == Profil.MAEDR else 0
+
+
 def _n_a_verifier(user):
     from app.routes.hors_ligne import conflits_a_voir
     return conflits_a_voir(user).count()

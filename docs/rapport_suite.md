@@ -22,7 +22,7 @@ Règles : `docs/regles_lots.md`. Décisions prises seul : `docs/decisions_autono
 | K5 — téléphone agent, opérateur, GPS, notifications, actions + preuve visuelle | `992b803` | 721 | oui | 2026-11-10-992b803 | 54 écrans ; rapport_conformite.html (91 conformes, 41 écarts justifiés, 0 non conforme), controle_rempli.xlsx |
 | F — œufs des bandes de ponte | `7ec1e19` | 727 | oui | 2026-11-10-7ec1e19 | migration 0031 ; jeu de démo sans bande de ponte (à ajouter) |
 | B — imports Excel / CSV | `594f224` | 731 | oui | 2026-11-10-594f224 | migration 0032 ; 3 modèles |
-| M | | | | | |
+| M — BCEG et MAEDR | (fusion M) | | oui | (version au déploiement) | migration 0033 ; compte MAEDR à créer dans la démo |
 | S | | | | | |
 | P | | | | | |
 

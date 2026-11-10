@@ -1,0 +1,8 @@
+{% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
+{% block titre %}{{ titre[2:] }}{% endblock %}
+{% block page_titre %}{{ titre }}{% endblock %}
+{% block page_sous_titre %}{{ sous_titre }}{% endblock %}
+{% block contenu %}
+{{ tableau(conforme[0], conforme[1], conforme[2]) }}
+{% endblock %}

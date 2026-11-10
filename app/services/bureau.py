@@ -78,8 +78,10 @@ FONCTIONS = {
         ('receptions', '📋', 'Mes réceptions', 'operateur.receptions', None, None, ('operateur.receptions', 'operateur.reception')),
         ('scanner', '📷', 'Scanner', 'operateur.scanner', None, None, ('operateur.scanner', 'operateur.lot')),
     ],
-    Profil.BCEG: [('accueil', '🏦', 'Accueil BCEG', 'bureau.accueil', None, None, ())],
-    Profil.MAEDR: [('accueil', '🏛️', 'Accueil MAEDR', 'bureau.accueil', None, None, ())],
+    Profil.BCEG: [('accueil', '🏦', 'Accueil BCEG', 'bureau.accueil', None, None, ()),
+                  ('fermes', '🏘️', 'Fermes financées', 'maedr.bceg_fermes', None, None, ('maedr.bceg_fermes',))],
+    Profil.MAEDR: [('accueil', '🏛️', 'Accueil MAEDR', 'bureau.accueil', '_n_visas', None, ()),
+                   ('visas', '📑', 'Rapports à viser', 'maedr.visas', '_n_visas', None, ('maedr.',))],
 }
 
 

@@ -65,7 +65,7 @@ def raisons_alerte(ferme, infos, user):
 
 def tableau_de_bord(user):
     # Lot K : l'auditeur voit la carte nationale (lecture seule, sans chiffre financier) ; son périmètre de données reste vide
-    lecteur = Utilisateur.query.filter_by(profil=Profil.DGE, actif=True).first() if user.profil == Profil.AUDITEUR else None
+    lecteur = Utilisateur.query.filter_by(profil=Profil.DGE, actif=True).first() if user.profil in (Profil.AUDITEUR, Profil.MAEDR) else None
     fermes = filtre_perimetre(Ferme.query, utilisateur=lecteur or user).order_by(Ferme.numero_metier).all()
     d = mes_indicateurs.pour(user) or {'cartes': [], 'courbes': []}
     production = ind.production_fermes(fermes)
@@ -88,6 +88,10 @@ def tableau_de_bord(user):
         for pt in carte['points']:
             pt['alerte'] = pt['ferme'].id in en_alerte
             pt['raisons'] = next((a['raisons'] for a in alertes if a['ferme'].id == pt['ferme'].id), [])
+    if user.profil == Profil.MAEDR:                                         # lot M : agrégats seulement, jamais une ferme nommée
+        alertes, synthese = [], []
+        if carte:
+            carte = {**carte, 'points': []}
     mes_actions = []
     if user.profil in (Profil.AGENT, Profil.DGE, Profil.ADMIN):
         from app.services import actions as services_actions
@@ -106,6 +110,10 @@ def tableau_de_bord(user):
         conforme = ('ADMIN-1', conformite.spec('ADMIN', 1), conformite.admin_accueil(user))
     elif user.profil == Profil.AUDITEUR:
         conforme = ('AUDITEUR-1', conformite.spec('AUDITEUR', 1), conformite.auditeur_verifications(user))
+    elif user.profil == Profil.BCEG:                                        # lot M
+        conforme = ('BCEG-1', conformite.SPEC_BCEG, conformite.bceg_fermes(user))
+    elif user.profil == Profil.MAEDR:
+        conforme = ('MAEDR-1', conformite.SPEC_MAEDR, conformite.maedr_provinces(user))
     return {'cartes': d['cartes'], 'courbes': d['courbes'], 'carte': carte, 'alertes': alertes, 'synthese': synthese,
             'fermes': fermes, 'mes_actions': mes_actions, 'conforme': conforme}
 

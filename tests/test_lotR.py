@@ -133,4 +133,4 @@ def test_bceg_et_maedr_ont_le_gabarit(client, monde, profil, ident):
     creer_utilisateur(ident, profil)
     connecter(client, ident)
     page = client.get('/').get_data(as_text=True)
-    assert 'class="bureau"' in page and boutons(page) == ['accueil'] and 'lot M' in page
+    assert 'class="bureau"' in page and boutons(page)[0] == 'accueil' and len(boutons(page)) == 2   # lot M : accueil + une fonction
