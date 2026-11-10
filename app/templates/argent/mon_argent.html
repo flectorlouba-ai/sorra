@@ -7,7 +7,7 @@
 {% block page_sous_titre %}Ce que vous avez gagné et dépensé{% endblock %}
 
 {% block contenu %}
-{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}<details class="vue-detaillee"><summary>Vue détaillée (période, derniers mouvements)</summary>{% endif %}
 <div class="mon-argent">
   {% if bandeau %}{% with liv={'numero': bandeau.depense.numero}, secondes=bandeau.secondes,
        bandeau_texte='Enregistré ✓ — ' ~ bandeau.depense.libelle ~ ' · ' ~ bandeau.depense.montant_fcfa|qte ~ ' FCFA',
@@ -87,4 +87,5 @@
   </ul>
   {{ fiches.voir_archivees('depense', n_archivees, retour) }}
 </div>
+{% if conforme %}</details>{% endif %}
 {% endblock %}

@@ -35,7 +35,7 @@ def test_fiche_sans_position_propose_le_releve(client, monde):
     page = client.get(f'/terrain/fermes/{monde["f"].numero}').get_data(as_text=True)
     assert 'Position pas encore relevée' in page and 'Relever la position ici' in page
     page = client.get(f'/terrain/fermes/{monde["f"].numero}/position').get_data(as_text=True)
-    assert 'Garder cette position' in page and 'disabled' in page and '± 30 m' in page
+    assert '✓ Garder cette position' in page and 'disabled' in page and '± 30 m' in page
 
 
 def test_precision_insuffisante_refusee(client, monde):

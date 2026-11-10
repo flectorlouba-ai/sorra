@@ -44,7 +44,7 @@
       <input class="form-control" id="nom" name="nom" maxlength="150" value="{{ saisie.get('nom', '') }}" placeholder="ex. Ferme d'Esther"></div>
     <input type="hidden" name="exploitant_nom" id="exploitant_nom">
     <div class="compteur">
-      <div class="compteur-libelle">Bâtiments</div>
+      <div class="compteur-libelle">Combien de bâtiments ?</div>
       <div class="compteur-boutons">
         <button type="button" class="compteur-moins" aria-label="Moins">−</button>
         <input type="number" name="nb_batiments" id="nb_batiments" value="{{ saisie.get('nb_batiments') or 1 }}" min="1" max="30" inputmode="numeric" class="compteur-valeur">
@@ -53,6 +53,8 @@
     </div>
     <div class="form-group"><label class="form-label" for="places_total">Places au total</label>
       <input class="form-control" id="places_total" inputmode="numeric" value="{{ saisie.get('places_total', '') }}" placeholder="ex. 1500"></div>
+    <div class="form-label mt-2">Financée par la BCEG ?</div>
+    <div class="choix-cases"><label class="case-choix"><input type="radio" name="financee_bceg" value="0" {% if saisie.get('financee_bceg', '0') != '1' %}checked{% endif %}><span>Non</span></label><label class="case-choix"><input type="radio" name="financee_bceg" value="1" {% if saisie.get('financee_bceg') == '1' %}checked{% endif %}><span>Oui</span></label></div>
     <div class="form-group"><label class="form-label" for="bandes_par_an">Bandes par an</label>
       <input class="form-control" id="bandes_par_an" name="bandes_par_an" inputmode="numeric" value="{{ saisie.get('bandes_par_an') or bandes_defaut }}"></div>
     <div class="encadre-orange" id="doublon" hidden data-doublon>

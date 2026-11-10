@@ -109,7 +109,7 @@ def test_controles_tous_verts_puis_chaque_cas(client, aval):
     lot = sortie(aval).lot
     connecter(client, 'abattoir1')
     page = scanner(client, lot)
-    assert 'data-resultat="VERT"' in page and 'Valider la réception' in page and 'garde à part' not in page
+    assert 'data-resultat="VERT"' in page and 'Valider la réception' in page and 'Je les reçois et je les garde à part' not in page
     # lot 19 ter : contrôles en phrases (mêmes contrôles, même ordre)
     for libelle in ('Lot connu, jamais reçu', 'Bien envoyé à votre abattoir', 'Pas de médicament récent',
                     "Le vétérinaire n'a rien bloqué", 'Pesés aujourd', 'Poulets vaccinés'):
@@ -121,7 +121,7 @@ def test_controles_tous_verts_puis_chaque_cas(client, aval):
         p.date = AUJ - timedelta(days=8)
     db.session.commit()
     page = scanner(client, lot)
-    assert 'data-resultat="ORANGE"' in page and 'Je les reçois et je les garde à part' in page and 'Je refuse ce lot' in page
+    assert 'data-resultat="ORANGE"' in page and 'Je les reçois et je les garde à part' in page and 'Refuser le lot' in page
     assert 'Valider la réception' not in page and re.search(r'class="manque" data-controle="pesee"', page)
     # Vaccin en retard de 2 jours ou plus : orange ; de moins de 2 jours (tolérance) : non
     for p in aval['b'].pesees:
