@@ -65,7 +65,8 @@ PAGES_ELEVEUR = ['accueil.index', 'eleveur.saisie', 'eleveur.ma_bande', 'eleveur
                  'argent.mon_argent', 'argent.payer', 'eleveur.achat', 'eleveur.stock', 'livraisons.mes_livraisons',
                  'bandes.mes_bandes', 'bandes.ouvrir', 'entretien.ecran', 'entretien.panne', 'eleveur.moi',
                  'eleveur.mon_compte', 'visites.mes_visites', 'sante.mes_declarations', 'eleveur.presentation',
-                 'aides.liste', 'auth.mot_de_passe', 'notifications.mes_notifications']   # lot T
+                 'aides.liste', 'auth.mot_de_passe', 'notifications.mes_notifications',   # lot T
+                 'argent.fiscalite', 'argent.bilan']   # lot G / K4
 ALLER = ['peser', 'sortie', 'malade', 'traitement', 'vaccins']
 
 

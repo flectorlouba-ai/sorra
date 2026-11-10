@@ -78,7 +78,11 @@ def mon_argent():
     if style.profil_terrain(current_user) is None and current_user.profil == Profil.ELEVEUR:
         from app.services import conformite
         conforme = ('ELEVEUR-4', conformite.spec('ELEVEUR', 4), conformite.eleveur_argent(current_user, fermes))
+    from app.services import bilan as services_bilan
+    douze = services_bilan.bilan(fermes) if periode == 'tout' else None          # lot G / K4 : mois par mois
+    fisc = services_bilan.fiscalite(services_bilan.bilan(fermes, annee=date.today().year)['recettes'])
     return render_template('argent/mon_argent.html', conforme=conforme, periode=periode, periodes=regles.PERIODES, totaux=t,
+                           douze=douze, fisc=fisc, annee=date.today().year, court=services_bilan.court, lettres=services_bilan.MOIS_LETTRES,
                            mouvements=mvts[:30], bande=bande, choix_bandes=choix_bandes if periode == 'bande' else [],
                            aide=regles.aide_etat(bande) if bande else None, bandeau=_bandeau_depense(),
                            n_archivees=fiches.nombre_archivees('depense', fermes=fermes))
@@ -203,3 +207,58 @@ def montant_vente(ident):
             db.session.rollback()
             erreur = str(e)
     return render_template('argent/montant_vente.html', s=s, erreur=erreur, saisie=request.form)
+
+
+# ── Lot G / K4 : mini bilan PDF et fiscalité estimée ─────────────────────
+# L'éleveur pour sa ferme ; l'agent et la BCEG (avec l'accord de l'éleveur) pour une ferme donnée ; jamais le vétérinaire.
+
+def _ferme_bilan():
+    from app.services import bceg
+    numero = request.args.get('ferme')
+    if current_user.profil == Profil.ELEVEUR:
+        fermes = _fermes()
+        f = next((x for x in fermes if x.numero == numero), fermes[0] if fermes else None)
+        return f, fermes
+    if current_user.profil == Profil.BCEG:                       # fermes financées, avec l'accord de l'éleveur seulement
+        f = filtre_perimetre(Ferme.query).filter(Ferme.du_numero(numero or '')).first()
+        if f is None or not bceg.accord_en_cours(f):
+            abort(403)
+        return f, [f]
+    f = filtre_perimetre(Ferme.query).filter(Ferme.du_numero(numero or '')).first()
+    if f is None:
+        abort(404)
+    return f, [f]
+
+
+@argent_bp.route('/mon-argent/fiscalite')
+@profil_requis(Profil.ELEVEUR, Profil.AGENT, Profil.DGE, Profil.ADMIN, Profil.BCEG)
+def fiscalite():
+    from app.services import bilan as services_bilan
+    f, fermes = _ferme_bilan()
+    annee = date.today().year
+    b = services_bilan.bilan(fermes, annee=annee)
+    return render_template('argent/fiscalite.html', ferme=f, fisc=services_bilan.fiscalite(b['recettes']), annee=annee,
+                           court=services_bilan.court)
+
+
+@argent_bp.route('/mon-argent/bilan')
+@profil_requis(Profil.ELEVEUR, Profil.AGENT, Profil.DGE, Profil.ADMIN, Profil.BCEG)
+def bilan():
+    f, fermes = _ferme_bilan()
+    annee = request.args.get('annee', type=int) or date.today().year
+    return render_template('argent/bilan.html', ferme=f, annee=annee)
+
+
+@argent_bp.route('/mon-argent/bilan.pdf')
+@profil_requis(Profil.ELEVEUR, Profil.AGENT, Profil.DGE, Profil.ADMIN, Profil.BCEG)
+def bilan_pdf():
+    from flask import Response, current_app
+    from app.services import bilan as services_bilan
+    from app.services.journal import enregistrer, Action
+    f, fermes = _ferme_bilan()
+    annee = request.args.get('annee', type=int) or date.today().year
+    pdf = services_bilan.bilan_pdf(f, fermes, annee, current_user, demo=bool(current_app.config.get('DEMO')))
+    enregistrer(Action.EXPORT, table='ferme', enregistrement_id=f.id, detail=f'Mini bilan {annee} (PDF) · {f.numero} · {current_user.identifiant}')
+    db.session.commit()
+    return Response(pdf, mimetype='application/pdf',
+                    headers={'Content-Disposition': f'inline; filename="SORRA_Mon_bilan_{annee}_{f.numero}.pdf"'})

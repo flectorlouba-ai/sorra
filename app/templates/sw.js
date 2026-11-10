@@ -20,7 +20,7 @@ var A_GARDER = {{ a_garder|tojson }};
 var JAMAIS = /^\/(q\/|hors-ligne\/|auth\/|sw\.js)/;
 var CACHE_D_ABORD = /\.(woff2?|ttf|png|jpe?g|webp|gif|svg|ico)$/i;
 var SANS_RESEAU = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">' +
-  '<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pas de réseau — SORRA</title>' +
+  '<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pas de réseau — vos saisies sont gardées sur le téléphone. — SORRA</title>' +
   '<link href="{{ url_for('static', filename='css/perform.css') }}" rel="stylesheet"></head><body><div class="page-body">' +
   '<div class="flash-item warning">Pas de réseau : cette page n\'est pas gardée sur le téléphone.</div>' +
   '<a class="btn-gros" href="/">Retour à l\'accueil</a></div></body></html>';

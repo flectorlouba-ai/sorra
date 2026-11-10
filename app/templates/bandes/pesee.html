@@ -3,6 +3,7 @@
 {% block titre %}Pesée{% endblock %}
 {% block sous_titre %}Bandes{% endblock %}
 {% block icone %}speedometer{% endblock %}
+{% block page_titre %}⚖️ Pesée du jour {{ age_bande }}{% endblock %}
 {% block page_sous_titre %}<span class="mono">{{ bande.numero }}</span> · Bâtiment {{ bande.batiment.code }}{% endblock %}
 {% block contenu %}
 {% import '_fiches.html' as fiches %}
@@ -66,7 +67,7 @@
     document.getElementById('moyen').textContent = moyen.toLocaleString('fr-FR');
     var ok = moyen >= attendu * (1 - tolerance / 100);
     var v = document.getElementById('verdict');
-    v.textContent = ok ? 'Dans la courbe attendue ✓' : 'En dessous de la courbe';
+    v.textContent = ok ? 'Dans la courbe ✓' : 'En dessous de la courbe';
     v.className = ok ? 'position-ok' : 'position-alerte';
     var g = document.getElementById('gain'), ecart = avant === null ? 0 : Math.round(moyen - avant);
     g.hidden = !(ok && ecart > 0 && jours > 0);

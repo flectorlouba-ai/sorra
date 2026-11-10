@@ -17,8 +17,8 @@ Règles : `docs/regles_lots.md`. Décisions prises seul : `docs/decisions_autono
 | K — étape 1 (correspondance, captures avant) | `33fd308` | — | sans objet | — | — |
 | K1 — bureau DGE + vétérinaire | `b7b943f` | 586 | oui | 2026-11-10-b7b943f | 16 écrans conformes, 9 colonnes « — » justifiées (voir `tests/test_conformite.ECARTS`) |
 | K3 — bureau éleveur + agent | `1595e4d` | 618 | oui | 2026-11-10-1595e4d | 16 écrans conformes ; bilan PDF et régime fiscal de Mon argent = lot G (K4) |
-| K2 — bureau administrateur + auditeur | (fusion K2) | 644 | oui | (version au déploiement) | 13 écrans conformes ; « Modifié le » de la matrice des droits « — » |
-| K4 — téléphone éleveur | | | | | |
+| K2 — bureau administrateur + auditeur | `3f2d408` | 644 | oui | 2026-11-10-3f2d408 | 13 écrans conformes ; « Modifié le » de la matrice des droits « — » |
+| K4 — téléphone éleveur (+ Mon argent du lot G) | (fusion K4) | | oui | (version au déploiement) | 30 écrans + Mon argent 12 mois, bilan PDF, fiscalité ; migration 0030 ; jeu de démo sans ventes → graphique presque vide (à enrichir) |
 | K5 — téléphone agent, opérateur, GPS, notifications, actions | | | | | |
 | F | | | | | |
 | B | | | | | |

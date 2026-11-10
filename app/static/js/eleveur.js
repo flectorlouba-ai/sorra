@@ -86,7 +86,7 @@
       div.setAttribute('data-fermer-auto', '1');
       div.innerHTML = '<div class="bien-recu-carte">' + (modele ? modele.innerHTML : '') +
         '<div class="bien-recu-titre">' + (joie ? 'Bien reçu !' : 'Gardé ✓') + '</div>' +
-        '<div class="bien-recu-sous">◷ Sera envoyé dès que le réseau revient</div></div>';
+        '<div class="bien-recu-sous">◷ En attente — envoi automatique dès que le réseau revient.</div></div>';
       document.body.appendChild(div);
       brancherBienRecu(div);
     }

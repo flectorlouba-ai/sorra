@@ -477,7 +477,7 @@ def pesee(numero):
             erreur = str(e)
     age = indicateurs.age(bande)
     precedente = bande.pesees[-1] if bande.pesees else None
-    return render_template('bandes/pesee.html', bande=bande, erreur=erreur, saisie=request.form,
+    return render_template('bandes/pesee.html', bande=bande, erreur=erreur, saisie=request.form, age_bande=indicateurs.age(bande),
                            precedente=precedente, couleur=indicateurs.feu(bande)[0],
                            jours_depuis=(date.today() - precedente.date).days if precedente else None,
                            nombre_defaut=parametres.obtenir('bandes.pesee_nombre_defaut', 10),

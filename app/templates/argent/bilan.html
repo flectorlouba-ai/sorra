@@ -1,0 +1,34 @@
+{% extends '_base.html' %}
+{% block aide %}argent{% endblock %}
+{% block titre %}Mon bilan {{ annee }}{% endblock %}
+{% block icone %}file-earmark-pdf{% endblock %}
+{% block page_titre %}📄 Mon bilan {{ annee }}{% endblock %}
+{% block page_sous_titre %}Mini bilan comptable de la ferme {{ ferme.numero }}{% endblock %}
+{% block contenu %}
+{# Lot G / K4 : écran 3 de la maquette Mon argent — le PDF (2 pages A4 paysage) s'ouvre, se partage, s'enregistre. #}
+<a class="lien-retour" href="{{ url_for('argent.mon_argent', periode='tout') }}">‹ Mon argent</a>
+{% set qui = ferme.numero if current_user.profil.value != 'ELEVEUR' else None %}
+{% set pdf = url_for('argent.bilan_pdf', annee=annee, ferme=qui) %}
+<div class="carte carte-bilan-pdf">
+  <div class="apercu-bilan" aria-hidden="true">📄</div>
+  <div class="carte-titre">Mon bilan {{ annee }}</div>
+  <div class="carte-sous">Recettes, dépenses et bénéfice mois par mois, détail par poste, fiscalité estimée. 2 pages A4.</div>
+  <div class="carte-sous mt-2"><strong>À montrer à la banque, au comptable ou à la DGE.</strong></div>
+</div>
+<a class="btn-gros btn-vert" href="{{ pdf }}" download="SORRA_Mon_bilan_{{ annee }}_{{ ferme.numero }}.pdf" data-enregistrer-pdf>⬇️ Enregistrer le PDF</a>
+<button type="button" class="btn-gros-secondaire mt-2" data-partager data-url="{{ pdf }}" data-titre="Mon bilan {{ annee }} · {{ ferme.numero }}">⤴ Partager</button>
+<a class="btn-gros-secondaire mt-2" href="{{ pdf }}" target="_blank" rel="noopener">👀 Voir le PDF</a>
+<div class="carte-sous centre mt-2"><a href="{{ url_for('argent.bilan', annee=annee - 1, ferme=qui) }}">Bilan {{ annee - 1 }}</a></div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var b = document.querySelector('[data-partager]');
+  if (!b) return;
+  if (!navigator.share) { b.hidden = true; return; }
+  b.addEventListener('click', function () {
+    navigator.share({title: b.getAttribute('data-titre'), url: location.origin + b.getAttribute('data-url')}).catch(function () {});
+  });
+})();
+</script>
+{% endblock %}

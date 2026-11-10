@@ -802,3 +802,27 @@ a.desactive{opacity:.45;pointer-events:none;}
 .theme-terrain .liste-actions-terrain .action-faite .ligne-fiche{opacity:.6;}
 .theme-terrain .phrases-ferme .phrase-bleu a{color:var(--e-bleu-fonce);text-decoration:none;font-weight:700;}
 .theme-terrain .lien-moi-petit{font-weight:700;color:var(--e-bleu-fonce);text-decoration:none;}
+
+/* ── Lot G / K4 : Mon argent 12 mois, fiscalité, bilan ── */
+.theme-terrain .graphe-argent svg{width:100%;height:auto;display:block;margin-top:6px;}
+.theme-terrain .graphe-argent .axe{stroke:var(--e-trait);stroke-width:1;}
+.theme-terrain .graphe-argent .b-gagne{fill:var(--e-prairie);}
+.theme-terrain .graphe-argent .b-depense{fill:var(--e-orange);}
+.theme-terrain .graphe-argent .l-benefice{fill:none;stroke:var(--e-nuit);stroke-width:2;stroke-linejoin:round;}
+.theme-terrain .graphe-argent .mois{font-size:10px;fill:var(--e-gris);font-weight:700;}
+.theme-terrain .legende-argent{font-size:.78rem;color:var(--e-gris);display:flex;gap:6px;align-items:center;}
+.theme-terrain .legende-argent i{display:inline-block;width:12px;height:12px;border-radius:3px;}
+.theme-terrain .legende-argent .l-gagne{background:var(--e-prairie);} .theme-terrain .legende-argent .l-depense{background:var(--e-orange);}
+.theme-terrain .carte-lien{display:flex;flex-direction:column;position:relative;padding-right:36px;text-decoration:none;}
+.theme-terrain .carte-lien .carte-fleche{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:1.6rem;color:var(--e-bleu-fonce);}
+.theme-terrain .lien-retour{display:inline-block;margin-bottom:10px;font-weight:700;color:var(--e-bleu-fonce);text-decoration:none;}
+.theme-terrain .gros-chiffre{font-size:1.6rem;font-weight:900;color:var(--e-nuit);margin:4px 0;}
+.theme-terrain .jauge-seuil{height:10px;border-radius:10px;background:var(--e-gris-clair);overflow:hidden;margin:6px 0;}
+.theme-terrain .jauge-seuil span{display:block;height:100%;background:var(--e-prairie);border-radius:10px;}
+.theme-terrain .jauge-seuil span.proche{background:var(--e-orange);}
+.theme-terrain .regime{font-size:1.15rem;font-weight:800;color:var(--e-bleu-fonce);margin:4px 0;}
+.theme-terrain .ligne-rappel{display:flex;justify-content:space-between;align-items:center;padding:6px 0;}
+.theme-terrain .mention-fiscale{font-size:.8rem;color:var(--e-gris);margin:10px 4px;}
+.theme-terrain .carte-bilan-pdf{text-align:center;}
+.theme-terrain .apercu-bilan{font-size:3rem;line-height:1;margin-bottom:6px;}
+.theme-terrain .tache-jour{display:inline-block;margin-left:6px;font-size:.78rem;font-weight:700;color:var(--e-orange-fonce);background:var(--e-orange-pale);border-radius:10px;padding:1px 8px;}

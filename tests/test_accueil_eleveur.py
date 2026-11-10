@@ -362,7 +362,7 @@ def test_tableau_des_clics(client, monde):
     # Ma bande → Nouvelle bande → Commencer : 3
     ouvrir('/ma-bande')
     page = ouvrir('/bandes/ouvrir', depuis='/ma-bande')
-    assert 'Commencer la bande' in page
+    assert 'Ouvrir la bande' in page          # lot K4 : libellé de la maquette la plus récente (lot A)
     # Ma bande → Peser → Enregistrer : 3
     assert 'Enregistrer la pesée' in ouvrir('/aller/peser', depuis='/ma-bande')
     # Mes produits → J'ai acheté → Enregistrer : 3

@@ -81,10 +81,10 @@
     <input class="form-control" type="date" id="date" name="date" max="{{ today.isoformat() }}" value="{{ saisie.get('date') or today.isoformat() }}">
   </div>
   <div class="form-group">
-    <label class="form-label" for="poids_g">Poids moyen d'un poussin (g)</label>
+    <label class="form-label" for="poids_g">Poids moyen d'un poussin (facultatif)</label>
     <input class="form-control" id="poids_g" name="poids_g" inputmode="decimal" placeholder="Facultatif ({{ poids_defaut|qte }} g par défaut)" value="{{ saisie.get('poids_g', '') }}">
   </div>
-  {% if not avertissement %}<button type="submit" class="btn-gros btn-vert"><i class="bi bi-play-fill"></i> Commencer la bande</button>{% endif %}
+  {% if not avertissement %}<button type="submit" class="btn-gros btn-vert"><i class="bi bi-play-fill"></i> Ouvrir la bande</button>{% endif %}
   <div class="note-numero" id="note-bande">Fin prévue le {{ (today + timedelta(days=duree)).strftime('%d/%m') if timedelta is defined else '' }}</div>
   {% endif %}
 </form>
