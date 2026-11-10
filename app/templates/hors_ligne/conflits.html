@@ -21,7 +21,7 @@
     <span class="td-sous" style="color:inherit;opacity:.8">{{ c.ferme.nom if c.ferme else '' }} · depuis le {{ c.cree_le|date_locale('%d/%m à %H:%M') }}
       {% if en_retard(c) %}<span class="badge badge-danger">plus de 48 h</span>{% endif %}</span></div>
   <div class="card-p-body">
-    <div class="td-sous mb-2">{{ c.detail }}</div>
+    <div class="td-sous mb-2">{{ c.detail }}{% if current_user.profil.value in ('DGE', 'ADMIN', 'AGENT') and c.ferme %} · <a href="{{ url_for('actions.liste', nouvelle=1, origine='ARBITRAGE', table='conflit_hors_ligne', id=c.id, ferme=c.ferme.numero, intitule='Suite à l\'arbitrage : ' ~ c.quoi) }}" data-creer-action>🎯 Créer une action</a>{% endif %}</div>
     <form method="post" action="{{ url_for('hors_ligne.trancher', ident=c.id) }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="versions">

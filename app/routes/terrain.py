@@ -127,6 +127,12 @@ def accueil_agent(user):
     if a_verifier:
         etat.append({'ico': '⚖️', 'texte': f'{a_verifier} saisie{"s" if a_verifier > 1 else ""} à vérifier',
                      'lien': url_for('hors_ligne.conflits')})
+    from app.services import actions as services_actions                      # lot T : actions de l'agent
+    mes_actions = [x for x in services_actions.mes_actions(user) if x.etat != 'FAITE' and x.archive_le is None]
+    n_retard = sum(1 for x in mes_actions if x.etat == 'RETARD')
+    if n_retard and len(etat) < 2:
+        etat.append({'ico': '🎯', 'texte': f'{n_retard} action{"s" if n_retard > 1 else ""} en retard',
+                     'lien': url_for('notifications.actions_terrain')})
     n_tournee = len(tournee)
     rouges = sum(1 for x in u.values() if x['couleur'] == 'rouge')
     tuiles = [
@@ -143,6 +149,9 @@ def accueil_agent(user):
     from app.routes.accueil import _alertes
     return {'tournee': {'n': n_tournee, 'lien': url_for('terrain.tournee')}, 'etat': etat[:2], 'tuiles': tuiles,
             'alertes': _alertes(user),                           # les mêmes alertes que l'accueil de pilotage
+            'actions': [{'numero': x.numero, 'intitule': x.intitule, 'phrase': services_actions.phrase_echeance(x),
+                         'retard': x.etat == 'RETARD'} for x in mes_actions[:3]],
+            'n_actions': len(mes_actions), 'n_actions_retard': n_retard,       # lot T
             'moi': {'cle': 'moi', 'ico': '👤', 'nom': 'Moi', 'sous': 'compte, aide', 'lien': url_for('terrain.moi')}}
 
 

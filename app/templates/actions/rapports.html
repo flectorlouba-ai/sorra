@@ -1,0 +1,60 @@
+{% extends '_base.html' %}
+{% block titre %}Rapports{% endblock %}
+{% block icone %}file-earmark-text{% endblock %}
+{% block page_titre %}📑 Rapports{% endblock %}
+{% block page_sous_titre %}Rapports produits le 1ᵉʳ du mois et à la demande : national, provincial, ferme, agent, bilans de bande · chaque génération et chaque téléchargement sont au journal{% endblock %}
+{% block actions %}{% if peut_generer %}<button type="button" class="bp" data-ouvrir="fen-generer">＋ Générer un rapport</button>{% endif %}{% endblock %}
+{% block contenu %}
+<form class="filters-bar" method="get">
+  <select name="type" class="filter-sel" onchange="this.form.submit()">
+    <option value="">Tous les types</option>
+    {% for t, nom in types.items() %}<option value="{{ t }}" {% if type == t %}selected{% endif %}>{{ nom }}</option>{% endfor %}
+  </select>
+</form>
+<div class="td-sous mb-2">🎯 <a href="{{ url_for('actions.liste', nouvelle=1, origine='RAPPORT', intitule='Suite au rapport') }}" data-creer-action>Créer une action à partir d'un rapport</a></div>
+<div class="table-wrap"><div class="table-scroll"><table>
+  <thead><tr><th>Période</th><th>Type</th><th>Périmètre</th><th>Généré le</th><th>Par</th><th>Pages</th><th>Fichier</th></tr></thead>
+  <tbody>{% for r in rapports %}
+    <tr data-rapport="{{ r.id }}"><td class="td-num">{{ r.periode }}</td><td>{{ r.libelle_type }}</td><td>{{ r.cible }}</td>
+      <td>{{ r.genere_le|date_locale }}</td><td>{{ 'automatique' if r.automatique else (r.auteur.nom_complet if r.auteur else '—') }}</td>
+      <td>{{ r.pages or '—' }}</td><td><a class="btn-edit" href="{{ url_for('actions.telecharger', ident=r.id) }}"><i class="bi bi-file-earmark-pdf"></i> PDF</a></td></tr>
+  {% else %}<tr><td colspan="7" class="table-vide">Aucun rapport gardé.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% if peut_generer %}
+<div class="modal-overlay" id="fen-generer" hidden role="dialog" aria-modal="true">
+  <div class="modal-box" style="max-width:520px;">
+    <form method="post" action="{{ url_for('actions.generer') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="modal-head"><span class="modal-head-title">📑 Générer un rapport</span><button type="button" class="modal-close" data-fermer aria-label="Fermer">✕</button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label" for="g-type">Type</label>
+            <select class="form-control" id="g-type" name="type" onchange="majGenerer()">
+              {% if current_user.profil.value != 'AGENT' %}<option value="NATIONAL">National</option><option value="PROVINCE">Provincial</option>{% endif %}
+              <option value="FERME">Ferme</option><option value="AGENT">Agent</option></select></div>
+          <div class="form-group"><label class="form-label" for="g-mois">Mois</label>
+            <select class="form-control" id="g-mois" name="mois">{% for m in mois %}<option value="{{ m }}">{{ m[5:] }}/{{ m[:4] }}</option>{% endfor %}</select></div>
+          <div class="form-group span2" id="g-bloc-province" hidden><label class="form-label" for="g-province">Province</label>
+            <select class="form-control" id="g-province" name="province_id">{% for p in provinces %}<option value="{{ p.id }}">{{ p.nom }}</option>{% endfor %}</select></div>
+          <div class="form-group span2" id="g-bloc-ferme" hidden><label class="form-label" for="g-ferme">Ferme</label>
+            <select class="form-control" id="g-ferme" name="ferme">{% for f in fermes %}<option value="{{ f.numero }}">{{ f.numero }} · {{ f.nom }}</option>{% endfor %}</select></div>
+          <div class="form-group span2" id="g-bloc-agent" hidden><label class="form-label" for="g-agent">Agent</label>
+            <select class="form-control" id="g-agent" name="agent_id">{% for a in agents %}<option value="{{ a.id }}">{{ a.nom_complet }}</option>{% endfor %}</select></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button type="button" class="btn-annuler" data-fermer>✕ Fermer</button><button type="submit" class="btn-enregistrer">Générer</button></div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script>
+function majGenerer() {
+  var t = (document.getElementById('g-type') || {}).value;
+  if (!t) return;
+  document.getElementById('g-bloc-province').hidden = t !== 'PROVINCE';
+  document.getElementById('g-bloc-ferme').hidden = t !== 'FERME';
+  document.getElementById('g-bloc-agent').hidden = t !== 'AGENT';
+}
+majGenerer();
+</script>{% endblock %}

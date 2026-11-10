@@ -1,0 +1,58 @@
+{% extends '_base.html' %}
+{% import '_fiches.html' as fiches %}
+{% block titre %}Mes actions{% endblock %}
+{% block page_titre %}🎯 Mes actions{% endblock %}
+{% block page_sous_titre %}Les plus urgentes en haut{% endblock %}
+{% block contenu %}
+{# Lot T-B : actions de l'agent sur le téléphone (table du lot D). Toucher une action = feuille avancement /
+   « Ce que j'ai fait » / photo ; le formulaire est déjà dans la page, donc il part sans réseau (file d'attente). #}
+<a class="btn-gros btn-vert mb-2" href="#nouvelle" data-ouvrir="fen-nouvelle-action" data-nouvelle-action>＋ Nouvelle action</a>
+{% if not actions %}
+<div class="carte" data-aucune-action><div class="carte-titre">Aucune action pour vous</div><div class="carte-sous">La DGE ou vous-même pouvez en créer une.</div></div>
+{% endif %}
+<ul class="liste-actions-terrain">
+  {% for a in actions %}
+  <li class="action-{{ a.etat|lower }}">
+    <button type="button" class="ligne-fiche" data-fiche="fiche-action-{{ a.id }}" data-action="{{ a.numero }}" aria-haspopup="dialog">
+      <span class="ligne-fiche-texte">
+        <b>{{ a.intitule }}</b>
+        <small>{{ phrase(a) }}{% if a.ferme %} · {{ a.ferme.numero }}{% endif %} · demandé par {{ a.createur.prenom or a.createur.nom }}</small>
+      </span>
+      <span class="ligne-fiche-fleche" aria-hidden="true">›</span>
+    </button>
+    <template id="fiche-action-{{ a.id }}" data-titre="🎯 {{ a.numero }}">
+      <form method="post" action="{{ url_for('notifications.action_terrain', ident=a.id) }}" enctype="multipart/form-data" class="form-terrain" novalidate
+            data-hors-ligne="Action {{ a.numero }}" data-retour-garde="{{ url_for('notifications.actions_terrain') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="carte-sous mb-2"><b>{{ a.intitule }}</b><br>{{ phrase(a) }}{% if a.ferme %} · {{ a.ferme.numero }} {{ a.ferme.nom }}{% endif %}</div>
+        <div class="form-label">Où en êtes-vous ?</div>
+        <div class="choix-cases">
+          <label class="case-choix"><input type="radio" name="etat" value="pas_commence" {% if a.etat == 'A_FAIRE' or a.etat == 'RETARD' and a.avancement == 0 %}checked{% endif %}><span>Pas commencé</span></label>
+          <label class="case-choix"><input type="radio" name="etat" value="en_cours" {% if a.avancement > 0 and a.etat != 'FAITE' %}checked{% endif %}><span>En cours</span></label>
+          <label class="case-choix"><input type="radio" name="etat" value="fait" {% if a.etat == 'FAITE' %}checked{% endif %}><span>✓ Fait</span></label>
+        </div>
+        <div class="form-group"><label class="form-label" for="commentaire-{{ a.id }}">Ce que j'ai fait</label>
+          <textarea class="form-control" id="commentaire-{{ a.id }}" name="commentaire" rows="3" maxlength="1000">{{ a.commentaire or '' }}</textarea></div>
+        <div class="form-group"><label class="form-label" for="photo-{{ a.id }}">📷 Photo (facultatif)</label>
+          <input type="file" class="form-control" id="photo-{{ a.id }}" name="photo" accept="image/*" capture="environment"></div>
+        <button type="submit" class="btn-gros btn-vert">Enregistrer</button>
+      </form>
+    </template>
+  </li>
+  {% endfor %}
+</ul>
+{% call fiches.fenetre('fen-nouvelle-action', '🎯 Nouvelle action', ouverte=ouvrir == '1') %}
+<form method="post" action="{{ url_for('actions.creer') }}" class="form-terrain" novalidate data-hors-ligne="Nouvelle action"
+      data-retour-garde="{{ url_for('notifications.actions_terrain') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="retour" value="{{ url_for('notifications.actions_terrain') }}">
+  <div class="form-group"><label class="form-label" for="na-intitule">Quoi faire ?</label>
+    <input class="form-control" id="na-intitule" name="intitule" maxlength="200" required></div>
+  <div class="form-group"><label class="form-label" for="na-echeance">Pour quand ?</label>
+    <input class="form-control" id="na-echeance" name="echeance" type="date" required></div>
+  <div class="form-group"><label class="form-label" for="na-ferme">Pour quelle ferme ? (facultatif)</label>
+    <select class="form-select" id="na-ferme" name="ferme"><option value="">—</option>{% for f in fermes %}<option value="{{ f.numero }}">{{ f.numero }} · {{ f.nom }}</option>{% endfor %}</select></div>
+  <button type="submit" class="btn-gros btn-vert">Créer l'action</button>
+</form>
+{% endcall %}
+{% endblock %}

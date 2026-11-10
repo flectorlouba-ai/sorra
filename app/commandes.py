@@ -60,8 +60,24 @@ def rapports_mensuels():
     auteur = (Utilisateur.query.filter_by(profil=Profil.DGE, actif=True).first()
               or Utilisateur.query.filter_by(profil=Profil.ADMIN, actif=True).first())
     nouveaux = dge.generer_manquants(auteur)
+    from app.services import rapports
+    standards = rapports.generer_mensuels(dge.mois_termines(1)[0], auteur)        # lot D : ferme, agent, provinces
     db.session.commit()
-    click.echo(', '.join(r.mois for r in nouveaux) + ' produit(s).' if nouveaux else 'Rien à produire.')
+    click.echo((', '.join(r.mois for r in nouveaux) + ' produit(s). ' if nouveaux else 'Rien à produire. ')
+               + f'{len(standards)} rapport(s) standard(s).')
+
+
+@click.command('notifications-envoyer')
+@with_appcontext
+def notifications_envoyer():
+    """Lot T : calcule les événements du moment (par profil) et envoie les notifications pas encore envoyées.
+    À lancer toutes les 15 minutes (cron du VPS). Sans clés VAPID dans le .env, rien ne part et le journal le dit."""
+    from app import db
+    from app.services import notifications
+    creees = notifications.calculer()
+    envoyees = notifications.envoyer_en_attente()
+    db.session.commit()
+    click.echo(f'{creees} notification(s) créée(s), {envoyees} envoyée(s)' + ('' if notifications.cles() else ' — clés VAPID absentes'))
 
 
 DONNEES_DEMO = 'deploiement/demo/donnees_demo.json'

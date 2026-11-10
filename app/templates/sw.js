@@ -110,3 +110,24 @@ self.addEventListener('fetch', function (e) {
     });
   }));
 });
+
+// ── Lot T : notifications Web Push ──
+self.addEventListener('push', function (e) {
+  var d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = {titre: 'SORRA', texte: e.data ? e.data.text() : ''}; }
+  e.waitUntil(self.registration.showNotification(d.titre || 'SORRA', {
+    body: d.texte || '', icon: '/static/icones/icone-192.png', badge: '/static/icones/icone-192.png',
+    tag: d.type || 'sorra', renotify: true, data: {lien: d.lien || '/'}
+  }));
+});
+
+self.addEventListener('notificationclick', function (e) {
+  e.notification.close();
+  var lien = (e.notification.data && e.notification.data.lien) || '/';
+  e.waitUntil(clients.matchAll({type: 'window', includeUncontrolled: true}).then(function (fenetres) {
+    for (var i = 0; i < fenetres.length; i++) {
+      if ('focus' in fenetres[i]) { fenetres[i].navigate(lien); return fenetres[i].focus(); }
+    }
+    return clients.openWindow(lien);
+  }));
+});

@@ -52,6 +52,11 @@ def _n_alertes_confirmees(user):
     return sante.alertes_visibles(user).filter(AlerteSanitaire.statut == StatutAlerte.CONFIRMEE).count()
 
 
+def _n_actions_retard(user):
+    from app.services import actions
+    return actions.n_en_retard(user)
+
+
 def _n_fermes_rouges(user):
     from app.services import agent
     u = agent.urgences(Ferme.query.filter_by(agent_id=user.id).all())

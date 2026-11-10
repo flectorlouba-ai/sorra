@@ -7,6 +7,7 @@
 {% block page_sous_titre %}{{ a.libelle_origine }} · {{ a.ferme.nom }} ({{ a.ferme.numero }}), {{ a.ferme.localite.nom }} — {{ a.ferme.province.nom }} · {{ a.cree_le|date_locale('%d/%m/%Y %H:%M') }}{% endblock %}
 
 {% block contenu %}
+{% if current_user.profil.value in ('DGE', 'ADMIN', 'AGENT') %}<a class="btn-ghost mb-2" href="{{ url_for('actions.liste', nouvelle=1, origine='ALERTE', table='alerte_sanitaire', id=a.id, ferme=a.ferme.numero, intitule='Suite à l\'alerte ' ~ a.numero) }}" data-creer-action>🎯 Créer une action</a>{% endif %}
 <div class="row g-3">
   <div class="col-lg-7">
     {% set d = a.declaration %}

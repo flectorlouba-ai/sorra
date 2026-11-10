@@ -48,6 +48,16 @@
   </div>
 </div>
 
+{% if d.mes_actions is defined and current_user.profil.value in ('AGENT', 'DGE', 'ADMIN') %}
+<div class="table-wrap mb-3" data-mes-actions><div class="table-scroll"><table>
+  <thead><tr><th>🎯 Mes actions</th><th>Ferme</th><th>Demandée par</th><th>Échéance</th><th>Priorité</th><th>État</th></tr></thead>
+  <tbody>{% for a in d.mes_actions %}
+    <tr data-etat="{{ a.etat }}"><td><a href="{{ url_for('actions.liste', etat=a.etat) }}">{{ a.numero }} · {{ a.intitule }}</a></td><td>{{ a.libelle_perimetre }}</td>
+      <td>{{ a.createur.nom_complet }}</td><td>{{ a.echeance.strftime('%d/%m') }}</td><td>{{ a.priorite|lower }}</td>
+      <td><span class="badge {{ 'badge-danger' if a.etat == 'RETARD' else 'badge-neutre' }}">{{ a.libelle_etat }}</span></td></tr>
+  {% else %}<tr><td colspan="6" class="table-vide">Aucune action en cours · <a href="{{ url_for('actions.liste', nouvelle=1) }}">＋ Nouvelle action</a></td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endif %}
 <div class="courbes-hebdo">{% for c in d.courbes %}{{ courbe_hebdo(c) }}{% endfor %}</div>
 {% if d.courbes %}<div class="td-sous mt-1 mb-3">Une semaine sans donnée laisse un trou dans la courbe : elle n'est jamais comptée comme zéro.</div>{% endif %}
 

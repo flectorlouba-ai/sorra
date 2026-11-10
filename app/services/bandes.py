@@ -315,6 +315,11 @@ def cloturer(bande, user, motif=None):
     bande.motif_cloture = motif or None
     db.session.flush()
     bande.bilan = indicateurs.bilan(bande)
+    try:                                                # lot D : le bilan PDF est produit et gardé à la clôture
+        from app.services import rapports
+        rapports.bilan_bande(bande, user, automatique=True)
+    except Exception:                                   # le PDF ne doit jamais empêcher la clôture
+        pass
 
 
 def apres_correction(bande, user, quoi, motif):

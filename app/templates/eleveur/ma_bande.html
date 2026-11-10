@@ -18,4 +18,8 @@
   <a class="grosse-case{{ ' large' if not pesee }}" href="{{ url_for('bandes.mes_bandes') }}" data-case="mes_bandes">
     <span class="gc-ico">📈</span><span class="gc-nom">Mes bandes</span><small>en cours et passées</small></a>
 </div>
+{# Lot T-C : fiche papier de la semaine (pilote), à imprimer et remplir au stylo #}
+{% for b in bandes_fiche %}
+<a class="btn-gros-secondaire mt-2" href="{{ url_for('notifications.fiche_semaine', numero=b.numero) }}" target="_blank" data-fiche-semaine="{{ b.numero }}">🖨️ Imprimer la fiche de la semaine{% if bandes_fiche|length > 1 %} · {{ b.batiment.code }}{% endif %}</a>
+{% endfor %}
 {% endblock %}

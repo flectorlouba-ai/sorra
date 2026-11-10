@@ -18,6 +18,16 @@
     {% endfor %}
     {{ tuile(a.moi, 'tuile-large') }}
   </div>
+  {% if a.n_actions %}
+  {# Lot T : encadré « Mes actions » sous les tuiles (les 8 tuiles ne changent pas) #}
+  <section class="carte actions-terrain" id="mes-actions" data-mes-actions>
+    <div class="carte-titre-ligne"><span class="carte-titre">🎯 Mes actions ({{ a.n_actions }})</span>
+      <a class="lien-moi-petit" href="{{ url_for('notifications.actions_terrain') }}">Voir tout ›</a></div>
+    <ul class="phrases-ferme">
+      {% for x in a.actions %}<li class="phrase-{{ 'rouge' if x.retard else 'bleu' }}"><a href="{{ url_for('notifications.actions_terrain') }}">{{ x.intitule }} · {{ x.phrase }}</a></li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
   {% if a.alertes %}
   <section class="carte alertes-terrain" id="alertes" data-alertes>
     <div class="carte-titre">🔔 Alertes ({{ a.alertes|length }})</div>
