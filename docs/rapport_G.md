@@ -24,4 +24,4 @@ Le cœur du lot a été livré au sous-lot K4 (écran de la maquette `maquette_m
 - **Ordinateur, `veto`** : `/mon-argent/bilan.pdf?ferme=EST-001` → refusé.
 - Limite : le jeu de démo n'a presque pas de ventes (bilan presque vide) — à enrichir.
 
-Déployé sur la démo : voir `docs/rapport_suite.md`.
+Déployé sur la démo : **oui** — version 2026-11-10-f6056e5.
