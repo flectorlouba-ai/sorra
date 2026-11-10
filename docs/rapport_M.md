@@ -17,4 +17,4 @@
 - **Ordinateur, `dge`** : Rapports → cliquer un rapport national → « Soumettre au visa MAEDR » ; compte MAEDR (à créer par `admin`) :
   Rapports à viser → Viser → valider / refuser.
 
-Déployé sur la démo : voir `docs/rapport_suite.md`.
+Déployé sur la démo : **oui** — version 2026-11-10-2438f27.
