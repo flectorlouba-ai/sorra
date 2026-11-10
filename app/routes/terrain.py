@@ -292,7 +292,8 @@ def stock_en_mots(ferme):
             constat = ('✓ ça correspond', 'ok') if abs(manque) < 0.5 else \
                 (f'🟠 {manque:g} {unite} manquent', 'manque') if manque > 0 else (f'🟠 {-manque:g} {unite} en trop', 'manque')
         cartes.append({'produit': p, 'unite': unite, 'recu': recu, 'utilise': utilises.get(p.id, 0),
-                       'reste': inv.compte if inv is not None else s['stock'], 'compte': inv, 'constat': constat})
+                       'reste': inv.compte if inv is not None else s['stock'], 'compte': inv, 'constat': constat,
+                       'programme': s['programme'], 'externe': s['externe']})
     return cartes
 
 

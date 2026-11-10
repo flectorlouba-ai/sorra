@@ -12,7 +12,7 @@
   {% for s in stock %}
   <div class="stock-ligne">
     <span><strong>{{ 'Poussins en attente de bande' if s.produit.type == 'Poussins' else s.produit.nom }}</strong>
-      <small>{% if s.etat and s.achat %}reçu en tout : {{ s.etat|qte }} de l'État · {{ s.achat|qte }} acheté{{ 's' if s.achat > 1 }}{% elif s.achat %}acheté par vous{% else %}livré par l'État{% endif %}</small></span>
+      <small>{% if s.etat and s.achat %}reçu en tout : {{ s.etat|qte }} de l'État · {{ s.achat|qte }} acheté{{ 's' if s.achat > 1 }}<br>il reste {{ s.programme|qte }} de l'État · {{ s.externe|qte }} à vous{% elif s.achat %}acheté par vous{% else %}livré par l'État{% endif %}</small></span>
     <span class="stock-quantite">{{ s.stock|qte }}{% if s.produit.type != 'Poussins' %} {{ s.produit.unite }}{% endif %}
       {% if s.kg is not none %}<small>{{ s.kg|qte }} kg</small>{% endif %}</span>
   </div>

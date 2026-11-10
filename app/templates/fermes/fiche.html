@@ -304,12 +304,13 @@
   {% if stock %}
   <div class="table-scroll">
     <table>
-      <thead><tr><th>Produit</th><th>Stock</th><th>Unité</th>{% if agent %}<th>Dernier comptage</th>{% endif %}</tr></thead>
+      <thead><tr><th>Produit</th><th>Stock</th><th>Programme · Externe</th><th>Unité</th>{% if agent %}<th>Dernier comptage (écart Programme)</th>{% endif %}</tr></thead>
       <tbody>
       {% for s in stock %}
         <tr>
           <td><strong>{{ s.produit.nom }}</strong>{% if s.produit.type == 'Poussins' %}<br><span class="td-sous">en attente de bande</span>{% endif %}</td>
           <td>{{ s.stock|qte }}{% if s.kg is not none %} <span class="td-sous">· {{ s.kg|qte }} kg</span>{% endif %}</td>
+          <td data-origines>{{ s.programme|qte }} · {{ s.externe|qte }}</td>
           <td>{{ s.produit.unite }}</td>
           {% if agent %}{% set inv = agent.inventaires.get(s.produit.id) %}
           <td data-inventaire="{{ s.produit.id }}">{% if inv %}{{ inv.compte|qte }} le {{ inv.jour.strftime('%d/%m') }}

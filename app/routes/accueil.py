@@ -110,6 +110,7 @@ TUILES = {
     'operateurs':      ('Opérateurs', 'Abattoirs, acheteurs', 'truck', 'operateurs.liste', None),
     'utilisateurs':    ('Utilisateurs', 'Comptes et droits', 'people-fill', 'utilisateurs.index', None),
     'configuration':   ('Configuration', 'Listes, paramètres, catalogue…', 'gear', 'controle.configuration', None),
+    'catalogue':       ('Catalogue des intrants', 'Articles et fournisseurs', 'box-seam', 'catalogue.index', None),   # lot A2
     'a_approuver':     ('Paramètres à approuver', 'Quatre yeux', 'check2-circle', 'controle.approbations_ecran', _n_a_approuver),
     'sessions':        ('Sessions', 'Appareils connectés', 'pc-display', 'controle.sessions', None),
     'journal':         ('Journal', 'Qui a fait quoi, et quand', 'journal-text', 'journal.index', None),
@@ -121,10 +122,11 @@ TUILES = {
 
 # Tuiles visées d'abord (dans l'ordre demandé), puis les écrans existants qui restent utiles.
 TUILES_PROFIL = {
-    Profil.AGENT:    ['mes_fermes', 'tournee', 'a_verifier', 'livraisons', 'commandes', 'bandes', 'indicateurs', 'vaccins', 'lots', 'operateurs'],
+    Profil.AGENT:    ['mes_fermes', 'tournee', 'a_verifier', 'livraisons', 'commandes', 'bandes', 'indicateurs', 'vaccins', 'lots', 'operateurs',
+                      'catalogue'],
     Profil.VETO:     ['signalements', 'surveillance', 'recherche_lots', 'parametres_sanitaires', 'vaccins', 'a_approuver', 'fermes', 'bandes', 'declarations', 'indicateurs', 'lots'],
     Profil.DGE:      ['tableau', 'carte', 'livraisons_etat', 'arbitrages', 'rapports', 'a_approuver', 'commandes', 'fermes', 'bandes',
-                      'alertes_sanitaires', 'lots', 'operateurs', 'recherche_lots', 'classement', 'agents'],
+                      'alertes_sanitaires', 'lots', 'operateurs', 'recherche_lots', 'classement', 'agents', 'catalogue'],
     Profil.ADMIN:    ['utilisateurs', 'configuration', 'a_approuver', 'sessions', 'journal', 'integrite', 'arbitrages',
                       'tableau', 'fermes', 'bandes', 'livraisons_etat', 'signalements', 'declarations', 'vaccins', 'lots',
                       'operateurs', 'carte', 'rapports', 'commandes', 'surveillance', 'recherche_lots', 'classement', 'agents'],
@@ -136,7 +138,8 @@ TUILES_CONFIGURATION = [
     ('Provinces et localités', 'Référentiel géographique', 'map', 'referentiel.index'),
     ('Listes', 'Valeurs des listes', 'list-ul', 'listes.index'),
     ('Paramètres', 'Seuils et durées', 'sliders', 'parametres.index'),
-    ('Catalogue des intrants', 'Produits, unités, sacs', 'box-seam', 'catalogue.index'),
+    ('Catalogue des intrants', 'Articles, conditionnements', 'box-seam', 'catalogue.index'),
+    ('Fournisseurs', 'Aliment, couvoir, pharmacie, matériel', 'truck', 'catalogue.fournisseurs'),
     ('Formules des indicateurs', 'Mortalité, GMQ, IC…', 'calculator', 'pilotage.formules'),
     ("Tâches d'entretien", 'Abreuvoirs, litière, désinfection…', 'tools', 'entretien.taches'),
     ('Aides', "« Comment faire ? » de l'éleveur", 'question-circle', 'aides.administrer'),

@@ -9,7 +9,8 @@ from app.models.base import ArchivableMixin, SaisieTerrainMixin, HorodatageMixin
 
 TYPE_POUSSINS = 'Poussins'
 TYPE_ALIMENT = 'Aliment'
-TYPES_INTRANT = [TYPE_POUSSINS, TYPE_ALIMENT, 'Vaccin', 'Médicament', 'Autre']
+TYPES_INTRANT = [TYPE_POUSSINS, TYPE_ALIMENT, 'Vaccin', 'Médicament', 'Matériel', 'Autre']   # Matériel : lot A2
+TYPES_FOURNISSEUR = ['Aliment', 'Couvoir', 'Pharmacie vétérinaire', 'Matériel', 'Autre']
 UNITE_SACS = 'sacs'
 UNITES = ['têtes', UNITE_SACS, 'kg', 'doses', 'flacons', 'litres', 'unités']
 
@@ -32,6 +33,23 @@ class OrigineLivraison:
     ETAT = 'ETAT'
     ACHAT = 'ACHAT'
     LIBELLES = {ETAT: "Livraison de l'État", ACHAT: 'Achat personnel'}
+    # Lot A2 : les deux origines du stock (ETAT = Programme POUFA, ACHAT = Externe)
+    ORIGINES = {ETAT: 'Programme', ACHAT: 'Externe'}
+
+
+class Fournisseur(ArchivableMixin, HorodatageMixin, db.Model):
+    """Lot A2 : fournisseur d'un article du catalogue (aliment, couvoir, pharmacie, matériel)."""
+    __tablename__ = 'fournisseur'
+
+    id        = db.Column(db.Integer, primary_key=True)
+    nom       = db.Column(db.String(150), nullable=False, unique=True)
+    telephone = db.Column(db.String(30), nullable=True)
+    ville     = db.Column(db.String(80), nullable=True)
+    type      = db.Column(db.String(30), nullable=False)
+    actif     = db.Column(db.Boolean, nullable=False, default=True)
+
+    def __repr__(self):
+        return f'<Fournisseur {self.nom}>'
 
 
 class Produit(ArchivableMixin, HorodatageMixin, db.Model):
@@ -45,6 +63,12 @@ class Produit(ArchivableMixin, HorodatageMixin, db.Model):
     # Médicaments : jours d'attente entre la fin d'un traitement et l'abattage
     delai_attente_jours = db.Column(db.Integer, nullable=True)
     actif        = db.Column(db.Boolean, nullable=False, default=True)
+    # Lot A2 : l'article du catalogue (fournisseur vide = « fournisseur à préciser »)
+    reference       = db.Column(db.String(40), nullable=True)
+    fournisseur_id  = db.Column(db.Integer, db.ForeignKey('fournisseur.id'), nullable=True)
+    conditionnement = db.Column(db.String(60), nullable=True)
+
+    fournisseur = db.relationship('Fournisseur', backref='articles')
 
     @property
     def en_sacs(self):

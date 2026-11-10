@@ -449,6 +449,8 @@ Quand on arrive sur un écran pour saisir (Pesée, Sortie…), la fenêtre d'ajo
 | Bureau | Bâtiments, catalogue, utilisateurs, listes | tableaux | fenêtre au centre | « Archiver » remplace « Désactiver » |
 | Bureau | Opérateurs | liste | page existante | « Archiver » / « Restaurer » |
 
+**Lot A2.** « Catalogue des intrants » et « Fournisseurs » (bureau ; ADMIN et DGE écrivent, l'agent lit) : tableau, « ＋ Nouvel article » / « ＋ Nouveau fournisseur », fiche en fenêtre au centre, « 🗄️ Archiver » / « ↩️ Restaurer ». Le stock montre l'origine : « Programme · Externe » (agent, fiche de la ferme), « il reste N de l'État · M à vous » (éleveur). L'écart d'inventaire porte sur le Programme seulement.
+
 **Autres écrans, pas encore à la règle** (à reprendre dans un lot suivant) : création et modification d'une ferme et d'un opérateur (pages entières), livraisons de l'État (confirmation, « reçu en moins »), ouverture d'une bande et rattrapage, clôture, tâches d'entretien (ADMIN), aides, paramètres, provinces, consentement BCEG, biosécurité, nouvel éleveur, planification des visites, réception de l'opérateur, alertes et décisions du vétérinaire, À vérifier.
 
 **Petits défauts corrigés (relevés au dossier).** Pastilles des bâtiments à 44 px ; numéro de ferme sous le nom à 12,8 px (« J'ai acheté », « J'ai payé », « Mes produits ») ; bouton « Retour à l'accueil » des pages d'erreur à 13,6 px ; « ✓ envoyé » en vert foncé (5,2) ; numéro de bande en majuscules dans « À vérifier ».

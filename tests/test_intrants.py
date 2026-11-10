@@ -82,11 +82,13 @@ def test_catalogue_admin(client_admin):
     assert not [r for r in client_admin.application.url_map.iter_rules() if 'catalogue' in r.rule and 'supprimer' in r.rule]
 
 
-@pytest.mark.parametrize('profil', [Profil.DGE, Profil.AGENT, Profil.ELEVEUR])
-def test_catalogue_reserve_admin(client, app, profil):
+@pytest.mark.parametrize('profil, lecture', [(Profil.DGE, 200), (Profil.AGENT, 200), (Profil.ELEVEUR, 403),
+                                             (Profil.VETO, 403)])
+def test_catalogue_admin_dge_agent_en_lecture(client, app, profil, lecture):
+    # Lot A2 : ADMIN et DGE écrivent, l'agent lit, les autres profils n'y ont pas accès
     creer_utilisateur('x', profil, ['EST'])
     connecter(client, 'x')
-    assert client.get('/administration/catalogue/').status_code == 403
+    assert client.get('/administration/catalogue/').status_code == lecture
 
 
 # ── Livraisons ──────────────────────────────────────────────────────────

@@ -109,7 +109,7 @@ def _lire(f, liv=None):
     except ValueError:
         d['date'] = None
         erreurs.append('Indiquez la date de livraison.')
-    fournisseurs = [v for v, _ in ld_choices('fournisseurs')] + ([liv.fournisseur] if liv and liv.fournisseur else [])
+    fournisseurs = noms_fournisseurs() + ([liv.fournisseur] if liv and liv.fournisseur else [])
     d['fournisseur'] = f.get('fournisseur') if f.get('fournisseur') in fournisseurs else None
 
     lignes, vus = [], set()
@@ -166,7 +166,7 @@ def _contexte(liv, saisie, erreurs):
                                            Produit.id.in_([l.produit_id for l in liv.lignes] if liv else [])))
     return dict(liv=liv, saisie=saisie, erreurs=erreurs, lignes=lignes or [{}],
                 fermes=filtre_perimetre(Ferme.query).order_by(Ferme.numero_metier).all(),
-                fournisseurs=[v for v, _ in ld_choices('fournisseurs')],
+                fournisseurs=noms_fournisseurs(),
                 produits=produits.order_by(Produit.type, Produit.nom).all(),
                 aujourdhui=date.today().isoformat())
 
@@ -391,3 +391,10 @@ def mes_livraisons():
     livraisons = (regles.livraisons_de_l_etat(filtre_perimetre(Livraison.query))
                   .order_by(Livraison.date_livraison.desc(), Livraison.numero_metier.desc()).all())
     return render_template('livraisons/mes_livraisons.html', livraisons=livraisons)
+
+
+def noms_fournisseurs():
+    """Lot A2 : les fournisseurs du catalogue (en service), puis les anciennes valeurs de la liste « Fournisseurs »."""
+    from app.models import Fournisseur
+    noms = [f.nom for f in Fournisseur.query.filter_by(actif=True).order_by(Fournisseur.nom)]
+    return noms + [v for v, _ in ld_choices('fournisseurs') if v not in noms]
