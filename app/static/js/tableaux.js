@@ -16,7 +16,7 @@
     var n = parseFloat(t.replace(/ |\s/g, '').replace(/[^0-9,.\-]/g, '').replace(',', '.'));
     return isNaN(n) ? null : n;
   }
-  function lignes(table) { return Array.prototype.filter.call(table.tBodies[0] ? table.tBodies[0].rows : [], function (r) { return !r.classList.contains('table-vide') && !r.querySelector('td.table-vide'); }); }
+  function lignes(table) { return Array.prototype.filter.call(table.tBodies[0] ? table.tBodies[0].rows : [], function (r) { return !r.classList.contains('table-vide') && !r.querySelector('td.table-vide') && r.getAttribute('data-filtre-cache') !== '1'; }); }
 
   function paginer(table, zone) {
     var rows = lignes(table), n = rows.length;
@@ -105,17 +105,112 @@
     document.body.appendChild(form); form.submit(); form.remove();
   }
 
+
+  // ── Lot K : filtres « Toutes / Province / Période / Recherche » du tableau conforme ──
+  function filtres(wrap, table) {
+    var barre = wrap.querySelector('.filtres-conformes');
+    if (!barre) return;
+    var rows = Array.prototype.filter.call(table.tBodies[0] ? table.tBodies[0].rows : [], function (r) { return !r.querySelector('td.table-vide'); });
+    var nb = wrap.querySelector('[data-nb-lignes]');
+    function appliquer() {
+      var tous = (barre.querySelector('[data-filtre=tous]') || {}).value || '';
+      var prov = (barre.querySelector('[data-filtre=province]') || {}).value || '';
+      var per = parseInt((barre.querySelector('[data-filtre=periode]') || {}).value || '0', 10);
+      var q = ((barre.querySelector('[data-filtre=recherche]') || {}).value || '').toLowerCase().trim();
+      var limite = per ? Date.now() - per * 86400000 : 0, visibles = 0;
+      rows.forEach(function (r) {
+        var archivee = r.classList.contains('tr-archivee');
+        var ok = tous === 'archives' ? archivee : !archivee;
+        if (ok && prov && (r.getAttribute('data-province') || '') !== prov) ok = false;
+        if (ok && limite) { var d = r.getAttribute('data-date'); ok = !!d && new Date(d).getTime() >= limite; }
+        if (ok && q && texte(r).toLowerCase().indexOf(q) < 0) ok = false;
+        r.setAttribute('data-filtre-cache', ok ? '' : '1');
+        if (!ok) r.hidden = true;
+        if (ok) visibles++;
+      });
+      if (nb) nb.textContent = visibles + ' ligne(s)';
+      table.dataset.page = 1;
+      paginer(table, wrap);
+    }
+    barre.querySelectorAll('select, input').forEach(function (e) { e.addEventListener('input', appliquer); e.addEventListener('change', appliquer); });
+    appliquer();
+  }
+
+  // ── Lot K : clic sur une ligne = fiche préremplie (un seul <template> par tableau) ──
+  function remplir(form, donnees) {
+    form.querySelectorAll('[data-champ]').forEach(function (el) {
+      var v = donnees.valeurs ? donnees.valeurs[el.getAttribute('data-champ')] : undefined;
+      if (v === undefined || v === null) v = '';
+      if (el.tagName === 'OUTPUT') el.textContent = v === '' ? '—' : v;
+      else if (el.tagName === 'SELECT') {
+        el.value = v;
+        if (el.value !== String(v)) { Array.prototype.some.call(el.options, function (o) { if (o.text === String(v)) { el.value = o.value; return true; } return false; }); }
+      } else el.value = v;
+    });
+    if (donnees.action) form.setAttribute('action', donnees.action);
+    var droits = donnees.droits || [];
+    form.querySelectorAll('[data-bouton]').forEach(function (b) { b.hidden = droits.indexOf(b.getAttribute('data-bouton')) < 0; });
+    var ls = form.querySelector('[data-lecture-seule]');
+    if (droits.indexOf('modifier') < 0) {
+      form.querySelectorAll('input:not([type=hidden]), select, textarea').forEach(function (i) { i.disabled = true; });
+      if (ls) ls.hidden = false;
+    }
+    var pied = form.querySelector('[data-pied]');
+    if (pied) pied.textContent = donnees.pied || '';
+  }
+  function ouvrirFicheLigne(tr) {
+    var modele = document.getElementById(tr.getAttribute('data-fiche-modele')), f = document.getElementById('fen-fiche');
+    if (!modele || !f) return;
+    var donnees = {};
+    try { donnees = JSON.parse(tr.getAttribute('data-ligne') || '{}'); } catch (e) {}
+    if (!donnees.valeurs && tr.getAttribute('data-lien')) { location.href = tr.getAttribute('data-lien'); return; }
+    var zone = f.querySelector('.fen-fiche-contenu');
+    zone.innerHTML = '';
+    zone.appendChild(modele.content.cloneNode(true));
+    var form = zone.querySelector('form');
+    if (form) remplir(form, donnees);
+    document.getElementById('fen-fiche-titre').textContent = (donnees.titre || modele.getAttribute('data-titre') || '');
+    window.ouvrir('fen-fiche');
+  }
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('a, button, input, select, label')) return;
+    var tr = e.target.closest('tr[data-fiche-modele]');
+    if (tr) { ouvrirFicheLigne(tr); return; }
+  });
+  // Le bouton « ＋ … » de la zone titre ouvre la fenêtre de création du tableau de la page, vide (champs saisis seuls)
+  var creation = document.querySelector('template[id^="creation-"]'), bp = document.querySelector('[data-bouton-creation]');
+  if (bp && bp.hasAttribute('data-ouvrir-creation')) {
+    var quoi = bp.getAttribute('data-ouvrir-creation');
+    bp.addEventListener('click', function (e) {
+      if (quoi === 'creation') {
+        if (!creation) return;
+        e.preventDefault();
+        var f = document.getElementById('fen-fiche'), zone = f.querySelector('.fen-fiche-contenu');
+        zone.innerHTML = '';
+        zone.appendChild(creation.content.cloneNode(true));
+        document.getElementById('fen-fiche-titre').textContent = creation.getAttribute('data-titre') || '';
+        window.ouvrir('fen-fiche');
+      } else if (document.getElementById(quoi)) { e.preventDefault(); if (quoi === 'fen-entree' && window.ouvrirEntree) window.ouvrirEntree(); else window.ouvrir(quoi); }
+    });
+    if (location.hash === '#ouvrir') { setTimeout(function () { bp.click(); }, 50); }
+  }
+
   document.querySelectorAll('.table-wrap').forEach(function (wrap) {
     var table = wrap.querySelector('table');
-    if (!table || !table.tHead || wrap.querySelector('.outils-tableau')) return;
-    var outils = document.createElement('div');
-    outils.className = 'outils-tableau';
-    outils.innerHTML = '<span>' + lignes(table).length + ' ligne(s)</span>' +
-      '<button type="button" class="pr2" data-imprimer>🖨️ Imprimer</button>' +
-      '<button type="button" class="xl" data-excel>⬇️ Excel</button>';
-    wrap.insertBefore(outils, wrap.firstChild);
+    if (!table || !table.tHead) return;
+    var outils = wrap.querySelector('.outils-tableau');
+    if (!outils) {
+      outils = document.createElement('div');
+      outils.className = 'outils-tableau';
+      outils.innerHTML = '<span>' + lignes(table).length + ' ligne(s)</span>' +
+        '<button type="button" class="pr2" data-imprimer>🖨️ Imprimer</button>' +
+        '<button type="button" class="xl" data-excel>⬇️ Excel</button>';
+      wrap.insertBefore(outils, wrap.firstChild);
+    } else if (outils.hasAttribute('data-branche')) { return; }
+    outils.setAttribute('data-branche', '1');
     outils.querySelector('[data-imprimer]').addEventListener('click', function () { imprimer(wrap, table); });
     outils.querySelector('[data-excel]').addEventListener('click', function () { excel(table); });
+    filtres(wrap, table);
     Array.prototype.forEach.call(table.tHead.rows[0].cells, function (th, i) {
       if (!texte(th)) return;
       th.classList.add('triable');

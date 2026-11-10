@@ -92,7 +92,20 @@ def liste():
     production = indicateurs.production_fermes(fermes)
     from app.services import pilotage
     details = {f.id: pilotage.infos_ferme(f, production) for f in fermes}     # lot R : colonnes de la maquette
-    return render_template('fermes/liste.html', fermes=fermes, total=total, urgences=urgences, production=production,
+    from app.services import conformite                                          # lot K : tableau du cahier
+    cle = 'AGENT-2' if current_user.profil == Profil.AGENT else 'DGE-2'
+    conforme = (cle, conformite.spec(cle.split('-')[0], int(cle.split('-')[1])), conformite.dge_elevages(current_user, fermes, details, production)) \
+        if current_user.profil in (Profil.DGE, Profil.ADMIN, Profil.AGENT) else None
+    carte_bureau = None
+    if conforme and fermes:
+        pid = None
+        if not current_user.est_national:
+            ids = {fe.province_id for fe in fermes} | set(current_user.province_ids)
+            pid = next(iter(ids)) if len(ids) == 1 else None
+        carte_bureau = pilotage.carte(current_user, pid, largeur=640, hauteur=360, details=True)
+        for pt in carte_bureau['points']:
+            pt.setdefault('alerte', False); pt.setdefault('raisons', [])
+    return render_template('fermes/liste.html', conforme=conforme, carte_bureau=carte_bureau, fermes=fermes, total=total, urgences=urgences, production=production,
                            details=details, bandes_en_cours={b.ferme_id: b for b in regles_bandes.en_cours_de(fermes)},
                            hors_programme=base.filter(Ferme.programme_poufa.is_(False)).count(),
                            operationnelles=operationnelles, filtre=f, provinces=provinces,

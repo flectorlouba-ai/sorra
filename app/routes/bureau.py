@@ -14,7 +14,7 @@ from openpyxl.styles import Font
 from app import db, indicateurs as ind
 from app.models import Ferme, Profil, Province
 from app.models.bande import Bande, StatutBande
-from app.services import mes_indicateurs, pilotage
+from app.services import mes_indicateurs, pilotage, conformite
 from app.services.journal import enregistrer, Action
 from app.utils import terrain as style
 from app.utils.permissions import filtre_perimetre, profil_requis
@@ -85,14 +85,61 @@ def tableau_de_bord(user):
     if user.profil in (Profil.AGENT, Profil.DGE, Profil.ADMIN):
         from app.services import actions as services_actions
         mes_actions = [a for a in services_actions.mes_actions(user) if a.archive_le is None and a.etat != 'FAITE'][:12]
+    # Lot K : le tableau de l'accueil suit le cahier (DGE : situation par province ; vétérinaire : alertes ouvertes)
+    conforme = None
+    if user.profil == Profil.DGE:
+        conforme = ('DGE-1', conformite.spec('DGE', 1), conformite.dge_accueil(user))
+    elif user.profil == Profil.VETO:
+        conforme = ('VETO-1', conformite.spec('VETO', 1), conformite.veto_accueil(user))
     return {'cartes': d['cartes'], 'courbes': d['courbes'], 'carte': carte, 'alertes': alertes, 'synthese': synthese,
-            'fermes': fermes, 'mes_actions': mes_actions}
+            'fermes': fermes, 'mes_actions': mes_actions, 'conforme': conforme}
 
 
 @bureau_bp.route('/')
 @login_required
 def accueil():
     return redirect(url_for('accueil.index'))          # l'accueil (terrain ou ordinateur) est à la racine
+
+
+# ── Lot K : gestes de la fiche d'un tableau conforme ─────────────────────
+
+@bureau_bp.route('/fiche/<cle>/<path:ident>', methods=['POST'])
+@login_required
+def fiche_conforme(cle, ident):
+    """« Enregistrer la modification » / « Archiver » / décision d'une fiche ouverte depuis un tableau conforme :
+    la règle existante de l'écran s'applique (conformite.GESTES), tout est au journal."""
+    retour = request.form.get('retour') or request.referrer or url_for('bureau.accueil')
+    if not retour.startswith('/') and request.host not in retour:
+        retour = url_for('bureau.accueil')
+    try:
+        message = conformite.geste(cle, ident, current_user, request.form)
+        db.session.commit()
+        flash(message, 'success')
+    except conformite.RegleConformite as e:
+        db.session.rollback()
+        flash(str(e), 'danger')
+    except Exception as e:                               # règle d'un service existant
+        db.session.rollback()
+        flash(str(e) or 'Saisie invalide.', 'danger')
+    return redirect(retour)
+
+
+@bureau_bp.route('/creer/<cle>', methods=['POST'])
+@login_required
+def creation_conforme(cle):
+    """Le bouton « ＋ … » d'un tableau conforme : création par la règle existante (conformite.CREATIONS)."""
+    retour = request.form.get('retour') or request.referrer or url_for('bureau.accueil')
+    try:
+        message = conformite.creation(cle, current_user, request.form)
+        db.session.commit()
+        flash(message, 'success')
+    except conformite.RegleConformite as e:
+        db.session.rollback()
+        flash(str(e), 'danger')
+    except Exception as e:
+        db.session.rollback()
+        flash(str(e) or 'Saisie invalide.', 'danger')
+    return redirect(retour if retour.startswith('/') or request.host in retour else url_for('bureau.accueil'))
 
 
 # ── Bascule terrain / ordinateur ────────────────────────────────────────
@@ -198,7 +245,8 @@ def diagnostics():
     from app.models.sante import AlerteSanitaire
     alertes = sante.alertes_visibles(current_user).filter(AlerteSanitaire.statut.in_(('CONFIRMEE', 'INFIRMEE', 'CLOSE'))) \
         .order_by(AlerteSanitaire.modifie_le.desc()).limit(200).all()
-    return render_template('bureau/diagnostics.html', alertes=alertes)
+    return render_template('bureau/diagnostics.html', alertes=alertes,
+                           conforme=('VETO-5', conformite.spec('VETO', 5), conformite.veto_diagnostics(current_user, alertes)))
 
 
 def _profils_de(f, vus=None):

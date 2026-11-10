@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Planning des livraisons{% endblock %}
 {% block sous_titre %}Livraisons de l'État{% endblock %}
 {% block icone %}calendar3{% endblock %}
@@ -7,6 +8,7 @@
 {% block actions %}<a class="btn-ghost" href="{{ url_for('livraisons.liste') }}"><i class="bi bi-list"></i> Toutes les livraisons</a>{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <form method="post" action="{{ url_for('dge.prevoir') }}" class="card-p mb-3" novalidate id="prevoir">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-plus-lg"></i> Prévoir une livraison</span></div>
   <div class="card-p-body form-commande">

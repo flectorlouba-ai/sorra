@@ -190,3 +190,20 @@ def creer_ferme(nom, code_province, localite, agent=None, telephone=None, **cham
                            localite=loc, agent_id=agent.id if agent else None, **champs)
     db.session.commit()
     return f
+
+
+@pytest.fixture
+def demo(app):
+    """Lot K : les données fictives de la démonstration (deploiement/demo/donnees_demo.json) dans la base de test,
+    dates décalées à aujourd'hui ; comptes `dge`, `veto`, `admin`, `eleveur`, `agent.est`, `aninf`… (mdp MDP)."""
+    from pathlib import Path
+    from app.services import demo_donnees
+    from app.services.parametres import oublier_cache
+    fichier = Path(__file__).resolve().parent.parent / 'deploiement' / 'demo' / 'donnees_demo.json'
+    import sqlalchemy as sa
+    db.session.remove()
+    with db.engine.begin() as c:
+        c.execute(sa.text('DELETE FROM journal_audit'))       # le journal de la fixture `app` (listes, aides) : base neuve
+        demo_donnees.charger(c, db.metadata, demo_donnees.lire(fichier), 'http://localhost')
+    oublier_cache()
+    return fichier

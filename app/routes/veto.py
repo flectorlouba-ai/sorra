@@ -51,7 +51,9 @@ def surveillance():
     bloquees = {b.bande_id for b in actifs}
     bandes = [b for b in filtre_perimetre(Bande.query.filter_by(statut=StatutBande.EN_COURS)).order_by(Bande.numero_metier)
               if b.id not in bloquees]
-    return render_template('veto/surveillance.html', actifs=actifs, leves=leves, bandes=bandes,
+    from app.services import conformite
+    return render_template('veto/surveillance.html', conforme=('VETO-6', conformite.spec('VETO', 6), conformite.veto_bloquees(current_user, actifs, leves)),
+                           actifs=actifs, leves=leves, bandes=bandes,
                            a_verifier=regles.sorties_a_verifier(regles.blocages_visibles(current_user).all()),
                            peut_agir=current_user.profil == Profil.VETO)
 
@@ -113,8 +115,11 @@ def verifier_sortie(ident):
 @profil_requis(Profil.VETO)
 def parametres():
     from app.models.securite import Proposition
-    return render_template('veto/parametres.html', parametres=regles.parametres_sanitaires(),
-                           en_attente={p.cle for p in Proposition.query.filter_by(statut='EN_ATTENTE')})
+    from app.services import conformite
+    parametres = regles.parametres_sanitaires()
+    propositions = Proposition.query.filter_by(statut='EN_ATTENTE').all()
+    return render_template('veto/parametres.html', parametres=parametres, en_attente={p.cle for p in propositions},
+                           conforme=('VETO-3', conformite.spec('VETO', 3), conformite.veto_seuils(current_user, parametres, propositions)))
 
 
 @veto_bp.route('/parametres-sanitaires/<int:param_id>', methods=['POST'])
@@ -166,7 +171,9 @@ def _rechercher():
 @profil_requis(*CHERCHEURS)
 def recherche():
     q, r, erreur = _rechercher()
-    return render_template('veto/recherche.html', q=q, r=r, erreur=erreur)
+    from app.services import conformite
+    return render_template('veto/recherche.html', q=q, r=r, erreur=erreur,
+                           conforme=('VETO-7', conformite.spec('VETO', 7), conformite.veto_tracabilite(current_user, q, r)))
 
 
 @veto_bp.route('/recherche-lots.csv')

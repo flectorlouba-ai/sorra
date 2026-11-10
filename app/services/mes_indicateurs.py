@@ -113,15 +113,17 @@ def veterinaire(user):
     bloquees = veto.blocages_visibles(user).filter_by(leve_le=None).count()
     en_retard = vaccins_en_retard(bandes)
     mv = ind.mortalite_viabilite([b for b in bandes if b.statut == StatutBande.EN_COURS])
+    semaine = date.today() - timedelta(days=7)
     return {'cartes': [
-        _carte('Alertes ouvertes', str(sum(1 for a in toutes if a.statut in StatutAlerte.OUVERTES))),
+        _carte('Alertes cette semaine', str(sum(1 for a in toutes if a.cree_le.date() >= semaine)),
+               f'{sum(1 for a in toutes if a.statut in StatutAlerte.OUVERTES)} ouverte(s) en tout'),
         _carte('Mortalité de la zone', _pct(mv['mortalite'], 2), f'{mv["bandes"]} bande(s) en cours'),
         _carte('Vaccinations en retard', str(len(en_retard)), alerte=bool(en_retard)),
         _carte('Bandes bloquées', '—' if bloquees is None else str(bloquees)),
         _carte('Délai moyen de réponse', '—' if not delais else _nombre(sum(delais) / len(delais), 0, ' h'))],
         'courbes': [
         _courbe('Alertes par semaine', 'alertes', ind.serie_compte_hebdo([a.cree_le.date() for a in toutes]), 'rouge', 0),
-        _courbe('Mortalité de la zone', '% par semaine', ind.serie_mortalite_hebdo(bandes), 'orange', 2),
+        _courbe('Mortalité de la zone (%)', '% par semaine', ind.serie_mortalite_hebdo(bandes), 'orange', 2),
         _courbe('Vaccinations en retard', 'par semaine',
                 ind.serie_compte_hebdo([d for _, d in en_retard],
                                        debut=min((b.date_mise_en_place for b in bandes), default=None)), 'rouge', 0)]}
@@ -155,15 +157,24 @@ def dge(user):
         provinces_80 += 1 if a is not None and a >= 80 else 0
     from app.services import pilotage
     ecarts = len([1 for x in pilotage.ecarts_intrants(user)]) if hasattr(pilotage, 'ecarts_intrants') else None
+    from app.models.tracabilite import LotTrace
+    from app.models.bande import Sortie
+    ids = [b.id for b in bandes]
+    sorties = Sortie.query.filter(Sortie.bande_id.in_(ids)).count() if ids else 0
+    lots = (db.session.query(LotTrace).join(Sortie, LotTrace.sortie_id == Sortie.id)
+            .filter(Sortie.bande_id.in_(ids), LotTrace.annule.is_(False)).count()) if ids else 0
+    # Libellés = cahier de conformité (lot K) ; la maquette est un minimum : l'équivalent carcasse reste en 7ᵉ
     return {'cartes': [
-        _carte('Production 12 mois', _nombre(p['reelle'], 1, ' t'), f'{_pct(p["part_nationale"], 2)} de l\'objectif national'),
+        _carte('Production / objectif', f'{_nombre(p["reelle"], 1, " t")} / {_nombre(p["cible"], 1, " t")}',
+               f'{_pct(p["atteinte"], 0)} de l’objectif · {_pct(p["part_nationale"], 2)} du national'),
         _carte('Mortalité nationale', _pct(mv['mortalite'], 2), f'viabilité {_pct(mv["viabilite"], 2)}'),
-        _carte('Élevages', str(len(fermes)), f'{sum(1 for f in fermes if f.statut == "Opérationnelle")} opérationnels'),
-        _carte('Provinces ≥ 80 % de la cible', f'{provinces_80} / {len(par_province)}'),
+        _carte('Élevages actifs', f'{sum(1 for f in fermes if f.statut == "Opérationnelle")} / {len(fermes)}', 'opérationnels / enrôlés'),
+        _carte('Provinces ≥ 80 %', f'{provinces_80} / {len(par_province)}', 'de la cible'),
         _carte('Écarts sur intrants', '—' if ecarts is None else str(ecarts)),
+        _carte('Traçabilité', _pct(100 * lots / sorties, 0) if sorties else '—', f'{lots} lot(s) avec QR sur {sorties} sortie(s)'),
         _carte('Équivalent carcasse', _nombre(p['carcasse'], 1, ' t'))], 'courbes': [
-        _courbe('Production (poids vif)', 't par semaine', ind.serie_production_hebdo(bandes), 'bleu', 2),
-        _courbe('Mortalité nationale', '% par semaine', ind.serie_mortalite_hebdo(bandes), 'rouge', 2),
+        _courbe('Production hebdomadaire (t)', 't par semaine', ind.serie_production_hebdo(bandes), 'bleu', 2),
+        _courbe('Mortalité nationale (%)', '% par semaine', ind.serie_mortalite_hebdo(bandes), 'rouge', 2),
         _courbe('Élevages actifs', 'avec au moins une saisie', ind.serie_fermes_actives_hebdo(bandes), 'vert', 0)]}
 
 

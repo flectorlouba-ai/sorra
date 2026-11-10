@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Paramètres sanitaires{% endblock %}
 {% block icone %}sliders{% endblock %}
 {% block page_sous_titre %}Quatre yeux : votre proposition s'applique après l'accord d'un autre vétérinaire, de la DGE ou de l'administration{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 {% for p in parametres %}
 <form method="post" action="{{ url_for('veto.proposer', param_id=p.id) }}" class="card-p mb-2" data-parametre="{{ p.cle }}">
   <div class="card-p-body">

@@ -139,7 +139,9 @@ def alertes():
     from app.services import receptions
     retenus = (receptions.sous_reserve_visibles(current_user).all()
                if current_user.profil in (Profil.VETO, Profil.ADMIN) else [])   # lot 19 : lots reçus sous réserve
-    return render_template('sante/alertes.html', alertes=alertes, statut=statut, statuts=SA.LIBELLES, retenus=retenus,
+    from app.services import conformite
+    conforme = ('VETO-2', conformite.spec('VETO', 2), conformite.veto_signalements(current_user, alertes)) if current_user.profil == Profil.VETO else None
+    return render_template('sante/alertes.html', conforme=conforme, alertes=alertes, statut=statut, statuts=SA.LIBELLES, retenus=retenus,
                            gravite=veto.gravite if current_user.profil == Profil.VETO else None,
                            libelle_gravite=veto.libelle_gravite)
 
@@ -194,7 +196,9 @@ def vaccins():
     bandes = filtre_perimetre(Bande.query)
     en_cours = bandes.filter(Bande.statut == StatutBande.EN_COURS).order_by(Bande.numero_metier).all()
     delais = [(b, regles.fin_delai_attente(b)) for b in en_cours]
-    return render_template('sante/vaccins.html', calendrier=regles.calendrier(),
+    from app.services import conformite
+    conforme = ('VETO-4', conformite.spec('VETO', 4), conformite.veto_calendrier(current_user, en_cours)) if current_user.profil == Profil.VETO else None
+    return render_template('sante/vaccins.html', conforme=conforme, calendrier=regles.calendrier(),
                            retards=regles.vaccins_en_retard(bandes),
                            delais=[(b, f) for b, f in delais if f],
                            valide=parametres.obtenir('sante.calendrier_valide', False),

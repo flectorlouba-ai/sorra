@@ -9,28 +9,29 @@ from app.models import Profil
 #  autres endpoints de la même fonctionnalité — pour savoir quel bouton est actif)
 FONCTIONS = {
     Profil.DGE: [
-        ('accueil', '📊', 'Accueil national', 'bureau.accueil', None, ('＋ Nouvelle action', None), ()),
+        ('accueil', '📊', 'Accueil national', 'bureau.accueil', None, ('＋ Nouvelle action', 'actions.liste', '?nouvelle=1'), ()),
         ('elevages', '🗺️', 'Élevages', 'fermes.liste', '_n_fermes_rouges', ('＋ Nouvel élevage', 'fermes.nouvelle'),
          ('fermes.', 'indicateurs.niveaux', 'pilotage.carte')),
-        ('livraisons', '🚚', 'Livraisons', 'dge.planning', '_n_prevues_en_retard', ('＋ Planifier une livraison', 'dge.planning'),
+        ('livraisons', '🚚', 'Livraisons', 'dge.planning', '_n_prevues_en_retard', ('＋ Planifier une livraison', 'dge.planning', '#prevoir'),
          ('livraisons.', 'dge.planning', 'dge.prevoir')),
-        ('commandes', '🛒', 'Commandes', 'agent.commandes', '_n_commandes', None, ('agent.commandes',)),
-        ('arbitrages', '⚖️', 'Arbitrages', 'hors_ligne.conflits', '_n_arbitrages', None, ('hors_ligne.',)),
-        ('classement', '🏆', 'Classement', 'dge.classement', None, None, ('dge.classement',)),
-        ('rapports', '📑', 'Rapports', 'actions.rapports', None, None,
+        ('commandes', '🛒', 'Commandes', 'agent.commandes', '_n_commandes', ('＋ Nouvelle commande', 'agent.commandes', '#commander'), ('agent.commandes',)),
+        ('arbitrages', '⚖️', 'Arbitrages', 'hors_ligne.conflits', '_n_arbitrages', ('＋ Signaler un écart', 'hors_ligne.conflits', '@creation'), ('hors_ligne.',)),
+        ('classement', '🏆', 'Classement', 'dge.classement', None, ('＋ Nouveau classement', 'dge.classement', '?recalcul=1'), ('dge.classement',)),
+        ('rapports', '📑', 'Rapports', 'actions.rapports', None, ('＋ Générer un rapport', 'actions.rapports', '@fen-generer'),
          ('actions.rapports', 'actions.generer', 'pilotage.rapports', 'pilotage.tableau', 'indicateurs.mes', 'controle.', 'catalogue.', 'parametres.', 'listes.',
           'dge.agents', 'operateurs.', 'tracabilite.', 'sante.', 'veto.')),
-        ('actions', '🎯', "Plans d'actions", 'actions.liste', '_n_actions_retard', None, ('actions.',)),
+        ('actions', '🎯', "Plans d'actions", 'actions.liste', '_n_actions_retard', ('＋ Nouvelle action', 'actions.liste', '?nouvelle=1'), ('actions.',)),
     ],
     Profil.VETO: [
-        ('accueil', '🩺', 'Accueil sanitaire', 'bureau.accueil', None, None, ()),
-        ('signalements', '📨', 'Signalements', 'sante.alertes', '_n_signalements', None, ('sante.alertes', 'sante.alerte', 'sante.declarations')),
-        ('seuils', '🎚️', 'Seuils sanitaires', 'veto.parametres', None, ('＋ Proposer un seuil', 'veto.parametres'), ('veto.parametres',)),
-        ('calendrier', '📅', 'Calendrier vaccinal', 'sante.vaccins', None, ('＋ Ajouter une étape', 'sante.vaccins'), ('sante.vaccins',)),
-        ('diagnostics', '🔬', 'Diagnostics', 'bureau.diagnostics', None, None, ()),
-        ('bloquees', '⛔', 'Ventes bloquées', 'veto.surveillance', '_n_surveillance', ('＋ Bloquer une bande', 'veto.surveillance'), ('veto.surveillance',)),
-        ('tracabilite', '🔎', 'Traçabilité', 'veto.recherche', None, None, ('veto.recherche', 'tracabilite.')),
-        ('validations', '👀', 'Validations sensibles', 'controle.approbations_ecran', '_n_a_approuver', None, ('controle.approbations',)),
+        ('accueil', '🩺', 'Accueil sanitaire', 'bureau.accueil', None, ('＋ Créer une alerte', 'bureau.accueil', '@creation'), ()),
+        ('signalements', '📨', 'Signalements', 'sante.alertes', '_n_signalements', ('＋ Enregistrer un signalement', 'sante.alertes', '@creation'),
+         ('sante.alertes', 'sante.alerte', 'sante.declarations')),
+        ('seuils', '🎚️', 'Seuils sanitaires', 'veto.parametres', None, ('＋ Proposer un seuil', 'veto.parametres', '#proposer'), ('veto.parametres',)),
+        ('calendrier', '📅', 'Calendrier vaccinal', 'sante.vaccins', None, ('＋ Ajouter une étape', 'sante.vaccins', '@fen-entree'), ('sante.vaccins',)),
+        ('diagnostics', '🔬', 'Diagnostics', 'bureau.diagnostics', None, ('＋ Nouveau diagnostic', 'bureau.diagnostics', '@creation'), ()),
+        ('bloquees', '⛔', 'Ventes bloquées', 'veto.surveillance', '_n_surveillance', ('＋ Bloquer une bande', 'veto.surveillance', '#bloquer'), ('veto.surveillance',)),
+        ('tracabilite', '🔎', 'Traçabilité', 'veto.recherche', None, ('＋ Nouvelle recherche', 'veto.recherche', '#recherche'), ('veto.recherche', 'tracabilite.')),
+        ('validations', '👀', 'Validations sensibles', 'controle.approbations_ecran', '_n_a_approuver', ('＋ Proposer un changement', 'veto.parametres', '#proposer'), ('controle.approbations',)),
     ],
     Profil.ADMIN: [
         ('accueil', '🛡️', 'Administration', 'bureau.accueil', None, None, ()),
@@ -92,9 +93,21 @@ def fonctions_pour(user):
     for cle, icone, nom, ep, compteur, bouton, autres in FONCTIONS.get(user.profil, []):
         actif = endpoint == ep or any(endpoint == a or (a.endswith('.') and endpoint.startswith(a)) for a in autres)
         n = getattr(compteurs, compteur)(user) if compteur else None
+        b = None
+        if bouton:
+            # (libellé, endpoint, complément) — complément : '?x=1' ou '#ancre' ajouté au lien ; '@fen-x' : ouvre la fenêtre
+            # fen-x de la page quand on y est ; '@creation' : la fenêtre de création du tableau conforme (lot K)
+            lib, bep, extra = (bouton + (None,))[:3]
+            lien = url_for(bep) if bep else None
+            ouvrir = None
+            if extra and extra.startswith('@'):
+                ouvrir = extra[1:]
+                lien = (lien or '') + '#ouvrir'
+            elif extra:
+                lien = (lien or '') + extra
+            b = {'libelle': lib, 'lien': lien, 'ouvrir': ouvrir, 'ici': endpoint == bep or endpoint == 'bureau.accueil' and bep == 'bureau.accueil'}
         resultat.append({'cle': cle, 'icone': icone, 'nom': nom, 'lien': url_for(ep), 'actif': actif,
-                         'compteur': n or None,
-                         'bouton': {'libelle': bouton[0], 'lien': url_for(bouton[1]) if bouton[1] else None} if bouton else None})
+                         'compteur': n or None, 'bouton': b})
     # Une seule fonctionnalité active : la plus précise (hors accueil) ; sinon l'accueil quand on y est
     actifs = [f for f in resultat if f['actif'] and f['cle'] != 'accueil']
     for f in resultat:

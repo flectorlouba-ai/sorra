@@ -27,8 +27,9 @@ class OrigineAlerte:
     DECLARATION = 'DECLARATION'
     FEU_ROUGE = 'FEU_ROUGE'
     RECEPTION = 'RECEPTION'    # lot 19 : morts à la réception (abattoir, marché) au-delà du seuil
+    VETO = 'VETO'              # lot K : alerte ouverte par le vétérinaire lui-même
     LIBELLES = {DECLARATION: 'Déclaration de l\'éleveur', FEU_ROUGE: 'Mortalité anormale (feu rouge)',
-                RECEPTION: 'Morts à la réception du lot'}
+                RECEPTION: 'Morts à la réception du lot', VETO: 'Alerte du vétérinaire'}
 
 
 class Declaration(ArchivableMixin, SaisieTerrainMixin, db.Model):

@@ -1,4 +1,6 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
+{% from '_carte.html' import carte_perimetre, script_bulle %}
 {% from '_macros.html' import badge_statut %}
 {% from 'agent/_urgence.html' import pastille, raisons %}
 {% block titre %}Fermes{% endblock %}
@@ -7,12 +9,11 @@
 
 {% block actions %}
 {% if current_user.profil.value == 'ADMIN' %}<a href="{{ url_for('fiches.entites_archivees', genre='ferme') }}" class="btn-ghost">🗄️ Archivées</a>{% endif %}
-{% if peut_creer %}
-<a href="{{ url_for('fermes.nouvelle') }}" class="btn-new"><i class="bi bi-plus-lg"></i> Nouvelle ferme</a>
-{% endif %}
 {% endblock %}
 
 {% block contenu %}
+{% if carte_bureau is defined and carte_bureau is not none %}<div class="dash dash-carte-seule">{{ carte_perimetre(carte_bureau, fermes|length) }}</div>{% endif %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <form class="filters-bar" method="get">
   {% if provinces|length > 1 %}
   <select name="province" class="filter-sel" onchange="this.form.submit()">
@@ -39,6 +40,7 @@
   <button type="submit" class="btn-filter"><i class="bi bi-search"></i></button>
 </form>
 
+<details class="vue-detaillee"><summary>Vue détaillée des fermes (places, cible, production, programme)</summary>
 <div class="table-wrap"><div class="table-scroll">
   <table>
     <thead><tr>{% if urgences %}<th>Urgence</th>{% endif %}<th>N°</th><th>Ferme</th><th>Province</th><th>Programme</th><th>Agent</th><th>Places</th><th>Bande en cours</th><th>Effectif</th><th>Mortalité</th><th>Cible (t/an)</th><th>Produit 12 mois (t)</th><th>Atteinte</th><th>Dernière saisie</th><th>Alerte</th><th>Statut</th></tr></thead>
@@ -69,9 +71,11 @@
     </tbody>
   </table>
 </div></div>
+</details>
 
 <div class="lien-discret"><i class="bi bi-download"></i> Exporter : <a href="{{ url_for('pilotage.exporter', quoi='fermes', format='xlsx') }}">Excel</a> · <a href="{{ url_for('pilotage.exporter', quoi='fermes', format='csv') }}">CSV</a></div>
 {% if a_profil('ADMIN') %}
 <div class="lien-discret"><a href="{{ url_for('fermes.import_page') }}"><i class="bi bi-file-earmark-spreadsheet"></i> Importer la liste POUFA (Excel)</a></div>
 {% endif %}
 {% endblock %}
+{% block scripts %}{{ script_bulle() }}{% endblock %}

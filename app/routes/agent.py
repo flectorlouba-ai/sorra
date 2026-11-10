@@ -107,7 +107,9 @@ def commandes():
             if c.statut == SC.REFUSEE and c.refus_lu_le is None:
                 c.refus_lu_le = maintenant()
         db.session.commit()
-    return render_template('agent/commandes.html', commandes=liste, statut=statut, libelles=SC.LIBELLES,
+    from app.services import conformite
+    cle = 'AGENT-8' if current_user.profil == Profil.AGENT else 'DGE-4'
+    return render_template('agent/commandes.html', conforme=(cle, conformite.spec(cle.split('-')[0], int(cle.split('-')[1])), conformite.dge_commandes(current_user)), commandes=liste, statut=statut, libelles=SC.LIBELLES,
                            peut_decider=regles.peut_decider_commande(current_user),
                            fermes=(filtre_perimetre(Ferme.query).order_by(Ferme.numero_metier).all()
                                    if current_user.profil == Profil.AGENT else []),

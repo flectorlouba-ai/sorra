@@ -1,0 +1,91 @@
+{# Lot K — tableau conforme au cahier (docs/conformite, onglet « Bureau - écrans ») et sa fenêtre de fiche.
+   `spec`  : app.services.cahier_bureau.ECRANS[(profil, n)] — titre, colonnes exactes, champs typés S / C / A.
+   `t`     : app.services.conformite.Tableau — lignes ({'cellules': {colonne: valeur}, 'fiche': {...}, 'id', 'lien'}),
+             filtres (provinces, périodes), action de création, droits.
+   Outils « 🖨️ Imprimer » et « ⬇️ Excel » rendus ici (tableaux.js les branche) ; un clic sur une ligne ouvre la
+   fiche préremplie dans #fen-fiche à partir du <template> unique du tableau (champs calculés et automatiques en
+   lecture seule, boutons selon les droits, pied « créé par · le · n modifications · inscrit au journal »). #}
+
+{% macro champ(nom, type, valeur='', noms=None, choix=None) -%}
+{% set n = (noms or {}).get(nom, nom) %}
+<label class="fiche-champ{{ ' lecture' if type != 'S' }}">
+  <span>{{ nom }}{% if type == 'C' %} <small>calculé</small>{% elif type == 'A' %} <small>automatique</small>{% endif %}</span>
+  {% if type != 'S' %}<output data-champ="{{ nom }}">{{ valeur if valeur not in (None, '') else '—' }}</output>
+  {% elif choix and choix.get(nom) %}<select class="form-select" name="{{ n }}" data-champ="{{ nom }}">
+    <option value="">—</option>{% for v, lib in choix[nom] %}<option value="{{ v }}"{% if valeur == v or valeur == lib %} selected{% endif %}>{{ lib }}</option>{% endfor %}</select>
+  {% else %}<input class="form-control" name="{{ n }}" data-champ="{{ nom }}" value="{{ valeur if valeur is not none else '' }}">{% endif %}
+</label>
+{%- endmacro %}
+
+{% macro fenetre_fiche(cle, spec, t) -%}
+<template id="modele-{{ cle }}" data-titre="{{ spec.fonction }}">
+  <form method="post" class="fiche-form fiche-conforme" data-fiche-form novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="fiche-champs">
+      {% for nom, type, _ in spec.champs %}{{ champ(nom, type, '', t.noms, t.choix) }}{% endfor %}
+    </div>
+    <div class="fiche-lecture-seule" data-lecture-seule hidden>Lecture seule : vous n'avez pas le droit de modifier cet élément.</div>
+    <div class="fiche-actions">
+      {% if t.peut_modifier %}<button type="submit" class="btn btn-primary" name="action" value="modifier" data-bouton="modifier">Enregistrer la modification</button>{% endif %}
+      {% if t.peut_archiver %}<button type="button" class="btn btn-outline-danger" data-confirmer data-bouton="archiver">Archiver</button>{% endif %}
+      <button type="button" class="btn btn-outline-secondary" data-fermer>Fermer</button>
+    </div>
+    {% if t.peut_archiver %}<div class="fiche-confirmer" hidden>Archiver cet élément ? Il reste consultable (filtre « Archivés ») et l'opération est inscrite au journal.
+      <button type="submit" class="btn btn-danger btn-sm" name="action" value="archiver">Oui, archiver</button></div>{% endif %}
+    <div class="fiche-pied" data-pied></div>
+  </form>
+</template>
+{%- endmacro %}
+
+{% macro fenetre_creation(cle, spec, t) -%}
+{% if t.creation %}
+<template id="creation-{{ cle }}" data-titre="{{ spec.bouton }}">
+  <form method="post" action="{{ t.creation }}" class="fiche-form fiche-conforme" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% for n, v in (t.creation_caches or {}).items() %}<input type="hidden" name="{{ n }}" value="{{ v }}">{% endfor %}
+    <div class="fiche-champs">
+      {% for nom, type, _ in spec.champs if type == 'S' %}{{ champ(nom, type, '', t.noms, t.choix) }}{% endfor %}
+    </div>
+    <div class="fiche-actions">
+      <button type="submit" class="btn btn-primary">Enregistrer</button>
+      <button type="button" class="btn btn-outline-secondary" data-fermer>Fermer</button>
+    </div>
+  </form>
+</template>
+{% endif %}
+{%- endmacro %}
+
+{% macro tableau(cle, spec, t) -%}
+<div class="table-wrap tableau-conforme" data-tableau="{{ cle }}" data-titre="{{ spec.titre }}">
+  <div class="outils-tableau">
+    <span class="titre-tableau">{{ spec.titre }}</span>
+    <span data-nb-lignes>{{ t.lignes|length }} ligne(s)</span>
+    <button type="button" class="pr2" data-imprimer>🖨️ Imprimer</button>
+    <button type="button" class="xl" data-excel>⬇️ Excel</button>
+  </div>
+  <div class="filters-bar filtres-conformes">
+    <select class="form-select form-select-sm" data-filtre="tous" aria-label="Toutes"><option value="">Toutes</option>{% if t.archives is not none %}<option value="archives">Archivés ({{ t.archives }})</option>{% endif %}</select>
+    {% if t.provinces %}<select class="form-select form-select-sm" data-filtre="province" aria-label="Province"><option value="">Province</option>{% for p in t.provinces %}<option value="{{ p }}">{{ p }}</option>{% endfor %}</select>{% endif %}
+    <select class="form-select form-select-sm" data-filtre="periode" aria-label="Période"><option value="">Période</option><option value="7">7 derniers jours</option><option value="30">30 derniers jours</option><option value="365">12 derniers mois</option></select>
+    <input class="form-control form-control-sm" type="search" data-filtre="recherche" placeholder="Recherche…" aria-label="Recherche">
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead><tr>{% for c in spec.colonnes %}<th>{{ c }}</th>{% endfor %}{% for c in t.colonnes_en_plus %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        {% for l in t.lignes %}
+        <tr class="tr-click{{ ' tr-archivee' if l.archivee }}" data-id="{{ l.id }}" data-fiche-modele="modele-{{ cle }}" data-ligne='{{ l.fiche|tojson|forceescape }}'
+            {% if l.date %}data-date="{{ l.date }}"{% endif %}{% if l.province %} data-province="{{ l.province }}"{% endif %}{% if l.lien %} data-lien="{{ l.lien }}"{% endif %}>
+          {% for c in spec.colonnes %}<td>{{ l.cellules.get(c, '—')|default('—', true) }}</td>{% endfor %}
+          {% for c in t.colonnes_en_plus %}<td>{{ l.cellules.get(c, '—')|default('—', true) }}</td>{% endfor %}
+        </tr>
+        {% else %}
+        <tr><td colspan="{{ spec.colonnes|length + t.colonnes_en_plus|length }}" class="table-vide">{{ t.vide or 'Aucune ligne pour le moment.' }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{ fenetre_fiche(cle, spec, t) }}
+{{ fenetre_creation(cle, spec, t) }}
+{%- endmacro %}

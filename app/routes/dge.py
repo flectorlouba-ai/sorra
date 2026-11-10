@@ -41,7 +41,8 @@ def _livraison(numero):
 @profil_requis(*NATIONAUX)
 def planning():
     colonnes, debut, fin = regles.planning(current_user)
-    return render_template('dge/planning.html', colonnes=colonnes, titres=regles.COLONNES, debut=debut, fin=fin,
+    from app.services import conformite
+    return render_template('dge/planning.html', conforme=('DGE-3', conformite.spec('DGE', 3), conformite.dge_livraisons(current_user)), colonnes=colonnes, titres=regles.COLONNES, debut=debut, fin=fin,
                            fermes=filtre_perimetre(Ferme.query).order_by(Ferme.numero_metier).all(),
                            produits=Produit.query.filter_by(actif=True).order_by(Produit.type, Produit.nom).all())
 
@@ -122,7 +123,8 @@ def _classement():
 @profil_requis(*NATIONAUX)
 def classement():
     r, pid, cohorte = _classement()
-    return render_template('dge/classement.html', r=r, criteres=regles.CRITERES, province=pid, cohorte=cohorte,
+    from app.services import conformite
+    return render_template('dge/classement.html', conforme=('DGE-6', conformite.spec('DGE', 6), conformite.dge_classement(current_user, r)), r=r, criteres=regles.CRITERES, province=pid, cohorte=cohorte,
                            provinces=Province.query.order_by(Province.ordre).all(), seuil=r['seuil'])
 
 
