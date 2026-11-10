@@ -74,6 +74,13 @@ def _appliquer(p):
         entree.age_jours, entree.produit = d['age_jours'], db.session.get(Produit, d['produit_id'])
         entree.mode, entree.actif = d['mode'], d['actif']
         db.session.add(entree)
+    elif p.genre == 'POSITION':                            # lot E : position corrigée à la main, loin
+        import uuid
+        from app.models import Ferme
+        from app.services import positions
+        ferme = db.session.get(Ferme, uuid.UUID(d['ferme_id']))
+        auteur = db.session.get(Utilisateur, uuid.UUID(d['auteur_id'])) if d.get('auteur_id') else None
+        positions.appliquer_correction(ferme, d['latitude'], d['longitude'], p.motif, auteur)
     elif p.genre == 'PROFIL':
         import uuid
         u = db.session.get(Utilisateur, uuid.UUID(d['utilisateur_id']))

@@ -12,7 +12,9 @@
     <text x="{{ p.x }}" y="{{ p.y + 4 }}" text-anchor="middle">{{ p.rang }}</text></g>{% endfor %}
 </svg>
 {% endif %}
-<div class="liste-cartes">
+{% if lignes %}<a class="btn-gros-secondaire" id="itineraire" hidden target="_blank" rel="noopener">🗺️ Itinéraire complet</a>
+<div class="carte-sous" id="ordre-propose" hidden>Ordre proposé : la plus proche d'abord, en partant d'où vous êtes.</div>{% endif %}
+<div class="liste-cartes" id="liste-tournee">
 {% for l in lignes %}
   <div class="carte carte-tournee" data-ferme-tournee="{{ l.ferme.numero }}"
        {% if l.ferme.a_une_position %}data-lat="{{ l.ferme.latitude }}" data-lon="{{ l.ferme.longitude }}"{% endif %}>
@@ -21,6 +23,7 @@
     <ul class="phrases-ferme">{% for c, p in l.phrases %}<li class="phrase-{{ c }}">{{ p }}</li>{% endfor %}</ul>
     {% if l.a_faire %}<div class="a-faire-ligne"><strong>À faire :</strong> {{ l.a_faire|join(', ') }}</div>{% endif %}
     <div class="boutons-secondaires">
+      {% if not l.ferme.a_une_position %}<span class="carte-sous">📍 à relever sur place</span>{% endif %}
       {% if l.ferme.a_une_position %}<a class="btn-gros-secondaire" href="geo:{{ l.ferme.latitude }},{{ l.ferme.longitude }}?q={{ l.ferme.latitude }},{{ l.ferme.longitude }}({{ l.ferme.nom|urlencode }})" data-y-aller>🧭 Y aller</a>{% endif %}
       <a class="btn-gros-secondaire" href="{{ url_for('visites.compte_rendu', numero=l.ferme.numero, visite=l.visite.id if l.visite else None) }}">📋 Visite</a>
     </div>
@@ -40,13 +43,32 @@
   if (!cartes.length || !navigator.geolocation) return;
   navigator.geolocation.getCurrentPosition(function (p) {
     function rad(d) { return d * Math.PI / 180; }
+    function km(la1, lo1, la2, lo2) {
+      var dla = rad(la2 - la1), dlo = rad(lo2 - lo1);
+      var a = Math.sin(dla / 2) * Math.sin(dla / 2) + Math.cos(rad(la1)) * Math.cos(rad(la2)) * Math.sin(dlo / 2) * Math.sin(dlo / 2);
+      return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
     cartes.forEach(function (c) {
-      var la = parseFloat(c.dataset.lat), lo = parseFloat(c.dataset.lon);
-      var dla = rad(la - p.coords.latitude), dlo = rad(lo - p.coords.longitude);
-      var a = Math.sin(dla / 2) * Math.sin(dla / 2) + Math.cos(rad(p.coords.latitude)) * Math.cos(rad(la)) * Math.sin(dlo / 2) * Math.sin(dlo / 2);
-      var km = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      c.querySelector('[data-distance]').textContent = '· 📏 ' + (km < 1 ? Math.round(km * 1000) + ' m' : km.toLocaleString('fr-FR', {maximumFractionDigits: 1}) + ' km');
+      var d = km(p.coords.latitude, p.coords.longitude, parseFloat(c.dataset.lat), parseFloat(c.dataset.lon));
+      c.querySelector('[data-distance]').textContent = '· 📏 ' + (d < 1 ? Math.round(d * 1000) + ' m' : d.toLocaleString('fr-FR', {maximumFractionDigits: 1}) + ' km');
     });
+    // Lot E : ordre proposé par proximité (voisin le plus proche, en partant de l'agent), fermes sans position à la fin
+    var reste = Array.prototype.slice.call(cartes), ordre = [], la = p.coords.latitude, lo = p.coords.longitude;
+    while (reste.length) {
+      var i = 0, best = Infinity;
+      reste.forEach(function (c, j) { var d = km(la, lo, parseFloat(c.dataset.lat), parseFloat(c.dataset.lon)); if (d < best) { best = d; i = j; } });
+      var c = reste.splice(i, 1)[0]; ordre.push(c); la = parseFloat(c.dataset.lat); lo = parseFloat(c.dataset.lon);
+    }
+    var liste = document.getElementById('liste-tournee');
+    ordre.forEach(function (c) { liste.appendChild(c); });
+    Array.prototype.forEach.call(liste.querySelectorAll('.carte-tournee:not([data-lat])'), function (c) { liste.appendChild(c); });
+    document.getElementById('ordre-propose').hidden = false;
+    // « Itinéraire complet » : l'application de cartes du téléphone, avec les fermes du jour comme étapes
+    var pts = ordre.map(function (c) { return c.dataset.lat + ',' + c.dataset.lon; });
+    var lien = document.getElementById('itineraire');
+    lien.href = 'https://www.google.com/maps/dir/?api=1&origin=' + p.coords.latitude + ',' + p.coords.longitude +
+      '&destination=' + pts[pts.length - 1] + (pts.length > 1 ? '&waypoints=' + pts.slice(0, -1).join('|') : '') + '&travelmode=driving';
+    lien.hidden = false;
   }, function () {}, {timeout: 8000, maximumAge: 300000});
 })();
 </script>

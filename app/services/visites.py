@@ -37,7 +37,8 @@ def planifier(ferme, jour, objet, user):
     return v
 
 
-def compte_rendu(ferme, visite, user, objet, constats, recommandations, libre, latitude, longitude, photo, jour):
+def compte_rendu(ferme, visite, user, objet, constats, recommandations, libre, latitude, longitude, photo, jour,
+                 precision=None, motif_distance=None):
     """Visite prévue → faite ; sans visite prévue, une visite non planifiée est créée."""
     recommandations = [r for r in (recommandations or []) if r]
     constats = (constats or '').strip()[:500] or None
@@ -65,6 +66,13 @@ def compte_rendu(ferme, visite, user, objet, constats, recommandations, libre, l
     visite.constats, visite.recommandations, visite.recommandation_libre = constats, recommandations, libre
     visite.latitude, visite.longitude, visite.photo = latitude, longitude, photo
     visite.vue_par_eleveur_le = None
+    # Lot E : la distance à la ferme est recalculée par le serveur ; loin : l'explication est gardée (le compte
+    # rendu part quand même)
+    from app.services import positions
+    visite.ferme = ferme
+    visite.precision_m = int(precision) if precision else None
+    visite.distance_m = positions.distance_visite(visite)
+    visite.motif_distance = (motif_distance or '').strip()[:300] or None
     db.session.flush()
     return visite
 

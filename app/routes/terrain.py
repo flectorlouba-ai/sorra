@@ -4,8 +4,10 @@ les écrans existants (saisies, visites, vérifications, stock, nouvel éleveur,
 La « Version bureau » de l'agent (sur ordinateur) rend son accueil de pilotage et ses écrans de bureau."""
 from datetime import date, timedelta
 
-from flask import Blueprint, render_template, redirect, url_for, session, request, abort
+from flask import Blueprint, render_template, redirect, url_for, session, request, abort, flash
 from flask_login import current_user
+
+from app.models.liste_deroulante import ld_choices
 
 from app import db, indicateurs
 from app.models import Profil, Ferme, Bande, Utilisateur
@@ -270,6 +272,49 @@ def visite():
     if not premiere:
         return render_template('terrain/agent/sans_ferme.html', titre='📋 Visite')
     return redirect(url_for('visites.compte_rendu', numero=premiere[0].numero))
+
+
+# ── Position de la ferme (lot E, partie a) ──────────────────────────────
+
+def _motif(f):
+    return (f.get('motif_autre') or '').strip() or (f.get('motif') or '').strip()
+
+
+@terrain_bp.route('/fermes/<numero>/position', methods=['GET', 'POST'])
+@profil_requis(Profil.AGENT)
+def position(numero):
+    _terrain_agent()
+    from app.services import positions, hors_ligne
+    ferme = _ma_ferme(numero)
+    erreur, hors_province = None, False
+    if request.method == 'POST':
+        f = request.form
+        try:
+            if f.get('action') == 'main':
+                etat, _ = positions.corriger_a_la_main(ferme, f.get('latitude_main'), f.get('longitude_main'),
+                                                       _motif(f), current_user)
+                db.session.commit()
+                flash('Position corrigée à la main ✓ (l\'ancienne est gardée).' if etat == 'appliquee' else
+                      'Correction envoyée : une autre personne (DGE) doit l\'approuver.', 'success')
+                return redirect(url_for('terrain.fiche', numero=ferme.numero))
+            sans_reseau = hors_ligne.actif()
+            motif = _motif(f) or ('Relevé sans réseau, hors de la province' if sans_reseau else None)
+            pos = positions.relever(ferme, f.get('latitude'), f.get('longitude'), f.get('precision'), current_user,
+                                    appareil=request.headers.get('X-Appareil'), hors_ligne=sans_reseau,
+                                    garder_quand_meme=f.get('garder') == '1' or sans_reseau, motif=motif,
+                                    releve_le=hors_ligne.saisi_le() if sans_reseau else None)
+            db.session.commit()
+            flash('📍 Position gardée ✓' + (' — la DGE la vérifiera (hors de la province).' if pos.a_verifier else ''),
+                  'success')
+            return redirect(url_for('terrain.fiche', numero=ferme.numero))
+        except positions.RegleGps as e:
+            db.session.rollback()
+            erreur = str(e)
+            hors_province = erreur.startswith('⚠️')
+    return render_template('terrain/agent/position.html', ferme=ferme, erreur=erreur, hors_province=hors_province,
+                           saisie=request.form, precision_max=positions.precision_max_m(),
+                           seuil_km=positions.seuil_quatre_yeux_m() / 1000,
+                           motifs=[v for v, _ in ld_choices('motifs_position')])
 
 
 # ── Stock et commandes ──────────────────────────────────────────────────

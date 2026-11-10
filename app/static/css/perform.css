@@ -845,3 +845,10 @@ body.fenetre-ouverte{overflow:hidden;}
 .pastille-atteinte.vert{background:var(--ok-fond);color:var(--ok-encre);}
 .pastille-atteinte.orange{background:var(--att-fond);color:var(--att-encre);}
 .pastille-atteinte.rouge{background:var(--alerte-fond);color:var(--danger-encre);}
+
+/* Lot E : carte de pilotage (pointillés, étiquettes au zoom, encadrés), contrôle des visites */
+.point-approximatif{stroke-dasharray:2 2;stroke-width:1.5;fill-opacity:.55;}
+.etiquette-ferme{font-size:10px;font-weight:800;fill:var(--noir);}
+.encadres-carte{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.6rem;}
+.encadre-carte{flex:1;min-width:240px;border:1px solid var(--grise);border-radius:8px;padding:.5rem .7rem;font-size:.75rem;}
+.encadre-carte strong{display:block;margin-bottom:.2rem;}

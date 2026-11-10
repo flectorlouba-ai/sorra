@@ -19,7 +19,8 @@
 {% for f in fermes %}
 {% set bats = f.batiments|selectattr('actif')|sort(attribute='code')|list %}
 <div class="info-compte"><small>Ma ferme</small><strong>{{ f.nom }} · {{ f.numero }}</strong>
-  <div class="carte-sous">{% for b in bats %}{{ b.code }} · {{ b.capacite|qte }} places{{ ' · ' if not loop.last }}{% endfor %}</div></div>
+  <div class="carte-sous">{% for b in bats %}{{ b.code }} · {{ b.capacite|qte }} places{{ ' · ' if not loop.last }}{% endfor %}</div>
+  <div class="carte-sous" data-position-ferme>{% if f.a_une_position and f.gps_date %}📍 Position relevée ✓ le {{ f.gps_date|date_locale('%d/%m/%Y') }}{% elif f.a_une_position %}📍 Position relevée ✓{% else %}📍 Votre agent relèvera la position à sa prochaine visite{% endif %}</div></div>
 {% endfor %}
 <div class="info-compte"><small>Mon agent</small>
   {% if agent %}<strong>{{ agent.nom_complet }}</strong>{% if agent.telephone %} · <a class="appel" href="tel:{{ agent.telephone|replace(' ', '') }}">📞 Appeler</a>{% endif %}

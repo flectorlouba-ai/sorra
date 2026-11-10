@@ -1,0 +1,87 @@
+{% extends '_base.html' %}
+{% block aide %}ag_position{% endblock %}
+{% block titre %}Position de la ferme{% endblock %}
+{% block page_titre %}📍 Position{% endblock %}
+{% block page_sous_titre %}{{ ferme.numero }} · {{ ferme.nom }} · province {{ ferme.province.nom }}{% endblock %}
+{% block contenu %}
+{# Lot E (partie a) : relevé sur place, précision en clair, contrôle de province, correction à la main. Sans réseau,
+   l'envoi est gardé sur le téléphone ; hors de la province, la ferme passe « position à vérifier » chez la DGE. #}
+{% import '_fiches.html' as fiches %}
+{% call fiches.fenetre('fen-position', '📍 Relever la position ici', retour=url_for('terrain.fiche', numero=ferme.numero)) %}
+<form method="post" class="form-terrain" novalidate data-hors-ligne="Position · {{ ferme.nom }}" id="form-position"
+      data-precision-max="{{ precision_max }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="latitude" id="pos-lat" value="{{ saisie.get('latitude', '') }}">
+  <input type="hidden" name="longitude" id="pos-lon" value="{{ saisie.get('longitude', '') }}">
+  <input type="hidden" name="precision" id="pos-precision" value="{{ saisie.get('precision', '') }}">
+  {% if erreur and not hors_province %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
+  {% if hors_province %}
+  <div class="encadre-orange" data-hors-province>
+    <strong>{{ erreur }}</strong>
+    <div class="carte-sous">Vous ne pouvez pas changer la province : si elle est fausse, appelez la DGE.</div>
+  </div>
+  <div class="form-label">Pourquoi garder cette position ?</div>
+  <div class="choix-cases">
+    {% for m in motifs %}<label class="case-choix"><input type="radio" name="motif" value="{{ m }}"><span>{{ m }}</span></label>{% endfor %}
+  </div>
+  <input class="form-control" name="motif_autre" maxlength="300" placeholder="Autre raison (facultatif)">
+  <div class="boutons-secondaires">
+    <a class="btn-gros-secondaire" href="{{ url_for('terrain.position', numero=ferme.numero) }}">🔄 Relever à nouveau</a>
+    <button type="submit" class="btn-gros" name="garder" value="1">Garder quand même</button>
+  </div>
+  {% else %}
+  <div class="consigne-position">Placez-vous dehors, devant le bâtiment principal, et attendez que la précision passe sous ± {{ precision_max }} m.</div>
+  <div class="releve-precision" aria-live="polite">
+    <div class="releve-chiffre" id="pos-texte">± — m</div>
+    <div class="releve-barre"><span id="pos-barre" style="width:0%"></span></div>
+    <div class="carte-sous" id="pos-etat">Recherche de la position…</div>
+  </div>
+  <button type="submit" class="btn-gros btn-vert" id="pos-garder" disabled>Garder cette position</button>
+  {% endif %}
+</form>
+<details class="corriger-main mt-2">
+  <summary class="mini-bouton">✏️ Corriger à la main</summary>
+  <form method="post" class="form-terrain mt-2" novalidate data-hors-ligne="Position corrigée · {{ ferme.nom }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="main">
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label" for="lat-main">Latitude</label>
+        <input class="form-control" id="lat-main" name="latitude_main" inputmode="decimal" placeholder="ex. 0,3921"></div>
+      <div class="form-group"><label class="form-label" for="lon-main">Longitude</label>
+        <input class="form-control" id="lon-main" name="longitude_main" inputmode="decimal" placeholder="ex. 9,6103"></div>
+    </div>
+    <div class="form-label">Pourquoi ?</div>
+    <div class="choix-cases">
+      {% for m in motifs %}<label class="case-choix"><input type="radio" name="motif" value="{{ m }}"><span>{{ m }}</span></label>{% endfor %}
+    </div>
+    <input class="form-control" name="motif_autre" maxlength="300" placeholder="Autre raison (facultatif)">
+    <div class="form-hint">L'ancienne position est gardée. Un déplacement de plus de {{ seuil_km }} km est approuvé par une autre personne (DGE).</div>
+    <button type="submit" class="btn-gros">Enregistrer la correction</button>
+  </form>
+</details>
+{% endcall %}
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var form = document.getElementById('form-position'), garder = document.getElementById('pos-garder');
+  if (!garder) return;
+  var max = parseFloat(form.dataset.precisionMax), texte = document.getElementById('pos-texte'),
+      barre = document.getElementById('pos-barre'), etat = document.getElementById('pos-etat');
+  if (!navigator.geolocation) { etat.textContent = 'Ce téléphone ne donne pas sa position.'; return; }
+  navigator.geolocation.watchPosition(function (p) {
+    var pr = Math.round(p.coords.accuracy), ok = pr <= max;
+    texte.textContent = '± ' + pr + ' m' + (ok ? ' ✓' : '');
+    texte.className = 'releve-chiffre' + (ok ? ' ok' : '');
+    barre.style.width = Math.max(5, Math.min(100, Math.round(max * 100 / Math.max(pr, 1)))) + '%';
+    barre.className = ok ? 'ok' : '';
+    etat.textContent = ok ? 'Précision suffisante : vous pouvez garder cette position.' : 'Attendez : la précision s\'améliore dehors.';
+    document.getElementById('pos-lat').value = p.coords.latitude.toFixed(6);
+    document.getElementById('pos-lon').value = p.coords.longitude.toFixed(6);
+    document.getElementById('pos-precision').value = pr;
+    garder.disabled = !ok;
+  }, function () { etat.textContent = 'Position refusée par le téléphone : autorisez la localisation.'; },
+  {enableHighAccuracy: true, timeout: 30000, maximumAge: 0});
+})();
+</script>
+{% endblock %}

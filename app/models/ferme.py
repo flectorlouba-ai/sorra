@@ -46,6 +46,8 @@ class Ferme(ArchivableMixin, SaisieTerrainMixin, db.Model):
     # Lot A3 : membre du programme POUFA (sinon : ni livraisons ni commandes de l'État, pas de cible) ; capacité
     programme_poufa      = db.Column(db.Boolean, nullable=False, default=True, server_default=db.true())
     bandes_par_an        = db.Column(db.Integer, nullable=True, default=6, server_default='6')
+    # Lot E : position gardée hors de la province (ou corrigée loin) : à vérifier par la DGE
+    position_a_verifier  = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
 
     province = db.relationship('Province')
     responsable = db.relationship('Utilisateur', foreign_keys=[responsable_id])

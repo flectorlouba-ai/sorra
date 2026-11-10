@@ -159,7 +159,33 @@ def feu_de_la_ferme(ferme):
     return pire
 
 
-def carte(user, province_id=None, largeur=640, hauteur=560, marge=12, programme=None):
+INDICATEURS_CARTE = {'feu': 'Alertes (feu des bandes)', 'mortalite': 'Mortalité', 'regularite': 'Régularité des saisies',
+                     'atteinte': 'Atteinte de la cible'}
+
+
+def infos_ferme(ferme, production=None):
+    """Lot E : ce que montre l'infobulle d'une ferme sur la carte, et sa couleur pour chaque indicateur."""
+    bandes = Bande.query.filter_by(ferme_id=ferme.id, statut=StatutBande.EN_COURS).all()
+    valeurs = [indicateurs.calculer(b) for b in bandes]
+    effectif = sum(v['effectif_present'] for v in valeurs)
+    mis, morts = sum(v['mis_en_place'] for v in valeurs), sum(v['morts_cumules'] for v in valeurs)
+    mortalite = morts * 100 / mis if mis else None
+    jours = sum(v['jours_ecoules'] for v in valeurs)
+    regularite = sum(v['jours_saisis'] for v in valeurs) * 100 / jours if jours else None
+    derniere = max((s.date for b in bandes for s in b.saisies), default=None)
+    pr = (production or {}).get(ferme.id) or {}
+    feu = feu_de_la_ferme(ferme)
+    couleurs = {
+        'feu': feu,
+        'mortalite': 'gris' if mortalite is None else 'vert' if mortalite < 3 else 'orange' if mortalite <= 5 else 'rouge',
+        'regularite': 'gris' if regularite is None else 'vert' if regularite >= 90 else 'orange' if regularite >= 70 else 'rouge',
+        'atteinte': pr.get('couleur') or 'gris'}
+    return {'effectif': effectif, 'mortalite': mortalite, 'regularite': regularite, 'derniere_saisie': derniere,
+            'atteinte': pr.get('atteinte'), 'alerte': feu == 'rouge', 'couleurs': couleurs}
+
+
+def carte(user, province_id=None, largeur=640, hauteur=560, marge=12, programme=None, indicateur='feu',
+          details=False):
     contours = geo.contours()
     provinces = {p.code: p for p in Province.query}
     codes = [p.code for p in provinces.values() if province_id is None or p.id == province_id]
@@ -168,7 +194,10 @@ def carte(user, province_id=None, largeur=640, hauteur=560, marge=12, programme=
         fermes = fermes.filter(Ferme.province_id == province_id)
     if programme in ('programme', 'hors'):                          # lot A3
         fermes = fermes.filter(Ferme.programme_poufa.is_(programme == 'programme'))
-    fermes = [fe for fe in fermes.all() if fe.a_une_position]
+    toutes = fermes.all()
+    fermes = [fe for fe in toutes if fe.a_une_position]
+    a_localiser = [fe for fe in toutes if not fe.a_une_position]
+    a_verifier = [fe for fe in toutes if fe.position_a_verifier]
     xs = [pt[0] for c in codes for a in contours.get(c, []) for pt in a]
     ys = [pt[1] for c in codes for a in contours.get(c, []) for pt in a]
     if not xs:
@@ -187,10 +216,20 @@ def carte(user, province_id=None, largeur=640, hauteur=560, marge=12, programme=
                    for anneau in contours.get(c, [])]
         formes.append({'province': provinces[c], 'chemins': chemins})
     points = []
+    production = indicateurs.production_fermes(fermes) if details else None
+    from app.services import positions
     for fe in fermes:
         x, y = proj(fe.longitude, fe.latitude)
         if -20 <= x <= largeur + 20 and -20 <= y <= hauteur + 20:
-            points.append({'ferme': fe, 'x': x, 'y': y, 'feu': feu_de_la_ferme(fe)})
+            point = {'ferme': fe, 'x': x, 'y': y}
+            if details:                                     # lot E : infobulle et indicateur au choix
+                point['infos'] = infos_ferme(fe, production)
+                point['feu'] = point['infos']['couleurs'].get(indicateur, point['infos']['couleurs']['feu'])
+                point['approximative'] = positions.approximative(fe)
+            else:
+                point['feu'] = feu_de_la_ferme(fe)
+            points.append(point)
     # Le plus grave dessiné en dernier : il reste visible quand deux fermes se superposent
     points.sort(key=lambda p: ('gris', 'vert', 'orange', 'rouge').index(p['feu']))
-    return {'largeur': largeur, 'hauteur': hauteur, 'formes': formes, 'points': points}
+    return {'largeur': largeur, 'hauteur': hauteur, 'formes': formes, 'points': points,
+            'a_localiser': a_localiser, 'a_verifier': a_verifier}

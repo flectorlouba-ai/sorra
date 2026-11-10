@@ -174,6 +174,11 @@ Une saisie qui ne passe plus les contrôles au moment de l'envoi (par exemple pl
 - À l'envoi après coup, les mêmes règles s'appliquent : bande terminée entre-temps → refus (« 🔒 ») signalé à l'agent ; lot reçu entre-temps → l'archivage de la sortie est refusé.
 - `js/fenetre.js` est gardé dès l'installation.
 
+### Position de la ferme et visites (lot E, partie a)
+- La page « Relever la position » de chaque ferme de l'agent est gardée sur le téléphone ; le relevé part dans la file d'attente avec son heure et l'appareil.
+- Envoyé sans réseau et hors de la province : la position est gardée et marquée « à vérifier » chez la DGE.
+- La distance d'une visite à la ferme est calculée sur le téléphone, puis recalculée par le serveur à l'arrivée.
+
 ### Session (lot 15)
 - L'éleveur et l'agent ne sont **jamais déconnectés par inactivité** : des jours sans réseau ne doivent pas faire perdre la session.
 - Si l'ADMIN ferme la session (téléphone perdu), l'envoi suivant reçoit la réponse « connexion ». Les saisies restent sur le téléphone et partent après la reconnexion, au nom de leur auteur (lot 13).

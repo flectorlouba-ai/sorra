@@ -25,6 +25,30 @@
   </table>
 </div></div>
 
+<div class="card-p mb-3" id="controle-visites">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-geo-alt"></i> Contrôle des visites (90 jours)</span>
+    <span>
+      <a class="btn-edit{{ ' actif' if not controle.filtre }}" href="{{ url_for('dge.agents') }}#controle-visites">Toutes</a>
+      <a class="btn-edit{{ ' actif' if controle.filtre == 'eloignee' }}" href="{{ url_for('dge.agents', controle='eloignee') }}#controle-visites">Position éloignée</a>
+      <a class="btn-edit{{ ' actif' if controle.filtre == 'sans_position' }}" href="{{ url_for('dge.agents', controle='sans_position') }}#controle-visites">Sans position</a>
+    </span></div>
+  <div class="card-p-body">
+    <div class="d-flex flex-wrap gap-2 mb-2">{% for a in controle.par_agent %}
+      <span class="badge badge-neutre" data-taux-agent>{{ a.agent.nom_complet }} : {{ a.confirmees }}/{{ a.faites }} confirmées{% if a.taux is not none %} ({{ a.taux }} %){% endif %}</span>
+    {% else %}<span class="empty-note">Aucune visite faite ces 90 jours.</span>{% endfor %}</div>
+    <div class="td-sous">Confirmée : faite à moins de {{ controle.distance_km|qte }} km de la ferme.</div>
+  </div>
+  <div class="table-scroll"><table>
+    <thead><tr><th>Le</th><th>Agent</th><th>Ferme</th><th>Distance</th><th>Précision</th><th>Explication</th></tr></thead>
+    <tbody>{% for l in controle.lignes %}{% set v = l.visite %}
+      <tr data-visite-etat="{{ l.etat }}"><td>{{ v.faite_le.strftime('%d/%m') }}</td><td>{{ v.agent.nom_complet }}</td>
+        <td><a href="{{ url_for('fermes.fiche', numero=v.ferme.numero) }}">{{ v.ferme.numero }}</a></td>
+        <td>{% if l.etat == 'sans_position' %}<span class="badge badge-neutre">sans position</span>{% else %}{{ (v.distance_m ~ ' m') if v.distance_m < 1000 else ((v.distance_m / 1000)|round(1)|qte ~ ' km') }}{% if l.etat == 'eloignee' %} <span class="badge badge-warn">éloignée</span>{% else %} ✓{% endif %}{% endif %}</td>
+        <td>{{ ('± ' ~ v.precision_m ~ ' m') if v.precision_m else '—' }}</td><td>{{ v.motif_distance or '' }}</td></tr>
+    {% else %}<tr><td colspan="6" class="table-vide">Aucune visite.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+
 <form method="post" action="{{ url_for('dge.reaffecter') }}" class="card-p" novalidate id="reaffecter">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-arrow-left-right"></i> Confier une ferme à un autre agent</span></div>
   <div class="card-p-body form-commande">

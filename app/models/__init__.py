@@ -28,6 +28,8 @@ from app.models.agent import CommandeIntrant, InventaireStock  # noqa: F401
 from app.models.veto import Diagnostic, BlocageSorties  # noqa: F401
 from app.models.dge import RapportMensuel  # noqa: F401
 
+from app.models.position import PositionFerme  # noqa: F401,E402  (lot E)
+
 # Lot A : saisies archivées masquées partout (voir app/models/base.py)
 from app.models.base import masquer_archivees as _masquer  # noqa: E402
 from app.models.entretien import EntretienFait as _EF, Panne as _P  # noqa: E402

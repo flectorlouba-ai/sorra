@@ -84,7 +84,8 @@ def pages_agent(user):
     fermes = Ferme.query.filter_by(agent_id=user.id).order_by(Ferme.numero_metier).all()
     for f in fermes:
         n = f.numero
-        pages += [url_for('terrain.fiche', numero=n), url_for('terrain.saisir', ferme=n),
+        pages += [url_for('terrain.fiche', numero=n), url_for('terrain.position', numero=n),
+                  url_for('terrain.saisir', ferme=n),
                   url_for('terrain.stock', ferme=n)]
         pages += [url_for('fermes.fiche', numero=n), url_for('visites.compte_rendu', numero=n),
                   url_for('agent.biosecurite', numero=n), url_for('agent.nouvel_eleveur', numero=n),

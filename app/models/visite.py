@@ -26,6 +26,10 @@ class Visite(ArchivableMixin, SaisieTerrainMixin, db.Model):
     latitude             = db.Column(db.Float, nullable=True)
     longitude            = db.Column(db.Float, nullable=True)
     photo                = db.Column(db.String(80), nullable=True)
+    # Lot E : précision du téléphone, distance à la ferme (recalculée par le serveur), explication si éloignée
+    precision_m          = db.Column(db.Integer, nullable=True)
+    distance_m           = db.Column(db.Integer, nullable=True)
+    motif_distance       = db.Column(db.String(300), nullable=True)
     motif_annulation     = db.Column(db.String(300), nullable=True)
     vue_par_eleveur_le   = db.Column(db.DateTime(timezone=True), nullable=True)
     # Lot 16 : biosécurité (grille {point: oui/non/so}, score %, mesures correctives [{point, mesure}])

@@ -163,11 +163,39 @@ def rapport_garde(mois):
 
 # ── F. Agents ───────────────────────────────────────────────────────────
 
+def controle_visites(filtre):
+    """Lot E : visites faites (90 derniers jours) — distance à la ferme, précision, explication ; filtres « position
+    éloignée » / « sans position » ; taux de visites confirmées (à moins de la distance) par agent."""
+    from datetime import date, timedelta
+    from app.models.visite import Visite, StatutVisite
+    from app.services import positions
+    ids = [f.id for f in filtre_perimetre(Ferme.query)]
+    visites = (Visite.query.filter(Visite.ferme_id.in_(ids), Visite.statut == StatutVisite.FAITE,
+                                   Visite.faite_le >= date.today() - timedelta(days=90))
+               .order_by(Visite.faite_le.desc()).all()) if ids else []
+    lignes = [{'visite': v, 'etat': positions.etat_visite(v)} for v in visites]
+    par_agent = {}
+    for l in lignes:
+        a = par_agent.setdefault(l['visite'].agent_id, {'agent': l['visite'].agent, 'faites': 0, 'confirmees': 0})
+        a['faites'] += 1
+        a['confirmees'] += l['etat'] == 'confirmee'
+    for a in par_agent.values():
+        a['taux'] = round(a['confirmees'] * 100 / a['faites']) if a['faites'] else None
+    if filtre == 'eloignee':
+        lignes = [l for l in lignes if l['etat'] == 'eloignee']
+    elif filtre == 'sans_position':
+        lignes = [l for l in lignes if l['etat'] == 'sans_position']
+    return {'lignes': lignes[:100], 'par_agent': sorted(par_agent.values(), key=lambda a: a['agent'].nom_complet),
+            'filtre': filtre, 'distance_km': positions.distance_visite_m() / 1000}
+
+
 @dge_bp.route('/agents')
 @profil_requis(*NATIONAUX)
 def agents():
     lignes = regles.charge_des_agents(current_user)
+    controle = controle_visites(request.args.get('controle', ''))
     return render_template('dge/agents.html', lignes=lignes, orange=regles.CHARGE_ORANGE, rouge=regles.CHARGE_ROUGE,
+                           controle=controle,
                            fermes=filtre_perimetre(Ferme.query).order_by(Ferme.numero_metier).all(),
                            agents=[x['agent'] for x in lignes])
 

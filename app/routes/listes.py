@@ -29,6 +29,8 @@ CATEGORIES = {
     'motifs_verification':   "Raisons d'un choix entre deux versions (« À vérifier » de l'agent) ; « Autre » demande un texte",
     'motifs_ecart_quai':     "Motifs d'écart à la réception des poulets (abattoir, marché) ; « Autre » demande un texte",
     'souches':               'Souches des bandes (chair et ponte)',
+    'motifs_position':       "Raisons de garder ou de corriger la position d'une ferme",
+    'motifs_visite_eloignee': 'Raisons d\'une visite faite loin de la ferme',
 }
 
 

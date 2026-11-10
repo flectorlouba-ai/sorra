@@ -96,6 +96,16 @@ Liste unique, tenue à jour à chaque lot. Toutes ces valeurs sont **provisoires
 | **Souches** proposées : Cobb 500, Ross 308, Arbor Acres, Hubbard, ISA Brown, Lohmann Brown | Listes → « Souches » |
 | **Bande de ponte** : 72 semaines ; indicateurs du chair « sans objet » ; saisie des œufs au lot F | `bandes.duree_ponte_jours` |
 
+## Lot E — GPS et visites (DGE)
+
+| Point | Où le changer |
+|---|---|
+| **Précision exigée** pour garder une position : ± 30 m | Paramètres → `gps.precision_max_m` |
+| **Visite confirmée** : à moins de 1 km de la ferme ; au-delà, explication demandée | `gps.distance_visite_km` |
+| **Correction à la main** de plus de 1 km : quatre yeux | `gps.correction_quatre_yeux_km` |
+| **Raisons** (position, visite éloignée) | Listes → « Raisons de garder ou de corriger la position », « Raisons d'une visite faite loin de la ferme » |
+| **Couleurs de la carte** (mortalité, régularité) | `services/pilotage.infos_ferme` |
+
 ## Test terrain
 
 L'écran de l'éleveur doit être **testé par 3 à 5 vrais éleveurs** avant d'être figé (`docs/ergonomie.md`, section E) : 8 tuiles, saisie du jour avec « — », « Aucun mort », « Comme hier ».
