@@ -1,0 +1,16 @@
+{% extends '_base.html' %}
+{% block titre %}Mes lots{% endblock %}
+{% block icone %}qr-code{% endblock %}
+{% block page_titre %}📦 Mes lots{% endblock %}
+{% block page_sous_titre %}Les lots sortis de vos bandes et leur suivi jusqu'à la réception{% endblock %}
+{% block contenu %}
+<div class="table-wrap"><div class="table-scroll"><table>
+  <thead><tr><th>Lot</th><th>Bande</th><th>Date</th><th>Poulets</th><th>Poids (kg)</th><th>Destinataire</th><th>QR</th><th>Suivi</th></tr></thead>
+  <tbody>{% for l in lots %}{% set s = l.sortie %}{% set e = etat(s) %}
+    <tr><td class="td-num"><a href="{{ url_for('tracabilite.lot', numero=l.numero) }}">{{ l.numero }}</a></td><td>{{ s.bande.numero }}</td><td>{{ s.date.strftime('%d/%m/%Y') }}</td>
+      <td>{{ s.nombre|qte }}</td><td>{{ s.poids_total_kg|qte }}</td><td>{{ s.destinataire }}</td>
+      <td>{% if l.annule %}annulé{% else %}<a href="{{ url_for('tracabilite.etiquettes', numero=l.numero) }}">étiquettes</a>{% endif %}</td>
+      <td>{{ e.texte if e else '—' }}</td></tr>
+  {% else %}<tr><td colspan="8" class="table-vide">Aucun lot.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

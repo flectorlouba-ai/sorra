@@ -58,9 +58,9 @@ def test_tournee_du_jour_et_pages_gardees(client, monde):
     assert f'data-ferme-tournee="{monde["f"].numero}"' in page and 'Visite : vaccination' in page
     assert 'data-garder' in page and f'/fermes/{monde["f"].numero}' in page      # fiches gardées sans réseau
     assert monde['f2'].numero not in page                                       # pas sa ferme
-    client.get('/terrain/bureau')                   # lot 19 ter : tuiles de pilotage dans la « Version bureau »
+    client.get('/bureau/version-ordinateur')        # lot R : boutons de la version ordinateur
     accueil = client.get('/').get_data(as_text=True)
-    assert 'data-tuile-pilotage="tournee"' in accueil and 'data-tuile-pilotage="commandes"' in accueil
+    assert 'data-fonction="tournees"' in accueil and 'data-fonction="commandes"' in accueil
     client.get('/terrain/version-terrain')
     changer(client, 'eleveur1')
     assert client.get('/tournee').status_code == 403
@@ -150,7 +150,7 @@ def test_commande_envoyee_validee_refusee_livree(client, monde):
     creer_utilisateur('dge', Profil.DGE)
     db.session.commit()
     changer(client, 'dge')
-    assert re.search(r'data-tuile-pilotage="commandes">\s*<span class="tuile-compteur"[^>]*>2<', client.get('/').get_data(as_text=True))
+    assert re.search(r'data-fonction="commandes"[^>]*><span class="pa">2</span>', client.get('/').get_data(as_text=True))
     client.post(f'/commandes/{c1.id}/decider', data={'decision': 'valider'})
     assert 'motif du refus' in client.post(f'/commandes/{c2.id}/decider', data={'decision': 'refuser'},
                                            follow_redirects=True).get_data(as_text=True)

@@ -326,6 +326,15 @@ def apres_correction(bande, user, quoi, motif):
 
 # ── Bâtiment : état pour l'affichage ────────────────────────────────────
 
+def en_cours_de(fermes):
+    """Une bande en cours par ferme (la plus récente), pour la liste des élevages (lot R)."""
+    ids = [f.id for f in fermes]
+    if not ids:
+        return []
+    return (Bande.query.filter(Bande.ferme_id.in_(ids), Bande.statut == StatutBande.EN_COURS)
+            .order_by(Bande.date_mise_en_place).all())
+
+
 def etat_batiment(batiment):
     """('bande', bande) | ('vide', jours depuis la clôture, dernière bande) | ('neuf', None)."""
     ouverte = bande_ouverte(batiment)

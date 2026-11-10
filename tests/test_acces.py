@@ -39,8 +39,8 @@ def test_accueil_sans_tuile_inutile(client, app):
     creer_utilisateur('aninf', Profil.AUDITEUR, ['EST'])
     client.post('/auth/deconnexion')
     connecter(client, 'aninf')
-    page = client.get('/').get_data(as_text=True)
-    assert 'data-tuile-pilotage="journal"' in page and 'Utilisateurs' not in page      # lot 15 : tuiles
+    page = client.get('/', follow_redirects=True).get_data(as_text=True)
+    assert 'data-fonction="journal"' in page and 'data-fonction="utilisateurs"' not in page      # lot R : boutons
 
 
 def test_aucune_route_ne_modifie_le_journal(app):

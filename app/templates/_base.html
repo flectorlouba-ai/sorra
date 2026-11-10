@@ -1,16 +1,71 @@
 {# ══════════════════════════════════════════════════════════════════════
-   Gabarit commun SORRA — repris de PERFORM YL.1 (page « Suivi DI / OT »).
-   Blocs : titre, sous_titre, icone, page_titre, page_sous_titre, actions,
-           pastilles, contenu, scripts.
+   Gabarit commun SORRA.
+   - TERRAIN (éleveur, agent, opérateur sur téléphone) : repris de PERFORM YL.1, inchangé depuis le lot 19 ter.
+   - ORDINATEUR (lot R, tous profils) : zone titre en haut (trait bleu, sans bande kente), boutons des
+     fonctionnalités 2 par ligne à gauche, contenu à droite. Référence : docs/maquettes/validees/maquette_sorra_bureau.html.
+   Blocs : titre, sous_titre, icone, page_titre, page_sous_titre, actions, pastilles, contenu, scripts.
    ══════════════════════════════════════════════════════════════════════ #}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 {% include '_tete.html' %}
   <title>{% block titre %}SORRA{% endblock %} — SORRA</title>
+  {% if current_user.is_authenticated and not theme_terrain %}<meta name="csrf-token" content="{{ csrf_token() }}">{% endif %}
 </head>
-<body{% if theme_terrain %} class="{% if theme_eleveur %}theme-eleveur {% endif %}theme-terrain terrain-{{ profil_terrain }}"{% endif %}{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR') %} data-pages-hors-ligne{% endif %}{% endif %}>
+{% set bureau = current_user.is_authenticated and not theme_terrain %}
+<body{% if theme_terrain %} class="{% if theme_eleveur %}theme-eleveur {% endif %}theme-terrain terrain-{{ profil_terrain }}"{% elif bureau %} class="bureau"{% endif %}{% if current_user.is_authenticated %} data-utilisateur="{{ current_user.identifiant }}"{% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR') %} data-pages-hors-ligne{% endif %}{% endif %}>
 {% include '_bandeau_demo.html' %}
+{% if bureau %}
+{# ══ ORDINATEUR (lot R) ══ #}
+{% set fonctions = fonctions_bureau() %}
+<div class="zone-titre">
+  <a href="{{ url_for('bureau.accueil') }}" class="logo-texte">{{ logo_poulet() }}<span class="marque">SORRA<small>Suivi et traçabilité de la filière avicole</small></span></a>
+  <h1><i class="bi bi-{% block icone %}grid{% endblock %}"></i> <span>{% block page_titre %}{{ self.titre() }}{% endblock %}</span></h1>
+  <div class="droite">
+    <div class="qui"><b>{{ current_user.nom_complet }}</b><span class="role">{{ current_user.profil.libelle }}</span></div>
+    {% set cle_aide = aide_pour(self.aide()|trim) %}
+    <a class="ib" href="{{ url_for('aides.aide', cle=cle_aide, retour=request.path) if cle_aide else url_for('aides.liste') }}" title="Aide">❓ <span class="d-none d-md-inline">Aide</span></a>
+    {% if current_user.profil.value in ('ELEVEUR', 'AGENT', 'OPERATEUR') %}<a class="ib" href="{{ url_for('bureau.version_terrain') }}" title="Version terrain" data-version-terrain>📱</a>{% endif %}
+    <form method="post" action="{{ url_for('auth.deconnexion') }}" class="d-inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="ib out" title="Se déconnecter">⏻ <span class="d-none d-md-inline">Déconnexion</span></button>
+    </form>
+  </div>
+</div>
+<div class="corps-bureau">
+  <aside class="gauche">
+    <div class="t">FONCTIONNALITÉS</div>
+    <nav class="btns-fonctions" aria-label="Fonctionnalités">
+      {% for f in fonctions %}<a class="fb{{ ' on' if f.actif }}" href="{{ f.lien }}" data-fonction="{{ f.cle }}"{% if f.actif %} aria-current="page"{% endif %}>{% if f.compteur %}<span class="pa">{{ f.compteur }}</span>{% endif %}<span class="ic">{{ f.icone }}</span>{{ f.nom }}</a>{% endfor %}
+    </nav>
+    <div class="perim" data-perimetre>🗺️ Périmètre : <b>{{ perimetre_bureau() }}</b></div>
+  </aside>
+  <main class="droite-zone page-body">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}<div class="flash-zone">
+      {% for cat, msg in messages %}
+      <div class="flash-item {{ cat }}"><i class="bi bi-{% if cat=='success' %}check-circle{% elif cat=='danger' %}exclamation-circle{% elif cat=='warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>{{ msg }}</div>
+      {% endfor %}
+    </div>{% endif %}
+    {% endwith %}
+    {% set _b_sous_titre = self.page_sous_titre()|trim %}
+    {% set _b_actions = self.actions()|trim %}
+    {% set _b_active = fonctions|selectattr('actif')|first %}
+    {% if _b_sous_titre or _b_actions or (_b_active and _b_active.bouton and _b_active.bouton.lien) %}
+    <div class="barre-actions">
+      {% if _b_sous_titre %}<div class="page-sub">{{ _b_sous_titre|safe }}</div>{% endif %}
+      <span class="bp-zone" style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        {{ _b_actions|safe }}
+        {% if not _b_actions and _b_active and _b_active.bouton and _b_active.bouton.lien %}<a class="bp" href="{{ _b_active.bouton.lien }}" data-bouton-creation>{{ _b_active.bouton.libelle }}</a>{% endif %}
+      </span>
+    </div>
+    {% endif %}
+    {% block pastilles %}{% endblock %}{% if false %}{% block aide %}{% endblock %}{% endif %}
+    {% block contenu %}{% endblock %}
+  </main>
+</div>
+{% else %}
+{# ══ TERRAIN (lot 19 ter), et pages sans session ══ #}
 <div class="kente-band"></div>
 
 <div class="topbar">
@@ -26,9 +81,8 @@
     {% include 'terrain/_entete.html' %}
     {% elif current_user.is_authenticated %}
     <span class="topbar-user d-none d-sm-inline"><i class="bi bi-person-circle"></i> {{ current_user.nom_complet }}</span>
-    {% if not theme_eleveur %}<a href="{{ url_for('accueil.index') }}" class="btn-top"><i class="bi bi-house-door"></i> Accueil</a>{% endif %}
-    {% if theme_eleveur %}<a href="{{ url_for('auth.mot_de_passe') }}" class="btn-top" title="Changer mon mot de passe"><i class="bi bi-key"></i></a>
-    {% else %}<a href="{{ url_for('auth.securite') }}" class="btn-top" title="Ma sécurité"><i class="bi bi-key"></i></a>{% endif %}
+    <a href="{{ url_for('accueil.index') }}" class="btn-top"><i class="bi bi-house-door"></i> Accueil</a>
+    <a href="{{ url_for('auth.securite') }}" class="btn-top" title="Ma sécurité"><i class="bi bi-key"></i></a>
     <form method="post" action="{{ url_for('auth.deconnexion') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" class="btn-top" title="Se déconnecter"><i class="bi bi-box-arrow-right"></i></button>
@@ -49,9 +103,9 @@
   {% if theme_terrain and not accueil_terrain %}<a class="retour-accueil" href="{{ url_for('accueil.index') }}">‹ Accueil</a>{% endif %}
   <div class="page-head"{% if accueil_terrain %} hidden{% endif %}>
     <div class="page-head-left">
-      <div class="page-icon"><i class="bi bi-{% block icone %}grid{% endblock %}"></i></div>
+      <div class="page-icon"><i class="bi bi-{{ self.icone() }}"></i></div>
       <div>
-        <div class="page-title">{% block page_titre %}{{ self.titre() }}{% endblock %}</div>
+        <div class="page-title">{{ self.page_titre() }}</div>
         <div class="page-sub">{% block page_sous_titre %}{% endblock %}</div>
       </div>
     </div>
@@ -61,10 +115,11 @@
     </div>
   </div>
 
-  {% block pastilles %}{% endblock %}{% if false %}{% block aide %}{% endblock %}{% endif %}
+  {{ self.pastilles() }}
 
-  {% block contenu %}{% endblock %}
+  {{ self.contenu() }}
 </div>
+{% endif %}
 
 {# Lot A1 : fenêtre commune des fiches (une ligne touchée → formulaire prérempli, voir _fiches.html) #}
 <div class="modal-overlay" id="fen-fiche" hidden role="dialog" aria-modal="true" aria-labelledby="fen-fiche-titre">
@@ -80,6 +135,7 @@
 
 <script src="{{ url_for('static', filename='vendor/bootstrap-5.3.3/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/fenetre.js') }}"></script>
+{% if bureau %}<script src="{{ url_for('static', filename='js/tableaux.js') }}"></script>{% endif %}
 {% block scripts %}{% endblock %}
 {% if current_user.is_authenticated %}<script src="{{ url_for('static', filename='js/hors_ligne.js') }}"></script>{% endif %}
 {% if theme_eleveur %}<script src="{{ url_for('static', filename='js/eleveur.js') }}"></script>{% endif %}

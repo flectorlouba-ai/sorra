@@ -90,7 +90,10 @@ def liste():
         ids = {fe.province_id for fe in base} | set(current_user.province_ids)
         provinces = [p for p in Province.query.order_by(Province.ordre) if p.id in ids]
     production = indicateurs.production_fermes(fermes)
+    from app.services import pilotage
+    details = {f.id: pilotage.infos_ferme(f, production) for f in fermes}     # lot R : colonnes de la maquette
     return render_template('fermes/liste.html', fermes=fermes, total=total, urgences=urgences, production=production,
+                           details=details, bandes_en_cours={b.ferme_id: b for b in regles_bandes.en_cours_de(fermes)},
                            hors_programme=base.filter(Ferme.programme_poufa.is_(False)).count(),
                            operationnelles=operationnelles, filtre=f, provinces=provinces,
                            statuts=[v for v, _ in ld_choices('statuts_ferme')],

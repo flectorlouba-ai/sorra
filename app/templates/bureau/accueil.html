@@ -1,0 +1,89 @@
+{% extends '_base.html' %}
+{% from 'indicateurs/_courbes.html' import courbe_hebdo %}
+{% set active = fonctions_bureau()|selectattr('actif')|first %}
+{% block titre %}{{ active.nom if active else 'Accueil' }}{% endblock %}
+{% block icone %}speedometer2{% endblock %}
+{% block page_titre %}{{ active.icone ~ ' ' ~ active.nom if active else 'Accueil' }}{% endblock %}
+{% block page_sous_titre %}Indicateurs clés, carte du périmètre, fermes en alerte, évolution sur 52 semaines{% endblock %}
+{% block contenu %}
+{# Lot R : tableau de bord de chaque profil. Cartes (lot C) → carte + alertes → 3 courbes (lot C) → synthèse. #}
+<div class="kpis" data-kpis>
+  {% for c in d.cartes %}<div class="carte-indicateur{{ ' alerte' if c.alerte }}"><small>{{ c.nom }}</small><b>{{ c.valeur }}</b>{% if c.sous %}<span>{{ c.sous }}</span>{% endif %}</div>{% endfor %}
+  {% if not d.cartes %}<div class="carte-indicateur"><small>Indicateurs</small><b>—</b><span>le contenu de ce profil arrive au lot M</span></div>{% endif %}
+</div>
+
+<div class="dash">
+  <div class="carte-zone" data-carte-perimetre>
+    <h3>🗺️ Carte du périmètre <span>{{ d.fermes|length }} ferme{{ 's' if d.fermes|length != 1 }}{% if d.carte %} · {{ d.carte.points|length }} avec une position{% endif %}</span></h3>
+    {% if d.carte %}
+    <div style="position:relative">
+    <svg class="carte-fermes" viewBox="0 0 {{ d.carte.largeur }} {{ d.carte.hauteur }}" role="img" aria-label="Carte des fermes du périmètre" id="carte-bureau">
+      {% for f in d.carte.formes %}<g class="carte-province-gabon"><title>{{ f.province.nom }}</title>{% for c in f.chemins %}<path d="{{ c }}"/>{% endfor %}</g>{% endfor %}
+      {% for p in d.carte.points %}{% set i = p.infos %}
+      <a href="{{ url_for('fermes.fiche', numero=p.ferme.numero) }}" data-point-ferme="{{ p.ferme.numero }}"
+         data-bulle="{{ p.ferme.numero }} · {{ p.ferme.nom }}|Mortalité : {{ (i.mortalite|round(1)|qte ~ ' %') if i.mortalite is not none else '—' }} · effectif {{ i.effectif|qte }}|Atteinte de la cible : {{ (i.atteinte|round|int ~ ' %') if i.atteinte is not none else '—' }}|Dernière saisie : {{ i.derniere_saisie.strftime('%d/%m') if i.derniere_saisie else 'aucune' }}{% if p.raisons %}|⚠️ {{ p.raisons|join(' · ') }}{% endif %}">
+        {% if p.alerte %}<circle class="halo" cx="{{ p.x }}" cy="{{ p.y }}" r="13"/>{% endif %}
+        <circle class="point-ferme point-{{ p.feu }}{{ ' point-approximatif' if p.approximative }}" cx="{{ p.x }}" cy="{{ p.y }}" r="7"/>
+        {% if p.alerte %}<text x="{{ p.x }}" y="{{ p.y - 10 }}" text-anchor="middle" style="font-size:11px">⚠️</text>{% endif %}
+        {% if d.fermes|length <= 40 %}<text class="etiquette-ferme" x="{{ p.x + 9 }}" y="{{ p.y + 4 }}">{{ p.ferme.numero }}</text>{% endif %}
+      </a>
+      {% endfor %}
+    </svg>
+    <div class="bulle-carte" id="bulle-carte" hidden></div>
+    </div>
+    <div class="leg"><span><i style="background:var(--vert)"></i>tout va bien</span><span><i style="background:var(--ambre-vif)"></i>attention</span><span><i style="background:var(--rouge-vif)"></i>alerte</span><span><i style="background:var(--grisb)"></i>sans bande</span><span>⚠️ halo : un indicateur hors seuil</span></div>
+    {% else %}<div class="empty-note">Aucune ferme avec une position dans votre périmètre.</div>{% endif %}
+  </div>
+  <div class="al" data-fermes-en-alerte>
+    <h3>⚠️ Fermes en alerte <span>{{ d.alertes|length }}</span></h3>
+    {% for a in d.alertes %}
+    <a class="ali" href="{{ url_for('fermes.fiche', numero=a.ferme.numero) }}"><span class="d {{ a.couleur }}"></span>
+      <span><b>{{ a.ferme.numero }} · {{ a.ferme.nom }}</b><small>{{ a.raisons|join(' · ') }}</small></span></a>
+    {% else %}<div class="empty-note">Aucune ferme en alerte ✓</div>{% endfor %}
+    {% if alertes %}
+    <h3 class="mt-3">🔔 Alertes <span>{{ alertes|sum(attribute='nombre') }}</span></h3>
+    {% for a in alertes %}<a class="ali" href="{{ a.lien }}" data-alerte><span class="d {{ 'rouge' if a.niveau == 'urgence' else 'orange' }}"></span>
+      <span><b>{{ a.texte }}</b>{% if a.meta %}<small>{{ a.meta }}</small>{% endif %}</span></a>{% endfor %}
+    {% endif %}
+  </div>
+</div>
+
+<div class="courbes-hebdo">{% for c in d.courbes %}{{ courbe_hebdo(c) }}{% endfor %}</div>
+{% if d.courbes %}<div class="td-sous mt-1 mb-3">Une semaine sans donnée laisse un trou dans la courbe : elle n'est jamais comptée comme zéro.</div>{% endif %}
+
+{% if d.synthese %}
+<div class="table-wrap" data-synthese><div class="table-scroll">
+  <table>
+    <thead><tr><th>N°</th><th>Ferme</th><th>Province</th><th>Programme</th><th>Effectif</th><th>Mortalité</th><th>Régularité</th>{% if financier %}<th>Produit 12 mois (t)</th>{% endif %}<th>Atteinte</th><th>Dernière saisie</th><th>Alerte</th></tr></thead>
+    <tbody>{% for l in d.synthese %}{% set i = l.infos %}
+      <tr><td class="td-num"><a href="{{ url_for('fermes.fiche', numero=l.ferme.numero) }}">{{ l.ferme.numero }}</a></td><td>{{ l.ferme.nom }}</td><td>{{ l.ferme.province.nom }}</td>
+        <td>{{ 'POUFA' if l.ferme.programme_poufa else 'Hors programme' }}</td><td>{{ i.effectif|qte }}</td>
+        <td>{{ (i.mortalite|round(2)|qte ~ ' %') if i.mortalite is not none else '—' }}</td>
+        <td>{{ (i.regularite|round|int ~ ' %') if i.regularite is not none else '—' }}</td>
+        {% if financier %}<td>{{ l.production.reelle|round(1)|qte if l.production else '—' }}</td>{% endif %}
+        <td>{% if l.production and l.production.couleur %}<span class="pastille-atteinte {{ l.production.couleur }}">{{ l.production.atteinte|round|int }} %</span>{% else %}—{% endif %}</td>
+        <td>{{ i.derniere_saisie.strftime('%d/%m') if i.derniere_saisie else '—' }}</td>
+        <td>{% if l.alerte %}<span class="badge badge-danger">⚠️</span>{% elif l.feu == 'vert' %}<span class="badge badge-ok">✓</span>{% else %}—{% endif %}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+</div></div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  // Bulle au survol d'une ferme (lot R) : dessinée sur place, aucune ressource externe
+  var bulle = document.getElementById('bulle-carte'), carte = document.getElementById('carte-bureau');
+  if (!bulle || !carte) return;
+  carte.addEventListener('mousemove', function (e) {
+    var a = e.target.closest('[data-bulle]');
+    if (!a) { bulle.hidden = true; return; }
+    bulle.innerHTML = a.dataset.bulle.split('|').map(function (l, i) { return i ? l : '<b>' + l + '</b>'; }).join('<br>');
+    var r = carte.parentNode.getBoundingClientRect();
+    bulle.style.left = (e.clientX - r.left + 14) + 'px'; bulle.style.top = (e.clientY - r.top + 10) + 'px';
+    bulle.hidden = false;
+  });
+  carte.addEventListener('mouseleave', function () { bulle.hidden = true; });
+})();
+</script>
+{% endblock %}

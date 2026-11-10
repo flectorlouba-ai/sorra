@@ -176,7 +176,7 @@ def test_nouvel_eleveur_ferme_enregistree_ou_nouvelle_avec_reseau(client, terrai
 def test_moi_version_bureau_et_telephone_dge(client, terrain):
     connecter(client, 'agent1')
     page = texte(client.get('/terrain/moi'))
-    assert 'Version bureau' in page and 'lien-bureau' in page and 'Appeler la DGE' not in page   # aucun téléphone
+    assert 'Version ordinateur' in page and 'lien-bureau' in page and 'Appeler la DGE' not in page   # aucun téléphone
     dge = Utilisateur.query.filter_by(identifiant='dge').one()
     dge.telephone = '+241 66 11 22 33'
     db.session.commit()
@@ -187,7 +187,7 @@ def test_moi_version_bureau_et_telephone_dge(client, terrain):
     # Version bureau : les écrans de pilotage existants ; retour au terrain
     client.get('/terrain/bureau')
     page = texte(client.get('/'))
-    assert 'data-tuile-pilotage="mes_fermes"' in page and 'theme-terrain' not in corps(page)
+    assert 'data-fonction="fermes"' in page and 'theme-terrain' not in corps(page)
     assert client.get('/tournee').status_code == 200 and client.get(f'/fermes/{terrain["f"].numero}').status_code == 200
     client.get('/terrain/version-terrain')
     assert 'terrain-agent' in corps(texte(client.get('/')))

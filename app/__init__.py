@@ -115,6 +115,9 @@ def create_app(env='default'):
     # Indicateurs : 5 niveaux, « Mes indicateurs » par profil (lot C)
     from app.routes.indicateurs import indicateurs_bp
     app.register_blueprint(indicateurs_bp)
+    # Version ordinateur, tous profils (lot R)
+    from app.routes.bureau import bureau_bp
+    app.register_blueprint(bureau_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
@@ -134,6 +137,10 @@ def create_app(env='default'):
     app.jinja_env.globals['logo_poulet'] = logo_poulet
     app.jinja_env.globals['poulet'] = poulet
     from app.services.fiches import infos as fiches_infos, nombre_archivees
+    from app.services.bureau import fonctions_pour as _fonctions_bureau
+    from app.routes.accueil import perimetre as _perimetre
+    app.jinja_env.globals['fonctions_bureau'] = lambda: _fonctions_bureau(_utilisateur)
+    app.jinja_env.globals['perimetre_bureau'] = lambda: _perimetre(_utilisateur)
     from flask_login import current_user as _utilisateur
     app.jinja_env.globals['fiches_infos'] = lambda objets: fiches_infos(objets, _utilisateur)
     app.jinja_env.globals['nombre_archivees'] = nombre_archivees

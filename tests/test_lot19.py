@@ -309,7 +309,7 @@ def test_sous_reserve_puis_decision_du_veterinaire_seulement(client, aval, admin
     changer(client, 'veto1')
     page = texte(client.get('/sante/alertes'))
     assert 'Lots retenus à la réception (1)' in page and lot.numero in page and 'Pesée récente' in page
-    assert re.search(r'data-tuile-pilotage="signalements">\s*<span class="tuile-compteur"[^>]*>1<', texte(client.get('/')))
+    assert re.search(r'data-fonction="signalements"[^>]*><span class="pa">1</span>', texte(client.get('/')))
     client.post(f'/operateur/receptions/{r.id}/decider', data={'choix': 'liberer', 'motif': ''})
     db.session.refresh(r)
     assert r.etat == E.SOUS_RESERVE                                       # motif obligatoire

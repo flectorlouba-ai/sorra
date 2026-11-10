@@ -22,15 +22,14 @@ def profil_terrain(user):
     """'eleveur', 'agent', 'operateur' ou None (style bureau)."""
     if not user or not user.is_authenticated:
         return None
-    if user.profil == Profil.ELEVEUR:
-        return 'eleveur'
-    if user.profil == Profil.OPERATEUR:
-        return 'operateur'
-    if user.profil == Profil.AGENT:
-        if has_request_context() and (session.get(CLE_BUREAU) or request.endpoint in ECRANS_BUREAU_AGENT):
+    if user.profil not in (Profil.ELEVEUR, Profil.OPERATEUR, Profil.AGENT):
+        return None
+    if has_request_context():
+        if session.get(CLE_BUREAU) or (request.endpoint or '').startswith('bureau.'):   # lot R : version ordinateur
             return None
-        return 'agent'
-    return None
+        if user.profil == Profil.AGENT and request.endpoint in ECRANS_BUREAU_AGENT:
+            return None
+    return {Profil.ELEVEUR: 'eleveur', Profil.OPERATEUR: 'operateur', Profil.AGENT: 'agent'}[user.profil]
 
 
 def cle_aide(profil, cle):

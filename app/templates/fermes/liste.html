@@ -41,7 +41,7 @@
 
 <div class="table-wrap"><div class="table-scroll">
   <table>
-    <thead><tr>{% if urgences %}<th>Urgence</th>{% endif %}<th>N°</th><th>Ferme</th><th>Province</th><th>Cohorte</th><th>Places</th><th>Cible (t/an)</th><th>Produit 12 mois (t)</th><th>Atteinte</th><th>Statut</th></tr></thead>
+    <thead><tr>{% if urgences %}<th>Urgence</th>{% endif %}<th>N°</th><th>Ferme</th><th>Province</th><th>Programme</th><th>Agent</th><th>Places</th><th>Bande en cours</th><th>Effectif</th><th>Mortalité</th><th>Cible (t/an)</th><th>Produit 12 mois (t)</th><th>Atteinte</th><th>Dernière saisie</th><th>Alerte</th><th>Statut</th></tr></thead>
     <tbody>
     {% for f in fermes %}
       <tr class="tr-click" onclick="location.href='{{ url_for('fermes.fiche', numero=f.numero) }}'">
@@ -49,16 +49,22 @@
         <td class="td-num"><a href="{{ url_for('fermes.fiche', numero=f.numero) }}">{{ f.numero }}</a></td>
         <td><strong>{{ f.nom }}</strong><br><span class="td-sous">{{ f.localite.nom }}</span></td>
         <td>{{ f.province.nom }}</td>
-        <td>{% if f.programme_poufa %}{{ f.cohorte or '—' }}{% else %}<span class="badge badge-neutre">Hors programme</span>{% endif %}</td>
+        <td>{% if f.programme_poufa %}POUFA{{ (' · cohorte ' ~ f.cohorte) if f.cohorte }}{% else %}<span class="badge badge-neutre">Hors programme</span>{% endif %}</td>
+        <td>{{ f.agent.nom_complet if f.agent else '—' }}</td>
         <td>{{ '{:,}'.format(f.capacite).replace(',', ' ') }}{% if f.capacite_a_completer %}<br><span class="badge badge-warn">capacité à compléter</span>{% endif %}</td>
-        {% set pr = production[f.id] %}
+        {% set pr = production[f.id] %}{% set dt = details[f.id] %}{% set bc = bandes_en_cours.get(f.id) %}
+        <td>{% if bc %}<a href="{{ url_for('bandes.fiche', numero=bc.numero) }}">{{ bc.numero }}</a>{% else %}—{% endif %}</td>
+        <td>{{ dt.effectif|qte }}</td>
+        <td>{{ (dt.mortalite|round(2)|qte ~ ' %') if dt.mortalite is not none else '—' }}</td>
         <td>{{ pr.cible|round(1)|qte if pr.cible is not none else '—' }}</td>
         <td>{{ pr.reelle|round(1)|qte }}</td>
         <td data-atteinte="{{ f.numero }}">{% if pr.couleur %}<span class="pastille-atteinte {{ pr.couleur }}">{{ pr.atteinte|round|int }} %</span>{% else %}—{% endif %}</td>
+        <td>{{ dt.derniere_saisie.strftime('%d/%m') if dt.derniere_saisie else '—' }}</td>
+        <td>{% if dt.alerte %}<span class="badge badge-danger">⚠️ feu rouge</span>{% elif dt.couleurs.feu == 'orange' %}<span class="badge badge-warn">attention</span>{% else %}—{% endif %}</td>
         <td>{{ badge_statut(f.statut) }}</td>
       </tr>
     {% else %}
-      <tr><td colspan="10" class="table-vide"><i class="bi bi-house"></i>Aucune ferme ne correspond.</td></tr>
+      <tr><td colspan="16" class="table-vide"><i class="bi bi-house"></i>Aucune ferme ne correspond.</td></tr>
     {% endfor %}
     </tbody>
   </table>
