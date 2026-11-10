@@ -1,0 +1,18 @@
+{% extends '_base.html' %}
+{% from 'indicateurs/_courbes.html' import courbe_hebdo %}
+{% block titre %}Mes indicateurs{% endblock %}
+{% block icone %}graph-up-arrow{% endblock %}
+{% block page_titre %}📈 Mes indicateurs{% endblock %}
+{% block page_sous_titre %}Les chiffres clés de votre périmètre, et leur évolution semaine par semaine{% endblock %}
+{% block contenu %}
+<div class="cartes-indicateurs" data-mes-indicateurs>
+  {% for c in d.cartes %}
+  <div class="carte-indicateur{{ ' alerte' if c.alerte }}"><small>{{ c.nom }}</small><b>{{ c.valeur }}</b>{% if c.sous %}<span>{{ c.sous }}</span>{% endif %}</div>
+  {% endfor %}
+</div>
+<div class="courbes-hebdo">
+  {% for c in d.courbes %}{{ courbe_hebdo(c) }}{% endfor %}
+</div>
+<div class="td-sous mt-2">Une semaine sans donnée laisse un trou dans la courbe : elle n'est jamais comptée comme zéro.</div>
+{% if not theme_terrain %}<a class="btn-ghost mt-2" href="{{ url_for('indicateurs.niveaux') }}">📊 Mortalité, viabilité et objectif par niveau</a>{% endif %}
+{% endblock %}

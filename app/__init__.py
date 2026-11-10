@@ -112,6 +112,9 @@ def create_app(env='default'):
     # Fiches modifiables et archivage (lot A1)
     from app.routes.fiches import fiches_bp
     app.register_blueprint(fiches_bp)
+    # Indicateurs : 5 niveaux, « Mes indicateurs » par profil (lot C)
+    from app.routes.indicateurs import indicateurs_bp
+    app.register_blueprint(indicateurs_bp)
     # Contrôle
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 

@@ -98,7 +98,8 @@ TUILES = {
     'classement':      ('Classement', 'Fermes, score pondéré', 'trophy', 'dge.classement', None),
     'agents':          ('Agents', 'Affectation et charge', 'person-badge', 'dge.agents', None),
     'bandes':          ('Bandes', 'Du poussin à la sortie', 'collection', 'bandes.liste', None),
-    'indicateurs':     ("Indicateurs d'élevage", 'Mortalité, croissance, aliment', 'graph-up', 'pilotage.tableau', None),
+    'indicateurs':     ("Indicateurs d'élevage", 'Mortalité et viabilité par niveau, objectif', 'graph-up', 'indicateurs.niveaux', None),
+    'mes_indicateurs': ('Mes indicateurs', 'Chiffres clés et courbes sur 52 semaines', 'graph-up-arrow', 'indicateurs.mes', None),   # lot C
     'tableau':         ('Tableau de bord', 'Provinces et programme', 'bar-chart-line', 'pilotage.tableau', None),
     'carte':           ('Carte', "Couleur selon l'état", 'geo-alt', 'pilotage.carte', None),
     'rapports':        ('Rapports', 'Hebdomadaires et mensuels', 'file-earmark-text', 'pilotage.rapports', None),
@@ -124,12 +125,14 @@ TUILES = {
 TUILES_PROFIL = {
     Profil.AGENT:    ['mes_fermes', 'tournee', 'a_verifier', 'livraisons', 'commandes', 'bandes', 'indicateurs', 'vaccins', 'lots', 'operateurs',
                       'catalogue'],
-    Profil.VETO:     ['signalements', 'surveillance', 'recherche_lots', 'parametres_sanitaires', 'vaccins', 'a_approuver', 'fermes', 'bandes', 'declarations', 'indicateurs', 'lots'],
+    Profil.VETO:     ['signalements', 'surveillance', 'recherche_lots', 'parametres_sanitaires', 'vaccins', 'a_approuver', 'fermes', 'bandes', 'declarations', 'indicateurs', 'lots', 'mes_indicateurs'],
     Profil.DGE:      ['tableau', 'carte', 'livraisons_etat', 'arbitrages', 'rapports', 'a_approuver', 'commandes', 'fermes', 'bandes',
-                      'alertes_sanitaires', 'lots', 'operateurs', 'recherche_lots', 'classement', 'agents', 'catalogue'],
+                      'alertes_sanitaires', 'lots', 'operateurs', 'recherche_lots', 'classement', 'agents', 'catalogue',
+                      'mes_indicateurs', 'indicateurs'],   # lot C
     Profil.ADMIN:    ['utilisateurs', 'configuration', 'a_approuver', 'sessions', 'journal', 'integrite', 'arbitrages',
                       'tableau', 'fermes', 'bandes', 'livraisons_etat', 'signalements', 'declarations', 'vaccins', 'lots',
-                      'operateurs', 'carte', 'rapports', 'commandes', 'surveillance', 'recherche_lots', 'classement', 'agents'],
+                      'operateurs', 'carte', 'rapports', 'commandes', 'surveillance', 'recherche_lots', 'classement', 'agents',
+                      'mes_indicateurs'],   # lot C
     Profil.AUDITEUR: ['journal', 'integrite'],
 }
 

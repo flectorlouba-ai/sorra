@@ -772,3 +772,11 @@ a.desactive{opacity:.45;pointer-events:none;}
   font:inherit;font-size:.9rem;color:var(--e-nuit);cursor:pointer;min-height:44px;}
 .compte-demo strong{font-family:'JetBrains Mono',monospace;}
 .compte-demo.choisi{border-color:var(--e-bleu-bouton);background:var(--e-bleu-pale);}
+
+/* Lot C : « Mes indicateurs » en style terrain */
+.theme-terrain .carte-indicateur{border:1px solid var(--e-trait);border-top:4px solid var(--e-bleu);border-radius:16px;}
+.theme-terrain .carte-indicateur small{font-size:.8rem;color:var(--e-gris);}
+.theme-terrain .carte-indicateur span{font-size:.8rem;color:var(--e-gris);}
+.theme-terrain .carte-indicateur.alerte{border-top-color:var(--e-rouge);}
+.theme-terrain .courbe-hebdo{border:1px solid var(--e-trait);border-radius:16px;}
+.theme-terrain .courbe-hebdo figcaption,.theme-terrain .courbe-hebdo figcaption small,.theme-terrain .courbe-bornes{font-size:.8rem;}
