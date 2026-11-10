@@ -25,4 +25,4 @@ dans le venv du poste.
   export Excel ; Journal → actions CONSULTATION après avoir ouvert Utilisateurs et Sessions.
 - Changer son mot de passe en « motdepasse1 » → refusé.
 
-Déployé sur la démo : voir `docs/rapport_suite.md`.
+Déployé sur la démo : **oui** — version 2026-11-10-db5c48c.
