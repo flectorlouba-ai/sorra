@@ -875,3 +875,101 @@ body.fenetre-ouverte{overflow:hidden;}
 .courbe-trait{fill:none!important;}
 .courbe-bornes{display:flex;justify-content:space-between;font-size:.62rem;color:var(--gris8);}
 .fil-niveaux{font-size:.8rem;margin-bottom:.6rem;}
+
+/* ══ Lot R : version ORDINATEUR, tous profils (référence : docs/maquettes/validees/maquette_sorra_bureau.html) ══
+   Zone titre en haut (trait bleu, sans bande kente), boutons des fonctionnalités 2 par ligne à gauche, contenu à
+   droite ; sous 900 px, les boutons passent en haut sur une ligne qui défile. Le terrain (terrain.css) n'est pas touché. */
+body.bureau{background:var(--b050);}
+body.bureau .kente-band{display:none;}
+.zone-titre{background:var(--blanc);display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:4px solid var(--noir3);min-width:0;}
+.zone-titre .logo-texte{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--noir);width:auto;height:auto;flex:0 0 auto;position:static;}
+.zone-titre .logo-texte svg,.zone-titre .logo-texte .logo-poulet{width:38px;height:38px;flex:0 0 38px;}
+.zone-titre .marque{white-space:nowrap;}
+.zone-titre .marque{font-weight:800;font-size:15px;line-height:1.1;}
+.zone-titre .marque small{display:block;color:var(--gris8);font-weight:500;font-size:11px;}
+.zone-titre h1{margin:0 0 0 18px;font-size:19px;display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.zone-titre .droite{margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.zone-titre .qui{text-align:right;font-size:12.5px;line-height:1.25;}
+.zone-titre .qui b{display:block;font-size:13.5px;}
+.zone-titre .role{font-size:10.5px;font-weight:700;letter-spacing:.5px;color:var(--noir3);background:var(--b100);border:1px solid var(--b200);border-radius:10px;padding:1px 8px;}
+.zone-titre .ib{border:1px solid var(--grisb);background:var(--blanc);color:var(--noir);border-radius:9px;padding:7px 11px;font:inherit;font-weight:600;font-size:13px;cursor:pointer;text-decoration:none;min-height:36px;display:inline-flex;align-items:center;gap:4px;}
+.zone-titre .ib.out{background:var(--noir);color:var(--blanc);border-color:var(--noir);}
+.corps-bureau{display:grid;grid-template-columns:268px minmax(0,1fr);min-height:calc(100vh - 70px);}
+.gauche{background:var(--blanc);border-right:5px solid var(--noir);padding:14px 12px;min-width:0;}
+.corps-bureau>*{min-width:0;}
+.gauche .t{font-size:10.5px;font-weight:700;letter-spacing:.8px;color:var(--gris8);margin:0 4px 8px;}
+.btns-fonctions{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.fb{border:none;border-radius:11px;color:var(--blanc);padding:11px 6px;min-height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  text-align:center;font:inherit;font-weight:700;font-size:12px;line-height:1.15;cursor:pointer;position:relative;text-decoration:none;
+  background:linear-gradient(135deg,var(--b-acier),var(--b-nuit));box-shadow:0 3px 8px rgba(12,36,97,.18);}
+.fb:nth-child(4n+2),.fb:nth-child(4n+3){background:linear-gradient(135deg,var(--b600),var(--noir3));}
+.fb:hover{color:var(--blanc);filter:brightness(1.08);}
+.fb .ic{font-size:22px;}
+.fb.on{background:linear-gradient(135deg,var(--ambre-vif),var(--ambre));color:var(--ambre-encre);box-shadow:0 0 0 3px var(--att-bord);}
+.fb .pa{position:absolute;top:5px;right:6px;background:var(--rouge-vif);color:var(--blanc);border-radius:9px;font-size:10.5px;padding:0 6px;}
+.gauche .perim{margin-top:14px;background:var(--b050);border-radius:10px;padding:9px 10px;font-size:12px;color:var(--gris3);line-height:1.5;}
+.droite-zone{padding:16px 20px;min-width:0;}
+.droite-zone .page-head{display:none;}
+.barre-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;}
+.barre-actions .bp{margin-left:auto;background:var(--noir3);color:var(--blanc);border:none;border-radius:9px;padding:8px 14px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;}
+/* tableau de bord */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px;}
+.dash{display:grid;grid-template-columns:1.35fr 1fr;gap:10px;margin-bottom:12px;}
+.dash>*{min-width:0;}
+.dash .carte-zone,.dash .al{background:var(--blanc);border-radius:11px;padding:10px 12px;box-shadow:0 2px 6px rgba(12,36,97,.06);}
+.dash .al{max-height:420px;overflow:auto;}
+.dash h3{margin:0 0 4px;font-size:13.5px;display:flex;align-items:center;}
+.dash h3 span{margin-left:auto;font-size:11.5px;color:var(--gris8);font-weight:500;}
+.ali{display:flex;gap:9px;padding:8px 4px;border-bottom:1px solid var(--grise);font-size:12.5px;text-decoration:none;color:inherit;}
+.ali:hover{background:var(--att-fond);}
+.ali .d{width:11px;height:11px;border-radius:50%;margin-top:4px;flex:none;}
+.ali small{display:block;color:var(--gris8);font-size:11.5px;}
+.d.rouge{background:var(--rouge-vif);} .d.orange{background:var(--ambre-vif);} .d.vert{background:var(--vert);} .d.gris{background:var(--grisb);}
+.carte-fermes .halo{fill:rgba(220,38,38,.2);}
+.leg{font-size:11px;color:var(--gris5);display:flex;gap:12px;margin-top:2px;flex-wrap:wrap;}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;}
+/* tableaux : outils */
+.outils-tableau{display:flex;gap:8px;align-items:center;justify-content:flex-end;padding:6px 10px;font-size:12px;color:var(--gris8);flex-wrap:wrap;}
+.outils-tableau button{border:none;border-radius:8px;padding:5px 11px;font:inherit;font-weight:700;font-size:12px;cursor:pointer;}
+.outils-tableau .pr2{background:var(--b100);color:var(--noir);}
+.outils-tableau .xl{background:var(--vert);color:var(--blanc);}
+.table-wrap th.triable{cursor:pointer;user-select:none;}
+.table-wrap th.triable::after{content:' ↕';opacity:.4;font-size:.9em;}
+.table-wrap th.tri-asc::after{content:' ↑';opacity:1;} .table-wrap th.tri-desc::after{content:' ↓';opacity:1;}
+.pagination-tableau{display:flex;gap:6px;align-items:center;justify-content:center;padding:8px;font-size:12px;}
+.pagination-tableau button{border:1px solid var(--grisb);background:var(--blanc);border-radius:6px;padding:3px 9px;font:inherit;cursor:pointer;min-width:32px;}
+.pagination-tableau button.on{background:var(--noir3);color:var(--blanc);border-color:var(--noir3);}
+/* fenêtres : jamais plus hautes que l'écran, titre et pied fixes, 2 colonnes puis 1 */
+body.bureau .modal-box{max-height:calc(100vh - 32px);}
+body.bureau .modal-box .form-grid{grid-template-columns:1fr 1fr;}
+@media (max-width:700px){body.bureau .modal-box .form-grid{grid-template-columns:1fr;}}
+@media (max-height:560px){body.bureau .modal-body{padding:.5rem .9rem;} body.bureau .form-group{gap:.1rem;} body.bureau .form-control{padding:.35rem .6rem;}}
+/* responsive */
+@media (max-width:1150px){.dash{grid-template-columns:1fr;} .dash .al{max-height:260px;}}
+@media (max-width:900px){
+  .corps-bureau{grid-template-columns:1fr;}
+  .gauche{border-right:0;border-bottom:3px solid var(--noir);padding:8px 10px;}
+  .gauche .t,.gauche .perim{display:none;}
+  .btns-fonctions{display:flex;overflow-x:auto;gap:8px;padding-bottom:4px;scrollbar-width:thin;max-width:100%;-webkit-overflow-scrolling:touch;}
+  .fb{min-width:118px;min-height:64px;flex:0 0 auto;}
+  .zone-titre h1{font-size:15px;margin-left:8px;}
+  .zone-titre .qui{display:none;}
+  .droite-zone{padding:12px;}
+}
+@media (max-width:600px){.zone-titre .marque small{display:none;} .zone-titre h1{display:none;}}
+/* impression (🖨️ Imprimer) : A4 paysage, en-tête SORRA, seulement le tableau */
+@media print{
+  @page{size:A4 landscape;margin:12mm;}
+  body.bureau .zone-titre,body.bureau .gauche,body.bureau .barre-actions,.outils-tableau,.pagination-tableau,.bandeau-demo,.flash-zone,.btn-new,.btn-ghost,.filters-bar{display:none!important;}
+  body.bureau .corps-bureau{display:block;}
+  body.impression-tableau .droite-zone>*:not(.en-tete-impression):not(.table-wrap.a-imprimer){display:none!important;}
+  .en-tete-impression{display:block!important;border-bottom:2px solid var(--noir);margin-bottom:8mm;padding-bottom:3mm;font-size:11pt;}
+  .en-tete-impression b{font-size:14pt;}
+  .table-wrap,.table-scroll{overflow:visible!important;box-shadow:none!important;}
+  table{font-size:9pt;} th,td{padding:3px 5px!important;}
+  tbody tr[hidden]{display:none;}
+}
+.en-tete-impression{display:none;}
+.bulle-carte{position:absolute;pointer-events:none;background:var(--noir);color:var(--blanc);border-radius:9px;padding:8px 10px;font-size:11.5px;line-height:1.5;z-index:5;min-width:190px;box-shadow:0 6px 18px rgba(0,0,0,.3);}
+.bulle-carte b{font-size:12.5px;}
+body.bureau td strong{white-space:nowrap;}

@@ -7,6 +7,7 @@
 {% block contenu %}
 {# Lot C : accès à « Mes indicateurs » depuis Moi, sans changer les tuiles #}
 <a class="btn-gros-secondaire mb-2" href="{{ url_for('indicateurs.mes') }}" data-mes-indicateurs-lien>📈 Mes indicateurs</a>
+<a class="btn-gros-secondaire mb-2" href="{{ url_for('bureau.version_ordinateur') }}" data-moi="bureau">🖥️ Version ordinateur</a>
 {% for f in fermes %}
 {% set bats = f.batiments|selectattr('actif')|sort(attribute='code')|list %}
 <div class="ma-ferme">

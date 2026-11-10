@@ -90,7 +90,7 @@ def test_pages_internes_selon_le_perimetre(client, monde):
     assert client.get(f'/tracabilite/lots/{lot.numero}').status_code == 404
     changer(client, 'veto1')
     assert client.get(f'/tracabilite/lots/{lot.numero}').status_code == 200
-    assert 'Lots et QR codes' in client.get('/').get_data(as_text=True)
+    assert 'data-fonction="tracabilite"' in client.get('/').get_data(as_text=True)     # lot R : bouton Traçabilité
     changer(client, 'veto2')
     assert lot.numero not in client.get('/tracabilite/lots').get_data(as_text=True)
     changer(client, 'eleveur1')

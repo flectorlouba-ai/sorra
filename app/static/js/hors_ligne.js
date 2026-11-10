@@ -250,3 +250,17 @@
     }).catch(function () {});
   }
 })();
+
+/* Lot R : sur un écran large (≥ 900 px), l'éleveur, l'agent et l'opérateur passent à la version ordinateur, une fois,
+   sauf s'ils ont choisi une version dans Moi. Sur téléphone, rien ne change. */
+(function () {
+  var corps = document.body;
+  if (!corps || !corps.hasAttribute('data-pages-hors-ligne') || corps.classList.contains('bureau')) return;
+  if (window.innerWidth < 900 || !window.isSecureContext && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') return;
+  var meta = document.querySelector('input[name=csrf_token]');
+  fetch('/bureau/bascule-automatique', {method: 'POST', credentials: 'same-origin',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': meta ? meta.value : ''},
+    body: JSON.stringify({largeur: window.innerWidth})})
+    .then(function (r) { return r.ok ? r.json() : {etat: 'inchange'}; })
+    .then(function (j) { if (j.etat === 'ordinateur') location.href = '/bureau/'; }).catch(function () {});
+})();

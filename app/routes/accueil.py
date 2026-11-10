@@ -173,6 +173,10 @@ def perimetre(user):
     if user.profil == Profil.AGENT:
         n = Ferme.query.filter_by(agent_id=user.id).count()
         return f'{n} ferme{"s" if n > 1 else ""} suivie{"s" if n > 1 else ""}'
+    if user.profil == Profil.ELEVEUR:                           # lot R : sa ou ses fermes
+        return ', '.join(uf.numero_ferme for uf in user.fermes) or '—'
+    if user.profil == Profil.OPERATEUR:
+        return user.operateur.nom if user.operateur else '—'
     noms = [p.nom for p in user.provinces]
     return ', '.join(noms) if noms else '—'
 
@@ -314,7 +318,9 @@ def _bandeau_annulation(user):
 @accueil_bp.route('/')
 @login_required
 def index():
-    if current_user.profil == Profil.ELEVEUR:
+    from app.utils import terrain
+    profil = terrain.profil_terrain(current_user)               # None : version ordinateur (lot R)
+    if profil == 'eleveur':
         if current_user.presentation_vue_le is None:          # lot 13 : une fois par compte
             return redirect(url_for('eleveur.presentation'))
         from app.routes.eleveur import accueil as accueil_eleveur, bandeau_vaccin
@@ -322,8 +328,6 @@ def index():
         return render_template('accueil.html', eleveur=True, onglets=[], e=accueil_eleveur(current_user),
                                bandeau_vaccin=bandeau_vaccin(current_user),
                                blocages=veto.blocages_visibles(current_user).filter_by(leve_le=None).all())
-    from app.utils import terrain
-    profil = terrain.profil_terrain(current_user)
     if profil in ('agent', 'operateur'):                      # lot 19 ter : espace terrain, téléphone d'abord
         if current_user.presentation_vue_le is None:          # présentation au premier lancement, une fois par compte
             return redirect(url_for('terrain.presentation'))
@@ -331,5 +335,6 @@ def index():
         if profil == 'agent':
             return render_template('terrain/agent/accueil.html', a=ecrans.accueil_agent(current_user))
         return render_template('terrain/operateur/accueil.html', o=ecrans.accueil_operateur(current_user))
-    return render_template('accueil.html', eleveur=False, onglets=onglets_pour(current_user),
-                           alertes=_alertes(current_user), perimetre=perimetre(current_user))
+    from app.routes.bureau import tableau_de_bord                # lot R : tableau de bord de la version ordinateur
+    return render_template('bureau/accueil.html', d=tableau_de_bord(current_user), alertes=_alertes(current_user),
+                           financier=current_user.profil != Profil.VETO)

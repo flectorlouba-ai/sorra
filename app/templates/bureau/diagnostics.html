@@ -1,0 +1,16 @@
+{% extends '_base.html' %}
+{% block titre %}Diagnostics{% endblock %}
+{% block icone %}search-heart{% endblock %}
+{% block page_titre %}🔬 Diagnostics{% endblock %}
+{% block page_sous_titre %}Alertes qualifiées par les services vétérinaires et leur suite{% endblock %}
+{% block contenu %}
+<div class="table-wrap"><div class="table-scroll"><table>
+  <thead><tr><th>N°</th><th>Ferme</th><th>Bande</th><th>Origine</th><th>Diagnostic</th><th>Prélèvement</th><th>Réponse à l'éleveur</th><th>Le</th><th>État</th></tr></thead>
+  <tbody>{% for a in alertes %}{% set d = a.diagnostics[0] if a.diagnostics else None %}
+    <tr><td class="td-num"><a href="{{ url_for('sante.alerte', numero=a.numero) }}">{{ a.numero }}</a></td><td>{{ a.ferme.nom }}</td>
+      <td>{{ a.bande.numero if a.bande else '—' }}</td><td>{{ a.libelle_origine }}</td><td>{{ d.maladie if d else '—' }}</td>
+      <td>{{ ('oui' if d.prelevement else 'non') if d else '—' }}</td><td>{{ 'oui' if a.reponses else 'non' }}</td>
+      <td>{{ a.modifie_le|date_locale('%d/%m/%Y') }}</td><td>{{ a.libelle_statut }}</td></tr>
+  {% else %}<tr><td colspan="9" class="table-vide">Aucun diagnostic.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

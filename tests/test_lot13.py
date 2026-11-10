@@ -125,7 +125,7 @@ def test_toutes_les_pages_eleveur_sont_gardees_sans_reseau(client, monde, app):
     gardees = set(client.get('/hors-ligne/pages').get_json()['pages'])
     oubliees = []
     for regle in app.url_map.iter_rules():
-        if 'GET' not in regle.methods or regle.arguments or regle.rule.startswith(('/static', '/q/')):
+        if 'GET' not in regle.methods or regle.arguments or regle.rule.startswith(('/static', '/q/'))                 or regle.endpoint.startswith('bureau.'):          # lot R : version ordinateur, pas sur le téléphone
             continue
         r = client.get(regle.rule)
         if r.status_code == 200 and r.mimetype == 'text/html':

@@ -1,0 +1,11 @@
+{% extends '_base.html' %}
+{% block titre %}Profils et droits{% endblock %}
+{% block icone %}key{% endblock %}
+{% block page_titre %}🔑 Profils et droits{% endblock %}
+{% block page_sous_titre %}Lus dans le code de l'application : une ligne par adresse, les profils qui y ont accès (lecture seule){% endblock %}
+{% block contenu %}
+<div class="table-wrap"><div class="table-scroll"><table>
+  <thead><tr><th>Adresse</th><th>Méthodes</th><th>Profils</th><th>Description</th></tr></thead>
+  <tbody>{% for l in lignes %}<tr><td class="td-num">{{ l.adresse }}</td><td>{{ l.methodes }}</td><td>{{ l.profils }}</td><td>{{ l.doc }}</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% endblock %}

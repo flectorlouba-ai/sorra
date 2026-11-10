@@ -118,11 +118,15 @@ PAGES_AGENT_TERRAIN = ['terrain.tournee', 'terrain.fermes', 'terrain.saisir', 't
 # Pages que l'agent et l'opérateur peuvent ouvrir mais qui ne sont PAS gardées sur le téléphone : la sécurité du
 # compte (en ligne par nature), la création d'une ferme (avec du réseau seulement, jusqu'au lot 19 bis), et les
 # écrans de la « Version bureau » de l'agent (pilotage, sur ordinateur). Vérifié par tests/test_lot19ter.py.
-EN_LIGNE_SEULEMENT = {'auth.securite', 'auth.mise_en_place', 'fermes.nouvelle'}
+EN_LIGNE_SEULEMENT = {'auth.securite', 'auth.mise_en_place', 'fermes.nouvelle', 'bureau.accueil', 'bureau.mes_lots',
+                      'bureau.version_ordinateur', 'bureau.version_terrain', 'bureau.recherche', 'bureau.exports'}
 VERSION_BUREAU_AGENT = {'operateurs.liste', 'livraisons.liste', 'livraisons.nouvelle', 'bandes.liste', 'sante.vaccins',
                         'pilotage.tableau', 'tracabilite.lots', 'agent.commandes', 'fermes.liste',
                         'catalogue.index', 'catalogue.fournisseurs',   # lot A2 : lecture du catalogue (bureau)
-                        'indicateurs.niveaux'}   # lot C (bureau)
+                        'indicateurs.niveaux',   # lot C (bureau)
+                        'bureau.accueil', 'bureau.plans_actions', 'bureau.diagnostics', 'bureau.droits', 'bureau.exports',
+                        'bureau.recherche', 'bureau.visites', 'bureau.mes_lots', 'bureau.version_ordinateur',
+                        'bureau.version_terrain'}   # lot R
 
 
 def _aides_du_profil(prefixe):

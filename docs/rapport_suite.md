@@ -9,7 +9,7 @@ Règles : `docs/regles_lots.md`. Décisions prises seul : `docs/decisions_autono
 | E-b | `b058685` | 499 | oui | 2026-11-10-b058685 | — |
 | L — comptes de démo en un clic | `046d42b` | 504 | oui | 2026-11-10-046d42b | ajouter `SORRA_DEMO_COMPTES=1` au `.env` du serveur (voir `rapport_L.md`) |
 | C — indicateurs | `b7f7723` | 517 | oui | 2026-11-10-b7f7723 | — |
-| R | | | | | |
+| R — version ordinateur | (fusion) | 534 | voir déploiement | | — |
 | D | | | | | |
 | T | | | | | |
 | G | | | | | |

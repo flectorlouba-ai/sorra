@@ -55,7 +55,7 @@ def test_signalements_tries_par_gravite(client, monde):
     page = client.get('/sante/alertes').get_data(as_text=True)
     assert [int(g) for g in re.findall(r'data-gravite="(\d)"', page)] == [3, 2, 2]
     assert page.index(rouge.numero) < page.index(a_peu.numero) < page.index(a_beaucoup.numero)   # le plus ancien d'abord
-    assert 'data-tuile-pilotage="surveillance"' in client.get('/').get_data(as_text=True)
+    assert 'data-fonction="bloquees"' in client.get('/').get_data(as_text=True)         # lot R : bouton Ventes bloquées
 
 
 # ── B. Diagnostic ───────────────────────────────────────────────────────
@@ -120,8 +120,7 @@ def test_blocage_refus_message_a_verifier_et_levee(client, monde):
     assert LotTrace.query.count() == 0
     # Le vétérinaire la voit dans Surveillance (compteur sur la tuile) et la vérifie
     changer(client, 'veto1')
-    assert re.search(r'data-tuile-pilotage="surveillance">\s*<span class="tuile-compteur"[^>]*>1<',
-                     client.get('/').get_data(as_text=True))
+    assert re.search(r'data-fonction="bloquees"[^>]*><span class="pa">1</span>', client.get('/').get_data(as_text=True))
     page = client.get('/surveillance').get_data(as_text=True)
     assert f'data-sortie-a-verifier="{s.id}"' in page and f'data-blocage="{b.numero}"' in page
     client.post(f'/surveillance/sorties/{s.id}', data={'choix': 'sortis'})
