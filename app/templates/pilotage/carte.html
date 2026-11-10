@@ -1,7 +1,7 @@
 {% extends '_base.html' %}
 {% block titre %}Carte des fermes{% endblock %}
 {% block icone %}geo-alt{% endblock %}
-{% block page_sous_titre %}Couleur selon le feu de la bande en cours · gris : pas de bande · cliquez sur un point pour ouvrir la ferme{% endblock %}
+{% block page_sous_titre %}Couleur selon l'indicateur choisi · gris : pas de donnée · survolez une ferme pour ses chiffres, cliquez pour l'ouvrir{% endblock %}
 
 {% block contenu %}
 <form class="filters-bar" method="get">
@@ -14,6 +14,10 @@
     <option value="programme" {% if programme == 'programme' %}selected{% endif %}>Programme POUFA</option>
     <option value="hors" {% if programme == 'hors' %}selected{% endif %}>Hors programme</option>
   </select>
+  <select name="indicateur" class="filter-sel" onchange="this.form.submit()" data-indicateur-carte>
+    {% for k, nom in indicateurs_carte.items() %}<option value="{{ k }}" {% if indicateur == k %}selected{% endif %}>Couleur : {{ nom }}</option>{% endfor %}
+  </select>
+  {% if province %}<a class="btn-ghost" href="{{ url_for('pilotage.carte', programme=programme, indicateur=indicateur) }}">← Tout le Gabon</a>{% endif %}
   <span class="legende"><span class="feu feu-petit feu-vert"></span> vert <span class="feu feu-petit feu-orange"></span> orange
     <span class="feu feu-petit feu-rouge"></span> rouge <span class="feu feu-petit feu-gris"></span> sans bande</span>
 </form>
@@ -21,14 +25,29 @@
 <div class="card-p"><div class="card-p-body">
   <svg class="carte-fermes" viewBox="0 0 {{ carte.largeur }} {{ carte.hauteur }}" role="img" aria-label="Carte des fermes">
     {% for f in carte.formes %}
-    <g class="carte-province-gabon"><title>{{ f.province.nom }}</title>{% for c in f.chemins %}<path d="{{ c }}"/>{% endfor %}</g>
+    <a href="{{ url_for('pilotage.carte', province=f.province.id, programme=programme, indicateur=indicateur) }}" data-province-carte="{{ f.province.code }}">
+    <g class="carte-province-gabon"><title>{{ f.province.nom }} — cliquez pour zoomer</title>{% for c in f.chemins %}<path d="{{ c }}"/>{% endfor %}</g></a>
     {% endfor %}
     {% for p in carte.points %}
-    <a href="{{ url_for('fermes.fiche', numero=p.ferme.numero) }}">
-      <circle class="point-ferme point-{{ p.feu }}" cx="{{ p.x }}" cy="{{ p.y }}" r="7"><title>{{ p.ferme.numero }} · {{ p.ferme.nom }}</title></circle>
+    {% set i = p.infos %}
+    <a href="{{ url_for('fermes.fiche', numero=p.ferme.numero) }}" data-point-ferme="{{ p.ferme.numero }}">
+      <circle class="point-ferme point-{{ p.feu }}{{ ' point-approximatif' if p.approximative }}" cx="{{ p.x }}" cy="{{ p.y }}" r="7"><title>{{ p.ferme.numero }} · {{ p.ferme.nom }}{% if i %}
+Mortalité : {{ (i.mortalite|round(1)|qte ~ ' %') if i.mortalite is not none else '—' }} · effectif : {{ i.effectif|qte }}
+Atteinte de la cible : {{ (i.atteinte|round|int ~ ' %') if i.atteinte is not none else '—' }}
+Dernière saisie : {{ i.derniere_saisie.strftime('%d/%m/%Y') if i.derniere_saisie else 'aucune' }}{% if i.alerte %}
+⚠️ Alerte : feu rouge{% endif %}{% if p.approximative %}
+Position approximative ou corrigée à la main{% endif %}{% endif %}</title></circle>
+      {% if province %}<text class="etiquette-ferme" x="{{ p.x + 9 }}" y="{{ p.y + 4 }}">{{ p.ferme.numero }}</text>{% endif %}
     </a>
     {% endfor %}
   </svg>
+  <div class="encadres-carte">
+    <div class="encadre-carte" data-a-localiser><strong>📍 À localiser ({{ carte.a_localiser|length }})</strong>
+      {% for fe in carte.a_localiser[:12] %}<a href="{{ url_for('fermes.fiche', numero=fe.numero) }}">{{ fe.numero }}</a>{{ ' · ' if not loop.last }}{% endfor %}</div>
+    <div class="encadre-carte" data-position-a-verifier><strong>⚠️ Position à vérifier ({{ carte.a_verifier|length }})</strong>
+      {% for fe in carte.a_verifier[:12] %}<a href="{{ url_for('fermes.fiche', numero=fe.numero) }}#positions">{{ fe.numero }}</a>{{ ' · ' if not loop.last }}{% endfor %}</div>
+  </div>
+  <div class="td-sous mt-2">Survolez une ferme pour ses chiffres ; cliquez une province pour zoomer. En pointillé : position approximative ou corrigée à la main.</div>
   <div class="td-sous mt-2">{{ carte.points|length }} ferme{{ 's' if carte.points|length != 1 }} avec une position. Contours : geoBoundaries (SALB, Nations unies), CC BY 3.0 IGO.</div>
 </div></div>
 {% endif %}

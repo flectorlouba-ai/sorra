@@ -16,8 +16,17 @@
   {% if visite %}<input type="hidden" name="visite" value="{{ visite.id }}">{% endif %}
   <input type="hidden" name="latitude" id="latitude" value="{{ saisie.get('latitude', '') }}">
   <input type="hidden" name="longitude" id="longitude" value="{{ saisie.get('longitude', '') }}">
+  <input type="hidden" name="precision" id="precision" value="{{ saisie.get('precision', '') }}">
   {% if erreur %}<div class="flash-item danger"><i class="bi bi-exclamation-circle"></i>{{ erreur }}</div>{% endif %}
-  <div class="carte position-visite" id="position-etat">📍 Position : recherche…</div>
+  <div class="carte position-visite" id="position-etat" data-distance-max="{{ distance_max_m }}"
+       {% if ferme.a_une_position %}data-lat="{{ ferme.latitude }}" data-lon="{{ ferme.longitude }}"{% endif %}>📍 Position : recherche…</div>
+  <div class="motif-distance" id="motif-distance" hidden>
+    <div class="form-label">Pourquoi si loin ? (le compte rendu part quand même)</div>
+    <div class="choix-cases">
+      {% for m in motifs_distance %}<label class="case-choix"><input type="radio" name="motif_distance" value="{{ m }}"><span>{{ m }}</span></label>{% endfor %}
+    </div>
+    <input class="form-control" name="motif_distance_autre" maxlength="300" placeholder="Autre raison (facultatif)">
+  </div>
   {% if not visite %}
   <div class="form-label">Pourquoi cette visite ?</div>
   <div class="choix-cases">
@@ -54,8 +63,19 @@
   navigator.geolocation.getCurrentPosition(function (p) {
     document.getElementById('latitude').value = p.coords.latitude.toFixed(6);
     document.getElementById('longitude').value = p.coords.longitude.toFixed(6);
-    etat.textContent = '📍 Position relevée ✓';
-  }, function () { etat.textContent = '📍 Position non relevée'; }, {timeout: 10000, maximumAge: 300000});
+    document.getElementById('precision').value = Math.round(p.coords.accuracy);
+    // Lot E : distance à la ferme sur le téléphone (le serveur la recalcule)
+    if (!etat.dataset.lat) { etat.textContent = '📍 Position relevée ✓ (la ferme n\'a pas encore de position)'; return; }
+    function rad(d) { return d * Math.PI / 180; }
+    var la = parseFloat(etat.dataset.lat), lo = parseFloat(etat.dataset.lon);
+    var dla = rad(la - p.coords.latitude), dlo = rad(lo - p.coords.longitude);
+    var a = Math.sin(dla / 2) * Math.sin(dla / 2) + Math.cos(rad(p.coords.latitude)) * Math.cos(rad(la)) * Math.sin(dlo / 2) * Math.sin(dlo / 2);
+    var m = 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var texte = m < 1000 ? Math.round(m) + ' m' : (m / 1000).toLocaleString('fr-FR', {maximumFractionDigits: 1}) + ' km';
+    var loin = m > parseFloat(etat.dataset.distanceMax);
+    etat.textContent = loin ? '📍 Vous êtes à ' + texte + ' de la ferme' : '📍 Vous êtes à ' + texte + ' de la ferme ✓';
+    document.getElementById('motif-distance').hidden = !loin;
+  }, function () { etat.textContent = '📍 Position non relevée'; }, {enableHighAccuracy: true, timeout: 15000, maximumAge: 60000});
   var f = document.getElementById('photo-visite');
   f.addEventListener('change', function () { document.getElementById('photo-nom').textContent = f.files[0] ? '✓ Photo prête' : ''; });
 })();

@@ -64,8 +64,12 @@ def tableau():
 def carte():
     pid = request.args.get('province', type=int)
     programme = request.args.get('programme', '')
-    return render_template('pilotage/carte.html', carte=pilotage.carte(current_user, pid, programme=programme),
-                           province=pid, programme=programme,
+    indicateur = request.args.get('indicateur', 'feu')
+    indicateur = indicateur if indicateur in pilotage.INDICATEURS_CARTE else 'feu'
+    return render_template('pilotage/carte.html', carte=pilotage.carte(current_user, pid, programme=programme,
+                                                                        indicateur=indicateur, details=True),
+                           province=pid, programme=programme, indicateur=indicateur,
+                           indicateurs_carte=pilotage.INDICATEURS_CARTE,
                            provinces=Province.query.order_by(Province.ordre).all())
 
 

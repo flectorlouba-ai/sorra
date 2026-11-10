@@ -741,3 +741,14 @@ a.desactive{opacity:.45;pointer-events:none;}
 .theme-terrain .historique-saisies .ligne-fiche-texte{display:flex;gap:8px;align-items:center;}
 .theme-terrain .modal-footer .btn-enregistrer{background:var(--e-prairie-bouton);color:var(--e-blanc);text-transform:none;letter-spacing:0;font-weight:900;}
 .theme-terrain .btn-ajouter{text-transform:none;letter-spacing:0;margin-bottom:12px;}
+
+/* Lot E : relevé de la position (précision en clair, barre), encadré orange, visite éloignée */
+.theme-terrain .releve-precision{background:var(--e-blanc);border:1px solid var(--e-trait);border-radius:16px;padding:14px;margin:10px 0;text-align:center;}
+.theme-terrain .releve-chiffre{font-size:2rem;font-weight:900;color:var(--e-orange-fonce);}
+.theme-terrain .releve-chiffre.ok{color:var(--e-prairie-fonce);}
+.theme-terrain .releve-barre{height:12px;border-radius:6px;background:var(--e-gris-clair);overflow:hidden;margin:8px 0;}
+.theme-terrain .releve-barre span{display:block;height:100%;background:var(--e-orange);}
+.theme-terrain .releve-barre span.ok{background:var(--e-prairie);}
+.theme-terrain .encadre-orange{background:var(--e-orange-pale);border:1px solid var(--e-orange-bord);border-radius:14px;padding:12px;margin:8px 0;color:var(--e-nuit);}
+.theme-terrain .consigne-position{font-weight:800;margin:6px 0;}
+.theme-terrain button.btn-gros:disabled{opacity:.45;}

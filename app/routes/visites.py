@@ -4,6 +4,7 @@ import uuid
 from datetime import date
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, send_file
+from app.models.liste_deroulante import ld_choices
 from flask_login import current_user
 
 from app import db
@@ -61,6 +62,11 @@ def planifier(numero):
                            saisie=request.form)
 
 
+def _distance_visite_m():
+    from app.services import positions
+    return positions.distance_visite_m()
+
+
 @visites_bp.route('/fermes/<numero>/visites/compte-rendu', methods=['GET', 'POST'])
 @profil_requis(Profil.AGENT)
 def compte_rendu(numero):
@@ -87,7 +93,8 @@ def compte_rendu(numero):
             regles.compte_rendu(ferme, visite, current_user, f.get('objet'), f.get('constats'),
                                 f.getlist('recommandations'), f.get('recommandation_libre'),
                                 _nombre(f.get('latitude')), _nombre(f.get('longitude')), photo,
-                                hors_ligne.jour_de_saisie())
+                                hors_ligne.jour_de_saisie(), precision=_nombre(f.get('precision')),
+                                motif_distance=(f.get('motif_distance_autre') or '').strip() or f.get('motif_distance'))
             db.session.commit()
             flash('Compte rendu enregistré ✓ : l\'éleveur voit vos recommandations.', 'success')
             from app.utils import terrain
@@ -104,7 +111,9 @@ def compte_rendu(numero):
         tournee, autres = _fermes_en_pastilles()
         return render_template('terrain/agent/visite.html', ferme=ferme, visite=visite, objets=regles.objets(),
                                recommandations=regles.recommandations_types(), erreur=erreur, saisie=request.form,
-                               tournee=tournee, autres=autres, n_questions=len(agent.grille()))
+                               tournee=tournee, autres=autres, n_questions=len(agent.grille()),
+                               distance_max_m=_distance_visite_m(),
+                               motifs_distance=[v for v, _ in ld_choices('motifs_visite_eloignee')])
     return render_template('visites/compte_rendu.html', ferme=ferme, visite=visite, objets=regles.objets(),
                            recommandations=regles.recommandations_types(), erreur=erreur, saisie=request.form)
 

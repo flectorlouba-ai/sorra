@@ -299,6 +299,24 @@
 </div>
 {% endif %}
 
+{% if positions %}
+<div class="card-p mb-3" id="positions">
+  <div class="card-p-head"><span class="card-p-title"><i class="bi bi-geo-alt"></i> Positions (aucune n'est effacée)</span>
+    {% if ferme.position_a_verifier %}<span class="badge badge-warn">position à vérifier</span>{% endif %}</div>
+  <div class="table-scroll"><table>
+    <thead><tr><th>Le</th><th>Origine</th><th>Position</th><th>Précision</th><th>Par</th><th>Motif</th><th></th></tr></thead>
+    <tbody>{% for p in positions %}
+      <tr data-origine="{{ p.origine }}"><td>{{ p.releve_le|date_locale('%d/%m/%Y %H:%M') }}{% if p.hors_ligne %} <span class="td-sous">sans réseau</span>{% endif %}</td>
+        <td>{{ p.libelle_origine }}</td><td class="td-num">{{ '%.5f'|format(p.latitude) }}, {{ '%.5f'|format(p.longitude) }}</td>
+        <td>{{ ('± ' ~ p.precision_m ~ ' m') if p.precision_m is not none else '—' }}</td>
+        <td>{{ p.auteur.nom_complet if p.auteur else '—' }}</td>
+        <td>{{ p.motif or '' }}{% if p.a_verifier %} <span class="badge badge-warn">hors province ({{ p.distance_province_km }} km)</span>{% endif %}</td>
+        <td>{% if p.en_vigueur %}<span class="badge badge-ok">en vigueur</span>{% endif %}</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+</div>
+{% endif %}
+
 <div class="card-p" id="stock">
   <div class="card-p-head"><span class="card-p-title"><i class="bi bi-box-seam"></i> Stock d'intrants</span></div>
   {% if stock %}

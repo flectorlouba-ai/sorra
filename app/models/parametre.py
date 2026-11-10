@@ -111,6 +111,13 @@ PARAMETRES_DEFAUT = [
      'Objectif national de production de poulet de chair (tonnes de poids vif par an). Quatre yeux.'),
     ('production.bandes_par_an_defaut', '6', TypeParametre.ENTIER, "Bandes par an proposées à la création d'une ferme."),
     ('bandes.duree_ponte_jours', '504', TypeParametre.JOURS, "Durée prévue d'une bande de ponte (72 semaines)."),
+] + [
+    # Lot E — positions et visites, aussi ajoutés par la migration 0026
+    ('gps.precision_max_m', '30', TypeParametre.ENTIER, 'Précision exigée pour garder une position relevée (mètres).'),
+    ('gps.distance_visite_km', '1', TypeParametre.DECIMAL,
+     "Au-delà de cette distance de la ferme, la visite demande une explication (km)."),
+    ('gps.correction_quatre_yeux_km', '1', TypeParametre.DECIMAL,
+     'Une position corrigée à la main de plus de cette distance passe par les quatre yeux (km).'),
 ]
 
 

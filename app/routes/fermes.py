@@ -118,6 +118,7 @@ def fiche(numero):
                            visites=_visites(ferme) if current_user.profil in (Profil.AGENT, Profil.DGE, Profil.ADMIN) else None,
                            signalements=_signalements(ferme) if current_user.profil in (Profil.AGENT, Profil.ADMIN) else None,
                            etats={b.id: regles_bandes.etat_batiment(b) for b in ferme.batiments},
+                           positions=__import__('app.services.positions', fromlist=['historique']).historique(ferme),
                            agent=_agent(ferme),
                            bandes=Bande.query.filter_by(ferme_id=ferme.id)
                            .order_by(Bande.date_mise_en_place.desc()).all())
