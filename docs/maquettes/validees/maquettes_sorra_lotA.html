@@ -1,0 +1,233 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SORRA — Lot A : formulaires et référentiels</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap">
+<style>
+:root{--nuit:#1b2a5e;--bleu:#2a7de1;--soleil:#f7c948;--prairie:#2fa36b;--bec:#f08a24;--crete:#e5484d;--creme:#fbf8f2;--gris:#6b7594}
+*{box-sizing:border-box}
+body{margin:0;background:#eef2f8;font-family:"Nunito","Segoe UI",sans-serif;color:var(--nuit);padding:20px}
+h1{font-weight:800;font-size:25px;margin:0}
+.intro{font-size:14px;margin:4px 0 14px;max-width:900px;color:#4a5578}
+.sw{display:flex;gap:8px;margin-bottom:18px}
+.sw button{font-family:Nunito;font-weight:800;font-size:15px;border:2px solid #cfdaf0;border-radius:14px;padding:9px 16px;background:#fff;color:var(--nuit);cursor:pointer}
+.sw button.on{background:var(--nuit);color:#fff;border-color:var(--nuit)}
+.grid{display:none;flex-wrap:wrap;gap:26px;align-items:flex-start}.grid.on{display:flex}
+.scr{width:330px}
+.scr h2{font-size:16px;font-weight:800;margin:0 0 3px}
+.scr p.c{font-size:13px;color:#4a5578;margin:0 0 10px;min-height:54px}
+.ph{width:320px;border:9px solid #1f2430;border-radius:34px;overflow:hidden;background:var(--creme);box-shadow:0 12px 30px rgba(27,42,94,.18)}
+.top{background:linear-gradient(160deg,#2a7de1,#1b4fae);padding:11px 15px 14px;color:#fff}
+.top.op{background:linear-gradient(160deg,#2fa36b,#1f7a4f)}
+.top .b{display:flex;align-items:center;gap:8px;font-weight:800;font-size:19px}
+.top .b .r{margin-left:auto;display:flex;gap:6px}
+.top .b .r span{background:rgba(255,255,255,.18);border-radius:12px;padding:3px 9px;font-size:13px}
+.top .h{font-weight:700;font-size:14px;color:#dceaff;margin-top:3px}
+.top.op .h{color:#dff5e9}
+.demo{background:var(--soleil);color:#4a3a00;font-size:10.5px;text-align:center;font-weight:800;padding:2px}
+.bk{background:#fff;padding:11px 14px;font-weight:800;font-size:17px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px}
+.bk .q{margin-left:auto;width:28px;height:28px;border-radius:50%;background:#e8f1ff;color:var(--bleu);display:flex;align-items:center;justify-content:center;font-size:15px}
+.in{padding:13px;min-height:520px}
+.state{background:#fff;border-radius:16px;padding:10px 12px;margin-bottom:11px;font-weight:700;font-size:13.5px;border:1px solid #edf0f6;box-shadow:0 2px 10px rgba(27,42,94,.06)}
+.state div{padding:2px 0}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{position:relative;background:#fff;border-radius:18px;padding:12px 8px;text-align:center;box-shadow:0 2px 10px rgba(27,42,94,.08);border:1px solid #edf0f6;min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.tile .ic{font-size:29px;line-height:1}
+.tile .nm{font-weight:800;font-size:14.5px;margin-top:6px;line-height:1.15}
+.tile .sb{font-size:11px;color:var(--gris);font-weight:700}
+.tile.big{grid-column:1/3;flex-direction:row;gap:12px;justify-content:flex-start;padding:14px 16px;background:var(--bleu);color:#fff;border:none;box-shadow:0 6px 14px rgba(42,125,225,.35);min-height:76px}
+.tile.big.g{background:var(--prairie);box-shadow:0 6px 14px rgba(47,163,107,.35)}
+.tile.big .ic{font-size:34px}.tile.big .nm{font-size:19px;margin:0;text-align:left}.tile.big .sb{color:#e1eeff;text-align:left}
+.bdg{position:absolute;top:7px;right:8px;background:var(--bec);color:#fff;font-size:11px;font-weight:800;border-radius:10px;padding:1px 7px}
+.bdg.r{background:var(--crete)}
+.card{background:#fff;border-radius:16px;padding:11px 13px;margin-bottom:9px;border:1px solid #edf0f6;box-shadow:0 2px 8px rgba(27,42,94,.06)}
+.card .t{font-weight:800;font-size:15.5px}
+.card .s{font-size:12.5px;color:var(--gris);font-weight:700}
+.row{display:flex;align-items:center;gap:10px}
+.row .go{margin-left:auto}
+.pill{display:inline-block;font-size:11.5px;font-weight:800;border-radius:12px;padding:2px 9px}
+.pr{background:#ffe9ea;color:#a12a2e}.po{background:#fff1e0;color:#a2560a}.pg{background:#e5f6ed;color:#1f7a4f}.pb{background:#e8f1ff;color:#1b4fae}.pz{background:#f0f2f6;color:#5b647d}
+.mini{white-space:nowrap;background:#fff;border:1.5px solid #d8e2f2;border-radius:12px;padding:7px 11px;font-weight:800;color:var(--bleu);font-size:13px}
+.btn{display:block;width:100%;border-radius:16px;padding:14px;text-align:center;font-weight:800;font-size:18px;color:#fff;margin-top:9px;border:none;font-family:Nunito}
+.bg{background:var(--prairie);box-shadow:0 6px 14px rgba(47,163,107,.3)}.bb{background:var(--bleu)}.bo{background:var(--bec)}.br{background:var(--crete)}
+.ghost{display:block;width:100%;border-radius:14px;padding:12px;text-align:center;font-weight:800;font-size:16px;color:var(--bleu);background:#fff;border:1.5px solid #d8e2f2;margin-top:8px}
+.lab{font-size:12.5px;color:var(--gris);font-weight:800;margin:9px 0 4px}
+.fld{background:#fff;border:1.5px solid #d8e2f2;border-radius:12px;padding:10px 12px;font-size:16px;font-weight:800;margin-bottom:6px}
+.cnt{background:#fff;border-radius:16px;padding:9px 12px;margin-bottom:9px;display:flex;align-items:center;border:1px solid #edf0f6}
+.cnt .l{font-weight:800;font-size:15px}.cnt .l small{display:block;font-weight:700;font-size:11.5px;color:var(--gris)}
+.cnt .v{margin-left:auto;display:flex;align-items:center;gap:9px}
+.rd{width:40px;height:40px;border-radius:50%;font-weight:800;font-size:22px;display:flex;align-items:center;justify-content:center}
+.mn{background:#eef2f8}.pl{background:var(--bleu);color:#fff}
+.val{font-weight:800;font-size:25px;min-width:34px;text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px}
+.chips span{border:1.5px solid #d8e2f2;border-radius:14px;padding:8px 11px;font-weight:800;font-size:13.5px;background:#fff}
+.chips .on{border:2px solid var(--bleu);background:#e8f1ff;color:var(--bleu)}
+.chk{font-size:14px;font-weight:700;line-height:1.95}
+.cam{height:250px;border-radius:18px;background:#1f2430;display:flex;align-items:center;justify-content:center}
+.fr{width:170px;height:170px;border:4px solid var(--soleil);border-radius:20px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:60px}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vs div{background:#fff;border:2px solid #d8e2f2;border-radius:16px;padding:10px;text-align:center}
+.vs .e{border-color:var(--bleu)}
+.vs b{display:block;font-size:30px}
+.big3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center}
+.big3 div{background:#fff;border:1.5px solid #d8e2f2;border-radius:14px;padding:7px 4px;font-size:11.5px;font-weight:800;color:var(--gris)}
+.big3 b{display:block;font-size:22px;color:var(--nuit)}
+.alert{border-radius:18px;padding:16px;text-align:center;font-weight:800}
+.alert .i{font-size:44px}
+.ar{background:#ffe9ea;border:2px solid var(--crete);color:#8e2226}
+.ao{background:#fff1e0;border:2px solid var(--bec);color:#7a4206}
+.mascot{font-size:40px;text-align:center}
+.note{font-size:12px;color:var(--gris);font-weight:700;margin-top:8px}
+.step{display:flex;gap:6px;margin-bottom:10px}.step span{flex:1;height:7px;border-radius:4px;background:#e1e7f2}.step .on{background:var(--bleu)}
+.bar{height:10px;border-radius:5px;background:#e8edf5;overflow:hidden}.bar i{display:block;height:100%;background:var(--prairie)}
+.map{height:120px;border-radius:14px;background:linear-gradient(160deg,#e6f2ea,#dbe9f7);position:relative;margin-bottom:10px}
+.map i{position:absolute;width:13px;height:13px;border-radius:50%;border:2px solid #fff}
+.box{max-width:1100px;background:#fff;border-left:5px solid var(--soleil);border-radius:8px;padding:12px 16px;font-size:13.5px;line-height:1.7;margin-top:24px}
+</style><style>
+.mapz{height:190px;border-radius:16px;position:relative;overflow:hidden;background:
+ linear-gradient(115deg,transparent 45%,#cfe8d6 45% 47%,transparent 47%),linear-gradient(20deg,transparent 60%,#f3e3ad 60% 61.5%,transparent 61.5%),radial-gradient(circle at 70% 30%,#d3ead9 0 18%,transparent 19%),linear-gradient(160deg,#e3f0e6,#dceaf7);margin-bottom:10px}
+.pin{position:absolute;transform:translate(-50%,-100%);font-size:30px}
+.halo{position:absolute;border-radius:50%;background:rgba(42,125,225,.15);border:2px solid rgba(42,125,225,.5);transform:translate(-50%,-50%)}
+.me{position:absolute;width:15px;height:15px;border-radius:50%;background:#2a7de1;border:3px solid #fff;box-shadow:0 0 0 2px #2a7de1;transform:translate(-50%,-50%)}
+.prec{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px}
+.prec .bar{flex:1}
+.big{font-size:20px;font-weight:800}
+.st{font-size:13px;font-weight:700;color:var(--gris)}
+</style><style>
+.st{font-size:22px;color:#9aa3b8}
+.desk{background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(12,36,97,.12);overflow:hidden;font-family:"Segoe UI",Arial,sans-serif}
+.dbar{background:#0c2461;color:#fff;padding:10px 14px;font-weight:700;display:flex}.dbar span{margin-left:auto;color:#93c5fd;font-size:12px;font-weight:500}
+.dc{padding:12px 14px}
+.drow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.f{font-size:12px;border:1px solid #c7d6f2;border-radius:14px;padding:3px 10px;background:#fff;color:#0c2461}.f.on{background:#1241a8;color:#fff;border-color:#1241a8}
+.dbtn{background:#1241a8;color:#fff;border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:700}
+.dbtn2{background:#e0eaff;color:#0c2461;border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:700}
+.dt{width:100%;border-collapse:collapse;font-size:12.5px}.dt th{background:#f0f5ff;color:#1241a8;text-align:left;padding:6px;border-bottom:2px solid #dbe6fb}.dt td{padding:6px;border-bottom:1px solid #eef2fb;color:#0c2461}
+.small{font-size:11.5px;color:#64748b;margin-top:8px}
+.modal{background:#fff;border-radius:12px;box-shadow:0 14px 40px rgba(12,36,97,.3);overflow:hidden;font-family:"Segoe UI",Arial,sans-serif;color:#0c2461;border:1px solid #dbe6fb}
+.mh{background:#0c2461;color:#fff;padding:10px 14px;font-weight:700;display:flex}.mh span{margin-left:auto}
+.mb{padding:12px 14px}
+.lab2{font-size:11.5px;color:#475569;font-weight:600;margin:8px 0 3px}
+.inp2,.sel{border:1px solid #c7d6f2;border-radius:8px;padding:7px 10px;font-size:13px;background:#fbfdff}
+.sel{background:#fff}
+.chips2{display:flex;gap:6px}.chips2 span{border:1px solid #c7d6f2;border-radius:8px;padding:6px 10px;font-size:12.5px}.chips2 .on{background:#1241a8;color:#fff;border-color:#1241a8}
+</style>
+</head>
+<body>
+<h1>🐔 SORRA — Lot A : formulaires simples et référentiels</h1>
+<div class="intro"><b>Règle commune à toute l'application</b> : une liste, un bouton « ＋ Ajouter » qui ouvre un <b>formulaire court en fenêtre</b> (jamais intégré à la page), un maximum de listes déroulantes. <b>Un toucher sur une ligne</b> ouvre le même formulaire <b>déjà rempli</b> : on modifie ou on <b>archive</b>. Rien n'est jamais supprimé.</div>
+<div class="sw"><button class="on" onclick="sh('a',this)">📱 Terrain (éleveur, agent) — 5 écrans</button><button onclick="sh('b',this)">🖥️ Pilotage (DGE, admin) — 5 écrans</button></div>
+
+<div class="grid on" id="a">
+
+<div class="scr"><h2>1. Une liste + un bouton</h2><p class="c">Exemple : les saisies de la bande. Chaque ligne se touche. Les modifiées portent un petit crayon, les archivées sont cachées (lien « Voir les archivées »).</p>
+<div class="ph"><div class="bk">‹ Bande B4 · Bâtiment 1<span class="q">?</span></div><div class="in">
+<div class="card" style="text-align:center"><span class="pill pb">🐔 Chair · jour 24 · 1 412 poulets</span></div>
+<div class="btn bb" style="margin:0 0 10px">＋ Ajouter une saisie</div>
+<div class="card"><div class="row"><div><div class="t">Lun. 9 nov.</div><div class="s">💀 3 morts · 🌾 2 sacs</div></div><span class="go st">›</span></div></div>
+<div class="card"><div class="row"><div><div class="t">Dim. 8 nov. ✏️</div><div class="s">💀 5 morts · 🌾 2 sacs · modifiée</div></div><span class="go st">›</span></div></div>
+<div class="card"><div class="row"><div><div class="t">Sam. 7 nov.</div><div class="s">💀 2 morts · 🌾 2 sacs</div></div><span class="go st">›</span></div></div>
+<div class="note" style="text-align:center">🗄️ Voir les archivées (1)</div>
+</div></div></div>
+
+<div class="scr"><h2>2. Formulaire en fenêtre</h2><p class="c">Le formulaire monte du bas de l'écran, par-dessus la liste. Peu de champs, des listes et des compteurs. On le ferme sans rien perdre de la page.</p>
+<div class="ph" style="position:relative"><div class="bk" style="opacity:.35">‹ Bande B4 · Bâtiment 1</div><div class="in" style="background:rgba(27,42,94,.35);padding:0;position:relative;min-height:540px">
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--creme);border-radius:22px 22px 0 0;padding:14px 13px 16px">
+<div style="width:40px;height:5px;border-radius:3px;background:#cfd6e4;margin:0 auto 10px"></div>
+<div class="row"><div class="t" style="font-weight:800;font-size:18px">Nouvelle saisie</div><span class="go" style="font-size:20px">✕</span></div>
+<div class="lab">Jour</div><div class="fld">Aujourd'hui · lun. 9 nov. ▾</div>
+<div class="cnt"><div class="l">💀 Morts</div><div class="v"><span class="rd mn">−</span><span class="val" style="color:#9aa3b8">—</span><span class="rd pl">+</span></div></div>
+<div class="chips"><span>✓ Aucun mort</span></div>
+<div class="lab">🌾 Aliment</div><div class="fld">Démarrage · Sanders · 50 kg ▾</div>
+<div class="cnt"><div class="l">Sacs</div><div class="v"><span class="rd mn">−</span><span class="val">2</span><span class="rd pl">+</span></div></div>
+<div class="btn bg">Enregistrer</div>
+</div></div></div></div>
+
+<div class="scr"><h2>3. Toucher une ligne = formulaire prérempli</h2><p class="c">Le même formulaire, déjà rempli. Trois choix : enregistrer la modification, archiver, ou fermer. La modification est tracée au journal.</p>
+<div class="ph"><div class="bk" style="opacity:.35">‹ Bande B4</div><div class="in" style="background:rgba(27,42,94,.35);padding:0;position:relative;min-height:540px">
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--creme);border-radius:22px 22px 0 0;padding:14px 13px 16px">
+<div style="width:40px;height:5px;border-radius:3px;background:#cfd6e4;margin:0 auto 10px"></div>
+<div class="row"><div class="t" style="font-weight:800;font-size:18px">Saisie du dim. 8 nov.</div><span class="go" style="font-size:20px">✕</span></div>
+<div class="s" style="margin:2px 0 6px">Saisie par vous · modifiée une fois</div>
+<div class="cnt"><div class="l">💀 Morts</div><div class="v"><span class="rd mn">−</span><span class="val">5</span><span class="rd pl">+</span></div></div>
+<div class="lab">🌾 Aliment</div><div class="fld">Démarrage · Sanders · 50 kg ▾</div>
+<div class="cnt"><div class="l">Sacs</div><div class="v"><span class="rd mn">−</span><span class="val">2</span><span class="rd pl">+</span></div></div>
+<div class="btn bb">Enregistrer la modification</div>
+<div class="ghost" style="color:#8a5a00">🗄️ Archiver cette saisie</div>
+</div></div></div></div>
+
+<div class="scr"><h2>4. Bande clôturée : lecture seule</h2><p class="c">Règle validée : modifiable tant que la bande est ouverte. Après la clôture, l'éleveur voit le formulaire en lecture seule et sait qui appeler.</p>
+<div class="ph"><div class="bk" style="opacity:.35">‹ Bande B3</div><div class="in" style="background:rgba(27,42,94,.35);padding:0;position:relative;min-height:540px">
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--creme);border-radius:22px 22px 0 0;padding:14px 13px 16px">
+<div style="width:40px;height:5px;border-radius:3px;background:#cfd6e4;margin:0 auto 10px"></div>
+<div class="row"><div class="t" style="font-weight:800;font-size:18px">Saisie du 3 oct.</div><span class="go" style="font-size:20px">✕</span></div>
+<div class="card" style="margin-top:8px;background:#f0f2f6"><div class="s">💀 4 morts · 🌾 3 sacs croissance</div></div>
+<div class="alert" style="background:#f0f2f6;border:2px solid #cfd6e4;color:#4b5570;margin-top:8px"><div style="font-size:26px">🔒</div>Cette bande est terminée.<div style="font-weight:700;font-size:13.5px;margin-top:4px">Pour corriger, appelez votre agent.</div></div>
+<div class="btn bb">📞 Appeler Paul</div>
+</div></div></div></div>
+
+<div class="scr"><h2>5. Ouvrir une bande : chair ou ponte</h2><p class="c">À l'ouverture, on choisit le type de production. Une bande de pondeuses ajoutera « œufs ramassés » à sa saisie du jour (module œufs, lot F).</p>
+<div class="ph"><div class="bk" style="opacity:.35">‹ Ma ferme</div><div class="in" style="background:rgba(27,42,94,.35);padding:0;position:relative;min-height:540px">
+<div style="position:absolute;left:0;right:0;bottom:0;background:var(--creme);border-radius:22px 22px 0 0;padding:14px 13px 16px">
+<div style="width:40px;height:5px;border-radius:3px;background:#cfd6e4;margin:0 auto 10px"></div>
+<div class="row"><div class="t" style="font-weight:800;font-size:18px">Nouvelle bande</div><span class="go" style="font-size:20px">✕</span></div>
+<div class="lab">Type de production</div><div class="chips"><span class="on">🐔 Chair</span><span>🥚 Ponte</span></div>
+<div class="lab">Bâtiment</div><div class="fld">Bâtiment 1 · 800 places ▾</div>
+<div class="lab">Poussins reçus</div><div class="fld">800</div>
+<div class="lab">Souche</div><div class="fld">Cobb 500 ▾</div>
+<div class="lab">Origine</div><div class="chips"><span class="on">Programme POUFA</span><span>Achat externe</span></div>
+<div class="btn bg">Ouvrir la bande</div>
+</div></div></div></div>
+
+</div>
+
+<div class="grid" id="b">
+<div class="scr" style="width:700px"><h2>6. Catalogue des intrants (pilotage)</h2><p class="c" style="min-height:0">Chaque intrant avec sa vraie désignation. Filtres par type et par origine. « ＋ Ajouter » ouvre le formulaire en fenêtre ; un clic sur une ligne l'ouvre prérempli.</p>
+<div class="desk"><div class="dbar">📦 Catalogue des intrants <span>DGE · Admin</span></div><div class="dc">
+<div class="drow"><span class="f on">Tous</span><span class="f">Poussins</span><span class="f">Aliment</span><span class="f">Vaccins</span><span class="f">Médicaments</span><span class="f">Matériel</span><span style="margin-left:auto" class="dbtn">＋ Ajouter un intrant</span></div>
+<table class="dt"><tr><th>Désignation</th><th>Référence</th><th>Type</th><th>Fournisseur</th><th>Unité</th><th>Origine possible</th></tr>
+<tr><td><b>Aliment démarrage chair</b></td><td>SAN-DEM-50</td><td>Aliment</td><td>Sanders Gabon</td><td>sac 50 kg</td><td>Programme · Externe</td></tr>
+<tr><td><b>Aliment croissance chair</b></td><td>SAN-CRO-50</td><td>Aliment</td><td>Sanders Gabon</td><td>sac 50 kg</td><td>Programme · Externe</td></tr>
+<tr><td><b>Poussin chair Cobb 500</b></td><td>COBB-500</td><td>Poussins</td><td>Couvoir de Ntoum</td><td>tête</td><td>Programme</td></tr>
+<tr><td><b>Vaccin Gumboro (IBD)</b></td><td>HIPRA-GUM-1000</td><td>Vaccin</td><td>Pharmavet Libreville</td><td>flacon 1 000 doses</td><td>Programme · Externe</td></tr>
+<tr><td style="color:#9aa3b8">Aliment ponte (archivé)</td><td style="color:#9aa3b8">SAN-PON-50</td><td style="color:#9aa3b8">Aliment</td><td style="color:#9aa3b8">Sanders Gabon</td><td style="color:#9aa3b8">sac 50 kg</td><td style="color:#9aa3b8">—</td></tr></table>
+<div class="small">Import possible depuis Excel (lot B). Les fournisseurs ont leur propre liste (nom, téléphone, ville, type).</div></div></div></div>
+
+<div class="scr" style="width:420px"><h2>7. Formulaire d'un intrant (fenêtre)</h2><p class="c" style="min-height:0">Une fenêtre par-dessus la liste. Listes déroulantes partout où c'est possible.</p>
+<div class="modal"><div class="mh">Intrant · Aliment démarrage chair <span>✕</span></div><div class="mb">
+<div class="lab2">Type</div><div class="sel">Aliment ▾</div>
+<div class="lab2">Désignation</div><div class="inp2">Aliment démarrage chair</div>
+<div class="lab2">Référence</div><div class="inp2">SAN-DEM-50</div>
+<div class="lab2">Fournisseur</div><div class="sel">Sanders Gabon ▾ <span class="small">＋ nouveau</span></div>
+<div class="lab2">Unité</div><div class="sel">sac 50 kg ▾</div>
+<div style="display:flex;gap:8px;margin-top:12px"><span class="dbtn">Enregistrer</span><span class="dbtn2">🗄️ Archiver</span><span class="dbtn2" style="margin-left:auto">Fermer</span></div>
+</div></div></div>
+
+<div class="scr" style="width:700px"><h2>8. Stock par article et par origine</h2><p class="c" style="min-height:0">Pour une ferme : chaque article, ce qui vient du programme et ce qui vient d'un achat externe, séparément.</p>
+<div class="desk"><div class="dbar">📦 Stock · EST-002 Rose ABAGA <span>Agent · DGE</span></div><div class="dc">
+<table class="dt"><tr><th>Article</th><th>Origine</th><th>Reçu</th><th>Utilisé</th><th>Reste</th><th>Écart</th></tr>
+<tr><td><b>Aliment démarrage chair</b> · SAN-DEM-50</td><td><span class="pill pb">Programme</span></td><td>60 sacs</td><td>41</td><td>14</td><td><span class="pill po">5 manquent</span></td></tr>
+<tr><td><b>Aliment démarrage chair</b> · SAN-DEM-50</td><td><span class="pill pz">Externe</span> Sanders</td><td>10 sacs</td><td>4</td><td>6</td><td><span class="pill pg">✓</span></td></tr>
+<tr><td><b>Vaccin Gumboro</b> · HIPRA-GUM-1000</td><td><span class="pill pb">Programme</span></td><td>2 flacons</td><td>2</td><td>0</td><td><span class="pill pg">✓</span></td></tr></table>
+<div class="small">L'écart « livré − utilisé − stock » (fonction 19 du cahier) ne porte que sur l'origine Programme : c'est elle qui est subventionnée.</div></div></div></div>
+
+<div class="scr" style="width:420px"><h2>9. Créer une ferme (fenêtre)</h2><p class="c" style="min-height:0">Capacité obligatoire. Case « membre du programme POUFA ». Cohorte seulement pour les membres.</p>
+<div class="modal"><div class="mh">Nouvelle ferme <span>✕</span></div><div class="mb">
+<div class="lab2">Nom de la ferme</div><div class="inp2">Ferme Mebale</div>
+<div class="lab2">Province · Localité</div><div class="sel">Estuaire ▾ · Kango ▾</div>
+<div class="lab2">Membre du programme POUFA ?</div><div class="chips2"><span class="on">Oui</span><span>Non (ferme privée)</span></div>
+<div class="lab2">Cohorte</div><div class="sel">Cohorte 2 ▾</div>
+<div class="lab2">Capacité <b style="color:#c0392b">*</b></div><div style="display:flex;gap:6px"><div class="inp2" style="flex:1">2 bâtiments</div><div class="inp2" style="flex:1">1 500 places</div><div class="sel" style="flex:1">6 bandes/an ▾</div></div>
+<div class="small" style="margin-top:4px">➜ Production théorique : <b>≈ 18,9 t de poids vif par an</b> (cible de la ferme dans les 100 000 t)</div>
+<div style="display:flex;gap:8px;margin-top:12px"><span class="dbtn">Créer la ferme</span><span class="dbtn2" style="margin-left:auto">Fermer</span></div>
+</div></div></div>
+
+<div class="scr" style="width:700px"><h2>10. Liste des fermes : programme et hors programme</h2><p class="c" style="min-height:0">Un filtre de plus. Les fermes hors programme ne reçoivent pas les intrants de l'État et n'ont pas de cible ; leur production compte à part.</p>
+<div class="desk"><div class="dbar">🏠 Fermes <span>DGE</span></div><div class="dc">
+<div class="drow"><span class="f on">Toutes (162)</span><span class="f">Programme POUFA (150)</span><span class="f">Hors programme (12)</span><span class="f">Province ▾</span><span class="f">Cohorte ▾</span><span style="margin-left:auto" class="dbtn">＋ Nouvelle ferme</span></div>
+<table class="dt"><tr><th>Ferme</th><th>Programme</th><th>Capacité</th><th>Cible / an</th><th>Produit (12 mois)</th><th>Atteinte</th></tr>
+<tr><td><b>EST-001</b> · Albert MBOUMBA</td><td><span class="pill pb">POUFA · C1</span></td><td>1 500 places</td><td>18,9 t</td><td>17,2 t</td><td><span class="pill pg">91 %</span></td></tr>
+<tr><td><b>EST-007</b> · Marie NZANG</td><td><span class="pill pb">POUFA · C1</span></td><td>2 000 places</td><td>25,2 t</td><td>14,8 t</td><td><span class="pill po">59 %</span></td></tr>
+<tr><td><b>EST-P03</b> · Ferme Avicole Owendo</td><td><span class="pill pz">Hors programme</span></td><td>3 000 places</td><td>—</td><td>31,0 t</td><td>—</td></tr></table>
+<div class="small">Cible = places × bandes par an × poids moyen de sortie (2,1 kg, réglable). Équivalent carcasse affiché avec un rendement réglable (75 %).</div></div></div></div>
+</div>
+
+<div class="box"><b>À valider</b> : 1) formulaires en fenêtre partout (terrain : fenêtre qui monte du bas ; pilotage : fenêtre au centre) · 2) « Archiver » à la place de « Supprimer » partout · 3) cible annuelle = places × bandes/an × 2,1 kg · 4) l'écart sur les intrants ne porte que sur l'origine « Programme ».</div>
+<script>function sh(id,b){document.querySelectorAll('.grid').forEach(g=>g.classList.remove('on'));document.getElementById(id).classList.add('on');document.querySelectorAll('.sw button').forEach(x=>x.classList.remove('on'));b.classList.add('on')}</script>
+</body></html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SORRA — Style terrain : agent et opérateur</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap">
+<style>
+:root{--nuit:#1b2a5e;--bleu:#2a7de1;--soleil:#f7c948;--prairie:#2fa36b;--bec:#f08a24;--crete:#e5484d;--creme:#fbf8f2;--gris:#6b7594}
+*{box-sizing:border-box}
+body{margin:0;background:#eef2f8;font-family:"Nunito","Segoe UI",sans-serif;color:var(--nuit);padding:20px}
+h1{font-weight:800;font-size:25px;margin:0}
+.intro{font-size:14px;margin:4px 0 14px;max-width:900px;color:#4a5578}
+.sw{display:flex;gap:8px;margin-bottom:18px}
+.sw button{font-family:"Nunito","Segoe UI",sans-serif;font-weight:800;font-size:15px;border:2px solid #cfdaf0;border-radius:14px;padding:9px 16px;background:#fff;color:var(--nuit);cursor:pointer}
+.sw button.on{background:var(--nuit);color:#fff;border-color:var(--nuit)}
+.grid{display:none;flex-wrap:wrap;gap:26px;align-items:flex-start}.grid.on{display:flex}
+.scr{width:330px}
+.scr h2{font-size:16px;font-weight:800;margin:0 0 3px}
+.scr p.c{font-size:13px;color:#4a5578;margin:0 0 10px;min-height:54px}
+.ph{width:320px;border:9px solid #1f2430;border-radius:34px;overflow:hidden;background:var(--creme);box-shadow:0 12px 30px rgba(27,42,94,.18)}
+.top{background:linear-gradient(160deg,#2a7de1,#1b4fae);padding:11px 15px 14px;color:#fff}
+.top.op{background:linear-gradient(160deg,#2fa36b,#1f7a4f)}
+.top .b{display:flex;align-items:center;gap:8px;font-weight:800;font-size:19px}
+.top .b .r{margin-left:auto;display:flex;gap:6px}
+.top .b .r span{background:rgba(255,255,255,.18);border-radius:12px;padding:3px 9px;font-size:13px}
+.top .h{font-weight:700;font-size:14px;color:#dceaff;margin-top:3px}
+.top.op .h{color:#dff5e9}
+.demo{background:var(--soleil);color:#4a3a00;font-size:10.5px;text-align:center;font-weight:800;padding:2px}
+.bk{background:#fff;padding:11px 14px;font-weight:800;font-size:17px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px}
+.bk .q{margin-left:auto;width:28px;height:28px;border-radius:50%;background:#e8f1ff;color:var(--bleu);display:flex;align-items:center;justify-content:center;font-size:15px}
+.in{padding:13px;min-height:520px}
+.state{background:#fff;border-radius:16px;padding:10px 12px;margin-bottom:11px;font-weight:700;font-size:13.5px;border:1px solid #edf0f6;box-shadow:0 2px 10px rgba(27,42,94,.06)}
+.state div{padding:2px 0}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{position:relative;background:#fff;border-radius:18px;padding:12px 8px;text-align:center;box-shadow:0 2px 10px rgba(27,42,94,.08);border:1px solid #edf0f6;min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.tile .ic{font-size:29px;line-height:1}
+.tile .nm{font-weight:800;font-size:14.5px;margin-top:6px;line-height:1.15}
+.tile .sb{font-size:11px;color:var(--gris);font-weight:700}
+.tile.big{grid-column:1/3;flex-direction:row;gap:12px;justify-content:flex-start;padding:14px 16px;background:var(--bleu);color:#fff;border:none;box-shadow:0 6px 14px rgba(42,125,225,.35);min-height:76px}
+.tile.big.g{background:var(--prairie);box-shadow:0 6px 14px rgba(47,163,107,.35)}
+.tile.big .ic{font-size:34px}.tile.big .nm{font-size:19px;margin:0;text-align:left}.tile.big .sb{color:#e1eeff;text-align:left}
+.bdg{position:absolute;top:7px;right:8px;background:var(--bec);color:#fff;font-size:11px;font-weight:800;border-radius:10px;padding:1px 7px}
+.bdg.r{background:var(--crete)}
+.card{background:#fff;border-radius:16px;padding:11px 13px;margin-bottom:9px;border:1px solid #edf0f6;box-shadow:0 2px 8px rgba(27,42,94,.06)}
+.card .t{font-weight:800;font-size:15.5px}
+.card .s{font-size:12.5px;color:var(--gris);font-weight:700}
+.row{display:flex;align-items:center;gap:10px}
+.row .go{margin-left:auto}
+.pill{display:inline-block;font-size:11.5px;font-weight:800;border-radius:12px;padding:2px 9px}
+.pr{background:#ffe9ea;color:#a12a2e}.po{background:#fff1e0;color:#a2560a}.pg{background:#e5f6ed;color:#1f7a4f}.pb{background:#e8f1ff;color:#1b4fae}.pz{background:#f0f2f6;color:#5b647d}
+.mini{white-space:nowrap;background:#fff;border:1.5px solid #d8e2f2;border-radius:12px;padding:7px 11px;font-weight:800;color:var(--bleu);font-size:13px}
+.btn{display:block;width:100%;border-radius:16px;padding:14px;text-align:center;font-weight:800;font-size:18px;color:#fff;margin-top:9px;border:none;font-family:"Nunito","Segoe UI",sans-serif}
+.bg{background:var(--prairie);box-shadow:0 6px 14px rgba(47,163,107,.3)}.bb{background:var(--bleu)}.bo{background:var(--bec)}.br{background:var(--crete)}
+.ghost{display:block;width:100%;border-radius:14px;padding:12px;text-align:center;font-weight:800;font-size:16px;color:var(--bleu);background:#fff;border:1.5px solid #d8e2f2;margin-top:8px}
+.lab{font-size:12.5px;color:var(--gris);font-weight:800;margin:9px 0 4px}
+.fld{background:#fff;border:1.5px solid #d8e2f2;border-radius:12px;padding:10px 12px;font-size:16px;font-weight:800;margin-bottom:6px}
+.cnt{background:#fff;border-radius:16px;padding:9px 12px;margin-bottom:9px;display:flex;align-items:center;border:1px solid #edf0f6}
+.cnt .l{font-weight:800;font-size:15px}.cnt .l small{display:block;font-weight:700;font-size:11.5px;color:var(--gris)}
+.cnt .v{margin-left:auto;display:flex;align-items:center;gap:9px}
+.rd{width:40px;height:40px;border-radius:50%;font-weight:800;font-size:22px;display:flex;align-items:center;justify-content:center}
+.mn{background:#eef2f8}.pl{background:var(--bleu);color:#fff}
+.val{font-weight:800;font-size:25px;min-width:34px;text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px}
+.chips span{border:1.5px solid #d8e2f2;border-radius:14px;padding:8px 11px;font-weight:800;font-size:13.5px;background:#fff}
+.chips .on{border:2px solid var(--bleu);background:#e8f1ff;color:var(--bleu)}
+.chk{font-size:14px;font-weight:700;line-height:1.95}
+.cam{height:250px;border-radius:18px;background:#1f2430;display:flex;align-items:center;justify-content:center}
+.fr{width:170px;height:170px;border:4px solid var(--soleil);border-radius:20px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:60px}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vs div{background:#fff;border:2px solid #d8e2f2;border-radius:16px;padding:10px;text-align:center}
+.vs .e{border-color:var(--bleu)}
+.vs b{display:block;font-size:30px}
+.big3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center}
+.big3 div{background:#fff;border:1.5px solid #d8e2f2;border-radius:14px;padding:7px 4px;font-size:11.5px;font-weight:800;color:var(--gris)}
+.big3 b{display:block;font-size:22px;color:var(--nuit)}
+.alert{border-radius:18px;padding:16px;text-align:center;font-weight:800}
+.alert .i{font-size:44px}
+.ar{background:#ffe9ea;border:2px solid var(--crete);color:#8e2226}
+.ao{background:#fff1e0;border:2px solid var(--bec);color:#7a4206}
+.mascot{font-size:40px;text-align:center}
+.note{font-size:12px;color:var(--gris);font-weight:700;margin-top:8px}
+.step{display:flex;gap:6px;margin-bottom:10px}.step span{flex:1;height:7px;border-radius:4px;background:#e1e7f2}.step .on{background:var(--bleu)}
+.bar{height:10px;border-radius:5px;background:#e8edf5;overflow:hidden}.bar i{display:block;height:100%;background:var(--prairie)}
+.map{height:120px;border-radius:14px;background:linear-gradient(160deg,#e6f2ea,#dbe9f7);position:relative;margin-bottom:10px}
+.map i{position:absolute;width:13px;height:13px;border-radius:50%;border:2px solid #fff}
+.box{max-width:1100px;background:#fff;border-left:5px solid var(--soleil);border-radius:8px;padding:12px 16px;font-size:13.5px;line-height:1.7;margin-top:24px}
+</style></head><body>
+<h1>🐔 SORRA — Style « terrain » pour l'agent et l'opérateur</h1>
+<div class="intro">Même charte que l'éleveur (illustrée douce, grandes tuiles, 3 clics maximum, aucun mot technique). L'en-tête change de couleur selon le métier : <b style="color:#2a7de1">bleu pour l'éleveur et l'agent</b>, <b style="color:#2fa36b">vert pour l'opérateur</b>, pour qu'on sache toujours dans quel espace on est. Les règles et contrôles déjà construits (lots 12 à 19) ne changent pas : seuls les écrans changent.</div>
+<div class="sw"><button class="on" onclick="sh('ag',this)">👷 Agent technique (9 écrans)</button><button onclick="sh('op',this)">🏭 Opérateur — abattoir, marché, acheteur (8 écrans)</button></div>
+
+<!-- ================= AGENT ================= -->
+<div class="grid on" id="ag">
+
+<div class="scr"><h2>1. Accueil de l'agent</h2><p class="c">8 tuiles, comme l'éleveur. La grande tuile est la tournée du jour. La ligne d'état dit ce qui presse. Les pastilles montrent ce qui attend.</p>
+<div class="ph"><div class="demo">DÉMONSTRATION — données fictives</div><div class="top"><div class="b">🐔 SORRA<div class="r"><span>🔔 3</span><span>👤</span></div></div><div class="h">Bonjour Paul · Estuaire · 14 fermes</div></div><div class="in">
+<div class="state"><div>🔴 EST-007 : beaucoup de morts hier</div><div>⚖️ 2 saisies à vérifier</div><div>📶 Tout est envoyé ✓</div></div>
+<div class="tiles">
+<div class="tile big"><div class="ic">🚗</div><div><div class="nm">Ma tournée</div><div class="sb">4 fermes aujourd'hui</div></div><span class="bdg">4</span></div>
+<div class="tile"><div class="ic">🏠</div><div class="nm">Mes fermes</div><div class="sb">14 fermes</div><span class="bdg r">2</span></div>
+<div class="tile"><div class="ic">✍️</div><div class="nm">Saisir pour un éleveur</div></div>
+<div class="tile"><div class="ic">📋</div><div class="nm">Visite</div><div class="sb">compte rendu</div></div>
+<div class="tile"><div class="ic">⚖️</div><div class="nm">À vérifier</div><span class="bdg">2</span></div>
+<div class="tile"><div class="ic">📦</div><div class="nm">Stock et commandes</div><span class="bdg">1</span></div>
+<div class="tile"><div class="ic">➕</div><div class="nm">Nouvel éleveur</div></div>
+<div class="tile"><div class="ic">👤</div><div class="nm">Moi</div><div class="sb">compte, aide</div></div>
+</div></div></div></div>
+
+<div class="scr"><h2>2. Ma tournée</h2><p class="c">Les fermes du jour, dans l'ordre, avec la raison en clair et ce qu'il faut faire. « Y aller » ouvre Google Maps. Disponible sans réseau.</p>
+<div class="ph"><div class="bk">‹ Ma tournée<span class="q">?</span></div><div class="in">
+<div class="map"><i style="left:12%;top:70%;background:#2a7de1"></i><i style="left:35%;top:50%;background:#e5484d"></i><i style="left:55%;top:58%;background:#e5484d"></i><i style="left:74%;top:30%;background:#f08a24"></i><i style="left:88%;top:20%;background:#f08a24"></i></div>
+<div class="card"><div class="row"><div><div class="t">1. EST-007 · Marie</div><div class="s">🔴 Beaucoup de morts · 8 km</div></div><span class="mini go">🧭 Y aller</span></div><div class="s" style="margin-top:4px">À faire : constater, photos</div></div>
+<div class="card"><div class="row"><div><div class="t">2. EST-011 · Joseph</div><div class="s">⚖️ Deux ventes à vérifier · 14 km</div></div><span class="mini go">🧭 Y aller</span></div></div>
+<div class="card"><div class="row"><div><div class="t">3. EST-004 · Pierre</div><div class="s">🟠 Rien noté depuis 2 jours</div></div><span class="mini go">🧭 Y aller</span></div></div>
+<div class="card"><div class="row"><div><div class="t">4. EST-012 · Esther</div><div class="s">📍 Position à relever</div></div><span class="mini go">🧭 Y aller</span></div></div>
+<div class="note">📶 Gardée sur le téléphone à 7 h 12</div>
+</div></div></div>
+
+<div class="scr"><h2>3. Mes fermes → fiche ferme</h2><p class="c">Les fermes par urgence (couleur et phrase). Un toucher ouvre la fiche : tout ce qu'on peut faire pour cette ferme, en gros boutons.</p>
+<div class="ph"><div class="bk">‹ EST-007 · Marie NZANG<span class="q">📞</span></div><div class="in">
+<div class="card" style="border-left:5px solid var(--crete)"><div class="t">🔴 3 % de morts hier</div><div class="s">Bâtiment 2 · bande B2 · jour 24 · 1 412 poulets</div><div class="s">Le vétérinaire a bloqué les ventes</div></div>
+<div class="tiles">
+<div class="tile"><div class="ic">✍️</div><div class="nm">Saisir pour Marie</div></div>
+<div class="tile"><div class="ic">📋</div><div class="nm">Faire la visite</div></div>
+<div class="tile"><div class="ic">📦</div><div class="nm">Stock</div></div>
+<div class="tile"><div class="ic">📈</div><div class="nm">Ses chiffres</div></div>
+</div>
+<div class="card" style="margin-top:10px"><div class="s">📍 Position relevée ✓ · ± 6 m</div><div class="s">🏦 Financée BCEG · accord donné</div><div class="s">📅 Dernière visite : 2 nov.</div></div>
+</div></div></div>
+
+<div class="scr"><h2>4. Saisir pour un éleveur</h2><p class="c">On choisit la ferme (une sélection, pas un clic), puis ce qu'on saisit : on arrive sur <b>les mêmes écrans que l'éleveur</b>. Saisie du jour : ouvrir + Envoyer = 2 clics.</p>
+<div class="ph"><div class="bk">‹ Saisir pour un éleveur<span class="q">?</span></div><div class="in">
+<div class="lab">Pour quelle ferme ?</div>
+<div class="chips"><span class="on">EST-004 · Pierre</span><span>EST-007 · Marie</span><span>EST-002 · Rose</span><span>Autre…</span></div>
+<div class="lab">Bâtiment</div><div class="chips"><span class="on">Bâtiment 1</span><span>Bâtiment 2</span></div>
+<div class="lab">Quoi ?</div>
+<div class="tiles">
+<div class="tile"><div class="ic">📝</div><div class="nm">Jour</div><div class="sb">morts, aliment</div></div>
+<div class="tile"><div class="ic">⚖️</div><div class="nm">Pesée</div></div>
+<div class="tile"><div class="ic">💉</div><div class="nm">Vaccin, soin</div></div>
+<div class="tile"><div class="ic">🚚</div><div class="nm">Sortie</div></div>
+</div>
+<div class="note">✍️ Chaque saisie porte « saisi par Paul pour Pierre ».</div>
+</div></div></div>
+
+<div class="scr"><h2>5. Visite (avec la biosécurité)</h2><p class="c">Une seule page, de haut en bas : position (preuve de présence), constats, recommandations à toucher, et la biosécurité en option. Marche sans réseau.</p>
+<div class="ph"><div class="bk">‹ Visite · EST-006<span class="q">?</span></div><div class="in">
+<div class="card" style="border-left:5px solid var(--prairie)"><div class="t">📍 Vous êtes à 120 m de la ferme ✓</div></div>
+<div class="lab">Pourquoi cette visite ?</div><div class="chips"><span class="on">Suivi</span><span>Vaccination</span><span>Contrôle</span><span>Panne</span></div>
+<div class="lab">Ce que vous avez vu</div><div class="fld" style="font-weight:600;font-size:14px">Litière humide près des abreuvoirs</div>
+<div class="lab">Vos conseils à l'éleveur</div><div class="chips"><span class="on">Changer la litière</span><span>Aérer plus</span><span class="on">Réparer l'abreuvoir</span></div>
+<div class="card" style="background:#f6fbf8"><div class="row"><div><div class="t">🛡️ Biosécurité</div><div class="s">8 questions oui / non · 2 min</div></div><span class="mini go">Faire</span></div></div>
+<div class="row" style="gap:8px"><span class="mini">📷 Photo</span></div>
+<button class="btn bg">Envoyer le compte rendu</button>
+</div></div></div>
+
+<div class="scr"><h2>6. À vérifier</h2><p class="c">Les deux versions côte à côte, en gros. On touche celle qu'on garde, on choisit un motif. La version de l'éleveur compte en attendant.</p>
+<div class="ph"><div class="bk">‹ À vérifier (2)<span class="q">?</span></div><div class="in">
+<div class="card"><div class="t">EST-004 · morts du 7 novembre</div><div class="s">Bâtiment 1 · Pierre MINKO</div></div>
+<div class="vs"><div class="e"><div class="s">Pierre (éleveur)</div><b>12</b><div class="s">compte en attendant</div></div><div><div class="s">Vous (agent)</div><b>17</b><div class="s">comptés sur place</div></div></div>
+<div class="lab">Quelle version garder ?</div><div class="chips"><span>Celle de Pierre (12)</span><span class="on">La mienne (17)</span></div>
+<div class="lab">Pourquoi ?</div><div class="chips"><span class="on">Recompté ensemble</span><span>Erreur de saisie</span><span>Autre…</span></div>
+<button class="btn bb">Valider</button>
+<div class="note">Inscrit au journal. Les chiffres de la bande sont recalculés.</div>
+</div></div></div>
+
+<div class="scr"><h2>7. Stock et commandes</h2><p class="c">Par ferme : ce qui est arrivé, ce qui reste, les écarts en phrase simple, et la commande pour la bande suivante (quantités déjà proposées).</p>
+<div class="ph"><div class="bk">‹ Stock · EST-002 Rose<span class="q">?</span></div><div class="in">
+<div class="card"><div class="t">🌾 Aliment démarrage</div><div class="s">Reçu 60 sacs · Utilisé 41 · Reste 14</div><div style="margin-top:5px"><span class="pill po">🟠 5 sacs manquent</span></div></div>
+<div class="card"><div class="t">🌾 Aliment croissance</div><div class="s">Reçu 80 · Utilisé 22 · Reste 58</div><div style="margin-top:5px"><span class="pill pg">✓ ça correspond</span></div></div>
+<div class="tiles" style="margin-top:4px">
+<div class="tile"><div class="ic">📥</div><div class="nm">Livraison reçue</div></div>
+<div class="tile"><div class="ic">🔢</div><div class="nm">Compter le stock</div></div>
+</div>
+<div class="card" style="margin-top:10px;border-left:5px solid var(--bleu)"><div class="row"><div><div class="t">🛒 Commande bande suivante</div><div class="s">1 500 poussins · 155 sacs · proposé</div></div><span class="mini go">Voir</span></div><div style="margin-top:4px"><span class="pill pb">◷ En attente de la DGE</span></div></div>
+</div></div></div>
+
+<div class="scr"><h2>8. Nouvel éleveur</h2><p class="c">3 étapes courtes avec une barre de progression : la personne, la ferme (GPS automatique), le compte. Marche sans réseau.</p>
+<div class="ph"><div class="bk">‹ Nouvel éleveur · 2 / 3<span class="q">?</span></div><div class="in">
+<div class="step"><span class="on"></span><span class="on"></span><span></span></div>
+<div class="t" style="font-weight:800;font-size:18px;margin-bottom:6px">🏠 La ferme</div>
+<div class="card" style="border-left:5px solid var(--prairie)"><div class="t">📍 Position relevée ✓</div><div class="s">± 7 m · Estuaire ✓</div></div>
+<div class="lab">Combien de bâtiments ?</div><div class="cnt"><div class="l">Bâtiments</div><div class="v"><span class="rd mn">−</span><span class="val">2</span><span class="rd pl">+</span></div></div>
+<div class="lab">Places au total</div><div class="fld">1 500</div>
+<div class="lab">Financée par la BCEG ?</div><div class="chips"><span>Oui</span><span class="on">Non</span></div>
+<button class="btn bb">Suivant ›</button>
+</div></div></div>
+
+<div class="scr"><h2>9. Moi</h2><p class="c">Comme l'éleveur : mon compte, l'aide, la présentation. En plus pour l'agent : mes visites faites et mon taux de visites confirmées.</p>
+<div class="ph"><div class="bk">‹ Moi</div><div class="in">
+<div class="mascot">🐔</div>
+<div class="card"><div class="t">Paul MBA · agent technique</div><div class="s">Estuaire · 14 fermes · 📞 DGE : 011 76 xx xx</div></div>
+<div class="card"><div class="t">📋 Mes visites</div><div class="s">Ce mois : 8 faites sur 10 prévues</div><div class="bar" style="margin-top:6px"><i style="width:80%"></i></div><div class="s" style="margin-top:4px">📍 100 % de visites confirmées sur place</div></div>
+<div class="ghost">❓ Comment faire ?</div><div class="ghost">🎬 Revoir la présentation</div><div class="ghost">⚙️ Mon compte</div><div class="ghost" style="color:var(--crete)">Me déconnecter</div>
+</div></div></div>
+
+</div>
+
+<!-- ================= OPÉRATEUR ================= -->
+<div class="grid" id="op">
+
+<div class="scr"><h2>1. Accueil de l'opérateur</h2><p class="c">4 tuiles. Le scan est la grande tuile : 1 toucher. En-tête vert pour distinguer l'espace opérateur. Valable pour abattoir, marché, acheteur, distributeur.</p>
+<div class="ph"><div class="demo">DÉMONSTRATION — données fictives</div><div class="top op"><div class="b">🐔 SORRA<div class="r"><span>👤</span></div></div><div class="h">Abattoir d'Owendo</div></div><div class="in">
+<div class="state"><div>🚚 2 lots arrivent cette semaine</div><div>◷ 1 lot attend le vétérinaire</div><div>📶 Tout est envoyé ✓</div></div>
+<div class="tiles">
+<div class="tile big g"><div class="ic">📷</div><div><div class="nm">Recevoir un lot</div><div class="sb" style="color:#e1f6ea">scanner le QR</div></div></div>
+<div class="tile"><div class="ic">🚚</div><div class="nm">Lots qui arrivent</div><span class="bdg">2</span></div>
+<div class="tile"><div class="ic">📦</div><div class="nm">Mes réceptions</div><span class="bdg">1</span></div>
+<div class="tile" style="grid-column:1/3;min-height:64px;flex-direction:row;gap:10px"><div class="ic" style="font-size:24px">👤</div><div class="nm" style="margin:0">Moi · aide · mon compte</div></div>
+</div></div></div></div>
+
+<div class="scr"><h2>2. Recevoir un lot (scan)</h2><p class="c">La caméra s'ouvre tout de suite. Si le QR est abîmé : on tape le numéro écrit sur l'étiquette.</p>
+<div class="ph"><div class="bk">‹ Recevoir un lot<span class="q">?</span></div><div class="in">
+<div class="cam"><div class="fr">▦</div></div>
+<div style="text-align:center;font-weight:800;margin:10px 0">Mettez le QR dans le cadre jaune</div>
+<div class="lab">Le QR ne marche pas ? Tapez le numéro :</div><div class="fld" style="color:#9aa3b8">EST-003-B4-S1</div>
+<div class="ghost">Chercher</div>
+</div></div></div>
+
+<div class="scr"><h2>3. Lot reconnu → 3 chiffres</h2><p class="c">Les vérifications se font toutes seules, en phrases simples. L'opérateur tape seulement 3 chiffres (cases vides au départ). Scanner + Valider = 2 clics.</p>
+<div class="ph"><div class="bk">‹ Lot EST-003-B4-S1<span class="q">?</span></div><div class="in">
+<div class="card" style="border-left:5px solid var(--prairie)"><div class="t">✓ Vous pouvez recevoir ce lot</div><div class="s">Ferme EST-003 · Estuaire · parti ce matin · 600 poulets annoncés</div></div>
+<div class="chk">✅ Bien envoyé à votre abattoir<br>✅ Poulets vaccinés<br>✅ Pas de médicament récent<br>✅ Pesés il y a 3 jours</div>
+<div class="cnt"><div class="l">🐔 Vivants reçus</div><div class="v"><span class="val" style="color:#9aa3b8">—</span></div></div>
+<div class="cnt"><div class="l">💀 Morts à l'arrivée</div><div class="v"><span class="val" style="color:#9aa3b8">—</span></div></div>
+<div class="cnt"><div class="l">⚖️ Poids total<small>en kg</small></div><div class="v"><span class="val" style="color:#9aa3b8">—</span></div></div>
+<button class="btn bg">✓ Valider la réception</button>
+</div></div></div>
+
+<div class="scr"><h2>4. Écart : un motif à toucher</h2><p class="c">Dès qu'il y a une différence, on la voit en gros, et on choisit un motif d'un toucher. Seul « Autre » demande d'écrire.</p>
+<div class="ph"><div class="bk">‹ Lot EST-003-B4-S1<span class="q">?</span></div><div class="in">
+<div class="big3"><div>Annoncés<b>600</b></div><div>Reçus vivants<b>585</b></div><div style="border-color:var(--bec)">Morts<b style="color:#a2560a">15</b></div></div>
+<div class="alert ao" style="margin-top:10px"><div style="font-size:30px">🟠</div>Il manque 15 poulets</div>
+<div class="lab">Pourquoi ?</div>
+<div class="chips"><span>Erreur de comptage</span><span class="on">Morts au transport</span><span>Poulets échappés</span><span>Autre…</span></div>
+<button class="btn bo">Valider avec cet écart</button>
+<div class="note">L'agent de la ferme et le vétérinaire sont prévenus. Les chiffres de la ferme ne sont pas changés.</div>
+</div></div></div>
+
+<div class="scr"><h2>5. Lot refusé</h2><p class="c">Grand écran rouge, la raison en une phrase, et quoi faire. Jamais de code d'erreur.</p>
+<div class="ph"><div class="bk">‹ Recevoir un lot</div><div class="in">
+<div class="alert ar"><div class="i">⛔</div><div style="font-size:19px">Vous ne pouvez pas recevoir ce lot</div><div style="font-weight:700;font-size:14.5px;margin-top:6px">Il a déjà été reçu le 7 novembre à 10 h 12.</div></div>
+<button class="btn br">📞 Appeler l'agent de la ferme</button>
+<div class="ghost">Scanner un autre lot</div>
+<div class="note">Autres raisons possibles : « Ce lot n'existe pas », « Ce lot est pour le Marché Mont-Bouët », « Le vétérinaire a bloqué la vente de ces poulets ».</div>
+</div></div></div>
+
+<div class="scr"><h2>6. En attente du vétérinaire</h2><p class="c">Un contrôle manque : les poulets peuvent être déchargés mais <b>gardés à part</b>. Jamais les mots « sous réserve » ou « événement vérifiable ».</p>
+<div class="ph"><div class="bk">‹ Lot EST-002-B5-S1<span class="q">?</span></div><div class="in">
+<div class="chk">✅ Bien envoyé à votre abattoir<br>✅ Poulets vaccinés<br>❌ <b>Médicament donné récemment</b><br>&nbsp;&nbsp;&nbsp;&nbsp;(attendre jusqu'au 12 novembre)</div>
+<div class="alert ao" style="margin-top:8px"><div style="font-size:30px">◷</div>Gardez ces poulets à part<div style="font-weight:700;font-size:13.5px;margin-top:4px">Le vétérinaire doit donner son accord avant l'abattage.</div></div>
+<button class="btn bo">Je les reçois et je les garde à part</button>
+<div class="ghost" style="color:var(--crete)">Je refuse ce lot</div>
+</div></div></div>
+
+<div class="scr"><h2>7. Lots qui arrivent</h2><p class="c">Les poulets envoyés vers lui par les fermes, pas encore reçus. Gardé sur le téléphone : on voit l'annoncé même sans réseau.</p>
+<div class="ph"><div class="bk">‹ Lots qui arrivent (2)</div><div class="in">
+<div class="card"><div class="row"><div><div class="t">🐔 600 poulets</div><div class="s">EST-003 · Estuaire · partis ce matin 7 h 40</div></div><span class="mini go">📷</span></div></div>
+<div class="card"><div class="row"><div><div class="t">🐔 1 200 poulets</div><div class="s">NGO-001 · Ngounié · partis hier</div></div><span class="mini go">📷</span></div></div>
+<div class="note">📶 Gardé sur le téléphone à 9 h 05</div>
+</div></div></div>
+
+<div class="scr"><h2>8. Mes réceptions</h2><p class="c">L'historique, avec un état en phrase simple. Une réception faite sans réseau dit qu'elle attend la vérification.</p>
+<div class="ph"><div class="bk">‹ Mes réceptions</div><div class="in">
+<div class="card"><div class="t">EST-003-B4-S1 · 598 poulets</div><div class="s">Aujourd'hui 10 h 41</div><span class="pill pg">✓ Reçu</span></div>
+<div class="card"><div class="t">EST-002-B5-S1 · 600 poulets</div><div class="s">Hier 16 h 20</div><span class="pill po">◷ Attend le vétérinaire</span></div>
+<div class="card"><div class="t">HO-006-B1-S1 · 400 poulets</div><div class="s">Aujourd'hui 11 h 02 · sans réseau</div><span class="pill pz">◷ Envoyé, en attente de vérification</span></div>
+<div class="card"><div class="t">NGO-003-B2-S1 · 300 poulets</div><div class="s">5 nov.</div><span class="pill pr">✗ Le vétérinaire a refusé ces poulets</span></div>
+</div></div></div>
+
+</div>
+
+<div class="box"><b>Ce qui reste en style bureau (YL.1)</b> : DGE, administrateur, auditeur, MAEDR, BCEG, et le <b>vétérinaire</b> (avec une version téléphone lisible). Les écrans de bureau de l'agent ne disparaissent pas : sur ordinateur, l'agent garde l'accès à la carte et aux tableaux, via un lien « Version bureau » dans 👤 Moi.<br>
+<b>À trancher</b> : 1) en-tête <b>vert</b> pour l'opérateur (bleu pour éleveur et agent) · 2) mascotte présente mais <b>sans fête</b> pour l'agent et l'opérateur (c'est un outil de travail) · 3) lien « Version bureau » gardé pour l'agent sur ordinateur.</div>
+<script>function sh(id,b){document.querySelectorAll('.grid').forEach(g=>g.classList.remove('on'));document.getElementById(id).classList.add('on');document.querySelectorAll('.sw button').forEach(x=>x.classList.remove('on'));b.classList.add('on')}</script>
+</body></html>

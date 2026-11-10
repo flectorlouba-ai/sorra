@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SORRA — Maquettes GPS et carte</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Space Grotesk","Segoe UI",Arial,sans-serif;background:#eef4ff;color:#0c2461}
+.kente{height:8px;background:repeating-linear-gradient(90deg,#0c2461 0 18px,#fff 18px 30px,#1241a8 30px 48px,#93c5fd 48px 60px)}
+.head{background:#0c2461;color:#fff;padding:12px 20px}.head h1{margin:0;font-size:19px}.head p{margin:4px 0 0;font-size:12px;color:#93c5fd}
+.tabs{background:#fff;display:flex;gap:4px;padding:0 14px;border-bottom:1px solid #dbe6fb;overflow-x:auto}
+.tab{padding:11px 12px;font-size:13px;color:#3b6fd4;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;font-weight:500}
+.tab.on{color:#0c2461;border-bottom-color:#1241a8;font-weight:700}
+.stage{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;padding:22px}
+.pane{display:none;gap:22px;flex-wrap:wrap;justify-content:center}.pane.on{display:flex}
+.cap{max-width:310px;font-size:13px;line-height:1.6;color:#334155;background:#fff;border-left:4px solid #1241a8;padding:12px 14px;border-radius:6px;align-self:flex-start}
+.cap b{color:#0c2461}.cap .cdc{display:block;margin-top:8px;font-size:11.5px;color:#7a4800;background:#fef3c7;border-radius:6px;padding:6px 8px}
+.ph{width:330px;border:10px solid #0c2461;border-radius:34px;background:#f0f5ff;overflow:hidden;box-shadow:0 8px 24px rgba(12,36,97,.2)}
+.ph .bar{background:#0c2461;color:#fff;padding:10px 12px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700}
+.ph .bar .x{margin-left:auto;font-size:11px;color:#93c5fd;font-weight:500}
+.ph .c{padding:12px;min-height:560px}
+.box{background:#fff;border-radius:12px;padding:11px 12px;margin-bottom:10px;font-size:13px;box-shadow:0 2px 6px rgba(12,36,97,.08)}
+.box h4{margin:0 0 7px;font-size:13px;color:#1241a8;display:flex;align-items:center;gap:6px}
+.btn{display:block;width:100%;border:none;border-radius:10px;padding:11px;font-family:inherit;font-weight:700;font-size:14px;margin-top:8px;cursor:pointer;text-align:center}
+.bp{background:#1241a8;color:#fff}.bs{background:#e0eaff;color:#0c2461}.bg{background:#16a34a;color:#fff}.bo{background:#f59e0b;color:#1a1100}
+.pill{font-size:10.5px;font-weight:700;border-radius:10px;padding:2px 8px;display:inline-block}
+.pr{background:#fee2e2;color:#991b1b}.po{background:#fef3c7;color:#7a4800}.pg{background:#dcfce7;color:#166534}.pb{background:#e0eaff;color:#1241a8}.pz{background:#f1f5f9;color:#475569}
+.ok{color:#16a34a}.ko{color:#dc2626}.wa{color:#d97706}
+.mini{height:170px;border-radius:10px;position:relative;overflow:hidden;background:
+ linear-gradient(115deg,transparent 45%,#c9e7d4 45% 47%,transparent 47%),
+ linear-gradient(20deg,transparent 60%,#f6e7b8 60% 61.5%,transparent 61.5%),
+ radial-gradient(circle at 70% 30%,#cfe8d9 0 18%,transparent 19%),
+ linear-gradient(160deg,#e3f0e6,#dceaf7)}
+.pin{position:absolute;transform:translate(-50%,-100%);font-size:28px;color:#dc2626;text-shadow:0 2px 3px rgba(0,0,0,.3)}
+.halo{position:absolute;border-radius:50%;background:rgba(18,65,168,.15);border:2px solid rgba(18,65,168,.5);transform:translate(-50%,-50%)}
+.me{position:absolute;width:14px;height:14px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 2px #2563eb;transform:translate(-50%,-50%)}
+.coord{font-family:monospace;font-size:12.5px;background:#f8fbff;border:1px solid #dbe6fb;border-radius:8px;padding:6px 8px;margin-top:6px}
+.acc{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px}
+.acc .b{flex:1;height:8px;border-radius:4px;background:#e2e8f0;overflow:hidden}.acc .b i{display:block;height:100%}
+.inp{border:1px solid #c7d6f2;border-radius:8px;padding:8px 10px;font-size:13px;width:100%;font-family:inherit;background:#fbfdff}
+.lab{font-size:11.5px;color:#475569;font-weight:600;margin:8px 0 3px}
+.hist{font-size:12px;line-height:1.6;border-left:3px solid #c7d6f2;padding-left:10px}
+.hist div{margin-bottom:8px}.hist small{color:#64748b;display:block}
+.desk{width:880px;max-width:100%;background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(12,36,97,.12);overflow:hidden}
+.desk .bar{background:#0c2461;color:#fff;padding:10px 16px;font-weight:700;display:flex;gap:10px;align-items:center}
+.desk .bar span{margin-left:auto;font-size:12px;color:#93c5fd;font-weight:500}
+.desk .c{padding:16px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:#f0f5ff;text-align:left;padding:7px;color:#1241a8;border-bottom:2px solid #dbe6fb}
+td{padding:7px;border-bottom:1px solid #eef2fb;vertical-align:top}
+.bigmap{height:390px;border-radius:10px;position:relative;overflow:hidden;background:linear-gradient(160deg,#e6f2ea,#dbe9f7)}
+.bigmap svg{position:absolute;inset:0;width:100%;height:100%}
+.dot{position:absolute;width:15px;height:15px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transform:translate(-50%,-50%)}
+.r{background:#dc2626}.o{background:#f59e0b}.g{background:#16a34a}.gr{background:#94a3b8}
+.pop{position:absolute;background:#fff;border-radius:10px;box-shadow:0 4px 14px rgba(12,36,97,.25);padding:9px 11px;font-size:12px;width:200px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.f{font-size:12px;border:1px solid #c7d6f2;border-radius:14px;padding:4px 10px;background:#fff}
+.f.on{background:#1241a8;color:#fff;border-color:#1241a8}
+.legend{display:flex;gap:14px;font-size:12px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i.d{width:11px;height:11px;border-radius:50%;display:inline-block}
+.side{width:240px;font-size:12.5px}
+.pub{width:330px;border:10px solid #1b2a5e;border-radius:34px;background:#fbf8f2;overflow:hidden;font-family:Nunito,sans-serif;color:#1b2a5e}
+.q{max-width:1100px;margin:0 auto 30px;background:#fff;border-left:4px solid #f59e0b;padding:12px 16px;font-size:13px;line-height:1.7;font-family:"Segoe UI",Arial,sans-serif;color:#334155}
+</style>
+</head>
+<body>
+<div class="kente"></div>
+<div class="head"><h1>🐔 SORRA — GPS, carte et preuve de présence</h1><p>Cahier des charges : fonction 2 (géolocalisation), § 7.5 (cohérence GPS / province), § 7.6, fonction 38 (carte), fonction 45 (visites : GPS, recoupement)</p></div>
+<div class="tabs" id="tabs"></div>
+<div class="stage">
+
+<!-- 1 -->
+<div class="pane" data-t="1. Ferme sans position">
+<div class="ph"><div class="bar"><i class="bi bi-arrow-left"></i> Ferme EST-012<span class="x">Agent</span></div><div class="c">
+<div class="box"><h4><i class="bi bi-house"></i> Ferme d'Esther MEBALE</h4><div style="font-size:12px;color:#64748b">Kango · Estuaire · 2 bâtiments</div></div>
+<div class="box" style="border:2px dashed #f59e0b"><h4><i class="bi bi-geo-alt"></i> Position de la ferme <span class="pill po" style="margin-left:auto">à relever</span></h4>
+<div style="font-size:13px">La position n'a pas encore été relevée. Placez-vous <b>devant le bâtiment principal</b>, à l'extérieur.</div>
+<button class="btn bp"><i class="bi bi-crosshair"></i> Relever la position ici</button></div>
+<div class="box"><h4><i class="bi bi-info-circle"></i> Pourquoi ?</h4><div style="font-size:12px;color:#475569">La position sert à la carte, à préparer les tournées et à indiquer l'origine des poulets.</div></div>
+</div></div>
+<div class="cap"><b>Fiche ferme, côté agent.</b> Tant que la position manque, un encadré orange le dit et propose <b>1 bouton</b>. Les fermes sans position sont aussi listées sur la carte (« à localiser ») et dans la tournée de l'agent.<span class="cdc">CDC fonction 2 : « relevé GPS sur place à l'enrôlement » — MVP obligatoire.</span></div>
+</div>
+
+<!-- 2 -->
+<div class="pane" data-t="2. Relevé et précision">
+<div class="ph"><div class="bar"><i class="bi bi-arrow-left"></i> Relever la position</div><div class="c">
+<div class="mini"><div class="halo" style="left:50%;top:52%;width:150px;height:150px"></div><div class="me" style="left:50%;top:52%"></div></div>
+<div class="box" style="margin-top:10px"><h4><i class="bi bi-broadcast"></i> Recherche des satellites…</h4>
+<div class="acc">Précision <div class="b"><i style="width:35%;background:#f59e0b"></i></div><b class="wa">± 85 m</b></div>
+<div style="font-size:12px;color:#64748b;margin-top:6px">Attendez quelques secondes : la précision s'améliore. Si elle reste mauvaise, sortez du bâtiment, loin des tôles.</div>
+<button class="btn bs" disabled style="opacity:.55">Utiliser cette position (précision insuffisante)</button></div>
+<div class="box" style="border-left:5px solid #16a34a"><div class="acc" style="margin:0">Après 12 s <div class="b"><i style="width:92%;background:#16a34a"></i></div><b class="ok">± 7 m</b></div>
+<button class="btn bg"><i class="bi bi-check2"></i> Utiliser cette position</button></div>
+</div></div>
+<div class="cap"><b>Précision affichée en clair</b> (le téléphone la donne). Le bouton n'est actif qu'en dessous d'un seuil (<b>± 30 m</b>, réglable). Le relevé enregistre : latitude, longitude, <b>précision</b>, date, auteur, appareil, et s'il a été fait <b>hors ligne</b>.<span class="cdc">Le cahier demande « latitude, longitude, date ». La précision est un plus pour la fiabilité.</span></div>
+</div>
+
+<!-- 3 -->
+<div class="pane" data-t="3. Contrôle de la province">
+<div class="ph"><div class="bar"><i class="bi bi-arrow-left"></i> Position relevée</div><div class="c">
+<div class="mini"><div class="pin" style="left:48%;top:55%"><i class="bi bi-geo-alt-fill"></i></div></div>
+<div class="coord">0,39214 N · 9,45731 E · ± 7 m<br>09/11/2026 10:42 · Paul MBA</div>
+<div class="box" style="margin-top:10px;border-left:5px solid #16a34a"><i class="bi bi-check-circle-fill ok"></i> <b>Estuaire</b> — cohérent avec la province de la ferme</div>
+<div style="font-size:12px;font-weight:700;margin:12px 0 6px">Autre cas :</div>
+<div class="box" style="border-left:5px solid #dc2626"><i class="bi bi-exclamation-triangle-fill ko"></i> <b>Cette position est dans le Moyen-Ogooué</b>, à 12 km de l'Estuaire.<div style="font-size:12px;margin-top:6px">La ferme est déclarée dans l'Estuaire. Que faire ?</div>
+<button class="btn bs">Relever à nouveau</button><button class="btn bs">La province de la ferme est fausse → corriger (ADMIN)</button><button class="btn bo">Garder quand même (motif obligatoire)</button></div>
+</div></div>
+<div class="cap"><b>Contrôle automatique</b> avec les contours officiels des provinces (déjà en place, tolérance 5 km en bordure). En cas d'incohérence : <b>3 choix clairs</b>, jamais un blocage muet. « Garder quand même » marque la ferme <b>« position à vérifier »</b> chez la DGE.<span class="cdc">CDC § 7.5 : « cohérence entre position GPS et province ».</span></div>
+</div>
+
+<!-- 4 -->
+<div class="pane" data-t="4. Correction manuelle">
+<div class="ph"><div class="bar"><i class="bi bi-arrow-left"></i> Corriger la position</div><div class="c">
+<div class="mini" style="height:210px"><div class="pin" style="left:62%;top:44%;color:#1241a8"><i class="bi bi-geo-alt-fill"></i></div><div class="pin" style="left:45%;top:60%;opacity:.35"><i class="bi bi-geo-alt-fill"></i></div>
+<div style="position:absolute;bottom:6px;left:8px;font-size:11px;background:#fff;border-radius:6px;padding:2px 6px">Déplacez la punaise bleue</div></div>
+<div class="box" style="margin-top:10px">
+<div style="font-size:12px">Déplacement : <b>310 m</b> vers le nord-est</div>
+<div class="lab">Ou tapez les coordonnées</div><input class="inp" value="0,39471 N · 9,45988 E">
+<div class="lab">Motif (obligatoire)</div><input class="inp" value="Relevé fait au bord de la route, pas au bâtiment">
+<button class="btn bp"><i class="bi bi-check2"></i> Enregistrer la correction</button></div>
+<div style="font-size:11.5px;color:#64748b">La position sera marquée <b>« corrigée à la main »</b>. L'ancienne est gardée dans l'historique. Au-delà de 1 km de déplacement : validation par une 2ᵉ personne (DGE).</div>
+</div></div>
+<div class="cap"><b>Correction possible, mais tracée.</b> Deux façons : déplacer la punaise ou taper les coordonnées. <b>Motif obligatoire</b>, ancienne valeur gardée, journal. Une grosse correction (> 1 km, réglable) passe par les <b>quatre yeux</b> : c'est là qu'une fraude serait possible.<span class="cdc">CDC fonction 2 : « correction manuelle possible ».</span></div>
+</div>
+
+<!-- 5 -->
+<div class="pane" data-t="5. Historique">
+<div class="ph"><div class="bar"><i class="bi bi-arrow-left"></i> Historique de la position</div><div class="c">
+<div class="box"><h4><i class="bi bi-clock-history"></i> Ferme EST-012</h4><div class="hist">
+<div><span class="pill pb">en vigueur</span> 0,39471 N · 9,45988 E<small>09/11 10:51 · Paul MBA · <b>corrigée à la main</b> (310 m)<br>« Relevé fait au bord de la route, pas au bâtiment »</small></div>
+<div><span class="pill pz">remplacée</span> 0,39214 N · 9,45731 E · ± 7 m<small>09/11 10:42 · Paul MBA · relevé GPS sur place</small></div>
+<div><span class="pill pz">remplacée</span> 0,40100 N · 9,44000 E<small>02/10 · Reprise des fiches papier · <b>approximative</b></small></div></div></div>
+<div class="box"><h4>Origine de la position en vigueur</h4><span class="pill po">corrigée à la main</span> <span style="font-size:12px;color:#64748b">— visible sur la carte de la DGE</span></div>
+</div></div>
+<div class="cap"><b>Aucune position n'est jamais écrasée.</b> Chaque position a une <b>origine</b> : relevé GPS sur place, corrigée à la main, ou reprise des fiches papier (approximative). Visible de l'agent, de la DGE, de l'ADMIN et de l'auditeur.<span class="cdc">CDC : journal non modifiable, audits ANINF.</span></div>
+</div>
+
+<!-- 6 -->
+<div class="pane" data-t="6. Visite : preuve de présence">
+<div class="ph"><div class="bar"><i class="bi bi-arrow-left"></i> Compte rendu de visite</div><div class="c">
+<div class="box"><h4><i class="bi bi-geo-alt"></i> Position de la visite</h4>
+<div class="mini" style="height:130px"><div class="pin" style="left:45%;top:60%"><i class="bi bi-house-fill" style="font-size:20px;color:#1b2a5e"></i></div><div class="me" style="left:52%;top:50%"></div></div>
+<div class="coord">Relevée à 10:12 · ± 9 m</div>
+<div style="margin-top:8px"><i class="bi bi-check-circle-fill ok"></i> <b>À 120 m de la ferme</b> — présence confirmée</div></div>
+<div style="font-size:12px;font-weight:700;margin:12px 0 6px">Autres cas :</div>
+<div class="box" style="border-left:5px solid #f59e0b"><i class="bi bi-exclamation-triangle-fill wa"></i> <b>À 4,2 km de la ferme</b><div style="font-size:12px;margin-top:4px">Le compte rendu part quand même. Ajoutez une explication :</div><input class="inp" style="margin-top:6px" value="Réunion avec l'éleveur au village"></div>
+<div class="box" style="border-left:5px solid #94a3b8"><i class="bi bi-question-circle-fill" style="color:#64748b"></i> <b>Position non relevée</b><div style="font-size:12px;margin-top:4px">GPS refusé ou indisponible : la visite est marquée « sans position ».</div></div>
+</div></div>
+<div class="cap"><b>Le recoupement voulu par le cahier.</b> La position de la visite est <b>comparée automatiquement</b> à celle de la ferme. Jusqu'à 1 km (réglable) : présence confirmée. Au-delà : le compte rendu part, mais avec une explication et un signal chez la DGE. <b>Fonctionne hors ligne</b> (la distance est calculée sur le téléphone, recalculée par le serveur).<span class="cdc">CDC fonction 45 : « constats, recommandations, GPS » — « vérifier les déclarations », « recoupement ».</span></div>
+</div>
+
+<!-- 7 -->
+<div class="pane" data-t="7. Contrôle des visites (DGE)">
+<div class="desk"><div class="bar"><i class="bi bi-geo"></i> Visites — contrôle de présence <span>DGE · Agents</span></div><div class="c">
+<div class="filters"><span class="f on">Toutes</span><span class="f">⚠ Position éloignée (3)</span><span class="f">Sans position (2)</span><span class="f">Province : toutes</span><span class="f">Octobre 2026</span></div>
+<table><tr><th>Date</th><th>Agent</th><th>Ferme</th><th>Distance à la ferme</th><th>Précision</th><th>Explication</th></tr>
+<tr><td>09/11</td><td>Paul MBA</td><td>EST-012</td><td><span class="pill pg">120 m</span></td><td>± 9 m</td><td></td></tr>
+<tr><td>08/11</td><td>Alain BOUSSOUGOU</td><td>WN-007</td><td><span class="pill po">4,2 km</span></td><td>± 12 m</td><td>« Réunion avec l'éleveur au village »</td></tr>
+<tr><td>07/11</td><td>Alain BOUSSOUGOU</td><td>WN-011</td><td><span class="pill pr">38 km</span></td><td>± 15 m</td><td>« Compte rendu fait au bureau »</td></tr>
+<tr><td>06/11</td><td>Rémy MAGANGA</td><td>NGO-003</td><td><span class="pill pz">sans position</span></td><td>—</td><td>GPS refusé</td></tr></table>
+<div style="margin-top:12px;font-size:12.5px"><b>Par agent</b> : Paul MBA 100 % de visites confirmées · Rémy MAGANGA 83 % · Alain BOUSSOUGOU 60 % <span class="pill po">à voir</span></div>
+</div></div>
+<div class="cap">Dans la tuile <b>« Agents »</b> de la DGE (lot 18), pas de nouvelle tuile. Un <b>taux de visites confirmées par agent</b> s'ajoute à sa charge de travail. Ce n'est pas une surveillance en continu : seule la position <b>au moment de la visite</b> est enregistrée.</div>
+</div>
+
+<!-- 8 -->
+<div class="pane" data-t="8. Carte du Gabon">
+<div class="desk" style="width:1000px"><div class="bar">🗺️ Carte des fermes — Gabon <span>DGE · National · 150 fermes</span></div><div class="c" style="display:flex;gap:14px;flex-wrap:wrap">
+<div style="flex:1;min-width:520px">
+<div class="filters"><span class="f">Couleur selon :</span><span class="f on">Alertes</span><span class="f">Mortalité</span><span class="f">Régularité des saisies</span><span class="f">Biosécurité</span><select id="provsel" class="f" style="cursor:pointer"><option value="">Province : tout le Gabon</option></select></div>
+<div id="gabmap" style="position:relative;border-radius:10px;overflow:hidden;background:#d6e9f8"></div>
+<div class="legend"><span><i class="d r"></i>alerte</span><span><i class="d o"></i>à surveiller</span><span><i class="d g"></i>normal</span><span><i class="d g" style="opacity:.55;outline:1px dashed #475569"></i>position approximative ou corrigée</span><span style="color:#64748b">· cliquez sur une province pour zoomer, sur une ferme pour sa fiche</span></div>
+</div>
+<div class="side">
+<div class="box" style="box-shadow:none;border:1px solid #dbe6fb"><h4>🇬🇦 Vue d'ensemble</h4><div style="line-height:1.9"><b>142</b> fermes actives / 150<br><span class="pill pr">4</span> en alerte · <span class="pill po">6</span> à surveiller<br><b>9</b> provinces couvertes</div></div>
+<div class="box" style="box-shadow:none;border:1px solid #dbe6fb" id="provbox"><h4>📍 Province</h4><div style="color:#64748b">Survolez une province sur la carte.</div></div>
+<div class="box" style="box-shadow:none;border:1px solid #f59e0b"><h4 style="color:#b45309">📌 À localiser (6)</h4><div style="line-height:1.8">EST-012 · Kango<br>WN-009 · Bitam<br>HO-004 · Moanda<br>… 3 autres</div><div style="font-size:11px;color:#64748b">Ajoutées à la tournée de l'agent.</div></div>
+<div class="box" style="box-shadow:none;border:1px solid #dc2626"><h4 style="color:#991b1b">⚠ Position à vérifier (1)</h4><div>OM-002 · hors de sa province</div></div></div>
+</div></div>
+<div class="cap"><b>Carte de tout le Gabon</b>, avec les <b>9 provinces</b> : on voit la globalité d'un coup d'œil, puis on <b>zoome sur une province</b> (filtre « Province ») ou on survole pour son résumé. Dans l'application, les contours sont ceux déjà utilisés pour le contrôle GPS (geoBoundaries), et le fond de carte réel (routes, villes) s'affiche quand on zoome, avec un fond gardé sur le téléphone pour le mode sans réseau.<span class="cdc">CDC fonction 38 : « carte interactive filtrable, colorée selon un indicateur ou une alerte ».</span></div>
+</div>
+
+<!-- 9 -->
+<div class="pane" data-t="9. Tournée : y aller">
+<div class="ph"><div class="bar"><i class="bi bi-arrow-left"></i> Tournée du jour<span class="x">hors ligne ✓</span></div><div class="c">
+<div class="mini" style="height:190px"><svg style="position:absolute;inset:0;width:100%;height:100%"><polyline points="40,160 110,120 170,130 240,60 290,40" fill="none" stroke="#1241a8" stroke-width="3" stroke-dasharray="6 4"/></svg>
+<div class="me" style="left:12%;top:84%"></div><div class="dot r" style="left:34%;top:63%"></div><div class="dot r" style="left:52%;top:68%"></div><div class="dot o" style="left:73%;top:32%"></div><div class="dot o" style="left:88%;top:21%"></div></div>
+<div class="box" style="margin-top:10px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>1. EST-007</b> · 8 km<br><span style="font-size:11.5px;color:#64748b">feu rouge</span></div><button class="btn bs" style="width:auto;margin:0;padding:7px 10px"><i class="bi bi-sign-turn-right"></i> Y aller</button></div></div>
+<div class="box"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>2. EST-011</b> · 14 km<br><span style="font-size:11.5px;color:#64748b">doublon de sortie</span></div><button class="btn bs" style="width:auto;margin:0;padding:7px 10px"><i class="bi bi-sign-turn-right"></i> Y aller</button></div></div>
+<div class="box"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>3. EST-012</b> · ?<br><span style="font-size:11.5px;color:#d97706">position à relever sur place</span></div></div></div>
+</div></div>
+<div class="cap"><b>Organisation des visites</b> : distances depuis la position de l'agent, ordre proposé, et <b>« Y aller »</b> qui ouvre l'application de cartes du téléphone (Google Maps) sur la ferme. Pas de guidage dans SORRA : on utilise ce que l'agent a déjà.<span class="cdc">CDC fonction 2, usage : « organisation des visites ».</span></div>
+</div>
+
+<!-- 10 -->
+<div class="pane" data-t="10. Origine sur la page publique">
+<div class="pub"><div style="background:#fff;padding:11px 14px;font-weight:800;border-bottom:1px solid #eee">🐔 SORRA · Origine du produit</div><div style="padding:16px">
+<div style="background:#e7f6ee;border-radius:14px;padding:12px;text-align:center;font-weight:800;color:#2fa36b">✓ Produit tracé</div>
+<div style="margin-top:14px;font-weight:800">D'où viennent ces poulets ?</div>
+<div style="margin-top:8px;height:150px;border-radius:14px;background:linear-gradient(160deg,#e6f2ea,#dbe9f7);position:relative;overflow:hidden">
+<div style="position:absolute;left:30%;top:35%;width:90px;height:60px;border-radius:50%;background:rgba(47,163,107,.25);border:2px solid #2fa36b"></div>
+<div style="position:absolute;left:36%;top:45%;font-weight:800;font-size:13px">Kango</div></div>
+<div style="margin-top:10px;font-size:14px"><b>Département du Komo</b>, province de l'Estuaire</div>
+<div style="font-size:12px;color:#6b7594;margin-top:6px">Zone indiquée de façon approximative : l'adresse exacte de la ferme n'est jamais montrée.</div>
+</div></div>
+<div class="cap"><b>« Localité d'origine des lots »</b> : le consommateur voit une <b>zone</b> (localité, département, province), jamais le point exact ni le nom de l'éleveur.<span class="cdc">CDC fonction 2, usage : « localité d'origine des lots » ; fonction 57 : QR « sans donnée personnelle ».</span></div>
+</div>
+
+</div>
+<div class="q"><b>Réglages proposés (à valider)</b> — précision minimale du relevé : <b>± 30 m</b> · distance « présence confirmée » pour une visite : <b>1 km</b> · correction manuelle au-delà de <b>1 km</b> → quatre yeux · ce que voit l'éleveur : rien de nouveau (la position est gérée par l'agent), sauf « Position de votre ferme : relevée ✓ » dans Mon compte.</div>
+<script>
+const panes=[...document.querySelectorAll(".pane")];const tabs=document.getElementById("tabs");
+panes.forEach((p,i)=>{const t=document.createElement("div");t.className="tab"+(i?"":" on");t.textContent=p.dataset.t;t.onclick=()=>{panes.forEach(x=>x.classList.remove("on"));document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));p.classList.add("on");t.classList.add("on")};tabs.appendChild(t)});
+panes[0].classList.add("on");
+const G={"w":900,"h":961,"paths":[["Ogoou\u00e9-Maritime","M69.3 472.8 L65.2 473.6 L61.5 470.1 L62.0 464.0 L59.1 456.2 L66.9 448.9 L65.8 453.9 L71.2 455.1 L72.4 460.2 L71.9 471.0 L69.3 472.8ZM150.5 446.7 L160.2 477.3 L166.2 485.3 L173.3 489.4 L176.9 493.5 L194.3 494.2 L202.8 499.6 L204.6 503.3 L203.5 509.1 L205.8 519.4 L200.9 532.3 L211.3 542.2 L224.0 546.1 L221.1 556.2 L210.7 566.1 L209.3 569.4 L211.2 582.7 L210.3 591.9 L207.7 596.9 L202.1 598.2 L195.4 607.6 L203.1 621.4 L212.1 630.2 L221.3 630.9 L238.1 637.1 L246.2 642.4 L259.6 645.0 L268.2 642.2 L282.0 650.1 L280.7 663.2 L286.3 669.4 L289.1 679.5 L303.9 700.8 L282.9 711.2 L277.8 715.6 L273.5 723.4 L275.8 731.7 L266.2 738.3 L262.5 750.0 L258.2 750.6 L208.7 764.9 L200.0 758.3 L173.7 726.1 L170.6 720.6 L177.4 727.0 L184.0 729.0 L190.7 722.5 L192.2 733.0 L202.2 736.2 L204.9 742.7 L210.0 740.6 L211.0 747.7 L216.1 748.2 L224.3 740.8 L236.2 740.2 L238.3 737.7 L234.6 732.8 L225.1 727.6 L228.2 737.7 L220.7 731.2 L215.6 729.6 L212.0 737.7 L208.1 735.6 L207.7 731.1 L212.5 728.9 L211.4 726.1 L200.9 724.5 L197.3 716.6 L188.0 717.8 L181.1 723.6 L177.7 724.5 L173.5 719.0 L177.0 716.2 L173.5 711.2 L169.5 711.9 L171.9 717.6 L168.2 718.4 L159.4 709.5 L165.4 717.5 L154.8 707.2 L152.1 699.3 L150.2 683.8 L135.4 669.4 L131.4 667.2 L122.6 657.4 L118.8 649.3 L106.5 637.4 L107.9 635.1 L112.4 640.4 L123.8 643.1 L135.5 644.1 L137.2 649.5 L133.9 652.3 L141.5 655.7 L142.1 660.3 L146.8 665.9 L150.2 662.7 L147.5 655.2 L140.1 649.2 L143.0 644.7 L135.4 633.7 L130.9 633.1 L130.9 639.1 L124.3 630.0 L121.8 629.0 L116.7 639.1 L111.6 637.0 L113.0 632.4 L109.6 630.0 L104.2 631.3 L102.5 624.2 L103.3 612.6 L101.4 599.9 L95.5 589.2 L87.3 580.8 L68.7 555.1 L78.5 559.1 L80.0 563.8 L89.9 577.4 L99.9 585.4 L105.5 587.3 L106.9 605.5 L112.6 604.9 L118.2 600.5 L125.8 598.9 L124.8 603.7 L127.8 607.1 L127.8 597.9 L132.4 597.2 L144.7 598.8 L149.1 597.8 L143.0 595.5 L138.9 590.9 L138.0 579.7 L130.3 578.1 L130.6 582.8 L122.4 591.3 L110.7 593.5 L108.8 591.8 L107.5 583.3 L103.3 581.7 L104.3 577.9 L110.5 573.9 L108.5 569.7 L114.5 568.6 L118.8 560.2 L114.5 549.5 L115.5 560.1 L112.6 564.2 L107.5 561.6 L100.9 567.7 L93.8 569.0 L89.6 566.8 L89.8 559.6 L84.0 559.9 L70.8 552.6 L69.0 542.6 L71.2 537.1 L67.7 536.0 L64.9 539.5 L63.8 530.5 L61.4 524.0 L46.6 505.3 L52.6 510.0 L55.0 502.6 L48.1 504.9 L45.1 496.3 L42.5 497.4 L41.2 492.1 L31.1 472.4 L29.2 464.6 L24.6 458.8 L21.2 448.0 L29.4 451.0 L29.4 455.0 L34.8 458.4 L36.7 469.6 L45.6 480.1 L44.4 475.1 L46.4 467.5 L53.6 468.1 L49.6 461.9 L55.7 462.7 L59.8 472.5 L66.9 480.1 L65.9 488.2 L68.0 490.2 L69.7 475.9 L73.3 472.0 L73.9 466.2 L79.1 463.1 L79.4 458.7 L82.9 458.5 L79.9 453.7 L81.1 449.9 L89.9 442.1 L92.5 436.8 L105.7 422.4 L111.6 410.6 L111.5 401.6 L113.5 403.6 L118.1 418.8 L125.8 429.0 L143.7 438.4 L150.5 446.7Z"],["Moyen-Ogoou\u00e9","M150.5 446.7 L151.4 443.0 L149.3 424.2 L158.5 419.0 L171.9 415.9 L178.1 412.5 L186.6 415.5 L199.7 406.1 L209.6 409.2 L213.5 421.8 L216.9 422.5 L230.3 416.9 L248.3 405.8 L258.2 395.4 L273.2 387.0 L291.1 373.1 L295.7 368.4 L294.5 361.5 L304.5 352.2 L308.5 350.2 L307.4 342.0 L312.4 334.8 L312.5 331.4 L333.3 327.7 L447.9 328.0 L446.1 338.3 L439.4 343.6 L435.2 344.7 L414.4 355.4 L407.4 361.6 L403.2 373.5 L410.5 379.2 L413.3 402.8 L421.0 414.2 L422.5 425.9 L424.8 433.5 L432.4 441.0 L437.7 449.8 L440.0 461.6 L445.0 472.3 L427.3 471.0 L410.0 464.0 L387.3 446.7 L351.2 449.1 L342.1 454.7 L337.6 452.1 L329.6 457.0 L324.7 452.8 L319.4 452.1 L311.0 455.4 L312.8 460.8 L301.9 473.3 L294.5 477.7 L290.7 484.9 L290.2 493.5 L284.3 503.7 L276.9 507.8 L277.7 513.1 L272.6 521.3 L271.9 525.4 L266.9 532.1 L263.6 529.8 L249.0 528.6 L241.1 530.3 L236.7 533.1 L224.0 546.1 L211.3 542.2 L200.9 532.3 L205.8 519.4 L203.5 509.1 L204.6 503.3 L202.8 499.6 L194.3 494.2 L176.9 493.5 L173.3 489.4 L166.2 485.3 L160.2 477.3 L150.5 446.7Z"],["Estuaire","M333.3 327.7 L312.5 331.4 L312.4 334.8 L307.4 342.0 L308.5 350.2 L304.5 352.2 L294.5 361.5 L295.7 368.4 L291.1 373.1 L273.2 387.0 L258.2 395.4 L248.3 405.8 L230.3 416.9 L216.9 422.5 L213.5 421.8 L209.6 409.2 L199.7 406.1 L186.6 415.5 L178.1 412.5 L171.9 415.9 L158.5 419.0 L149.3 424.2 L151.4 443.0 L150.5 446.7 L143.7 438.4 L125.8 429.0 L118.1 418.8 L113.5 403.6 L111.5 401.6 L111.4 391.6 L115.9 381.9 L117.3 374.2 L115.5 367.3 L118.8 359.4 L112.1 324.9 L110.4 320.1 L111.6 314.9 L117.3 309.5 L120.3 310.1 L122.2 316.6 L120.4 325.0 L122.5 331.5 L128.9 331.2 L134.3 337.3 L136.2 345.7 L139.8 345.7 L139.2 336.8 L140.8 334.2 L150.0 337.1 L153.6 344.2 L159.1 339.2 L164.2 343.1 L171.6 342.0 L181.5 354.5 L186.3 358.3 L178.3 343.3 L185.0 342.2 L187.4 344.2 L193.5 338.1 L203.0 334.2 L211.9 336.0 L217.9 333.1 L210.4 333.2 L204.7 330.0 L196.7 333.8 L183.3 335.2 L176.6 332.9 L171.4 329.0 L166.7 329.1 L152.9 320.1 L150.0 315.0 L139.8 319.0 L137.8 312.1 L134.2 308.9 L127.0 292.7 L121.0 285.3 L113.4 284.1 L111.4 281.8 L112.9 269.8 L125.7 265.8 L133.5 266.4 L143.1 261.4 L148.4 264.1 L148.9 270.4 L146.4 271.8 L136.9 270.9 L134.8 273.8 L142.6 273.1 L146.9 278.8 L151.0 273.8 L153.0 280.4 L151.0 286.9 L156.1 292.9 L155.5 287.5 L161.2 273.8 L158.6 267.9 L159.1 260.7 L157.6 243.3 L149.3 220.3 L153.8 212.8 L161.2 211.6 L165.1 206.4 L176.4 206.1 L180.8 210.1 L183.4 219.5 L185.2 215.2 L194.3 218.2 L200.6 224.5 L205.8 225.9 L209.9 223.8 L211.3 215.3 L218.5 214.4 L275.4 214.7 L274.6 235.5 L268.6 251.5 L268.1 256.4 L273.8 267.8 L277.1 267.7 L354.2 241.3 L356.1 241.7 L358.0 250.7 L357.7 260.9 L354.6 271.8 L351.2 275.1 L349.6 281.1 L343.4 293.0 L339.3 309.5 L337.0 313.6 L338.1 320.2 L333.3 327.7Z"],["Ngouni\u00e9","M576.0 640.5 L572.0 640.2 L573.3 656.1 L577.6 666.6 L583.4 669.3 L579.0 678.2 L579.8 686.4 L575.7 700.4 L577.3 703.6 L518.8 716.2 L509.6 712.5 L500.5 703.5 L481.0 710.1 L473.6 716.2 L468.4 714.5 L460.8 707.0 L451.3 703.7 L445.6 703.6 L444.4 706.5 L448.1 718.3 L447.0 726.4 L448.2 732.1 L453.3 741.3 L454.1 748.1 L452.1 754.8 L441.1 773.4 L430.7 760.1 L418.8 748.0 L407.2 738.7 L395.1 725.3 L390.5 712.3 L378.2 704.9 L373.1 695.2 L367.9 692.5 L303.9 700.8 L289.1 679.5 L286.3 669.4 L280.7 663.2 L282.0 650.1 L268.2 642.2 L259.6 645.0 L246.2 642.4 L238.1 637.1 L221.3 630.9 L212.1 630.2 L203.1 621.4 L195.4 607.6 L202.1 598.2 L207.7 596.9 L210.3 591.9 L211.2 582.7 L209.3 569.4 L210.7 566.1 L221.1 556.2 L224.0 546.1 L236.7 533.1 L241.1 530.3 L249.0 528.6 L263.6 529.8 L266.9 532.1 L271.9 525.4 L272.6 521.3 L277.7 513.1 L276.9 507.8 L284.3 503.7 L290.2 493.5 L290.7 484.9 L294.5 477.7 L301.9 473.3 L312.8 460.8 L311.0 455.4 L319.4 452.1 L324.7 452.8 L329.6 457.0 L337.6 452.1 L342.1 454.7 L351.2 449.1 L387.3 446.7 L410.0 464.0 L427.3 471.0 L445.0 472.3 L436.3 484.9 L435.4 493.3 L436.4 500.8 L441.0 508.3 L443.4 517.2 L444.0 526.4 L450.0 527.7 L458.7 525.0 L468.9 518.7 L473.7 518.3 L473.8 525.9 L475.9 531.9 L483.6 541.6 L496.1 551.8 L504.3 555.8 L513.4 566.8 L516.0 579.1 L515.6 589.6 L511.9 594.9 L513.8 601.4 L519.5 605.1 L531.3 620.4 L541.9 628.9 L560.1 635.1 L575.8 635.2 L576.0 640.5Z"],["Nyanga","M441.1 773.4 L440.3 782.4 L448.9 777.9 L456.0 777.5 L463.5 787.6 L474.7 799.4 L476.9 806.0 L466.3 809.3 L463.6 815.5 L463.5 827.1 L474.2 832.6 L483.3 839.4 L501.3 846.5 L502.9 851.2 L494.6 859.1 L484.2 882.4 L485.3 888.8 L494.6 893.3 L494.5 899.7 L488.7 905.2 L483.0 906.3 L471.5 903.5 L463.5 904.5 L457.8 900.8 L446.1 882.0 L440.6 877.8 L433.3 876.7 L429.2 879.5 L423.1 888.2 L411.4 891.4 L393.5 904.3 L391.0 909.0 L381.3 935.3 L379.0 939.5 L372.5 935.4 L365.3 927.9 L360.7 913.2 L359.9 906.9 L333.7 884.7 L310.0 868.4 L308.8 861.8 L310.3 853.7 L308.3 848.1 L296.2 840.1 L295.6 837.2 L281.3 821.7 L265.7 808.7 L239.3 788.0 L220.2 774.2 L208.7 764.9 L258.2 750.6 L262.5 750.0 L266.2 738.3 L275.8 731.7 L273.5 723.4 L277.8 715.6 L282.9 711.2 L303.9 700.8 L367.9 692.5 L373.1 695.2 L378.2 704.9 L390.5 712.3 L395.1 725.3 L407.2 738.7 L418.8 748.0 L430.7 760.1 L441.1 773.4Z"],["Haut-Ogoou\u00e9","M788.5 375.3 L781.8 384.1 L780.1 391.9 L787.0 400.0 L793.5 396.7 L802.5 400.3 L813.7 399.8 L823.1 406.1 L827.4 417.0 L828.6 428.5 L833.6 426.4 L841.3 428.0 L848.4 425.8 L858.1 429.5 L874.0 442.9 L878.8 454.4 L877.8 459.2 L871.8 472.0 L871.1 479.3 L872.7 487.5 L866.1 497.1 L862.9 512.1 L869.3 528.5 L868.3 532.2 L873.8 541.6 L873.1 549.5 L868.4 555.6 L868.9 560.1 L876.3 565.7 L877.1 568.8 L872.4 573.3 L869.8 582.4 L873.4 589.2 L868.6 590.1 L866.1 594.6 L858.9 598.5 L862.8 601.2 L864.5 607.1 L871.3 609.4 L866.0 613.5 L863.6 633.4 L864.7 639.8 L859.7 644.0 L842.2 650.7 L839.4 658.2 L842.1 661.1 L840.1 673.2 L834.9 679.3 L835.8 683.0 L826.7 688.5 L827.2 693.5 L838.4 702.9 L838.8 707.2 L831.8 708.8 L824.9 714.0 L824.3 719.4 L816.8 728.9 L813.0 726.9 L803.8 729.1 L798.5 724.5 L787.8 727.1 L782.0 723.9 L782.3 717.5 L791.0 708.2 L784.7 702.6 L784.3 698.5 L778.8 691.6 L771.0 672.8 L766.9 669.6 L761.9 677.9 L759.6 685.6 L748.3 696.4 L744.8 703.3 L738.1 706.6 L728.3 715.2 L726.5 719.2 L722.9 718.0 L710.5 718.3 L684.8 708.7 L677.1 710.7 L664.5 705.6 L658.9 705.5 L652.2 709.0 L658.8 697.5 L649.2 682.0 L643.4 683.9 L640.2 676.9 L641.8 671.4 L639.0 670.7 L638.5 664.9 L634.6 660.7 L628.4 643.4 L619.0 639.2 L624.4 624.2 L624.2 618.6 L635.2 596.1 L641.2 586.9 L642.6 579.6 L649.8 569.9 L655.6 566.3 L662.9 564.9 L668.9 558.3 L672.9 556.4 L676.3 551.1 L680.8 548.3 L682.6 543.7 L681.9 524.5 L697.3 530.7 L721.2 501.8 L739.7 474.8 L738.9 468.8 L702.1 396.9 L695.2 393.2 L692.5 380.6 L690.3 377.3 L698.6 363.3 L698.9 355.8 L734.6 356.8 L764.1 363.1 L777.5 371.5 L788.5 375.3Z"],["Ogoou\u00e9-Lolo","M619.0 639.2 L609.3 632.2 L602.9 629.6 L595.7 629.8 L586.8 635.2 L583.4 643.2 L576.0 640.5 L575.8 635.2 L560.1 635.1 L541.9 628.9 L531.3 620.4 L519.5 605.1 L513.8 601.4 L511.9 594.9 L515.6 589.6 L516.0 579.1 L513.4 566.8 L504.3 555.8 L496.1 551.8 L483.6 541.6 L475.9 531.9 L473.8 525.9 L473.7 518.3 L468.9 518.7 L458.7 525.0 L450.0 527.7 L444.0 526.4 L443.4 517.2 L441.0 508.3 L436.4 500.8 L435.4 493.3 L436.3 484.9 L445.0 472.3 L554.0 432.5 L577.2 420.8 L599.5 321.6 L607.9 325.1 L617.5 320.5 L625.4 326.5 L643.2 329.6 L649.1 324.9 L655.5 328.7 L664.5 329.1 L670.2 333.4 L675.6 348.8 L684.3 353.2 L698.9 355.8 L698.6 363.3 L690.3 377.3 L692.5 380.6 L695.2 393.2 L702.1 396.9 L738.9 468.8 L739.7 474.8 L721.2 501.8 L697.3 530.7 L681.9 524.5 L682.6 543.7 L680.8 548.3 L676.3 551.1 L672.9 556.4 L668.9 558.3 L662.9 564.9 L655.6 566.3 L649.8 569.9 L642.6 579.6 L641.2 586.9 L635.2 596.1 L624.2 618.6 L624.4 624.2 L619.0 639.2Z"],["Ogoou\u00e9-Ivindo","M788.5 375.3 L777.5 371.5 L764.1 363.1 L734.6 356.8 L698.9 355.8 L684.3 353.2 L675.6 348.8 L670.2 333.4 L664.5 329.1 L655.5 328.7 L649.1 324.9 L643.2 329.6 L625.4 326.5 L617.5 320.5 L607.9 325.1 L599.5 321.6 L577.2 420.8 L554.0 432.5 L445.0 472.3 L440.0 461.6 L437.7 449.8 L432.4 441.0 L424.8 433.5 L422.5 425.9 L421.0 414.2 L413.3 402.8 L410.5 379.2 L403.2 373.5 L407.4 361.6 L414.4 355.4 L435.2 344.7 L439.4 343.6 L446.1 338.3 L447.9 328.0 L432.9 312.2 L433.5 308.9 L539.8 237.3 L542.3 230.7 L541.9 217.4 L550.6 201.5 L558.6 189.9 L561.9 180.5 L684.6 182.3 L694.2 182.4 L702.7 177.3 L707.9 176.2 L710.1 172.5 L718.4 171.6 L728.2 174.3 L737.6 173.3 L742.8 167.5 L752.1 162.5 L769.2 159.6 L772.6 151.7 L774.6 151.2 L802.6 153.7 L812.3 159.6 L823.4 157.1 L832.2 159.0 L842.3 166.3 L845.4 177.2 L845.7 192.1 L849.1 198.8 L856.2 202.1 L864.3 219.2 L874.3 227.6 L869.8 233.2 L871.2 241.9 L859.4 253.8 L855.1 259.9 L853.7 270.5 L839.3 282.1 L823.7 281.5 L816.3 282.5 L811.8 288.7 L814.4 294.8 L811.0 301.0 L800.1 307.0 L797.0 310.3 L786.1 332.9 L788.9 344.7 L789.5 355.3 L794.0 356.7 L792.3 364.2 L793.4 369.5 L788.5 375.3Z"],["Woleu-Ntem","M684.6 182.3 L561.9 180.5 L558.6 189.9 L550.6 201.5 L541.9 217.4 L542.3 230.7 L539.8 237.3 L433.5 308.9 L432.9 312.2 L447.9 328.0 L333.3 327.7 L338.1 320.2 L337.0 313.6 L339.3 309.5 L343.4 293.0 L349.6 281.1 L351.2 275.1 L354.6 271.8 L357.7 260.9 L358.0 250.7 L356.1 241.7 L354.2 241.3 L277.1 267.7 L273.8 267.8 L268.1 256.4 L268.6 251.5 L274.6 235.5 L275.4 214.7 L411.5 215.2 L410.6 49.5 L409.5 43.9 L411.5 34.6 L414.5 29.4 L413.9 24.1 L453.3 22.7 L461.0 21.2 L473.1 26.9 L493.3 26.9 L504.6 25.9 L524.4 25.9 L539.5 27.3 L558.9 22.9 L566.3 26.3 L580.2 24.8 L591.0 28.3 L594.4 27.5 L600.3 30.6 L620.3 33.5 L628.9 29.5 L637.7 32.2 L646.1 29.5 L653.1 31.5 L656.7 30.0 L663.3 32.4 L669.5 31.6 L676.9 26.5 L693.0 28.4 L699.2 32.7 L701.3 36.5 L700.8 53.3 L698.7 61.6 L687.8 69.2 L688.2 74.7 L681.2 82.9 L685.7 91.0 L683.9 98.7 L679.4 103.9 L678.9 125.1 L676.4 128.1 L681.5 136.0 L685.3 138.0 L692.6 152.2 L691.8 169.6 L685.1 172.2 L679.4 177.3 L684.6 182.3Z"]],"labels":[["Ogoou\u00e9-Maritime",174.7,583.0],["Moyen-Ogoou\u00e9",289.7,437.2],["Estuaire",248.4,326.4],["Ngouni\u00e9",362.7,614.0],["Nyanga",370.6,818.6],["Haut-Ogoou\u00e9",778.1,542.6],["Ogoou\u00e9-Lolo",588.0,479.8],["Ogoou\u00e9-Ivindo",614.8,311.3],["Woleu-Ntem",546.8,174.7]],"cities":[["Libreville",132.7,304.5],["Port-Gentil",33.7,467.6],["Oyem",447.5,127.0],["Franceville",742.9,601.0],["Lambar\u00e9n\u00e9",249.5,464.5],["Mouila",370.8,636.2],["Tchibanga",366.4,780.0],["Makokou",636.6,278.1],["Koulamoutou",579.0,527.6]],"farms":[["EST-007","Marie NZANG","r","feu rouge \u00b7 3,2 % de morts",181.5,300.1],["EST-011","Joseph ONDO","r","doublon de sortie 49 h",169.7,317.7],["EST-004","Pierre MINKO","o","pas de saisie 2 j",228.8,335.3],["EST-002","Rose ABAGA","o","\u00e9cart d'aliment",221.4,325.0],["EST-001","Albert MBOUMBA","g","tout va bien",154.9,288.3],["EST-009","Luc NDONG","g","visite demain",199.3,273.6],["EST-003","\u2014","g","",147.5,332.4],["WN-004","\u2014","g","",443.1,124.0],["WN-007","\u2014","o","position \u00e9loign\u00e9e lors de la visite",435.8,60.9],["WN-011","\u2014","g","",465.3,149.0],["WN-002","\u2014","g","",406.2,90.3],["HO-002","\u2014","g","",738.5,596.6],["HO-006","\u2014","r","3 scans refus\u00e9s",686.8,589.3],["HO-004","\u2014","g","",701.6,552.6],["MO-001","\u2014","g","",251.0,461.6],["MO-003","\u2014","o","vaccin en retard",273.2,435.2],["NGO-001","\u2014","g","",370.8,633.3],["NGO-003","\u2014","r","\u00e9cart de livraison 300 poussins",347.1,596.6],["NY-001","\u2014","g","",366.4,772.7],["OM-001","\u2014","g","",44.0,479.3],["OM-002","\u2014","o","position hors province",125.4,538.0],["OI-001","\u2014","g","",636.6,281.0],["OL-001","\u2014","g","",579.0,523.2]]};
+(function(){const W=G.w,H=G.h;const stats={"Estuaire":[48,2,2],"Woleu-Ntem":[22,0,1],"Haut-Ogooué":[17,1,0],"Moyen-Ogooué":[11,0,1],"Ngounié":[14,1,0],"Nyanga":[9,0,0],"Ogooué-Maritime":[12,0,1],"Ogooué-Ivindo":[8,0,0],"Ogooué-Lolo":[9,0,0]};
+let s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;display:block">';
+s+='<text x="25" y="'+(H*0.93)+'" font-size="18" fill="#6b9bc9" font-style="italic">Océan Atlantique</text>';
+G.paths.forEach(p=>{s+='<path class="prov" data-n="'+p[0]+'" d="'+p[1]+'" fill="#f4f8f1" stroke="#1241a8" stroke-width="1.4"/>'});
+G.labels.forEach(l=>{s+='<text class="pl" data-fs="15" x="'+l[1]+'" y="'+l[2]+'" font-size="15" font-weight="700" fill="#1241a8" text-anchor="middle" opacity=".55" style="pointer-events:none">'+l[0]+'</text>'});
+G.cities.forEach(c=>{s+='<rect x="'+(c[1]-3.5)+'" y="'+(c[2]-3.5)+'" width="7" height="7" fill="#0c2461"/><text class="cl" data-fs="12" x="'+(c[1]+7)+'" y="'+(c[2]+4)+'" font-size="12" fill="#0c2461" style="pointer-events:none">'+c[0]+'</text>'});
+const col={r:"#dc2626",o:"#f59e0b",g:"#16a34a"};
+G.farms.forEach((f,i)=>{const dash=f[0]=="OM-002"||f[0]=="EST-003";s+='<text class="flab" x="'+(f[4]+9)+'" y="'+(f[5]-6)+'" font-size="13" font-weight="700" fill="#0c2461" style="display:none;pointer-events:none">'+f[0]+'</text><circle class="farm" data-r="'+(f[2]=="g"?7:9)+'" data-i="'+i+'" cx="'+f[4]+'" cy="'+f[5]+'" r="'+(f[2]=="g"?7:9)+'" fill="'+col[f[2]]+'" stroke="#fff" stroke-width="2.5" '+(dash?'opacity=".55" stroke-dasharray="3 2"':'')+' style="cursor:pointer"/>'});
+s+='</svg><div id="gpop" class="pop" style="display:none"></div>';
+const m=document.getElementById("gabmap");m.innerHTML=s;
+const svg=m.querySelector("svg");let cur=[0,0,W,H],zoomed=null;
+const back=document.createElement("button");back.textContent="← Tout le Gabon";back.style.cssText="position:absolute;top:10px;left:10px;display:none;border:none;border-radius:8px;padding:7px 12px;background:#0c2461;color:#fff;font-weight:700;cursor:pointer;font-family:inherit";m.appendChild(back);
+const zb=document.createElement("div");zb.style.cssText="position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:4px";zb.innerHTML='<button data-z="0.7">+</button><button data-z="1.4">−</button>';zb.querySelectorAll("button").forEach(b=>{b.style.cssText="width:32px;height:32px;border:none;border-radius:8px;background:#fff;color:#0c2461;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.25)";b.onclick=()=>{const f=+b.dataset.z,cx=cur[0]+cur[2]/2,cy=cur[1]+cur[3]/2,w=Math.min(W,cur[2]*f),hh=Math.min(H,cur[3]*f);anim([cx-w/2,cy-hh/2,w,hh])}});m.appendChild(zb);
+function anim(to){const fr=cur.slice(),t0=performance.now();function st(t){const k=Math.min(1,(t-t0)/450),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cur=fr.map((v,i)=>v+(to[i]-v)*e);svg.setAttribute("viewBox",cur.join(" "));const sc=W/cur[2];svg.querySelectorAll(".farm").forEach(c=>c.setAttribute("r",(c.dataset.r/Math.sqrt(sc)).toFixed(1)));svg.querySelectorAll(".flab").forEach(x=>{x.style.display=sc>1.8?"block":"none";x.setAttribute("font-size",(13/sc).toFixed(1))});svg.querySelectorAll("text.cl,text.pl").forEach(x=>x.setAttribute("font-size",(x.dataset.fs/Math.sqrt(sc)).toFixed(1)));if(k<1)requestAnimationFrame(st)}requestAnimationFrame(st)}
+function info(n){const st=stats[n]||[0,0,0];document.getElementById("provbox").innerHTML='<h4>📍 '+n+'</h4><div style="line-height:1.9"><b>'+st[0]+'</b> fermes<br><span class="pill pr">'+st[1]+'</span> alerte(s) · <span class="pill po">'+st[2]+'</span> à surveiller<br>'+(zoomed==n?'<span style="color:#64748b">Fermes affichées avec leur numéro.</span>':'<a style="color:#1241a8">Cliquez pour zoomer ›</a>')+'</div>'}
+function zoomTo(n){const p=[...svg.querySelectorAll(".prov")].find(x=>x.dataset.n==n);if(!p){zoomed=null;back.style.display="none";svg.querySelectorAll(".prov").forEach(x=>{x.setAttribute("fill","#f4f8f1");x.setAttribute("opacity","1")});document.getElementById("provsel").value="";anim([0,0,W,H]);return}
+zoomed=n;const b=p.getBBox(),pad=Math.max(b.width,b.height)*.12,r=W/H;let w=b.width+2*pad,hh=b.height+2*pad;if(w/hh>r)hh=w/r;else w=hh*r;anim([b.x+b.width/2-w/2,b.y+b.height/2-hh/2,w,hh]);
+svg.querySelectorAll(".prov").forEach(x=>{x.setAttribute("fill",x.dataset.n==n?"#ffffff":"#e8eef5");x.setAttribute("opacity",x.dataset.n==n?"1":".7")});back.style.display="block";document.getElementById("provsel").value=n;info(n)}
+back.onclick=()=>zoomTo(null);
+const sel=document.getElementById("provsel");G.paths.map(p=>p[0]).sort().forEach(n=>{const o=document.createElement("option");o.value=n;o.textContent="Province : "+n;sel.appendChild(o)});sel.onchange=()=>zoomTo(sel.value||null);
+svg.querySelectorAll(".prov").forEach(p=>{p.style.cursor="pointer";p.onmouseenter=()=>{if(!zoomed)p.setAttribute("fill","#dbe7ff");info(p.dataset.n)};p.onmouseleave=()=>{if(!zoomed)p.setAttribute("fill","#f4f8f1")};p.onclick=()=>zoomTo(p.dataset.n)});
+m.querySelectorAll(".farm").forEach(c=>{c.onclick=e=>{const f=G.farms[c.dataset.i];const pop=document.getElementById("gpop");const r=m.getBoundingClientRect();pop.style.display="block";pop.style.left=Math.min(e.clientX-r.left+10,r.width-210)+"px";pop.style.top=Math.max(e.clientY-r.top-80,4)+"px";pop.innerHTML='<b>'+f[0]+(f[1]!="—"?' · '+f[1]:'')+'</b><br>'+(f[3]?'<span class="pill '+(f[2]=="r"?"pr":f[2]=="o"?"po":"pg")+'">'+f[3]+'</span><br>':'<span class="pill pg">normal</span><br>')+'<span style="color:#64748b">Position : '+(f[0]=="OM-002"?"corrigée à la main":"relevé GPS ± 6 m")+'</span><br><a style="color:#1241a8">Ouvrir la fiche ›</a>'}});
+})();
+
+</script>
+</body>
+</html>

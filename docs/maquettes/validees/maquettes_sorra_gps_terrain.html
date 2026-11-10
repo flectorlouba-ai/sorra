@@ -1,0 +1,210 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SORRA — Lot 19 bis : GPS terrain</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap">
+<style>
+:root{--nuit:#1b2a5e;--bleu:#2a7de1;--soleil:#f7c948;--prairie:#2fa36b;--bec:#f08a24;--crete:#e5484d;--creme:#fbf8f2;--gris:#6b7594}
+*{box-sizing:border-box}
+body{margin:0;background:#eef2f8;font-family:"Nunito","Segoe UI",sans-serif;color:var(--nuit);padding:20px}
+h1{font-weight:800;font-size:25px;margin:0}
+.intro{font-size:14px;margin:4px 0 14px;max-width:900px;color:#4a5578}
+.sw{display:flex;gap:8px;margin-bottom:18px}
+.sw button{font-family:"Nunito","Segoe UI",sans-serif;font-weight:800;font-size:15px;border:2px solid #cfdaf0;border-radius:14px;padding:9px 16px;background:#fff;color:var(--nuit);cursor:pointer}
+.sw button.on{background:var(--nuit);color:#fff;border-color:var(--nuit)}
+.grid{display:none;flex-wrap:wrap;gap:26px;align-items:flex-start}.grid.on{display:flex}
+.scr{width:330px}
+.scr h2{font-size:16px;font-weight:800;margin:0 0 3px}
+.scr p.c{font-size:13px;color:#4a5578;margin:0 0 10px;min-height:54px}
+.ph{width:320px;border:9px solid #1f2430;border-radius:34px;overflow:hidden;background:var(--creme);box-shadow:0 12px 30px rgba(27,42,94,.18)}
+.top{background:linear-gradient(160deg,#2a7de1,#1b4fae);padding:11px 15px 14px;color:#fff}
+.top.op{background:linear-gradient(160deg,#2fa36b,#1f7a4f)}
+.top .b{display:flex;align-items:center;gap:8px;font-weight:800;font-size:19px}
+.top .b .r{margin-left:auto;display:flex;gap:6px}
+.top .b .r span{background:rgba(255,255,255,.18);border-radius:12px;padding:3px 9px;font-size:13px}
+.top .h{font-weight:700;font-size:14px;color:#dceaff;margin-top:3px}
+.top.op .h{color:#dff5e9}
+.demo{background:var(--soleil);color:#4a3a00;font-size:10.5px;text-align:center;font-weight:800;padding:2px}
+.bk{background:#fff;padding:11px 14px;font-weight:800;font-size:17px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px}
+.bk .q{margin-left:auto;width:28px;height:28px;border-radius:50%;background:#e8f1ff;color:var(--bleu);display:flex;align-items:center;justify-content:center;font-size:15px}
+.in{padding:13px;min-height:520px}
+.state{background:#fff;border-radius:16px;padding:10px 12px;margin-bottom:11px;font-weight:700;font-size:13.5px;border:1px solid #edf0f6;box-shadow:0 2px 10px rgba(27,42,94,.06)}
+.state div{padding:2px 0}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{position:relative;background:#fff;border-radius:18px;padding:12px 8px;text-align:center;box-shadow:0 2px 10px rgba(27,42,94,.08);border:1px solid #edf0f6;min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.tile .ic{font-size:29px;line-height:1}
+.tile .nm{font-weight:800;font-size:14.5px;margin-top:6px;line-height:1.15}
+.tile .sb{font-size:11px;color:var(--gris);font-weight:700}
+.tile.big{grid-column:1/3;flex-direction:row;gap:12px;justify-content:flex-start;padding:14px 16px;background:var(--bleu);color:#fff;border:none;box-shadow:0 6px 14px rgba(42,125,225,.35);min-height:76px}
+.tile.big.g{background:var(--prairie);box-shadow:0 6px 14px rgba(47,163,107,.35)}
+.tile.big .ic{font-size:34px}.tile.big .nm{font-size:19px;margin:0;text-align:left}.tile.big .sb{color:#e1eeff;text-align:left}
+.bdg{position:absolute;top:7px;right:8px;background:var(--bec);color:#fff;font-size:11px;font-weight:800;border-radius:10px;padding:1px 7px}
+.bdg.r{background:var(--crete)}
+.card{background:#fff;border-radius:16px;padding:11px 13px;margin-bottom:9px;border:1px solid #edf0f6;box-shadow:0 2px 8px rgba(27,42,94,.06)}
+.card .t{font-weight:800;font-size:15.5px}
+.card .s{font-size:12.5px;color:var(--gris);font-weight:700}
+.row{display:flex;align-items:center;gap:10px}
+.row .go{margin-left:auto}
+.pill{display:inline-block;font-size:11.5px;font-weight:800;border-radius:12px;padding:2px 9px}
+.pr{background:#ffe9ea;color:#a12a2e}.po{background:#fff1e0;color:#a2560a}.pg{background:#e5f6ed;color:#1f7a4f}.pb{background:#e8f1ff;color:#1b4fae}.pz{background:#f0f2f6;color:#5b647d}
+.mini{white-space:nowrap;background:#fff;border:1.5px solid #d8e2f2;border-radius:12px;padding:7px 11px;font-weight:800;color:var(--bleu);font-size:13px}
+.btn{display:block;width:100%;border-radius:16px;padding:14px;text-align:center;font-weight:800;font-size:18px;color:#fff;margin-top:9px;border:none;font-family:"Nunito","Segoe UI",sans-serif}
+.bg{background:var(--prairie);box-shadow:0 6px 14px rgba(47,163,107,.3)}.bb{background:var(--bleu)}.bo{background:var(--bec)}.br{background:var(--crete)}
+.ghost{display:block;width:100%;border-radius:14px;padding:12px;text-align:center;font-weight:800;font-size:16px;color:var(--bleu);background:#fff;border:1.5px solid #d8e2f2;margin-top:8px}
+.lab{font-size:12.5px;color:var(--gris);font-weight:800;margin:9px 0 4px}
+.fld{background:#fff;border:1.5px solid #d8e2f2;border-radius:12px;padding:10px 12px;font-size:16px;font-weight:800;margin-bottom:6px}
+.cnt{background:#fff;border-radius:16px;padding:9px 12px;margin-bottom:9px;display:flex;align-items:center;border:1px solid #edf0f6}
+.cnt .l{font-weight:800;font-size:15px}.cnt .l small{display:block;font-weight:700;font-size:11.5px;color:var(--gris)}
+.cnt .v{margin-left:auto;display:flex;align-items:center;gap:9px}
+.rd{width:40px;height:40px;border-radius:50%;font-weight:800;font-size:22px;display:flex;align-items:center;justify-content:center}
+.mn{background:#eef2f8}.pl{background:var(--bleu);color:#fff}
+.val{font-weight:800;font-size:25px;min-width:34px;text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:6px}
+.chips span{border:1.5px solid #d8e2f2;border-radius:14px;padding:8px 11px;font-weight:800;font-size:13.5px;background:#fff}
+.chips .on{border:2px solid var(--bleu);background:#e8f1ff;color:var(--bleu)}
+.chk{font-size:14px;font-weight:700;line-height:1.95}
+.cam{height:250px;border-radius:18px;background:#1f2430;display:flex;align-items:center;justify-content:center}
+.fr{width:170px;height:170px;border:4px solid var(--soleil);border-radius:20px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:60px}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vs div{background:#fff;border:2px solid #d8e2f2;border-radius:16px;padding:10px;text-align:center}
+.vs .e{border-color:var(--bleu)}
+.vs b{display:block;font-size:30px}
+.big3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center}
+.big3 div{background:#fff;border:1.5px solid #d8e2f2;border-radius:14px;padding:7px 4px;font-size:11.5px;font-weight:800;color:var(--gris)}
+.big3 b{display:block;font-size:22px;color:var(--nuit)}
+.alert{border-radius:18px;padding:16px;text-align:center;font-weight:800}
+.alert .i{font-size:44px}
+.ar{background:#ffe9ea;border:2px solid var(--crete);color:#8e2226}
+.ao{background:#fff1e0;border:2px solid var(--bec);color:#7a4206}
+.mascot{font-size:40px;text-align:center}
+.note{font-size:12px;color:var(--gris);font-weight:700;margin-top:8px}
+.step{display:flex;gap:6px;margin-bottom:10px}.step span{flex:1;height:7px;border-radius:4px;background:#e1e7f2}.step .on{background:var(--bleu)}
+.bar{height:10px;border-radius:5px;background:#e8edf5;overflow:hidden}.bar i{display:block;height:100%;background:var(--prairie)}
+.map{height:120px;border-radius:14px;background:linear-gradient(160deg,#e6f2ea,#dbe9f7);position:relative;margin-bottom:10px}
+.map i{position:absolute;width:13px;height:13px;border-radius:50%;border:2px solid #fff}
+.box{max-width:1100px;background:#fff;border-left:5px solid var(--soleil);border-radius:8px;padding:12px 16px;font-size:13.5px;line-height:1.7;margin-top:24px}
+</style><style>
+.mapz{height:190px;border-radius:16px;position:relative;overflow:hidden;background:
+ linear-gradient(115deg,transparent 45%,#cfe8d6 45% 47%,transparent 47%),linear-gradient(20deg,transparent 60%,#f3e3ad 60% 61.5%,transparent 61.5%),radial-gradient(circle at 70% 30%,#d3ead9 0 18%,transparent 19%),linear-gradient(160deg,#e3f0e6,#dceaf7);margin-bottom:10px}
+.pin{position:absolute;transform:translate(-50%,-100%);font-size:30px}
+.halo{position:absolute;border-radius:50%;background:rgba(42,125,225,.15);border:2px solid rgba(42,125,225,.5);transform:translate(-50%,-50%)}
+.me{position:absolute;width:15px;height:15px;border-radius:50%;background:#2a7de1;border:3px solid #fff;box-shadow:0 0 0 2px #2a7de1;transform:translate(-50%,-50%)}
+.prec{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px}
+.prec .bar{flex:1}
+.big{font-size:20px;font-weight:800}
+.st{font-size:13px;font-weight:700;color:var(--gris)}
+</style></head>
+<body>
+<h1>🐔 SORRA — Lot 19 bis : GPS sur le terrain (style agent)</h1>
+<div class="intro">Les écrans GPS de l'agent refaits dans le style terrain, plus la <b>création d'une ferme sans réseau</b>. Les écrans de bureau déjà validés ne changent pas (carte du Gabon avec zoom, contrôle des visites par la DGE, historique des positions, page publique) : voir <b>maquettes_sorra_gps.html</b>.</div>
+<div class="sw"><button class="on" onclick="sh('a',this)">📍 Position de la ferme (5)</button><button onclick="sh('b',this)">📋 Visite et tournée (2)</button><button onclick="sh('c',this)">➕ Nouvelle ferme sans réseau (4)</button></div>
+
+<div class="grid on" id="a">
+
+<div class="scr"><h2>1. Fiche ferme : position à relever</h2><p class="c">Encadré orange tant que la position manque, avec un seul gros bouton. La ferme apparaît aussi dans « Ma tournée » avec « 📍 Position à relever ».</p>
+<div class="ph"><div class="bk">‹ EST-012 · Esther MEBALE<span class="q">📞</span></div><div class="in">
+<div class="card"><div class="t">🏠 Ferme d'Esther</div><div class="s">Kango · Estuaire · 2 bâtiments</div></div>
+<div class="card" style="border:2px dashed var(--bec);background:#fffaf2"><div class="t">📍 Position pas encore relevée</div><div class="s" style="margin:4px 0 8px">Placez-vous <b>dehors, devant le bâtiment principal</b>.</div><div class="btn bb" style="margin:0">📍 Relever la position ici</div></div>
+<div class="tiles"><div class="tile"><div class="ic">✍️</div><div class="nm">Saisir pour Esther</div></div><div class="tile"><div class="ic">📋</div><div class="nm">Faire la visite</div></div></div>
+</div></div></div>
+
+<div class="scr"><h2>2. Relevé : la précision en clair</h2><p class="c">Le téléphone cherche. La barre se remplit quand la précision s'améliore. Le bouton vert ne s'active qu'en dessous de ± 30 m. Marche sans réseau.</p>
+<div class="ph"><div class="bk">‹ Relever la position<span class="q">?</span></div><div class="in">
+<div class="mapz"><div class="halo" style="left:50%;top:52%;width:140px;height:140px"></div><div class="me" style="left:50%;top:52%"></div></div>
+<div class="card"><div class="t">🛰️ Je cherche les satellites…</div><div class="prec" style="margin-top:8px">Précision <div class="bar"><i style="width:35%;background:var(--bec)"></i></div><span style="color:#a2560a">± 85 m</span></div><div class="s" style="margin-top:6px">Attendez un peu. Si ça ne s'améliore pas, éloignez-vous des tôles et des arbres.</div></div>
+<div class="card" style="border-left:5px solid var(--prairie)"><div class="prec">Après 12 s <div class="bar"><i style="width:92%"></i></div><span style="color:#1f7a4f">± 7 m ✓</span></div></div>
+<div class="btn bg">✓ Garder cette position</div>
+</div></div></div>
+
+<div class="scr"><h2>3. Contrôle de la province</h2><p class="c">Cas normal : une carte verte. Si la position tombe dans une autre province : une phrase claire et 3 choix, jamais un blocage muet.</p>
+<div class="ph"><div class="bk">‹ Position relevée</div><div class="in">
+<div class="card" style="border-left:5px solid var(--prairie)"><div class="t">✓ Position gardée</div><div class="s">± 7 m · Estuaire, comme la ferme</div></div>
+<div class="st" style="margin:10px 0 6px">Autre cas :</div>
+<div class="alert ao" style="text-align:left;padding:13px"><div style="font-size:16px">⚠️ Cette position est dans le Moyen-Ogooué</div><div style="font-weight:700;font-size:13.5px;margin-top:4px">La ferme est notée dans l'Estuaire (12 km plus loin).</div></div>
+<div class="ghost">📍 Relever à nouveau</div>
+<div class="ghost">Garder quand même…</div>
+<div class="note">« Garder quand même » demande un motif (pastilles) et met la ferme « position à vérifier » chez la DGE. Si c'est la province qui est fausse, l'agent appelle la DGE : il ne la change pas lui-même.</div>
+</div></div></div>
+
+<div class="scr"><h2>4. Corriger la position</h2><p class="c">On déplace la punaise du doigt. Le motif se touche. Au-delà de 1 km, une 2ᵉ personne (DGE) doit valider : le téléphone le dit.</p>
+<div class="ph"><div class="bk">‹ Corriger la position<span class="q">?</span></div><div class="in">
+<div class="mapz" style="height:210px"><div class="pin" style="left:63%;top:44%">📍</div><div class="pin" style="left:45%;top:62%;opacity:.35">📍</div><div style="position:absolute;bottom:7px;left:8px;background:#fff;border-radius:8px;padding:3px 8px;font-size:12px;font-weight:800">☝️ Glissez la punaise</div></div>
+<div class="card"><div class="t">↗️ Déplacée de 310 m</div></div>
+<div class="lab">Pourquoi ?</div><div class="chips"><span class="on">Relevé au bord de la route</span><span>Mauvais signal</span><span>Bâtiment déplacé</span><span>Autre…</span></div>
+<div class="btn bb">Enregistrer la correction</div>
+<div class="note">La position sera marquée « corrigée à la main ». L'ancienne est gardée.</div>
+</div></div></div>
+
+<div class="scr"><h2>5. Côté éleveur : Mon compte</h2><p class="c">L'éleveur ne gère pas la position. Il voit seulement si elle est faite, en une ligne, avec la date.</p>
+<div class="ph"><div class="top"><div class="b">🐔 SORRA</div><div class="h">Mon compte</div></div><div class="in">
+<div class="card"><div class="t">Esther MEBALE</div><div class="s">📞 077 12 34 56</div></div>
+<div class="card"><div class="t">🏠 Ma ferme · EST-012</div><div class="s">2 bâtiments · 1 500 places</div><div style="margin-top:6px"><span class="pill pg">📍 Position relevée ✓ le 9 nov.</span></div></div>
+<div class="card"><div class="t">👷 Mon agent : Paul</div><div class="s">📞 Appeler</div></div>
+<div class="note">Si elle manque : « 📍 Votre agent relèvera la position de votre ferme à sa prochaine visite. »</div>
+</div></div></div>
+
+</div>
+
+<div class="grid" id="b">
+
+<div class="scr"><h2>6. Visite : preuve de présence</h2><p class="c">En haut de la page Visite. La distance à la ferme est calculée tout de suite, même sans réseau. Trois cas, toujours en une phrase.</p>
+<div class="ph"><div class="bk">‹ Visite · EST-006<span class="q">?</span></div><div class="in">
+<div class="card" style="border-left:5px solid var(--prairie)"><div class="t">📍 Vous êtes à 120 m de la ferme ✓</div><div class="s">± 9 m · 10 h 12</div></div>
+<div class="card" style="border-left:5px solid var(--bec)"><div class="t">📍 Vous êtes à 4,2 km de la ferme</div><div class="s" style="margin:3px 0 6px">Le compte rendu part quand même. Pourquoi ?</div><div class="chips"><span class="on">Rencontré au village</span><span>Ferme inaccessible</span><span>Autre…</span></div></div>
+<div class="card" style="border-left:5px solid #b8c0d2"><div class="t">📍 Position non relevée</div><div class="s">Localisation refusée ou introuvable. La visite sera marquée « sans position ».</div><div class="ghost" style="margin-top:6px">📍 Réessayer</div></div>
+<div class="lab">Pourquoi cette visite ?</div><div class="chips"><span class="on">Suivi</span><span>Vaccination</span><span>Contrôle</span></div>
+</div></div></div>
+
+<div class="scr"><h2>7. Ma tournée : distances et « Y aller »</h2><p class="c">Les distances depuis l'endroit où se trouve l'agent. « Y aller » ouvre Google Maps. Une ferme sans position est signalée, sans bouton.</p>
+<div class="ph"><div class="bk">‹ Ma tournée<span class="q">?</span></div><div class="in">
+<div class="map"><i style="left:12%;top:70%;background:#2a7de1"></i><i style="left:35%;top:50%;background:#e5484d"></i><i style="left:55%;top:58%;background:#e5484d"></i><i style="left:74%;top:30%;background:#f08a24"></i></div>
+<div class="card"><div class="row"><div><div class="t">1. EST-007 · Marie</div><div class="s">🔴 Beaucoup de morts · 📏 8 km</div></div><span class="mini go">🧭 Y aller</span></div></div>
+<div class="card"><div class="row"><div><div class="t">2. EST-011 · Joseph</div><div class="s">⚖️ Deux ventes à vérifier · 📏 14 km</div></div><span class="mini go">🧭 Y aller</span></div></div>
+<div class="card"><div class="row"><div><div class="t">3. EST-012 · Esther</div><div class="s">📍 Position à relever sur place</div></div></div></div>
+<div class="card" style="border-left:5px solid var(--bleu)"><div class="row"><div><div class="t">4. Ferme provisoire P-0412</div><div class="s">◷ Créée sans réseau, en attente d'envoi</div></div></div></div>
+</div></div></div>
+
+</div>
+
+<div class="grid" id="c">
+
+<div class="scr"><h2>8. Nouvel éleveur · étape 2 : la ferme</h2><p class="c">Plus besoin de réseau pour créer une ferme. Le téléphone le dit simplement. La position est relevée automatiquement, la province vérifiée sur le téléphone.</p>
+<div class="ph"><div class="bk">‹ Nouvel éleveur · 2 / 3<span class="q">?</span></div><div class="in">
+<div class="step"><span class="on"></span><span class="on"></span><span></span></div>
+<div class="net" style="background:#e8f1ff;color:#1b4fae;border-radius:12px;padding:8px 10px;font-weight:800;font-size:13px;margin-bottom:10px">📶 Pas de réseau : la ferme sera envoyée plus tard. Vous pouvez continuer.</div>
+<div class="lab">Ferme</div><div class="chips"><span>Déjà enregistrée</span><span class="on">Nouvelle ferme</span></div>
+<div class="card" style="border-left:5px solid var(--prairie)"><div class="t">📍 Position relevée ✓</div><div class="s">± 7 m · Estuaire ✓</div></div>
+<div class="lab">Village ou lieu-dit</div><div class="fld">Kango, quartier Nzamaligue</div>
+<div class="cnt"><div class="l">Bâtiments</div><div class="v"><span class="rd mn">−</span><span class="val">2</span><span class="rd pl">+</span></div></div>
+<div class="lab">Places au total</div><div class="fld">1 500</div>
+<div class="btn bb">Suivant ›</div>
+</div></div></div>
+
+<div class="scr"><h2>9. Ferme peut-être déjà enregistrée</h2><p class="c">Le téléphone connaît les fermes de l'agent : s'il en trouve une à moins de 200 m, il prévient tout de suite, même sans réseau. Le cahier demande le blocage des doublons de fermes.</p>
+<div class="ph"><div class="bk">‹ Nouvel éleveur · 2 / 3</div><div class="in">
+<div class="alert ao" style="text-align:left;padding:13px"><div style="font-size:16px">🤔 Une ferme existe déjà tout près</div><div style="font-weight:700;font-size:13.5px;margin-top:4px">EST-009 · Luc NDONG, à 80 m d'ici.</div></div>
+<div class="card"><div class="t">Est-ce la même ferme ?</div></div>
+<div class="btn bb">Oui → ajouter ce nouvel éleveur à EST-009</div>
+<div class="ghost">Non, c'est une autre ferme</div>
+<div class="note">« Non » demande un motif (pastilles : « Voisin », « Autre bâtiment », « Autre… »). Le serveur refait la vérification sur TOUTES les fermes à l'arrivée.</div>
+</div></div></div>
+
+<div class="scr"><h2>10. Ferme créée, en attente d'envoi</h2><p class="c">La ferme a un numéro provisoire et l'agent peut déjà tout faire : saisir pour l'éleveur, faire la visite. Tout part ensemble quand le réseau revient.</p>
+<div class="ph"><div class="bk">‹ Nouvel éleveur · 3 / 3</div><div class="in">
+<div class="step"><span class="on"></span><span class="on"></span><span class="on"></span></div>
+<div class="mascot">🐔</div>
+<div class="card" style="text-align:center"><div class="big">Ferme P-0412</div><div class="s">numéro provisoire</div><div style="margin-top:8px"><span class="pill pb">◷ En attente d'envoi</span></div></div>
+<div class="card"><div class="t">🔑 Compte d'Esther</div><div class="s">Identifiant : esther.mebale</div><div class="big" style="letter-spacing:2px;margin-top:4px">KANGO-4821</div><div class="s">Mot de passe provisoire : notez-le, il ne sera plus affiché.</div></div>
+<div class="tiles"><div class="tile"><div class="ic">✍️</div><div class="nm">Saisir pour Esther</div></div><div class="tile"><div class="ic">🏠</div><div class="nm">Retour à l'accueil</div></div></div>
+</div></div></div>
+
+<div class="scr"><h2>11. Après l'envoi</h2><p class="c">Le serveur donne le vrai numéro. L'agent le voit dans sa ligne d'état et sur la fiche. Si le serveur trouve un doublon que le téléphone ne connaissait pas, la ferme passe « à vérifier ».</p>
+<div class="ph"><div class="top"><div class="b">🐔 SORRA<div class="r"><span>🔔 1</span><span>👤</span></div></div><div class="h">Bonjour Paul · Estuaire · 15 fermes</div></div><div class="in">
+<div class="state"><div>✅ P-0412 est devenue <b>EST-013</b></div><div>📶 Tout est envoyé ✓</div></div>
+<div class="st" style="margin:6px 0">Autre cas :</div>
+<div class="state" style="border-left:5px solid var(--bec)"><div>⚖️ P-0415 ressemble à EST-021 (Nkok, 60 m)</div><div class="s" style="font-weight:700;color:var(--gris)">→ dans « À vérifier » : même ferme ou pas ?</div></div>
+<div class="note">Les saisies faites sur P-0412 sont automatiquement rattachées à EST-013. Rien n'est perdu ni à ressaisir.</div>
+</div></div></div>
+
+</div>
+
+<div class="box"><b>Réglages proposés (inchangés)</b> : précision minimale ± 30 m · présence confirmée jusqu'à 1 km · correction de plus de 1 km soumise aux quatre yeux. <b>Nouveau</b> : alerte « ferme déjà tout près » en dessous de <b>200 m</b> (réglable).<br>
+<b>À trancher</b> : 1) le seuil de 200 m pour l'alerte de doublon · 2) l'agent ne change jamais la province lui-même (il appelle la DGE) · 3) les saisies faites sur une ferme provisoire sont rattachées automatiquement à son vrai numéro.</div>
+<script>function sh(id,b){document.querySelectorAll('.grid').forEach(g=>g.classList.remove('on'));document.getElementById(id).classList.add('on');document.querySelectorAll('.sw button').forEach(x=>x.classList.remove('on'));b.classList.add('on')}</script>
+</body></html>
