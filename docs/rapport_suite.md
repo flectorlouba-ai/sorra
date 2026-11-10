@@ -20,7 +20,7 @@ Règles : `docs/regles_lots.md`. Décisions prises seul : `docs/decisions_autono
 | K2 — bureau administrateur + auditeur | `3f2d408` | 644 | oui | 2026-11-10-3f2d408 | 13 écrans conformes ; « Modifié le » de la matrice des droits « — » |
 | K4 — téléphone éleveur (+ Mon argent du lot G) | `926e3cf` | 675 | oui | 2026-11-10-926e3cf | 30 écrans + Mon argent 12 mois, bilan PDF, fiscalité ; migration 0030 ; jeu de démo sans ventes → graphique presque vide (à enrichir) |
 | K5 — téléphone agent, opérateur, GPS, notifications, actions + preuve visuelle | `992b803` | 721 | oui | 2026-11-10-992b803 | 54 écrans ; rapport_conformite.html (91 conformes, 41 écarts justifiés, 0 non conforme), controle_rempli.xlsx |
-| F | | | | | |
+| F — œufs des bandes de ponte | (fusion F) | | oui | (version au déploiement) | migration 0031 ; jeu de démo sans bande de ponte (à ajouter) |
 | B | | | | | |
 | M | | | | | |
 | S | | | | | |

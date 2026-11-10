@@ -21,6 +21,26 @@
     </div>
     <div class="cases-rapides"><button type="button" class="case-rapide" data-mettre="0">✓ Aucun mort</button></div>
   </div>
+  {% if bande.ponte %}
+  {# Lot F : œufs ramassés et cassés (case vide ≠ zéro) #}
+  <div class="compteur compteur-vide" data-oeufs>
+    <div class="compteur-libelle">🥚 Œufs ramassés</div>
+    <div class="compteur-boutons">
+      <button type="button" class="compteur-moins" aria-label="Moins">−</button>
+      <input type="number" name="oeufs" value="" placeholder="—" min="0" inputmode="numeric" class="compteur-valeur" data-vide="oeufs">
+      <button type="button" class="compteur-plus" aria-label="Plus">+</button>
+    </div>
+    <div class="cases-rapides"><button type="button" class="case-rapide" data-mettre="0">✓ Aucun œuf</button></div>
+  </div>
+  <div class="compteur">
+    <div class="compteur-libelle">Œufs cassés</div>
+    <div class="compteur-boutons">
+      <button type="button" class="compteur-moins" aria-label="Moins">−</button>
+      <input type="number" name="casses" value="0" min="0" inputmode="numeric" class="compteur-valeur">
+      <button type="button" class="compteur-plus" aria-label="Plus">+</button>
+    </div>
+  </div>
+  {% endif %}
   {% set hier = bande.aliment_veille(jour_saisie or today) %}
   {% if aliments %}
   {% if aliments|length > 1 %}

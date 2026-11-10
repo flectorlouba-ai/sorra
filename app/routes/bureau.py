@@ -35,6 +35,11 @@ def raisons_alerte(ferme, infos, user):
             r.append('mortalité anormale (feu rouge)')
         elif infos['couleurs']['feu'] == 'orange':
             r.append('attention (saisie manquante ou mortalité)')
+        from app.services import oeufs as services_oeufs                        # lot F
+        for b in services_oeufs.bandes_de_ponte([ferme]):
+            c = services_oeufs.chute(b)
+            if c:
+                r.append(f'chute de ponte (−{c} %)')
     if p in (Profil.DGE, Profil.AGENT, Profil.ADMIN):
         if infos['couleurs']['regularite'] == 'rouge':
             r.append('saisies irrégulières')

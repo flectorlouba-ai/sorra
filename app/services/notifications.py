@@ -220,6 +220,12 @@ def calculer(maintenant_=None):
                         crees += bool(notifier(u, T.FEU_ROUGE, f'rouge:{b.id}:{_jour()}', '🔴 Alerte sanitaire',
                                                f'{f.numero} : beaucoup de morts. Le vétérinaire est prévenu.',
                                                lien('bandes.fiche', numero=b.numero), prefs, tout_de_suite=True))
+                    if b.ponte:                                              # lot F : chute de ponte → l'agent, tout de suite
+                        from app.services import oeufs as services_oeufs
+                        c = services_oeufs.chute(b, aujourd_hui)
+                        if c:
+                            crees += bool(notifier(u, T.FEU_ROUGE, f'ponte:{b.id}:{aujourd_hui.isocalendar()[1]}', '🥚 Chute de ponte',
+                                                   f'{f.numero} : la ponte a baissé de {c} % en une semaine.', lien('bandes.fiche', numero=b.numero), prefs, tout_de_suite=True))
                     derniere = max((s.date for s in b.saisies), default=None)
                     if (derniere or b.date_mise_en_place) <= aujourd_hui - timedelta(days=jours):
                         crees += bool(notifier(u, T.FERME_SANS_SAISIE, f'sans_saisie:{b.id}:{_jour()}', '📵 Ferme sans saisie',

@@ -62,7 +62,7 @@ def bilan(fermes, annee=None, fin=None):
         ligne = par_mois[cles[k]]
         if mv['signe'] > 0:
             ligne['recettes'] += mv['montant']
-            poste = 'Ventes de poulets' if mv['genre'] == 'vente' else 'Autres recettes (fientes, sacs…)'
+            poste = 'Ventes de poulets' if mv['genre'] == 'vente' else ("Ventes d'œufs" if mv['genre'] == 'vente_oeufs' else 'Autres recettes (fientes, sacs…)')
             ligne['recettes_postes'][poste] += mv['montant']
             if mv['genre'] == 'vente':
                 kg_vendus += mv['objet'].poids_total_kg or 0

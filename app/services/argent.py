@@ -111,6 +111,13 @@ def mouvements(ferme_ids):
                          'montant': s.montant_fcfa, 'signe': 1, 'a_completer': s.montant_fcfa is None,
                          'agent': s.saisi_par_agent, 'a_verifier': s.a_verifier,
                          'parts': {s.bande_id: s.montant_fcfa} if s.montant_fcfa else {}})
+    from app.models.oeufs import VenteOeufs                    # lot F : ventes d'œufs
+    for v in (VenteOeufs.query.join(Bande).filter(Bande.ferme_id.in_(ferme_ids), VenteOeufs.archive_le.is_(None))
+              .order_by(VenteOeufs.date.desc()).all()):
+        resultat.append({'genre': 'vente_oeufs', 'objet': v, 'date': v.date, 'ferme_id': v.bande.ferme_id, 'ico': '🥚',
+                         'texte': f'Vente d\'œufs · {v.oeufs} œufs · {v.bande.batiment.code}' + (f' · {v.acheteur}' if v.acheteur else ''),
+                         'montant': v.montant_fcfa, 'signe': 1, 'a_completer': False, 'agent': v.saisi_par_agent,
+                         'a_verifier': False, 'parts': {v.bande_id: v.montant_fcfa} if v.montant_fcfa else {}})
     for a in _achats(ferme_ids):
         l = a.lignes[0]
         parts = _parts_achat(a, a.prix_paye_fcfa) if a.prix_paye_fcfa else {}

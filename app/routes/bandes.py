@@ -361,6 +361,12 @@ def saisie(numero):
         if (f.get('sacs') or '').strip() == '':
             raise regles.RegleBande(MSG_ALIMENT)
         morts = _nombre(f.get('morts'), entier=True) or 0
+        oeufs = casses = None
+        if bande.ponte:                                          # lot F : case vide ≠ zéro pour les œufs aussi
+            if (f.get('oeufs') or '').strip() == '':
+                raise regles.RegleBande("Notez les œufs ramassés (« ✓ Aucun œuf » s'il n'y en a pas eu).")
+            oeufs = _nombre(f.get('oeufs'), entier=True) or 0
+            casses = _nombre(f.get('casses'), entier=True) or 0 if (f.get('casses') or '').strip() != '' else 0
         aliments = {}
         sacs = _nombre(f.get('sacs')) or 0
         if sacs:
@@ -369,7 +375,7 @@ def saisie(numero):
             if produit is None:
                 raise regles.RegleBande("Choisissez l'aliment donné.")
             aliments[produit] = sacs
-        s, avertissements = regles.saisir(bande, jour, morts, aliments, current_user, ajouter=f.get('ajouter') == '1')
+        s, avertissements = regles.saisir(bande, jour, morts, aliments, current_user, ajouter=f.get('ajouter') == '1', oeufs=oeufs, casses=casses)
         db.session.flush()
         sante.alerte_si_feu_rouge(bande)
         db.session.commit()

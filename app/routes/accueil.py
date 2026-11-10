@@ -289,7 +289,12 @@ def _espace_eleveur(fermes):
             cible = f'bat-{f.numero}-{b.code}'
             if etat['etat'] == 'bande':
                 c = contexte_bloc(etat['bande'])
-                blocs.append({'type': 'bande', 'cible': cible, 'code': b.code,
+                oeufs = None
+                if etat['bande'].ponte:                                  # lot F : taux de ponte et stock d'œufs
+                    from app.services import oeufs as services_oeufs
+                    so = services_oeufs.situation(etat['bande'])
+                    oeufs = {'taux': so['taux'], 'plateaux': so['plateaux'], 'chute': so['chute']}
+                blocs.append({'type': 'bande', 'cible': cible, 'code': b.code, 'oeufs': oeufs,
                               'a_saisir': c['deja'] is None and not c['cloture_proposee'],
                               'serie': ludique.etat_serie(etat['bande'], bandes_eleveur),
                               'progression': ludique.progression(etat['bande'], c['v']['age']), **c})

@@ -230,6 +230,17 @@ class GDepense(Genre):
         super().appliquer(o, v, user)
 
 
+class GVenteOeufs(Genre):
+    cle, modele_nom, icone = 'vente_oeufs', 'VenteOeufs', '🥚'
+
+    def titre(self, o):
+        return f"Vente d'œufs du {o.date:%d/%m} · {o.oeufs} œufs"
+
+    def champs(self, o):
+        return [Champ('oeufs', "Œufs vendus (à l'unité)", valeur=o.oeufs), Champ('montant_fcfa', 'Prix total (FCFA)', valeur=o.montant_fcfa),
+                Champ('acheteur', 'Acheteur', 'texte', valeur=o.acheteur), Champ('date', 'Date', 'date', valeur=o.date)]
+
+
 class GAchat(Genre):
     cle, modele_nom, icone = 'achat', 'Livraison', '🛒'
 
@@ -345,7 +356,7 @@ class GVisite(Genre):
         o.recommandation_libre = (v['recommandation_libre'] or '')[:300] or None
 
 
-GENRES = {g.cle: g for g in (GSaisie(), GPesee(), GSortie(), GVaccin(), GTraitement(), GDepense(), GAchat(),
+GENRES = {g.cle: g for g in (GSaisie(), GPesee(), GSortie(), GVaccin(), GTraitement(), GDepense(), GAchat(), GVenteOeufs(),
                              GPanne(), GEntretien(), GSignalement(), GVisite())}
 DU_MODELE = {g.modele_nom: g for g in GENRES.values()}
 
