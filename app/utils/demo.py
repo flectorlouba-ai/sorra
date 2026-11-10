@@ -58,7 +58,7 @@ TERRAIN = ('ELEVEUR', 'AGENT', 'OPERATEUR')
 
 
 # Les cinq comptes montrés sur la page de connexion (décision du propriétaire, 10/11/2026) ; les autres existent mais ne sont pas listés
-COMPTES_AFFICHES = ('dge', 'veto', 'agent.est', 'eleveur', 'bceg')
+COMPTES_AFFICHES = ('dge', 'veto', 'admin', 'agent.est', 'eleveur')
 
 
 def comptes_en_un_clic():
