@@ -9,6 +9,7 @@
 
 <div class="kente-top"></div>
 
+<div class="login-scene">
 <div class="login-card">
   <div class="login-head">
     <div class="login-head-logo">{{ poulet('content', taille=104) }}</div>
@@ -64,26 +65,27 @@
       </div>
       <button type="submit" class="btn-login-code" id="btn-code" data-connexion-code>🔢 Entrer avec mon code</button>
     </form>
-    {% if comptes_demo %}
-    {# Lot L : comptes de démonstration en un clic (réglage SORRA_DEMO_COMPTES de la démo seulement).
-       Un clic remplit l'identifiant et le mot de passe ; la personne clique ensuite sur « Se connecter ». #}
-    <section class="comptes-demo" data-comptes-demo data-mdp="{{ comptes_demo.mot_de_passe }}" aria-label="Comptes de démonstration">
-      <div class="comptes-demo-titre">🎓 Comptes de démonstration <small>— un clic remplit les champs, puis « Se connecter »</small></div>
-      {% for groupe, nom in (('pilotage', 'Pilotage'), ('terrain', 'Terrain')) %}
-      <div class="comptes-demo-groupe">
-        <div class="comptes-demo-nom">{{ nom }}</div>
-        <ul>{% for c in comptes_demo[groupe] %}
-          <li><button type="button" class="compte-demo" data-identifiant="{{ c.identifiant }}"><strong>{{ c.identifiant }}</strong> · {{ c.libelle }}</button></li>
-        {% endfor %}</ul>
-      </div>
-      {% endfor %}
-    </section>
-    {% endif %}
   </div>
 
   <div class="login-foot">
     &copy; 2026 LOUBAPRO — SORRA
   </div>
+</div>
+{% if comptes_demo %}
+{# Lot L : comptes de démonstration en un clic (réglage SORRA_DEMO_COMPTES de la démo seulement).
+   Un clic remplit l'identifiant et le mot de passe ; la personne clique ensuite sur « Se connecter ». #}
+<aside class="comptes-demo comptes-demo-panneau" data-comptes-demo data-mdp="{{ comptes_demo.mot_de_passe }}" aria-label="Comptes de démonstration">
+  <div class="comptes-demo-titre">🎓 Comptes de démonstration <small>— un clic remplit les champs, puis « Se connecter »</small></div>
+  {% for groupe, nom in (('pilotage', 'Pilotage'), ('terrain', 'Terrain')) %}
+  <div class="comptes-demo-groupe">
+    <div class="comptes-demo-nom">{{ nom }}</div>
+    <ul>{% for c in comptes_demo[groupe] %}
+      <li><button type="button" class="compte-demo" data-identifiant="{{ c.identifiant }}"><strong>{{ c.identifiant }}</strong> · {{ c.libelle }}</button></li>
+    {% endfor %}</ul>
+  </div>
+  {% endfor %}
+</aside>
+{% endif %}
 </div>
 
 <script>
