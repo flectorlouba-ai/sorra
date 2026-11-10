@@ -15,6 +15,7 @@ def comptes(app):
     creer_utilisateur('agent.est', Profil.AGENT, ['EST'])
     creer_utilisateur('eleveur', Profil.ELEVEUR)
     creer_utilisateur('aninf', Profil.AUDITEUR)
+    creer_utilisateur('bceg', Profil.BCEG)
     creer_utilisateur('ancien', Profil.AGENT, ['EST'], actif=False)
     yield app
     app.config['DEMO'] = app.config['DEMO_COMPTES'] = False
@@ -24,7 +25,8 @@ def test_encadre_present_avec_le_reglage(client, comptes):
     page = client.get('/auth/connexion').get_data(as_text=True)
     assert 'Comptes de démonstration' in page and f'data-mdp="{MDP}"' in page
     assert '>Pilotage<' in page and '>Terrain<' in page
-    assert 'data-identifiant="dge"' in page and 'DGE (POUFA)' in page and 'Auditeur ANINF' in page
+    assert 'data-identifiant="dge"' in page and 'DGE (POUFA)' in page and 'data-identifiant="bceg"' in page
+    assert 'Auditeur ANINF' not in page and 'data-identifiant="admin"' not in page      # cinq comptes seulement (dge, veto, agent, éleveur, BCEG)
     assert 'data-identifiant="agent.est"' in page and 'data-identifiant="eleveur"' in page
     assert 'data-identifiant="ancien"' not in page                           # compte archivé : pas listé
     assert page.index('data-identifiant="dge"') < page.index('data-identifiant="eleveur"')   # pilotage avant terrain

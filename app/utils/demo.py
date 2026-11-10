@@ -57,6 +57,10 @@ PILOTAGE = ('DGE', 'VETO', 'ADMIN', 'AUDITEUR', 'BCEG', 'MAEDR')
 TERRAIN = ('ELEVEUR', 'AGENT', 'OPERATEUR')
 
 
+# Les cinq comptes montrés sur la page de connexion (décision du propriétaire, 10/11/2026) ; les autres existent mais ne sont pas listés
+COMPTES_AFFICHES = ('dge', 'veto', 'agent.est', 'eleveur', 'bceg')
+
+
 def comptes_en_un_clic():
     """{'actif', 'mot_de_passe', 'pilotage': [...], 'terrain': [...]} : les comptes actifs de la base de
     démonstration, lus (jamais inventés), rangés en deux groupes. Vide si le réglage SORRA_DEMO_COMPTES est absent."""
@@ -64,7 +68,7 @@ def comptes_en_un_clic():
         return None
     from app.models import Utilisateur
     groupes = {'pilotage': [], 'terrain': []}
-    for u in Utilisateur.query.filter_by(actif=True).order_by(Utilisateur.identifiant):
+    for u in Utilisateur.query.filter(Utilisateur.actif.is_(True), Utilisateur.identifiant.in_(COMPTES_AFFICHES)).order_by(Utilisateur.identifiant):
         p = u.profil.value
         if p == 'OPERATEUR':
             libelle = f'{u.operateur.type} · {u.operateur.nom}' if u.operateur else LIBELLES_COURTS[p]
@@ -78,5 +82,5 @@ def comptes_en_un_clic():
         groupes[groupe].append({'identifiant': u.identifiant, 'libelle': libelle,
                                 'ordre': (PILOTAGE + TERRAIN).index(p) if p in PILOTAGE + TERRAIN else 99})
     for g in groupes.values():
-        g.sort(key=lambda c: (c['ordre'], c['identifiant']))
+        g.sort(key=lambda c: COMPTES_AFFICHES.index(c['identifiant']))
     return {'mot_de_passe': current_app.config['DEMO_MOT_DE_PASSE'], **groupes}
