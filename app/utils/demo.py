@@ -46,3 +46,37 @@ class ProxyDeConfiance:
     def __call__(self, environ, start_response):
         cible = self.derriere_nginx if environ.get('REMOTE_ADDR') in self.LOCALES else self.direct
         return cible(environ, start_response)
+
+
+# ── Lot L : comptes de démonstration en un clic (page de connexion) ─────
+
+LIBELLES_COURTS = {'ADMIN': 'Administrateur', 'DGE': 'DGE (POUFA)', 'AGENT': 'Agent technique', 'ELEVEUR': 'Éleveur',
+                   'VETO': 'Vétérinaire', 'BCEG': 'BCEG', 'MAEDR': 'MAEDR', 'AUDITEUR': 'Auditeur ANINF',
+                   'OPERATEUR': 'Opérateur'}
+PILOTAGE = ('DGE', 'VETO', 'ADMIN', 'AUDITEUR', 'BCEG', 'MAEDR')
+TERRAIN = ('ELEVEUR', 'AGENT', 'OPERATEUR')
+
+
+def comptes_en_un_clic():
+    """{'actif', 'mot_de_passe', 'pilotage': [...], 'terrain': [...]} : les comptes actifs de la base de
+    démonstration, lus (jamais inventés), rangés en deux groupes. Vide si le réglage SORRA_DEMO_COMPTES est absent."""
+    if not (active() and current_app.config.get('DEMO_COMPTES')):
+        return None
+    from app.models import Utilisateur
+    groupes = {'pilotage': [], 'terrain': []}
+    for u in Utilisateur.query.filter_by(actif=True).order_by(Utilisateur.identifiant):
+        p = u.profil.value
+        if p == 'OPERATEUR':
+            libelle = f'{u.operateur.type} · {u.operateur.nom}' if u.operateur else LIBELLES_COURTS[p]
+        elif p == 'AGENT' and u.provinces:
+            libelle = f'{LIBELLES_COURTS[p]} · {", ".join(pr.nom for pr in u.provinces)}'
+        elif p == 'ELEVEUR' and u.fermes:
+            libelle = f'{LIBELLES_COURTS[p]} · {", ".join(uf.numero_ferme for uf in u.fermes)}'
+        else:
+            libelle = LIBELLES_COURTS.get(p, p)
+        groupe = 'pilotage' if p in PILOTAGE else 'terrain'
+        groupes[groupe].append({'identifiant': u.identifiant, 'libelle': libelle,
+                                'ordre': (PILOTAGE + TERRAIN).index(p) if p in PILOTAGE + TERRAIN else 99})
+    for g in groupes.values():
+        g.sort(key=lambda c: (c['ordre'], c['identifiant']))
+    return {'mot_de_passe': current_app.config['DEMO_MOT_DE_PASSE'], **groupes}

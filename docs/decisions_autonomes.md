@@ -28,3 +28,7 @@ Chaque ligne : lot · question · choix · autre option · comment revenir en ar
 | E-b | Places à la création | « Places au total » réparties également entre les bâtiments (arrondi au-dessus) | Places de chaque bâtiment | Ajuster ensuite dans « Bâtiments » |
 | E-b | Doublon trouvé par le serveur | La ferme est créée et un message part dans « À vérifier » (avec la réponse de l'agent) | Refuser la création | Lever une erreur dans `routes/terrain.nouvelle_ferme` |
 | 0 | Noms des captures des maquettes | Sans accents (git les cite autrement et un test les lit) | Accents | — |
+| L | Condition de l'encadré | **Les deux** : `YL2_DEMO=1` **et** `SORRA_DEMO_COMPTES=1` (le réglage seul ne suffit pas hors démo) | Le réglage seul | Retirer `active() and` dans `utils/demo.comptes_en_un_clic` |
+| L | Source des comptes | Lus **en base** à chaque affichage (comptes actifs), jamais une liste écrite dans le code | Liste dans le code | — |
+| L | Mot de passe public | Lu dans `SORRA_DEMO_MDP` du `.env`, à défaut la valeur publique déjà dans `deployer_serveur.sh` | Toujours dans le `.env` | Retirer la valeur par défaut dans `config.py` |
+| L | Version du service worker | Automatique : l'empreinte change avec le gabarit de connexion | Numéro à la main | — |

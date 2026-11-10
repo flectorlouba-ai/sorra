@@ -54,6 +54,21 @@
       </button>
       <p class="login-aide">Mot de passe oublié ? Appelez votre agent.</p>
     </form>
+    {% if comptes_demo %}
+    {# Lot L : comptes de démonstration en un clic (réglage SORRA_DEMO_COMPTES de la démo seulement).
+       Un clic remplit l'identifiant et le mot de passe ; la personne clique ensuite sur « Se connecter ». #}
+    <section class="comptes-demo" data-comptes-demo data-mdp="{{ comptes_demo.mot_de_passe }}" aria-label="Comptes de démonstration">
+      <div class="comptes-demo-titre">🎓 Comptes de démonstration <small>— un clic remplit les champs, puis « Se connecter »</small></div>
+      {% for groupe, nom in (('pilotage', 'Pilotage'), ('terrain', 'Terrain')) %}
+      <div class="comptes-demo-groupe">
+        <div class="comptes-demo-nom">{{ nom }}</div>
+        <ul>{% for c in comptes_demo[groupe] %}
+          <li><button type="button" class="compte-demo" data-identifiant="{{ c.identifiant }}"><strong>{{ c.identifiant }}</strong> · {{ c.libelle }}</button></li>
+        {% endfor %}</ul>
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
   </div>
 
   <div class="login-foot">
@@ -69,6 +84,19 @@ function togglePwd() {
   i.className = f.type === 'text' ? 'bi bi-eye-slash' : 'bi bi-eye';
 }
 </script>
+{% if comptes_demo %}<script>
+(function () {
+  var zone = document.querySelector('[data-comptes-demo]');
+  zone.addEventListener('click', function (e) {
+    var b = e.target.closest('.compte-demo');
+    if (!b) return;
+    document.getElementById('identifiant').value = b.dataset.identifiant;
+    document.getElementById('mot_de_passe').value = zone.dataset.mdp;
+    zone.querySelectorAll('.compte-demo').forEach(function (x) { x.classList.toggle('choisi', x === b); });
+    document.querySelector('.btn-login').focus();
+  });
+})();
+</script>{% endif %}
 <script>if ('caches' in window) { caches.keys().then(function (noms) { noms.forEach(function (n) { if (n.indexOf('performyl2-pages') === 0) caches.delete(n); }); }); }</script>
 </body>
 </html>
