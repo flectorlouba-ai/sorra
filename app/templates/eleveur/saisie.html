@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block aide %}saisie{% endblock %}
 {% block titre %}Saisie du jour{% endblock %}
 {% block icone %}pencil{% endblock %}
@@ -6,6 +7,7 @@
 {% block page_sous_titre %}Morts et aliment, bâtiment par bâtiment{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 {% include 'eleveur/_espace.html' %}
 {% endblock %}
 

@@ -94,8 +94,11 @@ def liste():
     details = {f.id: pilotage.infos_ferme(f, production) for f in fermes}     # lot R : colonnes de la maquette
     from app.services import conformite                                          # lot K : tableau du cahier
     cle = 'AGENT-2' if current_user.profil == Profil.AGENT else 'DGE-2'
-    conforme = (cle, conformite.spec(cle.split('-')[0], int(cle.split('-')[1])), conformite.dge_elevages(current_user, fermes, details, production)) \
-        if current_user.profil in (Profil.DGE, Profil.ADMIN, Profil.AGENT) else None
+    conforme = None
+    if current_user.profil == Profil.AGENT:
+        conforme = ('AGENT-2', conformite.spec('AGENT', 2), conformite.agent_fermes(current_user, fermes, details, production, urgences))
+    elif current_user.profil in (Profil.DGE, Profil.ADMIN):
+        conforme = ('DGE-2', conformite.spec('DGE', 2), conformite.dge_elevages(current_user, fermes, details, production))
     carte_bureau = None
     if conforme and fermes:
         pid = None

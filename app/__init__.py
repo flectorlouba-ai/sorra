@@ -261,7 +261,11 @@ def _installer_controles_session(app):
             from app.models.base import maintenant as _maintenant
             enregistree.derniere_activite = _maintenant()
             _db.session.commit()
-        session['derniere_activite'] = maintenant
+        # Lot K : le cookie de session n'est réécrit qu'une fois par minute. Réécrit à chaque réponse, des requêtes
+        # simultanées (mise en cache des pages hors ligne au démarrage) écrasaient un choix fait entre-temps
+        # (version ordinateur de l'agent perdue sur grand écran).
+        if not derniere or maintenant - derniere > 60:
+            session['derniere_activite'] = maintenant
         if current_user.doit_changer_mdp and request.endpoint not in libres and not app.config.get('DEMO'):
             return redirect(url_for('auth.mot_de_passe'))
         return None

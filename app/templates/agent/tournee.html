@@ -1,10 +1,12 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% from 'agent/_urgence.html' import pastille, raisons %}
 {% block titre %}Tournée du jour{% endblock %}
 {% block icone %}signpost-split{% endblock %}
 {% block page_sous_titre %}Visites prévues aujourd'hui ou en retard, puis fermes en rouge · gardée sur le téléphone{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <div class="td-sous mb-2" data-tournee-du>Préparée le {{ maintenant|date_locale('%d/%m/%Y à %H:%M') }}. Ouvrez-la avec du réseau avant de partir : elle reste lisible sans réseau, avec les fiches des fermes.</div>
 {% for l in lignes %}
 <div class="card-p mb-2" data-ferme-tournee="{{ l.ferme.numero }}">

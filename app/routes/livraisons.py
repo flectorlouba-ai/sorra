@@ -72,7 +72,12 @@ def liste():
     livraisons = q.order_by(Livraison.date_livraison.desc(), Livraison.numero_metier.desc()).all()
     fermes = filtre_perimetre(Ferme.query).order_by(Ferme.numero_metier).all()
     provinces = [p for p in Province.query.order_by(Province.ordre) if p.id in {fe.province_id for fe in fermes}]
-    return render_template('livraisons/liste.html', livraisons=livraisons, filtre=f, fermes=fermes,
+    from app.services import conformite
+    conforme = None
+    if current_user.profil == Profil.AGENT:
+        _fermes_agent = filtre_perimetre(Ferme.query).order_by(Ferme.numero_metier).all()
+        conforme = ('AGENT-7', conformite.spec('AGENT', 7), conformite.agent_stocks(current_user, _fermes_agent))
+    return render_template('livraisons/liste.html', conforme=conforme, livraisons=livraisons, filtre=f, fermes=fermes,
                            provinces=provinces, statuts=S.LIBELLES,
                            produits=Produit.query.order_by(Produit.nom).all(),
                            total=base.count(), a_confirmer=base.filter(Livraison.statut == S.A_CONFIRMER).count(),

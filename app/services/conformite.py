@@ -36,6 +36,22 @@ CORRECTIONS = {
     ('VETO', 5): {'Délai avant vente': 'C', 'Suivi': 'A'},
     ('VETO', 6): {'Bande / lot': 'A', 'Ferme': 'A', 'Décision': 'A', 'État': 'A'},
     ('VETO', 7): {'Point de départ': 'S', 'Type': 'A', 'Amont (origine)': 'A', 'Aval (bandes / lots)': 'A', 'Par': 'A'},
+    ('ELEVEUR', 1): {'Quoi': 'A', 'Bande': 'A', 'Pour quand': 'C', 'État': 'C'},
+    ('ELEVEUR', 2): {'Bande': 'A', 'État': 'A'},
+    ('ELEVEUR', 3): {'Jour': 'A', 'Saisi par': 'A', 'Modifiée': 'A'},
+    ('ELEVEUR', 4): {'Mois': 'A', 'Recettes': 'C', 'Dépenses': 'C', 'Poussins': 'C', 'Aliment': 'C', 'Vaccins et soins': 'C', "Main-d'œuvre": 'C', 'Autres': 'C'},
+    ('ELEVEUR', 5): {'Date': 'A', 'Bande': 'A', 'Réponse du vétérinaire': 'A', 'État': 'A'},
+    ('ELEVEUR', 6): {'Article': 'A', 'Origine': 'A', 'Prévu': 'A', 'Date': 'A', 'État': 'A'},
+    ('ELEVEUR', 7): {'Lot': 'A', 'Bande': 'A', 'Date': 'A', 'QR': 'A', 'Suivi': 'A'},
+    ('ELEVEUR', 8): {'Date': 'A', 'Ce que la BCEG voit': 'C', 'Par': 'A'},
+    ('AGENT', 1): {'Demandée par': 'A', 'État': 'C'},
+    ('AGENT', 2): {'Bande en cours': 'C', 'Urgence': 'C'},
+    ('AGENT', 3): {'Position': 'C', 'Compte': 'A', 'État': 'A'},
+    ('AGENT', 4): {'Ordre': 'A', 'Raison': 'C', 'État': 'A'},
+    ('AGENT', 5): {'Présence': 'C', 'État': 'A'},
+    ('AGENT', 6): {'Ferme': 'A', 'Bande': 'A', 'Jour': 'A', 'Donnée': 'A', 'Version éleveur': 'A', 'Ma version': 'A'},
+    ('AGENT', 7): {'Ferme': 'A', 'Article': 'A', 'Origine': 'A', 'Reçu': 'C', 'Utilisé': 'C'},
+    ('AGENT', 8): {'État': 'A'},
     ('VETO', 8): {'Paramètre': 'A', 'Avant': 'A', 'Après': 'A', 'Proposé par': 'A', 'Motif': 'A'},
 }
 
@@ -52,8 +68,9 @@ class Tableau:
     """Ce que la macro `tableau` attend."""
 
     def __init__(self, lignes, provinces=None, archives=None, creation=None, creation_caches=None, noms=None,
-                 choix=None, peut_modifier=False, peut_archiver=False, colonnes_en_plus=(), vide=None):
+                 choix=None, peut_modifier=False, peut_archiver=False, colonnes_en_plus=(), vide=None, titre=None):
         self.lignes = lignes
+        self.titre = titre                                        # titre vivant (nombre, bande, date) ; sinon celui du cahier
         self.provinces = provinces or sorted({l['province'] for l in lignes if l.get('province')})
         self.archives = archives
         self.creation = creation
@@ -754,3 +771,426 @@ def creation(cle, user, form):
 GESTES = {'DGE-2': _ferme, 'AGENT-2': _ferme, 'DGE-3': _livraison, 'DGE-4': _commande, 'AGENT-8': _commande,
           'DGE-5': _arbitrage, 'AGENT-6': _arbitrage, 'VETO-3': _seuil, 'VETO-6': _blocage, 'VETO-8': _validation,
           'ADMIN-5': _validation}
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Éleveur (version ordinateur) — K3
+# ══════════════════════════════════════════════════════════════════════
+
+def _fiche_lot_a1(objets, user):
+    """Les fiches préremplies du lot A1 (genres saisie, pesée, sortie, vaccin…) : {id: Info}."""
+    from app.services import fiches
+    try:
+        return fiches.infos(objets, user)
+    except Exception:
+        return {}
+
+
+def eleveur_accueil(user):
+    """Mes alertes et rappels : ce que l'éleveur a à faire (saisie du jour, pesée, vaccins, livraisons à confirmer,
+    réponses du vétérinaire) ; un clic ouvre l'écran concerné."""
+    from app.models.bande import Bande, StatutBande
+    from app.models.intrant import Livraison, StatutLivraison
+    from app.models.sante import AlerteSanitaire
+    from app.services import sante
+    fermes = filtre_perimetre(Ferme.query, utilisateur=user).all()
+    ids = [f.id for f in fermes]
+    lignes = []
+    bandes = Bande.query.filter(Bande.ferme_id.in_(ids), Bande.statut == StatutBande.EN_COURS).all() if ids else []
+    auj = date.today()
+    for b in bandes:
+        if not ind.saisie_du(b, auj):
+            lignes.append(ligne({'Quoi': '📝 Saisie du jour', 'Bande': b.numero, 'Pour quand': "aujourd'hui", 'État': _badge('À faire', 'warn')},
+                                f'saisie:{b.id}', lien=url_for('eleveur.saisie'), jour=auj))
+        pesee = ind.prochaine_pesee(b)
+        if pesee:
+            lignes.append(ligne({'Quoi': '⚖️ Pesée de la semaine', 'Bande': b.numero, 'Pour quand': _d(pesee),
+                                 'État': _badge('En retard', 'danger') if pesee < auj else _badge('Prévue', 'neutre')},
+                                f'pesee:{b.id}', lien=url_for('bandes.pesee', numero=b.numero), jour=pesee))
+        for v in sante.vaccins_de_la_bande(b):
+            if v['etat'] in ('aujourdhui', 'demain', 'retard', 'a_faire'):
+                lignes.append(ligne({'Quoi': f'💉 Vaccin {v["calendrier"].produit.nom}', 'Bande': b.numero, 'Pour quand': _d(v['prevu']),
+                                     'État': _badge('En retard', 'danger') if v['etat'] == 'retard' else _badge('À faire', 'warn')},
+                                    f'vaccin:{b.id}:{v["calendrier"].id}', lien=url_for('eleveur.soins'), jour=v['prevu']))
+    for liv in (Livraison.query.filter(Livraison.ferme_id.in_(ids), Livraison.statut == StatutLivraison.A_CONFIRMER).all() if ids else []):
+        lignes.append(ligne({'Quoi': '🚚 Livraison à confirmer', 'Bande': '—', 'Pour quand': _d(liv.date_livraison), 'État': _badge('À confirmer', 'warn')},
+                            f'liv:{liv.id}', lien=url_for('eleveur.produits'), jour=liv.date_livraison))
+    for a in (AlerteSanitaire.query.filter(AlerteSanitaire.ferme_id.in_(ids)).all() if ids else []):
+        for r in a.reponses:
+            if r.lue_le is None:
+                lignes.append(ligne({'Quoi': '💬 Réponse du vétérinaire', 'Bande': a.bande.numero if a.bande else '—',
+                                     'Pour quand': _d(_date_de(r.cree_le)), 'État': _badge('À lire', 'info')},
+                                    f'rep:{r.id}', lien=url_for('sante.mes_declarations'), jour=_date_de(r.cree_le)))
+    lignes.sort(key=lambda l: l['date'] or '')
+    return Tableau(lignes, vide='Rien à faire pour le moment ✓')
+
+
+def eleveur_bandes(user, bandes):
+    from app.models.bande import TypeProduction
+    lignes = []
+    for b in bandes:
+        v = ind.calculer(b)
+        cell = {'Bande': _lien(url_for('bandes.fiche', numero=b.numero), b.numero), 'Bâtiment': b.batiment.code,
+                'Type': TypeProduction.LIBELLES.get(b.type_production, b.type_production),
+                'Mise en place': _d(b.date_mise_en_place), 'Poussins': _n(b.effectif_initial), 'Effectif': _n(v['effectif_present']),
+                'Âge': f'{v["age"]} j', 'Mortalité': _pct(v['mortalite'], 2), 'Poids moyen': _n(v['poids_moyen_g'], 0, ' g'),
+                'IC': 'sans objet' if v.get('ponte') else _n(v['indice_consommation'], 2),
+                'État': _badge('En cours', 'ok') if b.en_cours else _badge('Clôturée', 'off')}
+        lignes.append(ligne(cell, str(b.id), lien=url_for('bandes.fiche', numero=b.numero), jour=b.date_mise_en_place,
+                            archivee=not b.en_cours))
+    return Tableau(lignes, vide='Aucune bande.')
+
+
+def eleveur_saisies(user, bande):
+    """Mes saisies · bande <code> : une ligne par jour saisi ; le clic ouvre la fiche du lot A1 (modifiable tant que la
+    bande est ouverte)."""
+    if bande is None:
+        return Tableau([], vide='Aucune bande en cours.', titre='Mes saisies · bande —')
+    saisies = sorted(bande.saisies, key=lambda s: s.date, reverse=True)
+    pesees = {p.date: p for p in bande.pesees}
+    sorties = {}
+    for s in bande.sorties:
+        sorties[s.date] = sorties.get(s.date, 0) + s.nombre
+    infos = _fiche_lot_a1(saisies, user)
+    lignes = []
+    for s in saisies:
+        p = pesees.get(s.date)
+        aliments = ', '.join(a.produit.nom for a in s.aliments) or '—'
+        auteur = db.session.get(Utilisateur, s.cree_par) if s.cree_par else None
+        info = infos.get(s.id)
+        cell = {'Jour': _d(s.date), 'Âge': str(ind.age(bande, s.date)), 'Morts': str(s.morts), 'Aliment': aliments,
+                'Sacs': _n(s.sacs, 1), 'Pesée': _n(p.poids_moyen_g, 0, ' g') if p else '—',
+                'Sorties': _n(sorties[s.date]) if s.date in sorties else '—',
+                'Saisi par': 'agent' if s.saisi_par_agent else (auteur.nom_complet if auteur else 'éleveur'),
+                'Modifiée': f'{info.nb} fois' if info is not None and info.nb else '—'}
+        l = ligne(cell, str(s.id), lien=url_for('bandes.fiche', numero=bande.numero), jour=s.date)
+        if info is not None:
+            l['fiche_a1'] = info
+        lignes.append(l)
+    return Tableau(lignes, vide='Aucune saisie pour cette bande.', titre=f'Mes saisies · bande {bande.batiment.code}')
+
+
+def eleveur_argent(user, fermes):
+    """Mon argent mois par mois (12 mois) : recettes, dépenses, bénéfice, dépenses par poste."""
+    from app.services import argent
+    ids = [f.id for f in fermes]
+    mvts = argent.mouvements(ids) if ids else []
+    auj = date.today()
+    mois = []
+    for i in range(11, -1, -1):
+        y, m = auj.year, auj.month - i
+        while m <= 0:
+            y, m = y - 1, m + 12
+        mois.append((y, m))
+    postes = {'Poussins': ('poussin',), 'Aliment': ('aliment',),
+              'Vaccins et soins': ('vaccin', 'soin', 'médicament', 'veto', 'vétérinaire'),
+              "Main-d'œuvre": ('main', 'salaire', 'ouvrier', 'personnel')}
+    noms_mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
+    lignes = []
+    for (y, m) in mois:
+        rec = dep = autres = 0
+        par_poste = {k: 0 for k in postes}
+        for mv in mvts:
+            if (mv['date'].year, mv['date'].month) != (y, m) or not mv['montant']:
+                continue
+            if mv['signe'] > 0:
+                rec += mv['montant']
+                continue
+            dep += mv['montant']
+            texte = mv['texte'].lower()
+            if mv['genre'] == 'achat':
+                texte = mv['objet'].lignes[0].produit.type.lower() + ' ' + texte
+            else:
+                texte = (getattr(mv['objet'], 'categorie', '') or '').lower() + ' ' + texte
+            for k, mots in postes.items():
+                if any(mot in texte for mot in mots):
+                    par_poste[k] += mv['montant']
+                    break
+            else:
+                autres += mv['montant']
+        cell = {'Mois': f'{noms_mois[m - 1].capitalize()} {y}', 'Recettes': _n(rec), 'Dépenses': _n(dep), 'Bénéfice': _n(rec - dep),
+                'Poussins': _n(par_poste['Poussins']), 'Aliment': _n(par_poste['Aliment']),
+                'Vaccins et soins': _n(par_poste['Vaccins et soins']), "Main-d'œuvre": _n(par_poste["Main-d'œuvre"]), 'Autres': _n(autres)}
+        lignes.append(ligne(cell, f'{y}-{m:02d}', lien=url_for('argent.mon_argent', periode='tout'), jour=date(y, m, 1)))
+    return Tableau(lignes, vide='Aucun mouvement.', titre=f'Mon argent mois par mois · {auj.year} (FCFA)')
+
+
+def eleveur_sante(user, fermes):
+    """Ma santé des poulets : déclarations (signalements), traitements, vaccinations faites."""
+    from app.models.sante import Declaration, Traitement, Vaccination, AlerteSanitaire
+    from app.models.bande import Bande
+    ids = [f.id for f in fermes]
+    bandes = Bande.query.filter(Bande.ferme_id.in_(ids)).all() if ids else []
+    bids = [b.id for b in bandes]
+    lignes = []
+    for d in (Declaration.query.filter(Declaration.ferme_id.in_(ids)).all() if ids else []):
+        a = AlerteSanitaire.query.filter_by(declaration_id=d.id).first()
+        r = a.reponses[-1] if a and a.reponses else None
+        cell = {'Date': _d(_date_de(d.cree_le)), 'Bande': d.bande.numero if d.bande else '—', 'Quoi': '🤒 Poulet malade signalé',
+                'Signes / produit': ', '.join(d.signes), 'Photos': str(len(d.photos)),
+                'Réponse du vétérinaire': (r.texte or ', '.join(r.conseils)) if r else 'pas encore',
+                'État': _badge(a.libelle_statut if a else 'Envoyé', 'ok' if a and a.statut in ('INFIRMEE', 'CLOSE') else 'warn')}
+        lignes.append(ligne(cell, f'decl:{d.id}', lien=url_for('sante.mes_declarations'), jour=_date_de(d.cree_le)))
+    for t in (Traitement.query.filter(Traitement.bande_id.in_(bids)).all() if bids else []):
+        en_cours = t.date_fin >= date.today()
+        cell = {'Date': _d(t.date_debut), 'Bande': t.bande.numero, 'Quoi': '💊 Traitement', 'Signes / produit': f'{t.produit.nom} · {t.motif}',
+                'Photos': '—', 'Réponse du vétérinaire': '—', 'État': _badge('En cours' if en_cours else 'Terminé', 'info' if en_cours else 'off')}
+        lignes.append(ligne(cell, f'trait:{t.id}', lien=url_for('eleveur.soins'), jour=t.date_debut))
+    for v in (Vaccination.query.filter(Vaccination.bande_id.in_(bids)).all() if bids else []):
+        cell = {'Date': _d(v.date), 'Bande': v.bande.numero, 'Quoi': '💉 Vaccin fait', 'Signes / produit': f'{v.produit.nom} ({v.mode.lower()})',
+                'Photos': '—', 'Réponse du vétérinaire': '—', 'État': _badge('Fait', 'ok')}
+        lignes.append(ligne(cell, f'vac:{v.id}', lien=url_for('eleveur.soins'), jour=v.date))
+    lignes.sort(key=lambda l: l['date'] or '', reverse=True)
+    return Tableau(lignes, vide='Rien à signaler ✓')
+
+
+def eleveur_livraisons(user, fermes):
+    from app.models.intrant import Livraison, StatutLivraison as S
+    ids = [f.id for f in fermes]
+    livs = Livraison.query.filter(Livraison.ferme_id.in_(ids)).order_by(Livraison.date_livraison.desc()).limit(300).all() if ids else []
+    lignes = []
+    for liv in livs:
+        for l in liv.lignes:
+            diff = None if l.quantite_recue is None else l.quantite_recue - l.quantite_livree
+            cell = {'N°': liv.numero or '—', 'Article': l.produit.nom, 'Origine': liv.libelle_origine, 'Prévu': _n(l.quantite_livree, 1),
+                    'Reçu': _n(l.quantite_recue, 1), 'Différence': ('0' if diff == 0 else _n(diff, 1)) if diff is not None else '—',
+                    'Date': _d(liv.date_livraison),
+                    'État': _badge(liv.libelle_statut, {'A_CONFIRMER': 'warn', 'PREVUE': 'neutre', 'RECUE': 'ok', 'RECUE_ECART': 'warn', 'ANNULEE': 'off'}.get(liv.statut, 'neutre'))}
+            lignes.append(ligne(cell, f'{liv.id}:{l.id}',
+                                lien=url_for('eleveur.produits') if liv.statut == S.A_CONFIRMER else url_for('livraisons.mes_livraisons'),
+                                jour=liv.date_livraison, archivee=liv.statut == S.ANNULEE))
+    return Tableau(lignes, vide='Aucune livraison.')
+
+
+def eleveur_lots(user, lots, etat):
+    lignes = []
+    for lot in lots:
+        s = lot.sortie
+        e = etat(s)
+        cell = {'Lot': _lien(url_for('tracabilite.lot', numero=lot.numero), lot.numero), 'Bande': s.bande.numero, 'Date': _d(s.date),
+                'Poulets': _n(s.nombre), 'Poids': _n(s.poids_total_kg, 1, ' kg'), 'Destinataire': s.destinataire or '—',
+                'QR': 'annulé' if lot.annule else _lien(url_for('tracabilite.etiquettes', numero=lot.numero), 'étiquettes'),
+                'Suivi': e['texte'] if e else '—'}
+        lignes.append(ligne(cell, str(lot.id), lien=url_for('tracabilite.lot', numero=lot.numero), jour=s.date, archivee=lot.annule))
+    return Tableau(lignes, vide='Aucun lot.')
+
+
+def eleveur_bceg(user, fermes):
+    from app.models.bceg import ConsentementBceg, DecisionBceg
+    ids = [f.id for f in fermes]
+    lignes = []
+    consentements = (ConsentementBceg.query.filter(ConsentementBceg.ferme_id.in_(ids))
+                     .order_by(ConsentementBceg.cree_le.desc()).all() if ids else [])
+    for c in consentements:
+        qui = db.session.get(Utilisateur, c.utilisateur_id) if c.utilisateur_id else None
+        voit = 'bandes, mortalité, production, argent de la ferme (12 mois)' if c.decision == DecisionBceg.ACCEPTE else 'rien'
+        cell = {'Date': _d(_date_de(c.cree_le)),
+                'Décision': _badge(DecisionBceg.LIBELLES.get(c.decision, c.decision), 'ok' if c.decision == DecisionBceg.ACCEPTE else 'off'),
+                'Ce que la BCEG voit': voit, 'Par': qui.nom_complet if qui else 'système'}
+        lignes.append(ligne(cell, str(c.id), jour=_date_de(c.cree_le)))
+    return Tableau(lignes, vide="Aucune décision pour l'instant : votre ferme n'est pas financée par la BCEG, ou vous n'avez pas encore répondu.")
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Agent (version ordinateur) — K3
+# ══════════════════════════════════════════════════════════════════════
+
+def agent_accueil(user, actions):
+    lignes = []
+    for a in actions:
+        cell = {'N°': a.numero, 'Action': a.intitule, 'Ferme': a.libelle_perimetre, 'Demandée par': a.createur.nom_complet,
+                'Échéance': _d(a.echeance), 'Priorité': a.priorite.lower(),
+                'État': _badge(a.libelle_etat, 'danger' if a.etat == 'RETARD' else 'neutre')}
+        lignes.append(ligne(cell, str(a.id), lien=url_for('actions.liste', etat=a.etat), jour=a.echeance, archivee=a.etat == 'FAITE'))
+    return Tableau(lignes, creation=url_for('bureau.creation_conforme', cle='AGENT-1'), choix={'Ferme': _fermes_choix(user)}, vide='Aucune action en cours.')
+
+
+def agent_fermes(user, fermes, details, production, urgences):
+    from app.models.bande import Bande, StatutBande
+    from app.services import fermes as regles_fermes
+    lignes = []
+    for f in fermes:
+        i = details[f.id]
+        u = (urgences or {}).get(f.id) or {}
+        bande = Bande.query.filter_by(ferme_id=f.id, statut=StatutBande.EN_COURS).order_by(Bande.date_mise_en_place.desc()).first()
+        pr = production.get(f.id) or {}
+        position = ('✓ relevée' + (f' (±{f.gps_precision_m} m)' if f.gps_precision_m else '')) if f.a_une_position else '📍 à relever'
+        if f.position_a_verifier:
+            position += ' · à vérifier'
+        couleur = u.get('couleur')
+        cell = {'N°': _lien(url_for('fermes.fiche', numero=f.numero), f.numero), 'Éleveur': f.exploitant_nom,
+                'Bande en cours': bande.numero if bande else '—', 'Effectif': _n(i['effectif']), 'Mortalité': _pct(i['mortalite'], 2),
+                'Dernière saisie': _d(i['derniere_saisie'], '%d/%m'), 'Atteinte': _pct(pr.get('atteinte'), 0), 'Position': position,
+                'Urgence': _badge({'rouge': 'Urgent', 'orange': 'À surveiller', 'vert': 'OK'}.get(couleur, '—'),
+                                  {'rouge': 'danger', 'orange': 'warn', 'vert': 'ok'}.get(couleur, 'neutre'))}
+        peut = regles_fermes.peut_modifier(user, f)
+        lignes.append(ligne(cell, str(f.id), valeurs={**{k: _texte(v) for k, v in cell.items()}, 'N°': f.numero, 'Éleveur': f.exploitant_nom},
+                            action=url_for('bureau.fiche_conforme', cle='AGENT-2', ident=str(f.id)), droits=['modifier'] if peut else [],
+                            pied=pied(f), titre=f'{f.numero} · {f.nom}', jour=_date_de(f.cree_le), province=f.province.nom))
+    return Tableau(lignes, peut_modifier=True, vide='Aucune ferme.', titre=f'Mes {len(fermes)} ferme{"s" if len(fermes) != 1 else ""}')
+
+
+def agent_enrolement(user, fermes):
+    """Enrôlements récents : les fermes créées (90 jours), avec le compte de l'éleveur et l'état."""
+    from app.models.utilisateur import UtilisateurFerme
+    limite = date.today() - timedelta(days=90)
+    lignes = []
+    for f in fermes:
+        cree = _date_de(f.cree_le)
+        if cree and cree < limite:
+            continue
+        compte = UtilisateurFerme.query.filter_by(ferme_id=f.id).first()
+        cell = {'Ferme': _lien(url_for('fermes.fiche', numero=f.numero), f'{f.numero} · {f.nom}'), 'Éleveur': f.exploitant_nom,
+                'Province': f.province.nom, 'Programme': f.libelle_programme, 'Capacité': _n(f.capacite),
+                'Position': '✓' if f.a_une_position else '📍 à relever',
+                'Compte': compte.utilisateur.identifiant if compte and getattr(compte, 'utilisateur', None) else 'pas encore',
+                'Le': _d(cree), 'État': _badge('Provisoire' if f.numero_provisoire else f.statut, 'warn' if f.numero_provisoire else 'ok')}
+        lignes.append(ligne(cell, str(f.id), lien=url_for('fermes.fiche', numero=f.numero), jour=cree, province=f.province.nom))
+    return Tableau(lignes, vide='Aucun enrôlement ces 90 derniers jours.')
+
+
+def agent_tournee(user, lignes_tournee):
+    lignes = []
+    for i, l in enumerate(lignes_tournee, start=1):
+        f, v, u = l['ferme'], l.get('visite'), l.get('urgence') or {}
+        raisons = ' · '.join(t for _, t in (u.get('raisons') or [])) or (v.objet if v else '—')
+        dist = l.get('distance_m')
+        cell = {'Ordre': str(i), 'Ferme': _lien(url_for('fermes.fiche', numero=f.numero), f'{f.numero} · {f.nom}'), 'Raison': raisons,
+                'Distance': _n(dist / 1000, 1, ' km') if dist else '—', 'À faire': v.objet if v else 'visite de contrôle',
+                'Heure prévue': '—', 'État': _badge('Prévue' if v else 'Proposée', 'neutre' if v else 'warn')}
+        lignes.append(ligne(cell, str(v.id) if v else f'f:{f.id}', lien=url_for('fermes.fiche', numero=f.numero), province=f.province.nom))
+    jours = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']
+    mois = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
+    auj = date.today()
+    return Tableau(lignes, creation=url_for('bureau.creation_conforme', cle='AGENT-4'), choix={'Ferme': _fermes_choix(user)},
+                   vide="Rien de prévu aujourd'hui.", titre=f'Tournée du {jours[auj.weekday()]} {auj.day} {mois[auj.month - 1]}')
+
+
+def agent_visites(user, visites, etat):
+    lignes = []
+    for v in visites:
+        e = etat(v)
+        presence = {'confirmee': '✓ sur place', 'eloignee': '⚠️ éloignée', 'sans_position': '—'}.get(e, '—')
+        conseils = ', '.join(v.recommandations or [])
+        if v.recommandation_libre:
+            conseils = (conseils + ' · ' if conseils else '') + v.recommandation_libre
+        cell = {'Date': _d(v.faite_le or v.date_prevue), 'Ferme': _lien(url_for('fermes.fiche', numero=v.ferme.numero), f'{v.ferme.numero} · {v.ferme.nom}'),
+                'Objet': v.objet, 'Présence': presence, 'Constats': v.constats or '—', 'Conseils': conseils or '—',
+                'Biosécurité': str(getattr(v, 'score_biosecurite', None) or '—'),
+                'État': _badge({'PREVUE': 'Prévue', 'FAITE': 'Faite', 'ANNULEE': 'Annulée'}.get(v.statut, v.statut),
+                               'ok' if v.statut == 'FAITE' else 'off' if v.statut == 'ANNULEE' else 'neutre')}
+        droits = (['modifier'] + (['archiver'] if v.statut == 'PREVUE' else [])) if v.agent_id == user.id and v.statut != 'ANNULEE' else []
+        lignes.append(ligne(cell, str(v.id), valeurs={**{k: _texte(x) for k, x in cell.items()}, 'Constats': v.constats or '',
+                                                     'Conseils': v.recommandation_libre or ''},
+                            action=url_for('bureau.fiche_conforme', cle='AGENT-5', ident=str(v.id)), droits=droits, pied=pied(v),
+                            titre=f'Visite · {v.ferme.nom}', jour=v.faite_le or v.date_prevue, province=v.ferme.province.nom,
+                            archivee=v.statut == 'ANNULEE'))
+    return Tableau(lignes, creation=url_for('bureau.creation_conforme', cle='AGENT-5'), choix={'Ferme': _fermes_choix(user)},
+                   peut_modifier=True, peut_archiver=True, vide='Aucune visite.')
+
+
+def agent_controle(user, conflits):
+    from app.models.hors_ligne import GenreVerification as G, StatutVerification as SV
+    genres = {G.MESSAGE: 'Saisie refusée', G.SAISIE_JOUR: 'Saisie du jour', G.LIVRAISON: 'Livraison', G.SORTIE: 'Sortie'}
+    lignes = []
+    for c in conflits:
+        v = c.versions or []
+
+        def version(i, v=v):
+            if isinstance(v, list) and len(v) > i and isinstance(v[i], dict):
+                return ' · '.join(f'{k} {val}' for k, val in v[i].items() if k != 'utilisateur_id')
+            return '—'
+        etat = 'À trancher' if c.a_trancher else ('Tranché' if c.statut == SV.TRANCHE else ('Vu' if c.vu_le else 'À voir'))
+        cell = {'Ferme': f'{c.ferme.numero} · {c.ferme.nom}' if c.ferme else '—', 'Bande': c.bande.numero if c.bande else '—',
+                'Jour': _d(_date_de(c.cree_le)), 'Donnée': genres.get(c.genre, c.genre), 'Version éleveur': version(0), 'Ma version': version(1),
+                'Écart': c.quoi, 'Depuis': _d(_date_de(c.cree_le), '%d/%m %H:%M'), 'État': _badge(etat, 'warn' if c.a_trancher else 'ok')}
+        lignes.append(ligne(cell, str(c.id), valeurs={**{k: _texte(x) for k, x in cell.items()}, 'Détail': c.detail},
+                            action=url_for('bureau.fiche_conforme', cle='AGENT-6', ident=str(c.id)), droits=['modifier'] if c.a_trancher else [],
+                            pied=pied(c), titre=f'Vérification · {c.quoi}', jour=_date_de(c.cree_le),
+                            province=c.ferme.province.nom if c.ferme else None, archivee=not c.a_trancher and c.statut == SV.TRANCHE))
+    choix = {'État': [('0', 'Garder la version de l’éleveur'), ('1', 'Garder ma version')], 'Ferme': _fermes_choix(user)}
+    return Tableau(lignes, creation=url_for('bureau.creation_conforme', cle='AGENT-6'), choix=choix, peut_modifier=True,
+                   colonnes_en_plus=('Détail',), noms={'État': 'choix'}, vide='Aucune saisie à vérifier ✓')
+
+
+def agent_stocks(user, fermes):
+    from app.services import intrants
+    lignes = []
+    for f in fermes:
+        for r in intrants.stock_ferme(f):
+            for origine, recu, utilise, reste in (('Programme', r['etat'], r['utilise_programme'], r['programme']),
+                                                  ('Achat', r['achat'], r['utilise_externe'], r['externe'])):
+                if not recu and not utilise:
+                    continue
+                cell = {'Ferme': f'{f.numero} · {f.nom}', 'Article': r['produit'].nom, 'Origine': origine, 'Reçu': _n(recu, 1),
+                        'Utilisé': _n(utilise, 1), 'Reste': _n(reste, 1), 'Écart': '—'}
+                lignes.append(ligne(cell, f'{f.id}:{r["produit"].id}:{origine}', lien=url_for('terrain.stock', ferme=f.numero),
+                                    province=f.province.nom))
+    return Tableau(lignes, vide='Aucun stock.')
+
+
+def _visite(ident, user, form, action):
+    from app.models.visite import Visite
+    from app.services import visites as regles
+    import uuid
+    v = db.session.get(Visite, uuid.UUID(ident))
+    if v is None or v.agent_id != user.id:
+        raise RegleConformite('Vous ne pouvez modifier que vos comptes rendus.')
+    if action == 'archiver':
+        regles.annuler(v, form.get('motif') or 'archivée depuis la liste des visites', user)
+        return 'Visite archivée.'
+    from app.services.journal import enregistrer, Action as J
+    avant = f'{v.objet} · {v.constats or "—"}'
+    if form.get('Objet'):
+        v.objet = form['Objet'][:60]
+    if 'Constats' in form:
+        v.constats = (form.get('Constats') or '')[:500] or None
+    if 'Conseils' in form:
+        v.recommandation_libre = (form.get('Conseils') or '')[:300] or None
+    enregistrer(J.MODIFICATION, table='visite', enregistrement_id=v.id,
+                detail=f'Visite modifiée (liste) : {avant} → {v.objet} · {v.constats or "—"}')
+    return 'Compte rendu enregistré.'
+
+
+GESTES['AGENT-5'] = _visite
+
+
+def _planifier_visite(user, form):
+    """AGENT 1 / 4 : « ＋ Nouvelle visite », « ＋ Planifier une tournée » : une visite prévue (ferme, date, objet)."""
+    from app.services import visites as regles
+    f = _ferme_du_form(form, user)
+    jour = form.get('Échéance') or form.get('Heure prévue') or form.get('Date') or form.get('date')
+    try:
+        jour = date.fromisoformat(jour) if jour else None
+    except ValueError:
+        raise RegleConformite('La date est au format AAAA-MM-JJ.')
+    objet = (form.get('Action') or form.get('À faire') or form.get('Objet') or form.get('Raison') or 'Visite de contrôle').strip()
+    try:
+        v = regles.planifier(f, jour, objet, user)
+    except regles.RegleVisite as e:
+        raise RegleConformite(str(e))
+    from app.services.journal import enregistrer, Action as J
+    enregistrer(J.CREATION, table='visite', enregistrement_id=v.id, detail=f'Visite prévue le {jour:%d/%m/%Y} · {f.numero} · {objet} ({user.nom_complet})')
+    return f'Visite prévue le {jour:%d/%m/%Y} à {f.numero}.'
+
+
+def _compte_rendu(user, form):
+    """AGENT 5 : « ＋ Nouveau compte rendu » depuis l'ordinateur (sans position : présence « — »)."""
+    from app.services import visites as regles
+    f = _ferme_du_form(form, user)
+    jour = form.get('Date')
+    try:
+        jour = date.fromisoformat(jour) if jour else date.today()
+    except ValueError:
+        raise RegleConformite('La date est au format AAAA-MM-JJ.')
+    try:
+        v = regles.compte_rendu(f, None, user, (form.get('Objet') or 'Visite de contrôle').strip(), form.get('Constats'), [],
+                                form.get('Conseils'), None, None, None, jour)
+    except regles.RegleVisite as e:
+        raise RegleConformite(str(e))
+    return 'Compte rendu enregistré.'
+
+
+CREATIONS['AGENT-1'] = _planifier_visite
+CREATIONS['AGENT-4'] = _planifier_visite
+CREATIONS['AGENT-5'] = _compte_rendu

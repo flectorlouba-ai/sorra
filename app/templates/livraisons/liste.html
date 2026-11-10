@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% from '_macros.html' import badge_livraison, resume_lignes %}
 {% block titre %}Livraisons d'intrants{% endblock %}
 {% block icone %}box-seam{% endblock %}
@@ -11,6 +12,7 @@
 {% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 {% if filtre.alerte %}
 <div class="flash-item warning"><i class="bi bi-bell"></i>
   {{ 'Livraisons non confirmées dans le délai' if filtre.alerte == 'retard' else 'Livraisons reçues avec écart (période récente)' }}

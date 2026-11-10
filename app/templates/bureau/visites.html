@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Visites{% endblock %}
 {% block icone %}clipboard-check{% endblock %}
 {% block page_titre %}📋 Visites{% endblock %}
 {% block page_sous_titre %}Comptes rendus et visites prévues de votre périmètre{% endblock %}
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 <div class="table-wrap"><div class="table-scroll"><table>
   <thead><tr><th>Date</th><th>Ferme</th><th>Agent</th><th>Objet</th><th>Présence</th><th>Constats</th><th>Conseils</th><th>Biosécurité</th><th>État</th></tr></thead>
   <tbody>{% for v in visites %}{% set e = etat(v) %}

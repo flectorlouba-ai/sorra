@@ -1,0 +1,9 @@
+{% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
+{% block titre %}Enrôlement{% endblock %}
+{% block icone %}person-plus{% endblock %}
+{% block page_titre %}➕ Enrôlement{% endblock %}
+{% block page_sous_titre %}Les fermes enrôlées ces 90 derniers jours, avec le compte de l'éleveur ; « ＋ Enrôler une ferme » ouvre le formulaire{% endblock %}
+{% block contenu %}
+{{ tableau(conforme[0], conforme[1], conforme[2]) }}
+{% endblock %}

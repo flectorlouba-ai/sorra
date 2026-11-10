@@ -121,7 +121,7 @@ PAGES_AGENT_TERRAIN = ['terrain.tournee', 'terrain.fermes', 'terrain.saisir', 't
 # compte (en ligne par nature), la création d'une ferme (avec du réseau seulement, jusqu'au lot 19 bis), et les
 # écrans de la « Version bureau » de l'agent (pilotage, sur ordinateur). Vérifié par tests/test_lot19ter.py.
 EN_LIGNE_SEULEMENT = {'auth.securite', 'auth.mise_en_place', 'fermes.nouvelle', 'bureau.accueil', 'bureau.mes_lots',
-                      'actions.liste', 'actions.rapports',
+                      'actions.liste', 'actions.rapports', 'bureau.enrolement', 'bureau.fiche_conforme', 'bureau.creation_conforme',
                       'bureau.version_ordinateur', 'bureau.version_terrain', 'bureau.recherche', 'bureau.exports'}
 VERSION_BUREAU_AGENT = {'operateurs.liste', 'livraisons.liste', 'livraisons.nouvelle', 'bandes.liste', 'sante.vaccins',
                         'pilotage.tableau', 'tracabilite.lots', 'agent.commandes', 'fermes.liste',
@@ -207,8 +207,10 @@ def conflits():
                                    en_retard=verifications.en_retard, choix_sortie=verifications.CHOIX_SORTIE,
                                    motifs=[v for v, _ in ld_choices('motifs_verification')])
     from app.services import conformite
-    cle = 'AGENT-6' if current_user.profil == Profil.AGENT else 'DGE-5'
-    conforme = (cle, conformite.spec(cle.split('-')[0], int(cle.split('-')[1])), conformite.dge_arbitrages(current_user, a_trancher + autres))
+    if current_user.profil == Profil.AGENT:
+        conforme = ('AGENT-6', conformite.spec('AGENT', 6), conformite.agent_controle(current_user, a_trancher + autres))
+    else:
+        conforme = ('DGE-5', conformite.spec('DGE', 5), conformite.dge_arbitrages(current_user, a_trancher + autres))
     return render_template('hors_ligne/conflits.html', conforme=conforme, a_trancher=a_trancher, conflits=autres, G=G,
                            par_province=par_province, province=province,
                            en_retard=verifications.en_retard, choix_sortie=verifications.CHOIX_SORTIE)

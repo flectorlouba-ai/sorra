@@ -1,9 +1,11 @@
 {% extends '_base.html' %}
+{% from '_tableau.html' import tableau %}
 {% block titre %}Vaccins et soins{% endblock %}
 {% block icone %}capsule{% endblock %}
 {% block page_titre %}💉 Vaccins et soins{% endblock %}
 
 {% block contenu %}
+{% if conforme %}{{ tableau(conforme[0], conforme[1], conforme[2]) }}{% endif %}
 {% if bandeau %}{% with liv={'numero': 'vaccin'}, secondes=bandeau.secondes,
      bandeau_texte='Fait ✓ — ' ~ bandeau.vaccination.produit.nom ~ ' · ' ~ bandeau.vaccination.bande.batiment.code,
      bandeau_action=url_for('eleveur.annuler_vaccin', ident=bandeau.vaccination.id) %}{% include 'livraisons/_bandeau_annuler.html' %}{% endwith %}{% endif %}

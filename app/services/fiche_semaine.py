@@ -40,7 +40,7 @@ def fiche_pdf(bande, jour=None, url_fiche=None):
     ferme = bande.ferme
     eleveur = ferme.responsable
     v = indicateurs.calculer(bande, jours[0] - timedelta(days=1))
-    ponte = getattr(bande, 'type', None) == 'PONTE'
+    ponte = bande.type_production == 'PONTE'
     saisies = {s.date: s for s in bande.saisies if jours[0] <= s.date <= jours[-1]}
     pesees = {p.date: p for p in bande.pesees if jours[0] <= p.date <= jours[-1]}
     sorties = {}

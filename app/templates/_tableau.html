@@ -6,6 +6,8 @@
    fiche préremplie dans #fen-fiche à partir du <template> unique du tableau (champs calculés et automatiques en
    lecture seule, boutons selon les droits, pied « créé par · le · n modifications · inscrit au journal »). #}
 
+{% import '_fiches.html' as fiches_a1 %}
+
 {% macro champ(nom, type, valeur='', noms=None, choix=None) -%}
 {% set n = (noms or {}).get(nom, nom) %}
 <label class="fiche-champ{{ ' lecture' if type != 'S' }}">
@@ -56,9 +58,9 @@
 {%- endmacro %}
 
 {% macro tableau(cle, spec, t) -%}
-<div class="table-wrap tableau-conforme" data-tableau="{{ cle }}" data-titre="{{ spec.titre }}">
+<div class="table-wrap tableau-conforme" data-tableau="{{ cle }}" data-titre="{{ t.titre or spec.titre }}"{% if cle == 'AGENT-1' %} data-mes-actions{% endif %}>
   <div class="outils-tableau">
-    <span class="titre-tableau">{{ spec.titre }}</span>
+    <span class="titre-tableau">{{ t.titre or spec.titre }}</span>
     <span data-nb-lignes>{{ t.lignes|length }} ligne(s)</span>
     <button type="button" class="pr2" data-imprimer>🖨️ Imprimer</button>
     <button type="button" class="xl" data-excel>⬇️ Excel</button>
@@ -74,7 +76,7 @@
       <thead><tr>{% for c in spec.colonnes %}<th>{{ c }}</th>{% endfor %}{% for c in t.colonnes_en_plus %}<th>{{ c }}</th>{% endfor %}</tr></thead>
       <tbody>
         {% for l in t.lignes %}
-        <tr class="tr-click{{ ' tr-archivee' if l.archivee }}" data-id="{{ l.id }}" data-fiche-modele="modele-{{ cle }}" data-ligne='{{ l.fiche|tojson|forceescape }}'
+        <tr class="tr-click{{ ' tr-archivee' if l.archivee }}" data-id="{{ l.id }}"{% if l.fiche_a1 %} data-fiche="fiche-{{ l.fiche_a1.genre }}-{{ l.fiche_a1.objet.id }}" aria-haspopup="dialog"{% else %} data-fiche-modele="modele-{{ cle }}" data-ligne='{{ l.fiche|tojson|forceescape }}'{% endif %}
             {% if l.date %}data-date="{{ l.date }}"{% endif %}{% if l.province %} data-province="{{ l.province }}"{% endif %}{% if l.lien %} data-lien="{{ l.lien }}"{% endif %}>
           {% for c in spec.colonnes %}<td>{{ l.cellules.get(c, '—')|default('—', true) }}</td>{% endfor %}
           {% for c in t.colonnes_en_plus %}<td>{{ l.cellules.get(c, '—')|default('—', true) }}</td>{% endfor %}
@@ -88,4 +90,5 @@
 </div>
 {{ fenetre_fiche(cle, spec, t) }}
 {{ fenetre_creation(cle, spec, t) }}
+{% for l in t.lignes if l.fiche_a1 %}{{ fiches_a1.modele(l.fiche_a1, request.path) }}{% endfor %}
 {%- endmacro %}
