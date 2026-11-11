@@ -1206,3 +1206,10 @@ body.bureau .dash .carte-zone,body.bureau .dash .al{border:1px solid var(--v-tra
   body.bureau .entete-page{flex-direction:column;}
   body.bureau .barre-actions{margin-left:0;}
 }
+/* Pastilles d'indicateurs en carrés (tuiles) : valeur en grand, libellé dessous */
+.pastilles-indic{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+.pi{flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;border-radius:8px;padding:12px 14px;min-height:96px;}
+.pi b{font-size:20px;line-height:1.1;}
+.pi>span{font-weight:700;color:var(--noir);font-size:12.5px;line-height:1.25;}
+.pi small{font-size:11px;line-height:1.3;}
+.pi.pi-alerte>span{color:var(--v-rouge);} .pi.pi-surveiller>span{color:var(--v-jaune);} .pi.pi-ok>span{color:var(--v-vert);}
