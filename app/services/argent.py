@@ -38,10 +38,12 @@ def presents(bande, jour):
     return max(0, bande.effectif_initial - morts - sortis)
 
 
-def bandes_du_jour(ferme_id, jour):
-    """Bandes de la ferme en cours ce jour-là (commencées, pas encore clôturées)."""
-    return [b for b in Bande.query.filter(Bande.ferme_id == ferme_id, Bande.date_mise_en_place <= jour)
-            if b.date_cloture is None or jour <= b.date_cloture]
+def bandes_du_jour(ferme_id, jour, bandes=None):
+    """Bandes de la ferme en cours ce jour-là (commencées, pas encore clôturées). `bandes` : toutes les bandes de la
+    ferme déjà lues (mouvements : une lecture par ferme au lieu d'une par dépense, lot J)."""
+    if bandes is None:
+        bandes = Bande.query.filter(Bande.ferme_id == ferme_id, Bande.date_mise_en_place <= jour).all()
+    return [b for b in bandes if b.date_mise_en_place <= jour and (b.date_cloture is None or jour <= b.date_cloture)]
 
 
 def partager(montant, poids):
@@ -60,16 +62,16 @@ def partager(montant, poids):
     return parts
 
 
-def repartir(montant, ferme_id, jour, batiment_id=None):
+def repartir(montant, ferme_id, jour, batiment_id=None, bandes_ferme=None):
     """{bande: part} selon les règles 1, 2 et 4."""
-    bandes = bandes_du_jour(ferme_id, jour)
+    bandes = bandes_du_jour(ferme_id, jour, bandes_ferme)
     if batiment_id:
         bandes = [b for b in bandes if b.batiment_id == batiment_id]
         return {bandes[0]: montant} if bandes else {}
     return partager(montant, {b: presents(b, jour) for b in bandes})
 
 
-def _parts_achat(achat, montant):
+def _parts_achat(achat, montant, bandes_ferme=None):
     """Achat personnel ou livraison de l'État : les poussins vont aux bandes qui les ont reçus
     (au prorata des poussins pris), le reste suit la règle du bâtiment ou du partage."""
     ligne = achat.lignes[0] if achat.lignes else None
@@ -78,7 +80,7 @@ def _parts_achat(achat, montant):
         for bp in BandePoussins.query.filter_by(livraison_ligne_id=ligne.id):
             pris[bp.bande] = pris.get(bp.bande, 0) + bp.quantite
         return partager(montant, pris)
-    return repartir(montant, achat.ferme_id, achat.date_livraison, achat.batiment_id)
+    return repartir(montant, achat.ferme_id, achat.date_livraison, achat.batiment_id, bandes_ferme)
 
 
 # ── Mouvements ──────────────────────────────────────────────────────────
@@ -104,6 +106,12 @@ def mouvements(ferme_ids):
     """Tous les mouvements d'argent des fermes, du plus récent au plus ancien. Chaque mouvement
     porte ses parts par bande ({bande_id: montant})."""
     resultat = []
+    lues = {}
+
+    def bandes_de(ferme_id):                                     # une lecture par ferme (lot J)
+        if ferme_id not in lues:
+            lues[ferme_id] = Bande.query.filter(Bande.ferme_id == ferme_id).all()
+        return lues[ferme_id]
     for s in _ventes(ferme_ids):
         resultat.append({'genre': 'vente', 'objet': s, 'date': s.date, 'ferme_id': s.bande.ferme_id,
                          'ico': '🏭' if s.motif == MotifSortie.ABATTOIR else '🚚',
@@ -120,14 +128,14 @@ def mouvements(ferme_ids):
                          'a_verifier': False, 'parts': {v.bande_id: v.montant_fcfa} if v.montant_fcfa else {}})
     for a in _achats(ferme_ids):
         l = a.lignes[0]
-        parts = _parts_achat(a, a.prix_paye_fcfa) if a.prix_paye_fcfa else {}
+        parts = _parts_achat(a, a.prix_paye_fcfa, bandes_de(a.ferme_id)) if a.prix_paye_fcfa else {}
         resultat.append({'genre': 'achat', 'objet': a, 'date': a.date_livraison, 'ferme_id': a.ferme_id,
                          'ico': '🛒', 'texte': f'{l.produit.nom}' + (f' · {a.batiment.code}' if a.batiment else ''),
                          'montant': a.prix_paye_fcfa, 'signe': -1, 'a_completer': False,
                          'agent': a.confirmee_par_agent,
                          'parts': {b.id: m for b, m in parts.items()}})
     for d in _depenses(ferme_ids):
-        parts = repartir(d.montant_fcfa, d.ferme_id, d.date, d.batiment_id)
+        parts = repartir(d.montant_fcfa, d.ferme_id, d.date, d.batiment_id, bandes_de(d.ferme_id))
         resultat.append({'genre': 'depense', 'objet': d, 'date': d.date, 'ferme_id': d.ferme_id, 'ico': d.icone,
                          'texte': d.libelle + (f' · {d.batiment.code}' if d.batiment else
                                                (' · partagée' if len(parts) > 1 else '')),

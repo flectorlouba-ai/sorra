@@ -75,8 +75,9 @@ def tableau_de_bord(user):
         pid = next(iter(provinces)) if len(provinces) == 1 else None
     carte = pilotage.carte(lecteur or user, pid, largeur=640, hauteur=460, details=True) if fermes else None
     alertes, synthese = [], []
+    en_cours = pilotage.bandes_en_cours_par_ferme(fermes)                      # lot J : une lecture pour toutes les fermes
     for f in fermes:
-        infos = pilotage.infos_ferme(f, production)
+        infos = pilotage.infos_ferme(f, production, en_cours.get(f.id))
         raisons = raisons_alerte(f, infos, user)
         pire = infos['couleurs']['feu']
         if raisons:

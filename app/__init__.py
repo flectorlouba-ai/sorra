@@ -131,12 +131,13 @@ def create_app(env='default'):
     app.register_blueprint(journal_bp,       url_prefix='/journal')
 
     # ── CLI ──
-    from app.commandes import init_performyl2, rapports_mensuels, demo_exporter, demo_charger, notifications_envoyer
+    from app.commandes import init_performyl2, rapports_mensuels, demo_exporter, demo_charger, notifications_envoyer, demo_jeu_complet
     app.cli.add_command(init_performyl2)
     app.cli.add_command(rapports_mensuels)
     app.cli.add_command(demo_exporter)
     app.cli.add_command(demo_charger)
     app.cli.add_command(notifications_envoyer)
+    app.cli.add_command(demo_jeu_complet)
 
     # ── Globals et filtres Jinja2 ──
     from app.utils.permissions import a_profil

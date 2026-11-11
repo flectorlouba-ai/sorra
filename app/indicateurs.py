@@ -593,26 +593,45 @@ def _dans(d, semaine):
     return semaine[0] <= d <= semaine[1]
 
 
+def _semaine_de(d, sem):
+    """Rang de la semaine (dans `sem`, semaines consécutives) qui contient `d`, ou None."""
+    i = (d - sem[0][0]).days // 7
+    return i if 0 <= i < len(sem) else None
+
+
 def serie_mortalite_hebdo(bandes, sem=None):
-    """% de morts de la semaine sur l'effectif présent au début de la semaine ; None sans aucune saisie la semaine."""
+    """% de morts de la semaine sur l'effectif présent au début de la semaine ; None sans aucune saisie la semaine.
+    Un seul passage sur les saisies de chaque bande (et non un par semaine) : mêmes chiffres, beaucoup plus vite."""
+    from bisect import bisect_left
     sem = sem or semaines()
-    serie = []
-    for s in sem:
-        morts = effectif = 0
-        saisie = False
-        for b in bandes:
+    n = len(sem)
+    morts, effectif, saisie = [0] * n, [0] * n, [False] * n
+    for b in bandes:
+        saisies = sorted(b.saisies, key=lambda x: x.date)
+        dates = [x.date for x in saisies]
+        cumul = [0]
+        for x in saisies:
+            cumul.append(cumul[-1] + x.morts)
+        sorties = sorted(b.sorties_comptees, key=lambda o: o.date)
+        dates_sorties = [o.date for o in sorties]
+        cumul_sorties = [0]
+        for o in sorties:
+            cumul_sorties.append(cumul_sorties[-1] + o.nombre)
+        par_semaine = {}
+        for x in saisies:
+            i = _semaine_de(x.date, sem)
+            if i is not None:
+                par_semaine[i] = par_semaine.get(i, 0) + x.morts
+        for i, m in par_semaine.items():
+            s = sem[i]
             if b.date_mise_en_place > s[1] or (b.date_cloture and b.date_cloture < s[0]):
                 continue
-            du_jour = [x for x in b.saisies if _dans(x.date, s)]
-            if not du_jour:
-                continue
-            saisie = True
-            morts += sum(x.morts for x in du_jour)
-            avant = [x for x in b.saisies if x.date < s[0]]
-            sortis = sum(o.nombre for o in b.sorties_comptees if o.date < s[0])
-            effectif += b.effectif_initial - b.morts_avant_suivi - sum(x.morts for x in avant) - sortis
-        serie.append(morts * 100 / effectif if saisie and effectif > 0 else None)
-    return serie
+            saisie[i] = True
+            morts[i] += m
+            avant = cumul[bisect_left(dates, s[0])]
+            sortis = cumul_sorties[bisect_left(dates_sorties, s[0])]
+            effectif[i] += b.effectif_initial - b.morts_avant_suivi - avant - sortis
+    return [morts[i] * 100 / effectif[i] if saisie[i] and effectif[i] > 0 else None for i in range(n)]
 
 
 def serie_poids_hebdo(bandes, sem=None):
@@ -628,19 +647,25 @@ def serie_poids_hebdo(bandes, sem=None):
 
 def serie_regularite_hebdo(bandes, sem=None):
     """% de jours saisis sur les jours attendus (bandes en cours) dans la semaine ; None sans jour attendu."""
+    from bisect import bisect_left, bisect_right
     sem = sem or semaines()
-    serie = []
-    for s in sem:
-        attendus = saisis = 0
-        for b in bandes:
-            debut, fin = max(s[0], debut_suivi(b)), min(s[1], b.date_cloture or date.today(), date.today())
+    n = len(sem)
+    attendus, saisis = [0] * n, [0] * n
+    auj = date.today()
+    for b in bandes:
+        suivi, cloture = debut_suivi(b), b.date_cloture or auj
+        jours_saisis = sorted({x.date for x in b.saisies})
+        premiere = _semaine_de(suivi, sem)
+        for i in range(premiere if premiere is not None else (0 if suivi < sem[0][0] else n), n):
+            s = sem[i]
+            debut, fin = max(s[0], suivi), min(s[1], cloture, auj)
             if fin < debut:
+                if s[0] > cloture:
+                    break
                 continue
-            jours = (fin - debut).days + 1
-            attendus += jours
-            saisis += len({x.date for x in b.saisies if debut <= x.date <= fin})
-        serie.append(saisis * 100 / attendus if attendus else None)
-    return serie
+            attendus[i] += (fin - debut).days + 1
+            saisis[i] += bisect_right(jours_saisis, fin) - bisect_left(jours_saisis, debut)
+    return [saisis[i] * 100 / attendus[i] if attendus[i] else None for i in range(n)]
 
 
 def serie_somme_hebdo(elements, sem=None):
@@ -685,15 +710,15 @@ def serie_production_hebdo(bandes, sem=None):
 def serie_fermes_actives_hebdo(bandes, sem=None):
     """Nombre d'élevages ayant au moins une saisie dans la semaine ; None avant la première saisie."""
     sem = sem or semaines()
-    toutes = [x.date for b in bandes for x in b.saisies]
-    debut = min(toutes) if toutes else None
-    serie = []
-    for s in sem:
-        if debut is None or s[1] < debut:
-            serie.append(None)
-        else:
-            serie.append(len({b.ferme_id for b in bandes for x in b.saisies if _dans(x.date, s)}))
-    return serie
+    debut = None
+    fermes = [set() for _ in sem]
+    for b in bandes:
+        for x in b.saisies:
+            debut = x.date if debut is None or x.date < debut else debut
+            i = _semaine_de(x.date, sem)
+            if i is not None:
+                fermes[i].add(b.ferme_id)
+    return [None if debut is None or s[1] < debut else len(fermes[i]) for i, s in enumerate(sem)]
 
 
 def participation(fermes, jour=None):

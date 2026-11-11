@@ -35,9 +35,13 @@ def _nombre(v, n=0, unite=''):
 
 
 def _bandes(user, depuis_jours=365):
+    """Bandes en cours ou clôturées depuis un an, dans le périmètre — en version légère (lot J : mêmes chiffres, sans le
+    coût de l'ORM sur des milliers de bandes)."""
+    from app.services import bandes_legeres
     debut = date.today() - timedelta(days=depuis_jours)
-    return (filtre_perimetre(Bande.query, utilisateur=user)
-            .filter(db.or_(Bande.date_cloture.is_(None), Bande.date_cloture >= debut)).all())
+    return bandes_legeres.charger(filtre_perimetre(Bande.query, utilisateur=user)
+                                  .filter(db.or_(Bande.date_cloture.is_(None), Bande.date_cloture >= debut))
+                                  .order_by(Bande.date_mise_en_place))
 
 
 def _fermes(user):
@@ -283,7 +287,9 @@ def maedr_(user):
     from app.services import maedr
     from app.models.bande import Bande
     lignes = maedr.agregats_maedr()
-    bandes = Bande.query.filter(db.or_(Bande.date_cloture.is_(None), Bande.date_cloture >= date.today() - timedelta(days=365))).all()
+    from app.services import bandes_legeres
+    bandes = bandes_legeres.charger(Bande.query.filter(db.or_(Bande.date_cloture.is_(None), Bande.date_cloture >= date.today() - timedelta(days=365)))
+                                    .order_by(Bande.date_mise_en_place))
     mv = ind.mortalite_viabilite([b for b in bandes if b.statut == StatutBande.EN_COURS])
     prod = sum(l['production'] or 0 for l in lignes)
     cible = sum(l['cible'] or 0 for l in lignes)

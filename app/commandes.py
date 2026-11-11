@@ -97,6 +97,28 @@ def demo_exporter(fichier):
     click.echo(f'{sum(len(v) for v in donnees["tables"].values())} lignes exportées dans {fichier}.')
 
 
+@click.command('demo-jeu-complet')
+@click.option('--adresse', default='', help="Adresse publique des QR codes (ex. https://sorra.performyl.com)")
+@with_appcontext
+def demo_jeu_complet(adresse):
+    """Lot J : jeu de données complet de la DÉMONSTRATION (150 élevages, 12 mois), dans une base NEUVE.
+    Refusé hors démonstration (YL2_DEMO=1) et sur une base qui contient déjà des comptes ou des élevages."""
+    from flask import current_app
+    from app.services import demo_jeu
+    if not current_app.config.get('DEMO'):
+        raise click.ClickException('Refusé : YL2_DEMO=1 est obligatoire (jamais sur une base réelle).')
+    mdp = current_app.config.get('DEMO_MOT_DE_PASSE')
+    if not mdp:
+        raise click.ClickException('Refusé : DEMO_MOT_DE_PASSE (mot de passe public des comptes de démonstration) manque.')
+    try:
+        volumes = demo_jeu.generer(mdp, adresse or None)
+        db.session.commit()
+    except demo_jeu.RegleJeu as e:
+        db.session.rollback()
+        raise click.ClickException(str(e))
+    click.echo('Jeu de démonstration créé : ' + ', '.join(f'{k} {v}' for k, v in sorted(volumes.items())))
+
+
 @click.command('demo-charger')
 @click.option('--fichier', default=DONNEES_DEMO, show_default=True)
 @click.option('--adresse', default='', help="Adresse publique des QR codes (ex. https://sorra.performyl.com)")

@@ -148,12 +148,15 @@ def alertes_arrivee_recentes(user, jours=30):
 
 # ── Carte des fermes ────────────────────────────────────────────────────
 
-def feu_de_la_ferme(ferme):
-    """Le feu le plus grave des bandes en cours de la ferme ; gris sans bande."""
+def feu_de_la_ferme(ferme, bandes=None, valeurs=None):
+    """Le feu le plus grave des bandes en cours de la ferme ; gris sans bande. `bandes` / `valeurs` : déjà calculées
+    par l'appelant (infos_ferme), pour ne pas tout recalculer."""
     ordre = {'rouge': 3, 'orange': 2, 'vert': 1, 'gris': 0}
     pire = 'gris'
-    for b in Bande.query.filter_by(ferme_id=ferme.id, statut=StatutBande.EN_COURS):
-        c = indicateurs.feu(b)[0]
+    if bandes is None:
+        bandes = Bande.query.filter_by(ferme_id=ferme.id, statut=StatutBande.EN_COURS).all()
+    for k, b in enumerate(bandes):
+        c = indicateurs.feu(b, valeurs=valeurs[k] if valeurs else None)[0]
         if ordre[c] > ordre[pire]:
             pire = c
     return pire
@@ -163,9 +166,23 @@ INDICATEURS_CARTE = {'feu': 'Alertes (feu des bandes)', 'mortalite': 'Mortalité
                      'atteinte': 'Atteinte de la cible'}
 
 
-def infos_ferme(ferme, production=None):
-    """Lot E : ce que montre l'infobulle d'une ferme sur la carte, et sa couleur pour chaque indicateur."""
-    bandes = Bande.query.filter_by(ferme_id=ferme.id, statut=StatutBande.EN_COURS).all()
+def bandes_en_cours_par_ferme(fermes):
+    """{ferme_id: [bandes en cours]} en une lecture (bandes légères, lot J) — pour infos_ferme sur beaucoup de fermes."""
+    from app.services import bandes_legeres
+    ids = [f.id for f in fermes]
+    par_ferme = {i: [] for i in ids}
+    if ids:
+        for b in bandes_legeres.charger(Bande.query.filter(Bande.ferme_id.in_(ids), Bande.statut == StatutBande.EN_COURS)
+                                        .order_by(Bande.date_mise_en_place)):
+            par_ferme[b.ferme_id].append(b)
+    return par_ferme
+
+
+def infos_ferme(ferme, production=None, bandes=None):
+    """Lot E : ce que montre l'infobulle d'une ferme sur la carte, et sa couleur pour chaque indicateur.
+    `bandes` : ses bandes en cours déjà chargées (bandes_en_cours_par_ferme), sinon lues ici."""
+    if bandes is None:
+        bandes = Bande.query.filter_by(ferme_id=ferme.id, statut=StatutBande.EN_COURS).all()
     valeurs = [indicateurs.calculer(b) for b in bandes]
     effectif = sum(v['effectif_present'] for v in valeurs)
     mis, morts = sum(v['mis_en_place'] for v in valeurs), sum(v['morts_cumules'] for v in valeurs)
@@ -174,7 +191,7 @@ def infos_ferme(ferme, production=None):
     regularite = sum(v['jours_saisis'] for v in valeurs) * 100 / jours if jours else None
     derniere = max((s.date for b in bandes for s in b.saisies), default=None)
     pr = (production or {}).get(ferme.id) or {}
-    feu = feu_de_la_ferme(ferme)
+    feu = feu_de_la_ferme(ferme, bandes, valeurs)
     couleurs = {
         'feu': feu,
         'mortalite': 'gris' if mortalite is None else 'vert' if mortalite < 3 else 'orange' if mortalite <= 5 else 'rouge',
@@ -217,13 +234,14 @@ def carte(user, province_id=None, largeur=640, hauteur=560, marge=12, programme=
         formes.append({'province': provinces[c], 'chemins': chemins})
     points = []
     production = indicateurs.production_fermes(fermes) if details else None
+    en_cours = bandes_en_cours_par_ferme(fermes) if details else {}
     from app.services import positions
     for fe in fermes:
         x, y = proj(fe.longitude, fe.latitude)
         if -20 <= x <= largeur + 20 and -20 <= y <= hauteur + 20:
             point = {'ferme': fe, 'x': x, 'y': y}
             if details:                                     # lot E : infobulle et indicateur au choix
-                point['infos'] = infos_ferme(fe, production)
+                point['infos'] = infos_ferme(fe, production, en_cours.get(fe.id))
                 point['feu'] = point['infos']['couleurs'].get(indicateur, point['infos']['couleurs']['feu'])
                 point['approximative'] = positions.approximative(fe)
             else:

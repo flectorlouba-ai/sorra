@@ -205,7 +205,9 @@ def dge_accueil(user):
         actives = sum(1 for f in fs if f.statut == 'Opérationnelle')
         part = ind.participation(fs)
         mv = ind.mortalite_viabilite(bandes)
-        sorties = sum(len(b.sorties) for b in Bande.query.filter(Bande.ferme_id.in_(ids)))
+        from app.models.bande import Sortie as _Sortie                 # compté en base (sans charger les bandes)
+        sorties = (db.session.query(db.func.count(_Sortie.id)).join(Bande, _Sortie.bande_id == Bande.id)
+                   .filter(Bande.ferme_id.in_(ids), _Sortie.archive_le.is_(None)).scalar())
         try:
             from app.models.bande import Sortie
             lots = (db.session.query(LotTrace).join(Sortie, LotTrace.sortie_id == Sortie.id).join(Bande, Sortie.bande_id == Bande.id)
@@ -226,7 +228,9 @@ def dge_elevages(user, fermes=None, details=None, production=None):
     from app.services import pilotage, fermes as regles_fermes
     fermes = fermes if fermes is not None else filtre_perimetre(Ferme.query).order_by(Ferme.numero_metier).all()
     production = production if production is not None else ind.production_fermes(fermes)
-    details = details if details is not None else {f.id: pilotage.infos_ferme(f, production) for f in fermes}
+    if details is None:
+        en_cours = pilotage.bandes_en_cours_par_ferme(fermes)
+        details = {f.id: pilotage.infos_ferme(f, production, en_cours.get(f.id)) for f in fermes}
     from app.models.bande import Bande, StatutBande
     lignes = []
     for f in fermes:

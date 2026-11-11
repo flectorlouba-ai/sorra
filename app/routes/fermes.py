@@ -91,7 +91,8 @@ def liste():
         provinces = [p for p in Province.query.order_by(Province.ordre) if p.id in ids]
     production = indicateurs.production_fermes(fermes)
     from app.services import pilotage
-    details = {f.id: pilotage.infos_ferme(f, production) for f in fermes}     # lot R : colonnes de la maquette
+    en_cours = pilotage.bandes_en_cours_par_ferme(fermes)                    # lot J : une lecture pour toutes
+    details = {f.id: pilotage.infos_ferme(f, production, en_cours.get(f.id)) for f in fermes}     # lot R : colonnes de la maquette
     from app.services import conformite                                          # lot K : tableau du cahier
     cle = 'AGENT-2' if current_user.profil == Profil.AGENT else 'DGE-2'
     conforme = None
