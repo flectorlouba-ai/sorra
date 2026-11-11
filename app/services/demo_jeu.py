@@ -924,7 +924,7 @@ def _present(jeu, u, p, ops):
             livre = s['etat'] + s['achat']
             db.session.add(InventaireStock(ferme_id=f.id, produit_id=s['produit'].id, jour=jeu.auj - timedelta(days=k),
                                            livre=livre, utilise=livre - s['stock'], compte=max(0, compte),
-                                           agent_id=f.agent_id, externe=False))
+                                           agent_id=f.agent_id, externe=0))
     db.session.flush()
 
     # Arbitrages : doublon de sortie sur EST-011 (en attente depuis 49 h) ; deux journées saisies deux fois
