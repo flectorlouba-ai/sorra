@@ -81,3 +81,16 @@ def test_scripts_de_deploiement_et_sauvegarde():
     s = open('deploiement/demo/performyl2-demo-sauvegarde.sh', encoding='utf-8').read()
     assert 'gpg' in s and 'recipient-file' in s and 'DISTANT' in s and 'rm -f "${FICHIER}"' in s
     assert 'lot S' in open('docs/securite.md', encoding='utf-8').read()
+
+
+def test_deconnexion_jamais_method_not_allowed(client):
+    """Session expirée puis clic sur « Se déconnecter » : la page demandée après la connexion n'est jamais une action
+    (405) ; un GET sur /auth/deconnexion ramène à la connexion (ou à l'accueil) sans déconnecter."""
+    from tests.conftest import creer_utilisateur, MDP
+    from app.models import Profil
+    creer_utilisateur('dge', Profil.DGE)
+    assert client.get('/auth/deconnexion').status_code == 302
+    r = client.post('/auth/connexion?next=%2Fauth%2Fdeconnexion', data={'identifiant': 'dge', 'mot_de_passe': MDP})
+    assert r.status_code == 302 and r.location.endswith('/') and 'deconnexion' not in r.location
+    r = client.get('/auth/deconnexion')
+    assert r.status_code == 302 and client.get('/').status_code == 200          # toujours connecté

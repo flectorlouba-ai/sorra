@@ -100,6 +100,19 @@ def connexion():
     return render_template('auth/connexion.html', erreur=erreur)
 
 
+def _page_ouvrable(chemin):
+    """La page demandée avant la connexion s'ouvre en GET (jamais une action comme /auth/deconnexion)."""
+    from flask import current_app
+    from werkzeug.exceptions import HTTPException
+    try:
+        point, _ = current_app.url_map.bind('').match(chemin.split('?', 1)[0], method='GET')
+        return point != 'auth.deconnexion'
+    except HTTPException:
+        return False
+    except Exception:
+        return False
+
+
 def _ouvrir_session(user, next_page=''):
     session.clear()
     login_user(user)
@@ -114,7 +127,7 @@ def _ouvrir_session(user, next_page=''):
     db.session.commit()
     if user.doit_changer_mdp:
         return redirect(url_for('auth.mot_de_passe'))
-    if next_page and next_page.startswith('/') and not next_page.startswith('//'):
+    if next_page and next_page.startswith('/') and not next_page.startswith('//') and _page_ouvrable(next_page):
         return redirect(next_page)
     return redirect(url_for('accueil.index'))
 
@@ -230,9 +243,12 @@ def _debloquer(user, motif):
                 detail=f'Compte « {user.identifiant} » débloqué : {motif}')
 
 
-@auth_bp.route('/deconnexion', methods=['POST'])
-@login_required
+@auth_bp.route('/deconnexion', methods=['GET', 'POST'])
 def deconnexion():
+    # Lot S : la déconnexion reste un POST (jeton CSRF). Un GET (lien ancien, session déjà expirée…) ne déconnecte pas :
+    # il ramène simplement à l'accueil ou à l'écran de connexion, au lieu d'une erreur « Method Not Allowed ».
+    if request.method == 'GET' or not current_user.is_authenticated:
+        return redirect(url_for('accueil.index') if current_user.is_authenticated else url_for('auth.connexion'))
     securite.fermer(session.get('sid'), current_user, 'Déconnexion')
     enregistrer(Action.DECONNEXION)
     db.session.commit()

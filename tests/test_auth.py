@@ -58,7 +58,8 @@ def test_changement_mdp_controles(client, admin):
 
 
 def test_deconnexion_en_post_seulement(client_admin):
-    assert client_admin.get('/auth/deconnexion').status_code == 405
+    r = client_admin.get('/auth/deconnexion')                  # GET : ne déconnecte pas (pas de jeton CSRF), ramène à l'accueil
+    assert r.status_code == 302 and client_admin.get('/').status_code == 200
     r = client_admin.post('/auth/deconnexion')
     assert r.location.endswith('/auth/connexion')
     assert client_admin.get('/').status_code == 302
