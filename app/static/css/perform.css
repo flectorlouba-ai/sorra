@@ -1222,3 +1222,15 @@ body.en-chargement{cursor:progress;}
 @media (prefers-reduced-motion:reduce){body.en-chargement .barre-chargement{animation:none;width:60%;}}
 
 .calcule-le{font-size:11px;color:var(--gris8);margin:-6px 0 12px;}
+/* Tuiles d'indicateurs en couleurs : un accent par tuile (trait du haut, fond teinté, libellé), l'état l'emporte */
+.pastilles-indic{grid-template-columns:repeat(auto-fit,minmax(170px,1fr));}
+.pastilles-indic .pi{--acc:var(--b500);border:1px solid color-mix(in srgb,var(--acc) 25%,var(--blanc));border-top:4px solid var(--acc);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--acc) 10%,var(--blanc)) 0%,var(--blanc) 85%);}
+.pastilles-indic .pi:nth-child(6n+2){--acc:var(--rouge-vif);}
+.pastilles-indic .pi:nth-child(6n+3){--acc:var(--vert);}
+.pastilles-indic .pi:nth-child(6n+4){--acc:var(--ambre-vif);}
+.pastilles-indic .pi:nth-child(6n+5){--acc:var(--b-acier);}
+.pastilles-indic .pi:nth-child(6n+6){--acc:var(--b400);}
+.pastilles-indic .pi b{white-space:nowrap;font-size:18px;color:color-mix(in srgb,var(--acc) 55%,var(--noir));}
+.pastilles-indic .pi>span{color:color-mix(in srgb,var(--acc) 70%,var(--noir));}
+.pastilles-indic .pi.pi-alerte{--acc:var(--v-rouge);} .pastilles-indic .pi.pi-surveiller{--acc:var(--ambre-vif);} .pastilles-indic .pi.pi-ok{--acc:var(--v-vert);}
