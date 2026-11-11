@@ -28,7 +28,8 @@ echo "== Base recréée vide"
 runuser -u postgres -- dropdb --if-exists "$BASE"
 runuser -u postgres -- createdb -O "$ROLE" "$BASE"
 cd "$APP"
-lancer() { runuser -u performyl2-demo -- env $(grep -v '^#' .env | xargs) venv/bin/flask --app performyl2 "$@"; }
+# Le .env est lu dans l'environnement (jamais en arguments : ils seraient visibles par « ps » sur le serveur)
+lancer() { ( set -a; . ./.env; set +a; export HOME=/tmp; exec runuser -p -u performyl2-demo -- venv/bin/flask --app performyl2 "$@" ); }
 echo "== Migrations"
 lancer db upgrade
 rm -rf "$APP/instance/rapports" "$APP/instance/televersements/sante"/demo_*.png

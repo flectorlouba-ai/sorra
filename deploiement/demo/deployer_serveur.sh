@@ -29,7 +29,8 @@ CODE_CHANGE=0
 
 titre() { printf '\n== %s\n' "$*"; }
 echec() { echo "ÉCHEC ($ETAPE) : $*"; retour_arriere; exit 1; }
-lancer() { runuser -u performyl2-demo -- env HOME=/tmp $(grep -v '^#' "$APP/.env" | xargs) "$@"; }
+# Le .env est lu dans l'environnement (jamais en arguments : ils seraient visibles par « ps » sur le serveur)
+lancer() { ( set -a; . "$APP/.env"; set +a; export HOME=/tmp; exec runuser -p -u performyl2-demo -- "$@" ); }
 
 # ── a) Autres applications ─────────────────────────────────────────────
 AUTRES="http://127.0.0.1:5010/ http://127.0.0.1:5011/ http://127.0.0.1:5020/ https://performyl.com/ https://www.performyl.com/ http://performyl.com/ https://recette.performyl.com/"
@@ -120,10 +121,9 @@ runuser -u postgres -- createdb -O performyl2_demo "$ESSAI"
 runuser -u postgres -- pg_restore --no-owner --role=performyl2_demo -d "$ESSAI" < "$SAUVE/base.dump"
 URL_ESSAI=$(grep '^DATABASE_URL=' "$APP/.env" | cut -d= -f2- | sed "s#/$BASE\$#/$ESSAI#")
 cd "$APP"
-runuser -u performyl2-demo -- env HOME=/tmp $(grep -v '^#' .env | grep -v '^DATABASE_URL=' | xargs) DATABASE_URL="$URL_ESSAI" \
-  venv/bin/flask --app performyl2 db upgrade 2>&1 | tail -1
-runuser -u performyl2-demo -- env HOME=/tmp $(grep -v '^#' .env | grep -v '^DATABASE_URL=' | xargs) DATABASE_URL="$URL_ESSAI" \
-  venv/bin/flask --app performyl2 db check 2>&1 | tail -1
+( set -a; . ./.env; set +a; export DATABASE_URL="$URL_ESSAI" HOME=/tmp
+  runuser -p -u performyl2-demo -- venv/bin/flask --app performyl2 db upgrade 2>&1 | tail -1
+  runuser -p -u performyl2-demo -- venv/bin/flask --app performyl2 db check 2>&1 | tail -1 )
 runuser -u postgres -- dropdb "$ESSAI"
 echo "  copie temporaire : migrations OK, supprimée"
 titre "d) Migrations sur la base de démo"
