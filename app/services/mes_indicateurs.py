@@ -116,8 +116,7 @@ def agent(user):
                                            f'{sum(1 for d in prevues if d >= debut_mois and d.month == debut_mois.month)}', 'ce mois'),
         _carte('Alertes ouvertes', str(alertes), alerte=alertes > 0),
         _carte('Écarts à arbitrer', str(ecarts), alerte=ecarts > 0),
-        _carte('Mes actions en retard', str(retard), alerte=retard > 0),
-        _carte('Mes fermes', str(len(fermes)))], 'courbes': [
+        _carte('Mes actions en retard', str(retard), alerte=retard > 0)], 'courbes': [
         _courbe('Mortalité de mes fermes (%)', '% par semaine', ind.serie_mortalite_hebdo(bandes), 'rouge', 2),
         _courbe('Régularité des saisies (%)', '% des jours', serie_reg, 'bleu', 0),
         _courbe('Visites par semaine', 'visites', ind.serie_compte_hebdo(faites, debut=min(prevues + faites) if (prevues + faites) else None), 'vert', 0)]}
@@ -195,8 +194,7 @@ def dge(user):
         _carte('Élevages actifs', f'{sum(1 for f in fermes if f.statut == "Opérationnelle")} / {len(fermes)}', 'opérationnels / enrôlés'),
         _carte('Provinces ≥ 80 %', f'{provinces_80} / {len(par_province)}', 'de la cible'),
         _carte('Écarts sur intrants', '—' if ecarts is None else str(ecarts)),
-        _carte('Traçabilité', _pct(100 * lots / sorties, 0) if sorties else '—', f'{lots} lot(s) avec QR sur {sorties} sortie(s)'),
-        _carte('Équivalent carcasse', _nombre(p['carcasse'], 1, ' t'))], 'courbes': [
+        _carte('Traçabilité', _pct(100 * lots / sorties, 0) if sorties else '—', f'{lots} lot(s) avec QR sur {sorties} sortie(s)')], 'courbes': [
         _courbe('Production hebdomadaire (t)', 't par semaine', ind.serie_production_hebdo(bandes), 'bleu', 2),
         _courbe('Mortalité nationale (%)', '% par semaine', ind.serie_mortalite_hebdo(bandes), 'rouge', 2),
         _courbe('Élevages actifs', 'avec au moins une saisie', ind.serie_fermes_actives_hebdo(bandes), 'vert', 0)]}
