@@ -1234,3 +1234,9 @@ body.en-chargement{cursor:progress;}
 .pastilles-indic .pi b{white-space:nowrap;font-size:18px;color:color-mix(in srgb,var(--acc) 55%,var(--noir));}
 .pastilles-indic .pi>span{color:color-mix(in srgb,var(--acc) 70%,var(--noir));}
 .pastilles-indic .pi.pi-alerte{--acc:var(--v-rouge);} .pastilles-indic .pi.pi-surveiller{--acc:var(--ambre-vif);} .pastilles-indic .pi.pi-ok{--acc:var(--v-vert);}
+/* Tuiles d'indicateurs : toutes sur une seule ligne (sur téléphone, elles passent à la ligne) */
+.pastilles-indic{display:flex;flex-wrap:nowrap;gap:8px;}
+.pastilles-indic .pi{flex:1 1 auto;min-width:0;padding:10px 12px;min-height:88px;}
+.pastilles-indic .pi b{font-size:clamp(14px,1.35vw,18px);}
+.pastilles-indic .pi small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+@media (max-width:900px){.pastilles-indic{flex-wrap:wrap;} .pastilles-indic .pi{flex:1 1 150px;}}
