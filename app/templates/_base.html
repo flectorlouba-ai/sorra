@@ -145,6 +145,27 @@
   </div>
 </div>
 
+<div class="barre-chargement" aria-hidden="true"></div>
+<script>
+// Retour immédiat au clic : une barre fine en haut de l'écran pendant le chargement de la page suivante
+(function () {
+  var minuteur;
+  function charge() {                       // téléchargement (PDF, Excel) : la page reste, la barre s'efface seule
+    document.body.classList.add('en-chargement');
+    clearTimeout(minuteur); minuteur = setTimeout(function () { document.body.classList.remove('en-chargement'); }, 8000);
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[href]');
+    if (!a || e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) === '#' || a.target === '_blank' || a.hasAttribute('download') || /^(mailto|tel|javascript):/.test(h)) return;
+    if (a.origin && a.origin !== location.origin) return;
+    setTimeout(function () { if (!e.defaultPrevented) charge(); }, 0);
+  });
+  document.addEventListener('submit', function (e) { setTimeout(function () { if (!e.defaultPrevented) charge(); }, 0); });
+  window.addEventListener('pageshow', function () { document.body.classList.remove('en-chargement'); });
+})();
+</script>
 <script src="{{ url_for('static', filename='vendor/bootstrap-5.3.3/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/fenetre.js') }}"></script>
 {% if bureau %}<script src="{{ url_for('static', filename='js/tableaux.js') }}"></script>{% endif %}
