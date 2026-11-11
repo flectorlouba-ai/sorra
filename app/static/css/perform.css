@@ -1220,3 +1220,5 @@ body.en-chargement .barre-chargement{opacity:1;animation:barre-chargement 2.5s e
 body.en-chargement{cursor:progress;}
 @keyframes barre-chargement{0%{width:0}30%{width:45%}70%{width:78%}100%{width:92%}}
 @media (prefers-reduced-motion:reduce){body.en-chargement .barre-chargement{animation:none;width:60%;}}
+
+.calcule-le{font-size:11px;color:var(--gris8);margin:-6px 0 12px;}

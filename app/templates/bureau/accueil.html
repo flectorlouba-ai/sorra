@@ -11,6 +11,7 @@
 {% block contenu %}
 {# Lot R : tableau de bord de chaque profil. Cartes (lot C) → carte + alertes → 3 courbes (lot C) → synthèse. #}
 {{ pastilles_indicateurs(d.cartes, vide='Indicateurs : aucun pour ce profil') }}
+{% if d.calcule_le %}<div class="calcule-le" data-calcule-le>Chiffres calculés à {{ d.calcule_le|date_locale('%H h %M') }} · mis à jour toutes les 5 minutes</div>{% endif %}
 
 <div class="dash">
   {{ carte_perimetre(d.carte, d.fermes|length) }}

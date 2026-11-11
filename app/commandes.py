@@ -119,6 +119,27 @@ def demo_jeu_complet(adresse):
     click.echo('Jeu de démonstration créé : ' + ', '.join(f'{k} {v}' for k, v in sorted(volumes.items())))
 
 
+@click.command('accueil-recalculer')
+@with_appcontext
+def accueil_recalculer():
+    """Recalcule les chiffres gardés en mémoire des accueils nationaux (DGE, MAEDR, ADMIN, AUDITEUR). Toutes les 4 min."""
+    import time
+    from flask import current_app
+    from flask_login import login_user
+    from app.routes.bureau import recalculer_memoire
+    from app.services import memoire
+    for profil in memoire.PROFILS:
+        user = Utilisateur.query.filter_by(profil=Profil(profil), actif=True).order_by(Utilisateur.identifiant).first()
+        if user is None:
+            continue
+        debut = time.perf_counter()
+        with current_app.test_request_context('/'):
+            login_user(user)
+            recalculer_memoire(user)
+        db.session.rollback()
+        click.echo(f'{profil} : {time.perf_counter() - debut:.1f} s')
+
+
 @click.command('demo-charger')
 @click.option('--fichier', default=DONNEES_DEMO, show_default=True)
 @click.option('--adresse', default='', help="Adresse publique des QR codes (ex. https://sorra.performyl.com)")

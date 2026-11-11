@@ -67,7 +67,8 @@ def tableau_de_bord(user):
     # Lot K : l'auditeur voit la carte nationale (lecture seule, sans chiffre financier) ; son périmètre de données reste vide
     lecteur = Utilisateur.query.filter_by(profil=Profil.DGE, actif=True).first() if user.profil in (Profil.AUDITEUR, Profil.MAEDR) else None
     fermes = filtre_perimetre(Ferme.query, utilisateur=lecteur or user).order_by(Ferme.numero_metier).all()
-    d = mes_indicateurs.pour(user) or {'cartes': [], 'courbes': []}
+    from app.services import memoire                    # accueils nationaux : calculs lourds gardés quelques minutes
+    d, calcule_le = memoire.garder(user, 'indicateurs', lambda: mes_indicateurs.pour(user) or {'cartes': [], 'courbes': []})
     production = ind.production_fermes(fermes)
     pid = None
     if not user.est_national:
@@ -100,7 +101,7 @@ def tableau_de_bord(user):
     # Lot K : le tableau de l'accueil suit le cahier (DGE : situation par province ; vétérinaire : alertes ouvertes)
     conforme = None
     if user.profil == Profil.DGE:
-        conforme = ('DGE-1', conformite.spec('DGE', 1), conformite.dge_accueil(user))
+        conforme = ('DGE-1', conformite.spec('DGE', 1), memoire.garder(user, 'provinces', lambda: conformite.dge_accueil(user))[0])
     elif user.profil == Profil.VETO:
         conforme = ('VETO-1', conformite.spec('VETO', 1), conformite.veto_accueil(user))
     elif user.profil == Profil.ELEVEUR:
@@ -115,8 +116,20 @@ def tableau_de_bord(user):
         conforme = ('BCEG-1', conformite.SPEC_BCEG, conformite.bceg_fermes(user))
     elif user.profil == Profil.MAEDR:
         conforme = ('MAEDR-1', conformite.SPEC_MAEDR, conformite.maedr_provinces(user))
+    from datetime import datetime, timezone
     return {'cartes': d['cartes'], 'courbes': d['courbes'], 'carte': carte, 'alertes': alertes, 'synthese': synthese,
-            'fermes': fermes, 'mes_actions': mes_actions, 'conforme': conforme}
+            'fermes': fermes, 'mes_actions': mes_actions, 'conforme': conforme,
+            'calcule_le': datetime.fromtimestamp(calcule_le, timezone.utc) if calcule_le else None}
+
+
+def recalculer_memoire(user):
+    """Tâche planifiée (flask accueil-recalculer) : recalcule ce que l'accueil de ce profil garde en mémoire."""
+    from app.services import memoire
+    from app.routes.accueil import _alertes
+    memoire.garder(user, 'indicateurs', lambda: mes_indicateurs.pour(user) or {'cartes': [], 'courbes': []}, forcer=True)
+    if user.profil == Profil.DGE:
+        memoire.garder(user, 'provinces', lambda: conformite.dge_accueil(user), forcer=True)
+    memoire.garder(user, 'alertes', lambda: _alertes(user), forcer=True)
 
 
 @bureau_bp.route('/')

@@ -68,6 +68,7 @@ class ProductionConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
+    ACCUEIL_MEMOIRE_SECONDES = 0          # pas de mémoire des accueils : chaque test voit ses données tout de suite
     WTF_CSRF_ENABLED = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL', 'sqlite:///:memory:')
     TEMP_DIR = tempfile.gettempdir()

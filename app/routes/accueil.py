@@ -353,5 +353,7 @@ def index():
             return render_template('terrain/agent/accueil.html', a=ecrans.accueil_agent(current_user))
         return render_template('terrain/operateur/accueil.html', o=ecrans.accueil_operateur(current_user))
     from app.routes.bureau import tableau_de_bord                # lot R : tableau de bord de la version ordinateur
-    return render_template('bureau/accueil.html', d=tableau_de_bord(current_user), alertes=_alertes(current_user),
+    from app.services import memoire
+    return render_template('bureau/accueil.html', d=tableau_de_bord(current_user),
+                           alertes=memoire.garder(current_user, 'alertes', lambda: _alertes(current_user))[0],
                            financier=current_user.profil != Profil.VETO)
